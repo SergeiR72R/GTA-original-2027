@@ -50,7 +50,7 @@ const Shops = {
     for (const s of SHOPS) {
       const p = this.place(s);
       const d = dist(pl.x, pl.y, p.x, p.y);
-      if (d < 34 && this.inside !== s) { this.inside = s; this.open = s; this.sel = 0; Sound.play('door', 0.6); return; }
+      if (d < 34 && this.inside !== s) { this.inside = s; this.open = s; this.sel = 0; Sound.play('doorOpen', 0.6); return; }
       if (d > 70 && this.inside === s) this.inside = null;
     }
   },
@@ -58,9 +58,9 @@ const Shops = {
   // ввод, пока витрина открыта (мир на паузе)
   input(game) {
     const s = this.open;
-    if (game.hit('Escape', 'KeyF', 'Backspace')) { this.open = null; return; }
-    if (game.hit('ArrowUp', 'KeyW')) this.sel = (this.sel + s.items.length - 1) % s.items.length;
-    if (game.hit('ArrowDown', 'KeyS')) this.sel = (this.sel + 1) % s.items.length;
+    if (game.hit('Escape', 'KeyF', 'Backspace')) { this.open = null; Sound.play('doorClose', 0.5); return; }
+    if (game.hit('ArrowUp', 'KeyW')) { this.sel = (this.sel + s.items.length - 1) % s.items.length; Sound.play('uiSel', 0.4); }
+    if (game.hit('ArrowDown', 'KeyS')) { this.sel = (this.sel + 1) % s.items.length; Sound.play('uiSel', 0.4); }
     if (game.hit('Enter', 'Space')) this.buy(s.items[this.sel]);
     s.items.forEach((it, i) => { if (game.hit('Digit' + (i + 1))) { this.sel = i; this.buy(it); } });
   },
@@ -73,7 +73,8 @@ const Shops = {
     pl.money -= o.price;
     if (it.kind === 'armor') pl.armor = 100;
     else { pl.ammo[it.w] = (pl.ammo[it.w] || 0) + it.ammo; pl.weapon = it.w; }
-    Sound.play('pickup', 0.8);
+    Sound.play('coins', 0.8);
+    if (it.w) Sound.play('latch', 0.6);
     Game.message(`Куплено: ${o.label} (−${formatMoney(o.price)})`, 2.5);
     Game.save();
   },

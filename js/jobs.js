@@ -144,7 +144,7 @@ const Jobs = {
       this.rating.push(stars);
       this.deliveries++;
       Game.addMoney(30 + tip);
-      Sound.play('pickup', 0.7);
+      Sound.play('coins', 0.7); Sound.play('jJob', 0.5);
       Game.message(`«${pick(CUSTOMER_LINES)}»  +₪${30 + tip} ${'★'.repeat(stars)}`, 5);
       this.order = null;
       this.nextT = 1.5;
@@ -188,7 +188,7 @@ const Jobs = {
         this.rides++;
         this.rating.push(o.late ? 2 : 5);
         Game.addMoney(pay);
-        Sound.play('pickup', 0.7);
+        Sound.play('coins', 0.7); Sound.play('jJob', 0.5);
         Game.message(`Поездка оплачена: +₪${pay}`, 3);
         this.order = null;
       }

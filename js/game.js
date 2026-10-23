@@ -366,7 +366,7 @@ const Game = {
     best.siren = false;
     if (best.spot) { best.spot.car = null; best.spot = null; }
     pl.car = best;
-    Sound.play('door', 0.8);
+    Sound.play('doorClose', 0.8);
     Sound.setRadio(true);
     if (Sound.radioOn) this.message('📻 Хамсин FM — R: выключить радио', 3);
   },
@@ -386,7 +386,7 @@ const Game = {
     pl.car = null;
     Sound.setEngine(false, 0);
     Sound.setRadio(false);
-    if (!silent) Sound.play('door', 0.8);
+    if (!silent) Sound.play('doorOpen', 0.8);
   },
 
   playerHurt(n, why) {
@@ -409,7 +409,7 @@ const Game = {
     this.downKind = 'dead';
     Missions.onPlayerDown();
     HUD.bigText('ТЫ ПОГИБ', 'Больница «Ихилов» выставит счёт: ₪ 1 000', '#ff4040', 4);
-    Sound.play('fail', 1);
+    Sound.play('jDown', 0.9);
   },
 
   busted() {
@@ -422,7 +422,7 @@ const Game = {
     this.downKind = 'busted';
     Missions.onPlayerDown();
     HUD.bigText('АРЕСТОВАН', 'Залог: ₪ 1 500, оружие конфисковано', '#4fa3ff', 4);
-    Sound.play('fail', 1);
+    Sound.play('jDown', 0.9);
   },
 
   respawn() {
@@ -459,7 +459,7 @@ const Game = {
     const list = [null, ...WEAPON_ORDER].filter((w) => w === null || pl.ammo[w] > 0);
     const i = list.indexOf(pl.weapon);
     pl.weapon = list[(i + 1) % list.length];
-    Sound.play('weapon', 0.5);
+    Sound.play('latch', 0.5);
   },
 
   updatePlayer(dt) {
@@ -508,7 +508,7 @@ const Game = {
       pl.step(mx * sp * dt, my * sp * dt);
       pl.walkAnim += dt * 12;
       pl.stepT = (pl.stepT || 0) - dt;
-      if (pl.stepT <= 0) { pl.stepT = 0.33; Sound.play('step' + randi(0, 1), 0.15); }
+      if (pl.stepT <= 0) { pl.stepT = sp > 100 ? 0.3 : 0.42; Sound.play(City.t(Math.floor(pl.x / TILE), Math.floor(pl.y / TILE)) === T_GRASS ? 'grass' : 'step', sp > 100 ? 0.18 : 0.1); }
     }
     const mouseAim = this.mouse.active && World.time - this.mouse.moved < 3;
     if (mouseAim) {
@@ -521,7 +521,7 @@ const Game = {
     }
     if (this.hit('Tab', 'KeyQ')) this.cycleWeapon();
     if (this.hit('Digit1')) pl.weapon = null;
-    WEAPON_ORDER.forEach((w, i) => { if (this.hit('Digit' + (i + 2)) && pl.ammo[w] > 0) pl.weapon = w; });
+    WEAPON_ORDER.forEach((w, i) => { if (this.hit('Digit' + (i + 2)) && pl.ammo[w] > 0 && pl.weapon !== w) { pl.weapon = w; Sound.play('latch', 0.5); } });
     const fire = this.key('Space', 'ControlLeft', 'ControlRight') || this.mouse.down;
     if (fire && pl.cool <= 0) {
       const w = pl.weapon, W = WEAPONS[w || 'fists'];
@@ -543,7 +543,7 @@ const Game = {
         if (W.throw) throwGrenade(pl, pl.a);
         else if (W.rocket) fireRocket(pl, pl.a);
         else fireBullet(pl, w, pl.a);
-        if (pl.ammo[w] <= 0) pl.weapon = this.bestWeapon();
+        if (pl.ammo[w] <= 0) { pl.weapon = this.bestWeapon(); Sound.play('click', 0.7); }
       }
     }
   },
@@ -584,7 +584,7 @@ const Game = {
           const dmg = (maxRv - 130) * 0.05;
           a.damage(dmg, b.driver === 'player' ? 'player' : null, hx, hy);
           b.damage(dmg, a.driver === 'player' ? 'player' : null, hx, hy);
-          if (by || dist2(a.x, a.y, pl.x, pl.y) < 500 * 500) Sound.play('crash' + randi(0, 2), clamp(maxRv / 300, 0.2, 1));
+          if (by || dist2(a.x, a.y, pl.x, pl.y) < 500 * 500) Sound.play('crash', clamp(maxRv / 300, 0.2, 1));
           spawnSparks(hx, hy, 5);
           if (by) this.shake(clamp(maxRv / 60, 1, 8));
           // водитель трафика злится и сигналит
@@ -647,6 +647,7 @@ const Game = {
   },
 
   update(dt) {
+    Sound.ambience(dt);
     if (this.state === 'pause' || this.state === 'loading') return;
     const pl = World.player;
     if (Missions.dialog && this.state === 'play') {

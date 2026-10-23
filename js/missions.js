@@ -848,7 +848,7 @@ const Missions = {
     if (m.def.cleanup) m.def.cleanup(m);
     this.active = null;
     this.retry = 6;
-    Sound.play('fail', 0.8);
+    Sound.play('jFail', 0.8);
     Game.bigText('ПРОВАЛ', reason || 'Миссия провалена', '#ff5252');
     if (m.def.phone) setTimeout(() => Game.message('Телефон снова звонит — попробуй ещё раз'), 4000);
   },
@@ -874,7 +874,7 @@ const Missions = {
     if (m.def.cleanup) m.def.cleanup(m);
     this.active = null;
     Game.addMoney(m.def.reward);
-    Sound.play('mission', 1);
+    Sound.play('jWin', 0.9);
     const sign = m.def.reward < 0 ? '−' : '+';
     Game.bigText('МИССИЯ ВЫПОЛНЕНА', sign + formatMoney(Math.abs(m.def.reward)), '#7CFC9A');
     if (m.def.outro) Game.message(m.def.outro, 6);
@@ -911,6 +911,7 @@ const Missions = {
   advanceDialog() {
     const d = this.dialog;
     if (!d) return;
+    Sound.play('ui', 0.5);
     d.i++;
     if (d.i >= d.lines.length) { this.dialog = null; d.done(); }
   },

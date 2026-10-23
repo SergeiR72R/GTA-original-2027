@@ -173,7 +173,7 @@ class Car {
       // удар о стену на полной скорости — примерно 15% «здоровья» обычной машины
       const sg = this.fspeed >= 0 ? 1 : -1;
       if (sp > 150) this.damage((sp - 150) * 0.07, null, this.x + this.fwd.x * this.l / 2 * sg, this.y + this.fwd.y * this.l / 2 * sg);
-      if (this.driver === 'player' || dist2(this.x, this.y, World.player.x, World.player.y) < 600 * 600) Sound.play('crash' + randi(0, 2), clamp(sp / 400, 0.2, 1));
+      if (this.driver === 'player' || dist2(this.x, this.y, World.player.x, World.player.y) < 600 * 600) Sound.play('crash', clamp(sp / 400, 0.2, 1));
       spawnSparks(this.x + this.fwd.x * this.l / 2, this.y + this.fwd.y * this.l / 2, 6);
     }
   }
@@ -200,7 +200,10 @@ class Car {
   damage(n, by, hx, hy) {
     if (this.dead) return;
     if (hx !== undefined && n > 1.5) this.dent(hx, hy, n);
+    const st0 = this.stage;
     this.hp -= n;
+    // треснуло стекло, когда машина переходит в следующую стадию урона
+    if (this.hp > 0 && this.stage > st0) Sound.at(this.stage === 1 ? 'glassL' : 'glassM', this.x, this.y, 0.7, 600);
     if (by === 'player' && this.police) Wanted.crime('hitcop', this.x, this.y);
     if (this.hp <= 0) {
       // машина загорается и взрывается не сразу — есть время выскочить
@@ -433,7 +436,7 @@ class Ped {
     this.hp = 0;
     this.deadT = World.time;
     World.decals.push({ k: 'blood', x: this.x, y: this.y, a: rand(0, TAU), s: rand(0.8, 1.3) });
-    if (dist2(this.x, this.y, World.player.x, World.player.y) < 700 * 700) Sound.play('splat', 0.6);
+    if (dist2(this.x, this.y, World.player.x, World.player.y) < 700 * 700) { Sound.play('splat', 0.6); Sound.at('fall', this.x, this.y, 0.6); }
     if (by === 'player') {
       if (this.look.cat) { Game.message('Кошку-то за что?! 😿'); return; }
       Game.addMoney(this.ai === 'cop' ? 100 : this.faction ? 150 : 50);
@@ -643,7 +646,7 @@ class Ped {
       this.car = car;
       car.passenger = this;
       World.peds.splice(World.peds.indexOf(this), 1);
-      Sound.play('door', 0.6);
+      Sound.play('doorClose', 0.6);
     }
   }
 
@@ -699,6 +702,7 @@ function updateBullets(dt) {
       if (p.dead || p === b.owner || p.car) continue;
       if (segCircle(b.x, b.y, nx, ny, p.x, p.y, p.r + 2) >= 0) {
         p.hurt(WEAPONS[b.weapon].dmg, byPlayer ? 'player' : 'npc', b.x, b.y);
+        if (Sound.can('hitPed', 0.08)) Sound.at('punch', p.x, p.y, 0.35, 500);
         if (byPlayer && (p.ai === 'cop')) Wanted.crime('shootcop', p.x, p.y);
         hit = true; break;
       }
@@ -706,7 +710,7 @@ function updateBullets(dt) {
     // игрок
     if (!hit && !byPlayer && !pl.dead) {
       if (pl.car) {
-        if (pl.car.contains(nx, ny)) { pl.car.damage(WEAPONS[b.weapon].carDmg, 'npc', nx, ny); spawnSparks(nx, ny, 2); hit = true; }
+        if (pl.car.contains(nx, ny)) { pl.car.damage(WEAPONS[b.weapon].carDmg, 'npc', nx, ny); spawnSparks(nx, ny, 2); hit = true; if (Sound.can('hitCar', 0.06)) Sound.play('hitCar', 0.6); }
       } else if (segCircle(b.x, b.y, nx, ny, pl.x, pl.y, 11) >= 0) {
         Game.playerHurt(WEAPONS[b.weapon].plDmg || 8, 'shot');
         spawnBlood(pl.x, pl.y, 2);
@@ -720,12 +724,13 @@ function updateBullets(dt) {
         if (c.contains(nx, ny)) {
           c.damage(WEAPONS[b.weapon].carDmg, byPlayer ? 'player' : 'npc', nx, ny);
           spawnSparks(nx, ny, 3);
+          if (Sound.can('hitCar', 0.06)) Sound.at('hitCar', nx, ny, 0.5, 650);
           if (byPlayer && c.driver && c.driver !== 'player' && c.ai === 'traffic' && Math.random() < 0.3) bailOut(c);
           hit = true; break;
         }
       }
     }
-    if (!hit && City.solidAt(nx, ny)) { spawnSparks(b.x, b.y, 2); hit = true; }
+    if (!hit && City.solidAt(nx, ny)) { spawnSparks(b.x, b.y, 2); hit = true; if (Sound.can('hitWall', 0.07)) Sound.at('hitWall', nx, ny, 0.35, 550); }
     b.x = nx; b.y = ny; b.life -= dt;
     if (hit || b.life <= 0) World.bullets.splice(i, 1);
   }
@@ -773,8 +778,8 @@ function updateProjectiles(dt) {
       // катится и отскакивает от стен, взрывается через 1,4 с
       const k = Math.max(0, 1 - dt * 1.6);
       q.vx *= k; q.vy *= k; q.spin += dt * Math.hypot(q.vx, q.vy) * 0.05;
-      if (City.solidAt(q.x + q.vx * dt, q.y)) q.vx *= -0.5;
-      if (City.solidAt(q.x, q.y + q.vy * dt)) q.vy *= -0.5;
+      if (City.solidAt(q.x + q.vx * dt, q.y)) { q.vx *= -0.5; if (Math.abs(q.vx) > 40) Sound.at('bounce', q.x, q.y, 0.6); }
+      if (City.solidAt(q.x, q.y + q.vy * dt)) { q.vy *= -0.5; if (Math.abs(q.vy) > 40) Sound.at('bounce', q.x, q.y, 0.6); }
       q.x += q.vx * dt; q.y += q.vy * dt;
       boom = q.t >= 1.4;
     } else {
@@ -935,7 +940,9 @@ class Pickup {
         Game.message('Здоровье восстановлено');
       } else if (this.kind === 'money') {
         Game.addMoney(this.amount);
+        Sound.play('coins', 0.8);
       } else {
+        Sound.play('belt', 0.7); Sound.play('latch', 0.5);
         pl.ammo[this.kind] = (pl.ammo[this.kind] || 0) + this.ammo;
         pl.weapon = this.kind;
         Game.message(WEAPONS[this.kind].name + (WEAPONS[this.kind].melee ? '' : ' +' + this.ammo));

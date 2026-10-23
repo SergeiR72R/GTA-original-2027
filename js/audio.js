@@ -40,10 +40,15 @@ const Sound = {
     return buf;
   },
 
-  // Сэмпл из файла; vol 0..1
+  // Сэмпл из файла; vol 0..1. Если такого ключа нет — случайный из вариантов name0, name1, …
   play(name, vol = 1) {
     if (this.muted) return;
-    const base = Assets.snd[name];
+    let base = Assets.snd[name];
+    if (!base) {
+      const g = this.groups || (this.groups = {});
+      const list = g[name] || (g[name] = Object.keys(Assets.snd).filter((k) => k.length === name.length + 1 && k.startsWith(name) && /\d$/.test(k)));
+      base = list.length && Assets.snd[list[Math.floor(Math.random() * list.length)]];
+    }
     if (!base) return;
     try {
       const a = base.cloneNode();
@@ -51,6 +56,21 @@ const Sound = {
       const p = a.play();
       if (p && p.catch) p.catch(() => {});
     } catch (e) { /* без звука */ }
+  },
+
+  // Звук в точке мира: тише с расстоянием, за range — не слышно
+  at(name, x, y, vol = 1, range = 700) {
+    const pl = World.player;
+    const d = Math.hypot(x - pl.x, y - pl.y);
+    if (d < range) this.play(name, vol * (1 - d / range));
+  },
+
+  // не чаще раза в gap секунд для ключа (пули, рикошеты)
+  can(key, gap) {
+    const t = performance.now() / 1000, c = this.cool || (this.cool = {});
+    if (t - (c[key] || 0) < gap) return false;
+    c[key] = t;
+    return true;
   },
 
   noiseBurst(dur, freq, vol, type = 'lowpass') {
@@ -90,20 +110,22 @@ const Sound = {
     this.noiseBurst(0.4, 4000, 0.4, 'bandpass');
   },
 
-  horn() {
+  // vol — громкость (далёкие гудки тише), len — длительность
+  horn(vol = 0.08, len = 0.35) {
     if (!this.ctx || this.muted) return;
     const t = this.ctx.currentTime;
+    const pitch = rand(0.85, 1.15);
     for (const fr of [392, 494]) {
       const o = this.ctx.createOscillator();
       const g = this.ctx.createGain();
       o.type = 'square';
-      o.frequency.value = fr;
+      o.frequency.value = fr * pitch;
       g.gain.setValueAtTime(0.0, t);
-      g.gain.linearRampToValueAtTime(0.08, t + 0.02);
-      g.gain.setValueAtTime(0.08, t + 0.3);
-      g.gain.linearRampToValueAtTime(0, t + 0.35);
+      g.gain.linearRampToValueAtTime(vol, t + 0.02);
+      g.gain.setValueAtTime(vol, t + len - 0.05);
+      g.gain.linearRampToValueAtTime(0, t + len);
       o.connect(g); g.connect(this.master);
-      o.start(t); o.stop(t + 0.4);
+      o.start(t); o.stop(t + len + 0.05);
     }
   },
 
@@ -186,6 +208,110 @@ const Sound = {
       this.alarm = null;
       a.g.gain.setTargetAtTime(0, t, 0.6);
       a.o.stop(t + 3); a.lfo.stop(t + 3);
+    }
+  },
+
+  // ---------- Фон города ----------
+  // Записи (прибой, сверчки) — зацикленные файлы; гул улиц, рынок и ветер —
+  // синтез; птицы, чайки и далёкие гудки — редкие случайные события.
+  amb: null,
+
+  makeAmbience() {
+    const ctx = this.ctx;
+    const loop = (key) => { const b = Assets.snd[key]; if (!b) return null; const a = b.cloneNode(); a.loop = true; a.volume = 0; a._v = 0; return a; };
+    const noise = () => { const n = ctx.createBufferSource(); n.buffer = this.noiseBuf; n.loop = true; n.start(); return n; };
+    const chain = (src, type, freq, q) => { const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q; const g = ctx.createGain(); g.gain.value = 0; src.connect(f); f.connect(g); g.connect(this.master); return { f, g }; };
+    // гул улиц: низкий шум
+    const hum = chain(noise(), 'lowpass', 230, 0.5);
+    // ветер хамсина: полоса, которая «гуляет»
+    const wind = chain(noise(), 'bandpass', 500, 0.8);
+    // гомон рынка: три «голоса» — узкие полосы шума с быстрой сменой громкости
+    const market = ctx.createGain(); market.gain.value = 0; market.connect(this.master);
+    const voices = [];
+    for (let i = 0; i < 3; i++) {
+      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 500 + i * 250; f.Q.value = 5;
+      const g = ctx.createGain(); g.gain.value = 0;
+      noise().connect(f); f.connect(g); g.connect(market);
+      voices.push({ f, g });
+    }
+    return { waves: loop('ambWaves'), crickets: loop('ambCrickets'), hum, wind, market, voices, birdT: 2, gullT: 4, honkT: 5, talkT: 0 };
+  },
+
+  // плавно ведём громкость зацикленного файла; на нуле — пауза
+  loopVol(a, target, dt) {
+    if (!a) return;
+    a._v += clamp(target - a._v, -dt * 0.5, dt * 0.5);
+    a.volume = clamp(a._v, 0, 1);
+    if (a._v > 0.01 && a.paused) { const p = a.play(); if (p && p.catch) p.catch(() => {}); }
+    else if (a._v <= 0.005 && !a.paused) a.pause();
+  },
+
+  ambience(dt) {
+    if (!this.ctx || !World.player || !City.type) return;
+    const A = this.amb || (this.amb = this.makeAmbience());
+    const ctx = this.ctx, t = ctx.currentTime;
+    const pl = World.player;
+    const on = Game.state === 'play' && !this.muted ? (pl.car ? 0.5 : 1) : 0; // в машине глуше
+    const k = City.blockKeyAt(pl.x, pl.y);
+    const day = 1 - Clock.dark, hk = Clock.hamsinK, shab = Clock.shabbat;
+    const sea = clamp(1 - (pl.x / TILE - 6) / 9, 0, 1) + (k === 'port' || k === 'jaffaport' ? 0.5 : 0);
+    const green = pl.y < 6 * TILE || ['park', 'levinsky', 'sarona', 'north', 'ajami', 'rothschild'].includes(k);
+    const market = ['shuk', 'hatikva', 'flea', 'nahalat'].includes(k) && day > 0.5 && !shab;
+    this.loopVol(A.waves, on * clamp(sea, 0, 1) * 0.6, dt);
+    this.loopVol(A.crickets, on * Clock.dark * (green ? 0.6 : 0.3) * (1 - hk), dt);
+    A.hum.g.gain.setTargetAtTime(on * (0.025 + 0.035 * day) * (shab ? 0.4 : 1) * (1 - 0.6 * clamp(sea, 0, 1)), t, 0.6);
+    A.wind.g.gain.setTargetAtTime(on * hk * (0.03 + 0.05 * Math.abs(Math.sin(t * 0.37) * Math.sin(t * 0.13))), t, 0.4);
+    A.wind.f.frequency.setTargetAtTime(380 + 420 * Math.abs(Math.sin(t * 0.21)), t, 0.8);
+    A.market.gain.setTargetAtTime(on * (market ? 0.06 : 0), t, 0.8);
+    if (market) {
+      // «слоги»: голоса то громче, то тише, тембр плавает
+      A.talkT -= dt;
+      if (A.talkT <= 0) {
+        A.talkT = rand(0.08, 0.16);
+        for (const v of A.voices) { v.g.gain.setTargetAtTime(Math.random() < 0.6 ? rand(0.3, 1) : 0, t, 0.03); v.f.frequency.setTargetAtTime(rand(350, 1200), t, 0.05); }
+      }
+    }
+    if (!on) return;
+    // птицы в зелёных районах днём
+    A.birdT -= dt;
+    if (A.birdT <= 0) { A.birdT = rand(1.5, 5); if (green && day > 0.6 && hk < 0.3) this.chirp(0.03 * on); }
+    // чайки у моря
+    A.gullT -= dt;
+    if (A.gullT <= 0) { A.gullT = rand(4, 11); if (sea > 0.4 && day > 0.5) this.gull(0.035 * on); }
+    // далёкие гудки — израильская улица без них не бывает (в шаббат — реже)
+    A.honkT -= dt;
+    if (A.honkT <= 0) { A.honkT = rand(5, 14) * (shab ? 3 : 1); if (day > 0.2 && sea < 0.8) this.horn(rand(0.008, 0.02) * on, rand(0.15, 0.6)); }
+  },
+
+  // трель птицы: несколько коротких свистов вверх
+  chirp(vol) {
+    const ctx = this.ctx, t = ctx.currentTime, base = rand(2600, 4200);
+    let t0 = t;
+    for (let i = 0, n = randi(2, 5); i < n; i++) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(base * rand(0.9, 1.1), t0);
+      o.frequency.exponentialRampToValueAtTime(base * rand(1.2, 1.6), t0 + 0.06);
+      g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.08);
+      o.connect(g); g.connect(this.master);
+      o.start(t0); o.stop(t0 + 0.1);
+      t0 += rand(0.09, 0.17);
+    }
+  },
+
+  // крик чайки: «кии-ау» с дрожанием
+  gull(vol) {
+    const ctx = this.ctx, t = ctx.currentTime;
+    for (let i = 0, n = randi(1, 3); i < n; i++) {
+      const t0 = t + i * rand(0.35, 0.5);
+      const o = ctx.createOscillator(), lfo = ctx.createOscillator(), lg = ctx.createGain(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+      o.type = 'sawtooth'; lfo.frequency.value = rand(14, 22); lg.gain.value = 40;
+      lfo.connect(lg); lg.connect(o.frequency);
+      o.frequency.setValueAtTime(rand(1300, 1600), t0); o.frequency.exponentialRampToValueAtTime(rand(800, 1000), t0 + 0.32);
+      f.type = 'bandpass'; f.frequency.value = 1300; f.Q.value = 3;
+      g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + 0.04); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.34);
+      o.connect(f); f.connect(g); g.connect(this.master);
+      o.start(t0); lfo.start(t0); o.stop(t0 + 0.36); lfo.stop(t0 + 0.36);
     }
   },
 
