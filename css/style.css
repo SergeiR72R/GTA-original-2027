@@ -1,0 +1,99 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #111;
+  color: #fff;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+#game {
+  display: block;
+  cursor: crosshair;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 16px;
+  box-sizing: border-box;
+  background: radial-gradient(ellipse at center, rgba(40, 20, 0, 0.55) 0%, rgba(0, 0, 0, 0.85) 100%);
+}
+
+#loading { background: #1b120a; }
+
+.hidden { display: none !important; }
+
+.logo {
+  font-size: clamp(56px, 12vw, 128px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #ffd23f;
+  text-shadow: 0 0 2px #000, 4px 4px 0 #b3471d, 8px 8px 0 #000;
+  font-style: italic;
+}
+
+.logo.small { font-size: clamp(36px, 7vw, 72px); }
+
+.sub {
+  font-size: clamp(18px, 3vw, 28px);
+  color: #ffe9b0;
+  margin-top: 6px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.story {
+  max-width: 640px;
+  font-size: 17px;
+  line-height: 1.5;
+  color: #f3e6cc;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.bar {
+  width: min(360px, 80vw);
+  height: 10px;
+  margin-top: 24px;
+  border: 2px solid #ffd23f;
+}
+
+#loadbar {
+  height: 100%;
+  width: 0;
+  background: #ffd23f;
+  transition: width 0.1s;
+}
+
+.buttons { margin: 18px 0; display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+
+button {
+  font: inherit;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 12px 28px;
+  border: 3px solid #000;
+  background: #ffd23f;
+  color: #000;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #000;
+  text-transform: uppercase;
+}
+
+button:hover { background: #fff2b3; }
+button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
+
+.controls {
+  max-width: 760px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #ddd;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 10px 16px;
+  border-left: 3px solid #ffd23f;
+  text-align: left;
+}

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ХАМСИН — Часть 1: Тель-Авив</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="loading" class="overlay">
+    <div class="logo">ХАМСИН</div>
+    <div class="sub">загрузка города…</div>
+    <div class="bar"><div id="loadbar"></div></div>
+  </div>
+
+  <div id="title" class="overlay hidden">
+    <div class="logo">ХАМСИН</div>
+    <div class="sub">Часть 1 · Тель-Авив</div>
+    <p class="story">
+      Тель-Авив. Над городом дует хамсин — горячий ветер из пустыни.
+      Ты только что прилетел: в кармане ₪&nbsp;500 и номер телефона Ицика «Фалафеля»,
+      старого друга твоего дяди. Говорят, Ицику всегда нужны люди, которые умеют водить.
+    </p>
+    <div class="buttons">
+      <button id="btn-continue">Продолжить</button>
+      <button id="btn-new">Новая игра</button>
+    </div>
+    <div class="controls">
+      <div><b>Пешком:</b> WASD/стрелки — идти · мышь или пробел/Ctrl — стрелять · Q/Tab — оружие · F/Enter — сесть в машину</div>
+      <div><b>За рулём:</b> W/S — газ/тормоз · A/D — руль · пробел — ручник · H — сигнал · R — радио · F — выйти</div>
+      <div>Esc — пауза · M — звук</div>
+    </div>
+  </div>
+
+  <div id="pause" class="overlay hidden">
+    <div class="logo small">ПАУЗА</div>
+    <div class="controls">
+      <div><b>Пешком:</b> WASD/стрелки — идти, Shift — шагом · мышь (ЛКМ) или пробел/Ctrl — стрелять/бить · Q/Tab или 1-3 — оружие · F/Enter — сесть в машину (угнать)</div>
+      <div><b>За рулём:</b> W/S — газ/тормоз/задний ход · A/D — руль · пробел — ручник · H — сигнал · R — радио · F/Enter — выйти</div>
+      <div><b>Розыск:</b> уйди из поля зрения полиции или перекрась машину в мастерской во Флорентине (₪&nbsp;500)</div>
+      <div><b>Миссии:</b> иди к звонящему телефону-автомату ☎ — жёлтая стрелка покажет дорогу</div>
+    </div>
+    <div class="buttons"><button id="btn-resume">Продолжить</button></div>
+  </div>
+
+  <div id="end" class="overlay hidden">
+    <div class="logo small">ЧАСТЬ 1 ПРОЙДЕНА</div>
+    <p class="story">
+      Ицик доволен: «Шакалы» сбежали в Бат-Ям, полиция успокоилась, а у тебя есть
+      гараж в порту и <span id="end-money"></span>.<br>
+      Но в Иерусалиме уже звонит другой телефон…
+    </p>
+    <div class="sub">Продолжение следует</div>
+    <div class="buttons"><button id="btn-free">Свободная игра</button></div>
+  </div>
+
+  <script src="js/util.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/entities.js"></script>
+  <script src="js/police.js"></script>
+  <script src="js/missions.js"></script>
+  <script src="js/hud.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
