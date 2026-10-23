@@ -42,15 +42,77 @@ const GEN_VEH = {
 const Vehicles = {
   cache: new Map(),
 
-  // Сгенерированный спрайт (assets/gen/vehicles) для типа, если есть
-  gen(type, faction) {
-    if (faction === 'lions' && type === 'hatch' && Assets.gen['vehicles/hatch_lions']) return Assets.gen['vehicles/hatch_lions'];
-    if (faction === 'iran' && type === 'van' && Assets.gen['vehicles/van_iran']) return Assets.gen['vehicles/van_iran'];
+  // Какой сгенерированный спрайт (assets/gen/vehicles) взять для типа, если есть
+  genKey(type, faction) {
+    if (faction === 'lions' && type === 'hatch' && Assets.gen['vehicles/hatch_lions']) return 'hatch_lions';
+    if (faction === 'iran' && type === 'van' && Assets.gen['vehicles/van_iran']) return 'van_iran';
     const all = GEN_VEH[type] || [];
     const list = all.filter((k) => Assets.gen['vehicles/' + k]);
     // если сгенерирована только часть вариантов — остальные машины рисуем сами
     if (!list.length || Math.random() > list.length / all.length) return null;
-    return Assets.gen['vehicles/' + pick(list)];
+    return pick(list);
+  },
+
+  // Самая подходящая картинка для стадии урона: ищем _dN, потом стадии ниже.
+  // Возвращает { img, stage } — stage показывает, какую стадию картинка уже изображает.
+  genForStage(key, stage) {
+    for (let s = stage; s >= 1; s--) {
+      const im = Assets.gen['vehicles/' + key + '_d' + s];
+      if (im) return { img: im, stage: s };
+    }
+    return { img: Assets.gen['vehicles/' + key], stage: 0 };
+  },
+
+  // Процедурные повреждения поверх любой машины (в координатах машины, нос вверх).
+  // dents — места реальных ударов: u поперёк (-1 левый борт … 1 правый), v вдоль (-1 нос … 1 корма).
+  drawDamage(g, car, stage) {
+    const hw = car.w / 2, hl = car.l / 2;
+    const r = makeRng(car.seed);
+    // вмятины в местах ударов
+    for (const d of car.dents) {
+      const x = d.u * hw * 0.85, y = d.v * hl * 0.9;
+      const s = 4 + 7 * d.s;
+      g.fillStyle = `rgba(0,0,0,${0.18 + 0.25 * d.s})`;
+      g.beginPath(); g.ellipse(x, y, s, s * 0.7, d.u * 0.8, 0, TAU); g.fill();
+      g.fillStyle = 'rgba(255,255,255,0.18)';
+      g.beginPath(); g.ellipse(x - s * 0.3, y - s * 0.3, s * 0.4, s * 0.25, 0, 0, TAU); g.fill();
+    }
+    if (stage === 0) return; // пока только вмятины
+    // царапины
+    g.strokeStyle = 'rgba(230,230,230,0.55)'; g.lineWidth = 0.8;
+    g.beginPath();
+    const n = stage >= 2 ? 7 : 3;
+    for (let i = 0; i < n; i++) {
+      const x = r.range(-hw * 0.9, hw * 0.9), y = r.range(-hl * 0.9, hl * 0.9);
+      g.moveTo(x, y); g.lineTo(x + r.range(-6, 6), y + r.range(4, 12));
+    }
+    g.stroke();
+    if (car.moto) return;
+    // разбитая фара
+    g.fillStyle = '#2b2b2b';
+    g.fillRect(r() < 0.5 ? -hw + 3 : hw - 10, -hl + 1, 7, 3);
+    // трещина на лобовом
+    const wy = -hl * 0.36;
+    g.strokeStyle = 'rgba(255,255,255,0.75)'; g.lineWidth = 0.8;
+    g.beginPath();
+    const cx = r.range(-hw * 0.4, hw * 0.4);
+    const rays = stage >= 2 ? 7 : 2;
+    for (let i = 0; i < rays; i++) { const a = r.range(0, TAU); g.moveTo(cx, wy); g.lineTo(cx + Math.cos(a) * r.range(5, 12), wy + Math.sin(a) * r.range(2, 5)); }
+    g.stroke();
+    if (stage < 2) return;
+    // смятый нос или корма — там, куда чаще били
+    let front = 0;
+    for (const d of car.dents) front += d.v < 0 ? d.s : -d.s;
+    const ey = front >= 0 ? -hl : hl, dir = front >= 0 ? 1 : -1;
+    g.fillStyle = 'rgba(40,35,30,0.55)';
+    g.beginPath(); g.moveTo(-hw, ey);
+    for (let i = 0; i <= 8; i++) g.lineTo(-hw + (car.w * i) / 8, ey + dir * r.range(2, 9));
+    g.lineTo(hw, ey); g.closePath(); g.fill();
+    // копоть и голый металл
+    for (let i = 0; i < 4; i++) {
+      g.fillStyle = i % 2 ? 'rgba(20,20,20,0.3)' : 'rgba(170,170,175,0.45)';
+      g.beginPath(); g.ellipse(r.range(-hw * 0.7, hw * 0.7), r.range(-hl * 0.7, hl * 0.7), r.range(3, 7), r.range(2, 5), r() * 3, 0, TAU); g.fill();
+    }
   },
 
   sprite(type, color, faction) {

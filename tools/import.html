@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ХАМСИН — импорт ассетов</title>
+<style>
+  :root { --bg: #17140f; --card: #241f17; --line: #3a3226; --text: #f3e6cc; --muted: #b9a988; --accent: #ffd23f; --ok: #7cfc9a; --bad: #ff6b6b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 "Segoe UI", system-ui, sans-serif; }
+  header { padding: 16px 20px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 5; }
+  h1 { margin: 0 0 6px; font-size: 22px; color: var(--accent); }
+  p { margin: 4px 0; color: var(--muted); max-width: 980px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
+  button, select, label.btn { font: inherit; background: var(--accent); color: #000; border: 0; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  button.ghost, select { background: var(--card); color: var(--text); border: 1px solid var(--line); font-weight: 400; }
+  button:disabled { opacity: 0.5; cursor: default; }
+  #drop { margin: 14px 20px; border: 2px dashed var(--line); border-radius: 10px; padding: 26px; text-align: center; color: var(--muted); }
+  #drop.over { border-color: var(--accent); color: var(--accent); }
+  #stats { color: var(--muted); }
+  main { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; padding: 0 20px 40px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .card.filled { border-color: #4e6b3a; }
+  .card.over { border-color: var(--accent); }
+  .head { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; color: var(--muted); }
+  .name { font-family: ui-monospace, monospace; font-size: 12px; color: var(--text); word-break: break-all; }
+  .title { font-size: 12px; color: var(--muted); min-height: 2.6em; }
+  .thumb { height: 150px; border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden;
+    background: repeating-conic-gradient(#3a3a3a 0 25%, #2a2a2a 0 50%) 50% / 16px 16px; }
+  .thumb canvas { max-width: 100%; max-height: 100%; }
+  .thumb .empty { color: #777; font-size: 12px; }
+  .tools { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tools button { padding: 3px 7px; font-size: 12px; background: #332b20; color: var(--text); border: 1px solid var(--line); font-weight: 400; }
+  .badge { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: #332b20; }
+  .edit { color: #9ad1ff; }
+  .src { font-size: 11px; color: #8a7d64; word-break: break-all; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Импорт сгенерированных ассетов</h1>
+  <p>1. Перетащите сюда все картинки, скачанные из Gemini (можно сразу пачкой). Файлы раскладываются по слотам <b>в порядке скачивания</b> — в том же порядке, что в CLAUDE_CHROME_ASSETS.md.</p>
+  <p>2. Проверьте превью. Если что-то съехало: «⇥ пусто» вставляет пустой слот и сдвигает остальные вниз, «⇤» убирает картинку и сдвигает вверх. Отдельный файл можно бросить прямо на карточку.</p>
+  <p>3. Нажмите «Скачать ZIP» и распакуйте архив в папку игры (появится <code>assets/gen/…</code>). Фон уже вырезан, края обрезаны — игра будет работать даже при открытии index.html с диска.</p>
+  <div class="bar">
+    <label class="btn">Выбрать файлы<input id="pick" type="file" accept="image/*" multiple hidden></label>
+    <label>Раскладывать с: <select id="start"></select></label>
+    <label><input type="checkbox" id="onlyEmpty" checked> только в пустые слоты</label>
+    <select id="filter"><option value="all">все слоты</option><option value="empty">пустые</option><option value="filled">заполненные</option><option value="vehicles">машины</option><option value="chars">персонажи</option><option value="props">объекты</option><option value="textures">текстуры</option></select>
+    <button id="zip">Скачать ZIP</button>
+    <button class="ghost" id="clear">Очистить всё</button>
+    <span id="stats"></span>
+  </div>
+</header>
+<div id="drop">Перетащите картинки сюда</div>
+<main id="grid"></main>
+
+<script src="../js/asset-manifest.js"></script>
+<script>
+'use strict';
+const slots = ASSET_MANIFEST.map((a, i) => ({ ...a, i, canvas: null, srcName: '', raw: null, rot: 0 }));
+const grid = document.getElementById('grid');
+const startSel = document.getElementById('start');
+for (const s of slots) { const o = document.createElement('option'); o.value = s.i; o.textContent = `${s.i + 1}. ${s.cat}/${s.file}`; startSel.appendChild(o); }
+
+// ---------- обработка картинки: хромакей, обрезка, ориентация ----------
+function loadImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const im = new Image();
+    im.onload = () => res(im);
+    im.onerror = rej;
+    im.src = url;
+  });
+}
+
+function process(im, cat, rot) {
+  let c = document.createElement('canvas');
+  if (cat === 'textures') {
+    // квадрат 1024 по центру
+    const s = Math.min(im.width, im.height);
+    c.width = c.height = 1024;
+    c.getContext('2d').drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, 1024, 1024);
+    return c;
+  }
+  const k = Math.min(1, 512 / Math.max(im.width, im.height));
+  c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+  const g = c.getContext('2d');
+  g.drawImage(im, 0, 0, c.width, c.height);
+  const data = g.getImageData(0, 0, c.width, c.height);
+  const d = data.data, W = c.width, H = c.height;
+  const corners = [0, (W - 1) * 4, (H - 1) * W * 4, ((H - 1) * W + W - 1) * 4];
+  let br = 0, bg = 0, bb = 0, ba = 0;
+  for (const i of corners) { br += d[i]; bg += d[i + 1]; bb += d[i + 2]; ba += d[i + 3]; }
+  br /= 4; bg /= 4; bb /= 4; ba /= 4;
+  if (ba > 200) {
+    for (let i = 0; i < d.length; i += 4) {
+      const dd = Math.abs(d[i] - br) + Math.abs(d[i + 1] - bg) + Math.abs(d[i + 2] - bb);
+      if (dd < 70) d[i + 3] = 0;
+      else if (dd < 140) {
+        d[i + 3] = Math.round(d[i + 3] * (dd - 70) / 70);
+        if (bg > br && bg > bb) d[i + 1] = Math.min(d[i + 1], (d[i] + d[i + 2]) / 2);
+        if (br > 150 && bb > 150 && bg < 100) { d[i] = Math.min(d[i], d[i + 1] + 40); d[i + 2] = Math.min(d[i + 2], d[i + 1] + 40); }
+      }
+    }
+  }
+  g.putImageData(data, 0, 0);
+  let x0 = W, y0 = H, x1 = -1, y1 = -1;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if (d[(y * W + x) * 4 + 3] > 30) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  }
+  if (x1 >= 0) {
+    const t = document.createElement('canvas');
+    t.width = x1 - x0 + 1; t.height = y1 - y0 + 1;
+    t.getContext('2d').drawImage(c, x0, y0, t.width, t.height, 0, 0, t.width, t.height);
+    c = t;
+  }
+  // машины — носом вверх: широкую картинку считаем нарисованной носом вправо
+  let r = rot;
+  if (cat === 'vehicles' && c.width > c.height * 1.15) r -= 90;
+  r = ((r % 360) + 360) % 360;
+  if (r) {
+    const t = document.createElement('canvas');
+    const swap = r === 90 || r === 270;
+    t.width = swap ? c.height : c.width; t.height = swap ? c.width : c.height;
+    const tg = t.getContext('2d');
+    tg.translate(t.width / 2, t.height / 2); tg.rotate(r * Math.PI / 180);
+    tg.drawImage(c, -c.width / 2, -c.height / 2);
+    c = t;
+  }
+  return c;
+}
+
+async function assign(slot, file) {
+  try {
+    const im = await loadImage(file);
+    slot.raw = im; slot.srcName = file.name; slot.rot = 0;
+    slot.canvas = process(im, slot.cat, 0);
+  } catch (e) { slot.srcName = 'ошибка: ' + file.name; }
+}
+
+function redo(slot) { if (slot.raw) slot.canvas = process(slot.raw, slot.cat, slot.rot); }
+
+async function addFiles(files) {
+  const list = [...files].filter((f) => f.type.startsWith('image/'));
+  // порядок скачивания: по времени изменения, при равенстве — по имени
+  list.sort((a, b) => a.lastModified - b.lastModified || a.name.localeCompare(b.name, undefined, { numeric: true }));
+  let i = +startSel.value;
+  const only = document.getElementById('onlyEmpty').checked;
+  for (const f of list) {
+    while (i < slots.length && only && slots[i].canvas) i++;
+    if (i >= slots.length) break;
+    await assign(slots[i], f);
+    i++;
+  }
+  const firstEmpty = slots.find((s) => !s.canvas);
+  if (firstEmpty) startSel.value = firstEmpty.i;
+  render();
+}
+
+// сдвиги, если Claude пропустил или скачал лишнее
+function shiftDown(idx) {
+  for (let j = slots.length - 1; j > idx; j--) copyData(slots[j], slots[j - 1]);
+  clearData(slots[idx]);
+  render();
+}
+function shiftUp(idx) {
+  for (let j = idx; j < slots.length - 1; j++) copyData(slots[j], slots[j + 1]);
+  clearData(slots[slots.length - 1]);
+  render();
+}
+function copyData(to, from) {
+  to.raw = from.raw; to.srcName = from.srcName; to.rot = from.rot;
+  to.canvas = from.raw ? process(from.raw, to.cat, to.rot) : null;
+}
+function clearData(s) { s.raw = null; s.canvas = null; s.srcName = ''; s.rot = 0; }
+
+function render() {
+  const f = document.getElementById('filter').value;
+  grid.innerHTML = '';
+  for (const s of slots) {
+    if (f === 'empty' && s.canvas) continue;
+    if (f === 'filled' && !s.canvas) continue;
+    if (['vehicles', 'chars', 'props', 'textures'].includes(f) && s.cat !== f) continue;
+    const card = document.createElement('div');
+    card.className = 'card' + (s.canvas ? ' filled' : '');
+    card.innerHTML = `<div class="head"><span>#${s.i + 1}</span><span class="badge">${s.cat}</span></div>
+      <div class="name">${s.file}.png</div>
+      <div class="title">${s.title}${s.kind === 'edit' ? ' <span class="edit">(правка ' + s.base + ')</span>' : ''}</div>
+      <div class="thumb"></div><div class="src"></div>
+      <div class="tools"><button data-a="rot" title="Повернуть на 90°">↻</button><button data-a="clr" title="Очистить">✕</button><button data-a="ins" title="Вставить пустой слот здесь, остальное сдвинуть вниз">⇥ пусто</button><button data-a="del" title="Убрать и сдвинуть следующие вверх">⇤</button><button data-a="one" title="Скачать этот PNG">⤓</button></div>`;
+    const th = card.querySelector('.thumb');
+    if (s.canvas) th.appendChild(s.canvas.cloneNode ? cloneCanvas(s.canvas) : s.canvas);
+    else th.innerHTML = '<span class="empty">пусто</span>';
+    card.querySelector('.src').textContent = s.srcName;
+    card.querySelector('.tools').onclick = (e) => {
+      const a = e.target.dataset.a;
+      if (a === 'rot' && s.raw) { s.rot = (s.rot + 90) % 360; redo(s); render(); }
+      if (a === 'clr') { clearData(s); render(); }
+      if (a === 'ins') shiftDown(s.i);
+      if (a === 'del') shiftUp(s.i);
+      if (a === 'one' && s.canvas) s.canvas.toBlob((b) => saveBlob(b, s.file + '.png'), 'image/png');
+    };
+    card.ondragover = (e) => { e.preventDefault(); e.stopPropagation(); card.classList.add('over'); };
+    card.ondragleave = () => card.classList.remove('over');
+    card.ondrop = async (e) => {
+      e.preventDefault(); e.stopPropagation();
+      const file = [...e.dataTransfer.files].find((x) => x.type.startsWith('image/'));
+      if (file) { await assign(s, file); render(); }
+    };
+    grid.appendChild(card);
+  }
+  const n = slots.filter((s) => s.canvas).length;
+  document.getElementById('stats').textContent = `заполнено ${n} из ${slots.length}`;
+  document.getElementById('zip').disabled = !n;
+}
+
+function cloneCanvas(c) {
+  const t = document.createElement('canvas');
+  t.width = c.width; t.height = c.height;
+  t.getContext('2d').drawImage(c, 0, 0);
+  return t;
+}
+
+function saveBlob(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+
+// ---------- простой ZIP без сжатия (PNG и так сжат) ----------
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(buf) { let c = 0xFFFFFFFF; for (let i = 0; i < buf.length; i++) c = CRC[(c ^ buf[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+
+function makeZip(entries) {
+  const enc = new TextEncoder();
+  const parts = [], central = [];
+  let offset = 0;
+  for (const e of entries) {
+    const name = enc.encode(e.name);
+    const crc = crc32(e.data), size = e.data.length;
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+    h.setUint16(10, 0, true); h.setUint16(12, 0x21, true); h.setUint32(14, crc, true);
+    h.setUint32(18, size, true); h.setUint32(22, size, true); h.setUint16(26, name.length, true); h.setUint16(28, 0, true);
+    parts.push(new Uint8Array(h.buffer), name, e.data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true);
+    c.setUint16(10, 0, true); c.setUint16(12, 0, true); c.setUint16(14, 0x21, true); c.setUint32(16, crc, true);
+    c.setUint32(20, size, true); c.setUint32(24, size, true); c.setUint16(28, name.length, true);
+    c.setUint32(42, offset, true);
+    central.push(new Uint8Array(c.buffer), name);
+    offset += 30 + name.length + size;
+  }
+  const cdSize = central.reduce((a, b) => a + b.length, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, entries.length, true); end.setUint16(10, entries.length, true);
+  end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+  return new Blob([...parts, ...central, new Uint8Array(end.buffer)], { type: 'application/zip' });
+}
+
+document.getElementById('zip').onclick = async () => {
+  const btn = document.getElementById('zip');
+  btn.disabled = true; btn.textContent = 'Собираю…';
+  const entries = [];
+  for (const s of slots) {
+    if (!s.canvas) continue;
+    const blob = await new Promise((r) => s.canvas.toBlob(r, 'image/png'));
+    entries.push({ name: `assets/gen/${s.cat}/${s.file}.png`, data: new Uint8Array(await blob.arrayBuffer()) });
+  }
+  saveBlob(makeZip(entries), 'hamsin-generated-assets.zip');
+  btn.textContent = 'Скачать ZIP'; btn.disabled = false;
+};
+
+const drop = document.getElementById('drop');
+document.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+document.addEventListener('dragleave', (e) => { if (!e.relatedTarget) drop.classList.remove('over'); });
+document.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); addFiles(e.dataTransfer.files); });
+document.getElementById('pick').onchange = (e) => { addFiles(e.target.files); e.target.value = ''; };
+document.getElementById('filter').onchange = render;
+document.getElementById('clear').onclick = () => { if (confirm('Очистить все слоты?')) { slots.forEach(clearData); startSel.value = 0; render(); } };
+render();
+</script>
+</body>
+</html>

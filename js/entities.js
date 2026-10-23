@@ -40,7 +40,9 @@ class Car {
     this.hp = this.maxHp;
     this.maxSpeed = opts.maxSpeed || T.max;
     this.accel = T.acc;
-    this.genImg = Vehicles.gen(this.type, this.faction);
+    this.genKey = Vehicles.genKey(this.type, this.faction);
+    this.dents = [];
+    this.seed = randi(1, 1e9);
     this.driver = null; // 'player' | Ped
     this.ai = opts.ai || null; // 'traffic' | 'police' | null
     this.dead = false;
@@ -142,14 +144,35 @@ class Car {
     if (hit && sp > 110 && World.time - this.lastHit > 0.4) {
       this.lastHit = World.time;
       // удар о стену на полной скорости — примерно 15% «здоровья» обычной машины
-      if (sp > 150) this.damage((sp - 150) * 0.07, null);
+      const sg = this.fspeed >= 0 ? 1 : -1;
+      if (sp > 150) this.damage((sp - 150) * 0.07, null, this.x + this.fwd.x * this.l / 2 * sg, this.y + this.fwd.y * this.l / 2 * sg);
       if (this.driver === 'player' || dist2(this.x, this.y, World.player.x, World.player.y) < 600 * 600) Sound.play('crash' + randi(0, 2), clamp(sp / 400, 0.2, 1));
       spawnSparks(this.x + this.fwd.x * this.l / 2, this.y + this.fwd.y * this.l / 2, 6);
     }
   }
 
-  damage(n, by) {
+  // 0 — целая, 1 — лёгкие повреждения, 2 — тяжёлые, 3 — сгорела
+  get stage() {
+    if (this.dead) return 3;
+    const k = this.hp / this.maxHp;
+    return k > 0.7 ? 0 : k > 0.4 ? 1 : 2;
+  }
+
+  // Запоминаем, куда пришёлся удар, — там появится вмятина
+  dent(hx, hy, n) {
+    const f = this.fwd;
+    const dx = hx - this.x, dy = hy - this.y;
+    const u = clamp((dx * -f.y + dy * f.x) / (this.w / 2), -1, 1);
+    const v = clamp(-(dx * f.x + dy * f.y) / (this.l / 2), -1, 1);
+    const s = clamp(n / 12, 0.2, 1);
+    const near = this.dents.find((d) => Math.abs(d.u - u) < 0.4 && Math.abs(d.v - v) < 0.25);
+    if (near) near.s = Math.min(1, near.s + s * 0.5);
+    else { this.dents.push({ u, v, s }); if (this.dents.length > 8) this.dents.shift(); }
+  }
+
+  damage(n, by, hx, hy) {
     if (this.dead) return;
+    if (hx !== undefined && n > 1.5) this.dent(hx, hy, n);
     this.hp -= n;
     if (by === 'player' && this.police) Wanted.crime('hitcop', this.x, this.y);
     if (this.hp <= 0) {
@@ -299,26 +322,34 @@ class Car {
     // тень
     ctx.fillStyle = 'rgba(0,0,0,0.28)';
     ctx.fillRect(-this.w / 2 + 4, -this.l / 2 + 5, this.w, this.l);
-    if (this.genImg) {
-      ctx.drawImage(this.genImg, -this.w / 2, -this.l / 2, this.w, this.l);
+    // спрайт по стадии урона: сгенерированные _d1/_d2/_d3 или процедурные повреждения
+    const stage = this.stage;
+    let shown = 0;
+    if (this.genKey) {
+      const g = Vehicles.genForStage(this.genKey, stage);
+      ctx.drawImage(g.img, -this.w / 2, -this.l / 2, this.w, this.l);
+      shown = g.stage;
     } else {
       const spr = Vehicles.sprite(this.type, this.color, this.faction);
       const sw = spr.width / 2, sh = spr.height / 2;
       ctx.drawImage(spr, -sw / 2, -sh / 2, sw, sh);
     }
+    if (stage >= 1 && stage <= 2 && shown < stage) Vehicles.drawDamage(ctx, this, stage);
+    else if (stage === 0 && this.dents.length) Vehicles.drawDamage(ctx, this, 0);
+    this.wreckShown = shown === 3;
     // седок на мотоцикле/скутере
     if (this.moto && this.driver) {
       const L = this.driver === 'player' ? World.player.look : this.driver.look;
       if (L) { ctx.save(); ctx.translate(0, 4); ctx.rotate(-Math.PI / 2); drawPersonLook(ctx, L, 0, false, null, false); ctx.restore(); }
     }
-    if (this.police || this.type === 'ambulance') {
+    if ((this.police || this.type === 'ambulance') && !this.dead) {
       const on = Math.floor(World.time * 6) % 2 === 0;
       const by = this.police ? -this.l * 0.06 : -this.l / 2 + 15;
       if (this.police) {
         ctx.fillStyle = on ? '#ff2a2a' : '#5a0a0a'; ctx.fillRect(-12, by, 12, 6);
         ctx.fillStyle = on ? '#0d2a66' : '#3f8cff'; ctx.fillRect(0, by, 12, 6);
       }
-      if (this.siren) {
+      if (this.siren && !this.dead) {
         ctx.globalAlpha = 0.28;
         ctx.fillStyle = this.police ? (on ? '#ff3030' : '#3080ff') : (on ? '#ff9800' : '#ff3030');
         ctx.beginPath(); ctx.arc(on ? -6 : 6, by + 3, 34, 0, TAU); ctx.fill();
@@ -333,7 +364,7 @@ class Car {
       ctx.strokeStyle = '#ff6a1a'; ctx.lineWidth = 2; ctx.setLineDash([4, 3]);
       ctx.strokeRect(-this.w / 2 - 4, -this.l / 2 - 4, this.w + 8, this.l + 8); ctx.setLineDash([]);
     }
-    if (this.dead) {
+    if (this.dead && !this.wreckShown) {
       ctx.fillStyle = 'rgba(25,20,18,0.82)';
       ctx.beginPath();
       if (ctx.roundRect) ctx.roundRect(-this.w / 2, -this.l / 2, this.w, this.l, 8); else ctx.rect(-this.w / 2, -this.l / 2, this.w, this.l);
@@ -651,7 +682,7 @@ function updateBullets(dt) {
     // игрок
     if (!hit && !byPlayer && !pl.dead) {
       if (pl.car) {
-        if (pl.car.contains(nx, ny)) { pl.car.damage(WEAPONS[b.weapon].carDmg, 'npc'); spawnSparks(nx, ny, 2); hit = true; }
+        if (pl.car.contains(nx, ny)) { pl.car.damage(WEAPONS[b.weapon].carDmg, 'npc', nx, ny); spawnSparks(nx, ny, 2); hit = true; }
       } else if (segCircle(b.x, b.y, nx, ny, pl.x, pl.y, 11) >= 0) {
         Game.playerHurt(b.weapon === 'uzi' ? 5 : 9, 'shot');
         spawnBlood(pl.x, pl.y, 2);
@@ -663,7 +694,7 @@ function updateBullets(dt) {
       for (const c of World.cars) {
         if (c === pl.car && byPlayer) continue;
         if (c.contains(nx, ny)) {
-          c.damage(WEAPONS[b.weapon].carDmg, byPlayer ? 'player' : 'npc');
+          c.damage(WEAPONS[b.weapon].carDmg, byPlayer ? 'player' : 'npc', nx, ny);
           spawnSparks(nx, ny, 3);
           if (byPlayer && c.driver && c.driver !== 'player' && c.ai === 'traffic' && Math.random() < 0.3) bailOut(c);
           hit = true; break;

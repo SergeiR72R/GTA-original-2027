@@ -451,7 +451,8 @@ const Game = {
           this.addMoney(-500);
           Wanted.reset();
           c.color = pickWeighted(CAR_PALETTE.filter((x) => x[0] !== c.color));
-          c.genImg = null;
+          c.genKey = null; // перекрашенная машина рисуется встроенным спрайтом нового цвета
+          c.dents = [];
           if (c.police) { c.police = false; c.type = 'suv'; c.T = VTYPES.suv; }
           c.hp = c.maxHp;
           Sound.play('mission', 0.8);
@@ -541,8 +542,8 @@ const Game = {
           const by = a.driver === 'player' ? 'player' : b.driver === 'player' ? 'player' : null;
           // лобовое на 200 км/ч — около 20% «здоровья» обычной машины
           const dmg = (maxRv - 130) * 0.05;
-          a.damage(dmg, b.driver === 'player' ? 'player' : null);
-          b.damage(dmg, a.driver === 'player' ? 'player' : null);
+          a.damage(dmg, b.driver === 'player' ? 'player' : null, hx, hy);
+          b.damage(dmg, a.driver === 'player' ? 'player' : null, hx, hy);
           if (by || dist2(a.x, a.y, pl.x, pl.y) < 500 * 500) Sound.play('crash' + randi(0, 2), clamp(maxRv / 300, 0.2, 1));
           spawnSparks(hx, hy, 5);
           if (by) this.shake(clamp(maxRv / 60, 1, 8));

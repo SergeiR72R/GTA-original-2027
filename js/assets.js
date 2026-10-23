@@ -2,16 +2,7 @@
 // поэтому игра работает даже при открытии index.html прямо с диска.
 'use strict';
 
-// Картинки, которые можно сгенерировать (см. PROMPTS.md) и положить в assets/gen/
-const GEN_FILES = {
-  textures: ['asphalt', 'sidewalk', 'jaffa_stone', 'plaza', 'sand', 'grass', 'water', 'deck', 'scrub', 'roof_gravel', 'roof_tiles', 'roof_metal'],
-  chars: ['player', 'player_gun', 'police', 'police_gun', 'shabak', 'russian', 'russian_gun', 'russian_boss', 'arab', 'arab_gun', 'arab_boss',
-    'lions', 'lions_gun', 'lions_boss', 'iran', 'iran_gun', 'itzik', 'moshe', 'shmulik', 'dvora', 'cat',
-    'civ_1', 'civ_2', 'civ_3', 'civ_4', 'civ_5', 'civ_6', 'civ_7', 'civ_8', 'civ_9', 'civ_10', 'civ_11', 'civ_12'],
-  vehicles: ['sedan_1', 'sedan_2', 'sedan_3', 'sedan_4', 'hatch_1', 'hatch_2', 'hatch_3', 'suv_1', 'suv_2', 'lux', 'taxi', 'police',
-    'ambulance', 'van', 'van_iran', 'pickup', 'sherut', 'bus', 'garbage', 'scooter', 'moto', 'hatch_lions'],
-  props: ['palm', 'ficus', 'bougainvillea', 'bottle_cage', 'trash_bin', 'bus_stop', 'umbrella', 'lifeguard_tower', 'market_stall'],
-};
+// Список генерируемых картинок (GEN_FILES) — в js/asset-manifest.js
 
 const Assets = {
   img: {},
