@@ -967,6 +967,68 @@ const R3 = {
     this.decalGeo = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
   },
 
+  // Ракетный обстрел: круг-метка с отсчётом, ракета с огненным хвостом,
+  // вспышка перехвата «Железного купола» в небе
+  syncStrikes() {
+    const S = this.strikeObjs || (this.strikeObjs = new Map());
+    if (!S.size && !Strikes.list.length) return;
+    if (!this.strikeKit) {
+      const glow = (c) => this.tex(Facades.glow(c));
+      this.strikeKit = {
+        ring: new THREE.RingGeometry(108, 120, 48).rotateX(-Math.PI / 2),
+        disc: new THREE.CircleGeometry(120, 40).rotateX(-Math.PI / 2),
+        body: new THREE.CylinderGeometry(5, 5, 44, 8).translate(0, 4, 0),
+        nose: new THREE.ConeGeometry(5, 14, 8).translate(0, 33, 0),
+        mBody: new THREE.MeshLambertMaterial({ color: 0x5f6368 }),
+        mFlame: new THREE.SpriteMaterial({ map: glow('rgba(255,150,40,1)'), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }),
+        mFlash: new THREE.SpriteMaterial({ map: glow('rgba(255,245,210,1)'), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }),
+      };
+    }
+    const K = this.strikeKit, up = new THREE.Vector3(0, 1, 0), dir = new THREE.Vector3();
+    const live = new Set(Strikes.list);
+    for (const st of Strikes.list) {
+      let o = S.get(st);
+      if (!o) {
+        o = new THREE.Group();
+        // метка видна и сквозь дома — иначе за крышей её не заметить
+        o.ring = new THREE.Mesh(K.ring, new THREE.MeshBasicMaterial({ color: 0xff1f1f, transparent: true, depthWrite: false, depthTest: false }));
+        o.disc = new THREE.Mesh(K.disc, new THREE.MeshBasicMaterial({ color: 0xff2a2a, transparent: true, opacity: 0.25, depthWrite: false, depthTest: false }));
+        o.ring.position.y = 2.2; o.disc.position.y = 2; o.ring.renderOrder = o.disc.renderOrder = 5;
+        o.rocket = new THREE.Group();
+        o.rocket.scale.setScalar(2);
+        const flame = new THREE.Sprite(K.mFlame); flame.position.y = -26; flame.scale.set(34, 34, 1);
+        o.rocket.add(new THREE.Mesh(K.body, K.mBody), new THREE.Mesh(K.nose, K.mBody), flame);
+        o.flash = new THREE.Sprite(K.mFlash.clone());
+        o.add(o.ring, o.disc, o.rocket, o.flash);
+        this.scene.add(o); S.set(st, o);
+      }
+      o.position.set(st.x, 0, st.y);
+      const k = clamp(st.t / st.fuse, 0, 1);
+      const marked = !st.hit || st.hit === 'boom';
+      o.ring.visible = o.disc.visible = marked;
+      o.ring.material.opacity = 0.55 + 0.45 * Math.abs(Math.sin(st.t * (6 + k * 10)));
+      o.disc.scale.setScalar(Math.max(0.02, k));
+      // ракета видна последние 1,4 секунды: падает наискосок
+      const fall = clamp(1 - (st.fuse - st.t) / 1.4, 0, 1);
+      const sx = Math.cos(st.from) * 300, sz = Math.sin(st.from) * 300, sy = 460;
+      o.rocket.visible = !st.hit && fall > 0;
+      if (o.rocket.visible) {
+        o.rocket.position.set(sx * (1 - fall), sy * (1 - fall) + 6, sz * (1 - fall));
+        dir.set(-sx, -sy, -sz).normalize();
+        o.rocket.quaternion.setFromUnitVectors(up, dir);
+      }
+      o.flash.visible = st.hit === 'icpt';
+      if (o.flash.visible) {
+        const f = clamp((st.t - st.icpt) / 0.8, 0, 1);
+        const fa = clamp(1 - (st.fuse - st.icpt) / 1.4, 0, 1);
+        o.flash.position.set(sx * (1 - fa), sy * (1 - fa) + 6, sz * (1 - fa));
+        o.flash.scale.setScalar(60 + 260 * f);
+        o.flash.material.opacity = 1 - f;
+      }
+    }
+    for (const [st, o] of S) if (!live.has(st)) { this.scene.remove(o); o.ring.material.dispose(); o.disc.material.dispose(); o.flash.material.dispose(); S.delete(st); }
+  },
+
   syncFx(view) {
     // пули
     const bp = this.bulletGeo.attributes.position.array;
@@ -1036,14 +1098,20 @@ const R3 = {
     for (const m of this.facadeMats) m.emissiveIntensity = k * 0.95;
     for (const m of this.signMats || []) m.emissiveIntensity = k * 0.6;
     this.mats.lampHead.color.setHex(k > 0.35 ? 0xfff3c4 : 0x9aa0a6);
-    this.mats.glow.opacity = k * 0.42;
+    // световое пятно под каждым фонарём — дешёвая замена источника света
+    this.mats.glow.opacity = k * 0.58;
     this.mats.headlights.opacity = k * 0.55;
     // хамсин — жёлтая пыльная мгла, наползает и уходит плавно
+    // граница тумана сдвигается равномерно: при слабом хамсине — за край
+    // экрана (до него ~2 высоты камеры), при сильном — почти к герою
     const hk = Clock.hamsinK, fog = this.scene.fog;
     if (hk > 0.001) {
-      fog.near = this.camH * 0.75 / hk; fog.far = this.camH * 2.2 / hk;
+      fog.near = this.camH * (0.75 + 1.5 * (1 - hk)); fog.far = this.camH * (2.2 + 1.5 * (1 - hk));
+      // ночью пыль не светится: цвет мглы темнеет вместе с небом
+      const dim = 1 - 0.8 * k;
+      fog.color.setRGB(0.85 * dim, 0.65 * dim, 0.37 * dim);
       const bg = this.scene.background;
-      bg.setRGB(lerp(bg.r, 0.85, hk), lerp(bg.g, 0.65, hk), lerp(bg.b, 0.37, hk));
+      bg.setRGB(lerp(bg.r, fog.color.r, hk), lerp(bg.g, fog.color.g, hk), lerp(bg.b, fog.color.b, hk));
       this.sun.color.setRGB(this.sun.color.r, this.sun.color.g * (1 - 0.1 * hk), this.sun.color.b * (1 - 0.25 * hk));
     } else { fog.near = 1e7; fog.far = 2e7; }
     // мигалки погони и фары игрока — 2 постоянных источника
@@ -1066,23 +1134,38 @@ const R3 = {
     if (nightOn !== this.nightLights) {
       this.nightLights = nightOn;
       this.lampLights.forEach((l, i) => { l.visible = nightOn && i < this.q.lamps; });
+      if (this.lampSlots) for (const sl of this.lampSlots) { sl.k = 0; sl.lamp = null; }
     }
     if (!nightOn) return;
+    // настоящие источники — у фонарей, ближайших к центру видимой части
+    // (с наклонной камерой он впереди героя); новые разгораются, лишние
+    // гаснут плавно, без вспышек на ходу
+    const want = this.wantLamps || (this.wantLamps = new Set());
     if (this.frameNo % 6 === 0) {
-      // ближайшие фонари: простой отбор без сортировки всего списка
+      const v = this.bounds, vx = v ? (v.x0 + v.x1) / 2 : cam.x, vz = v ? (v.y0 + v.y1) / 2 : cam.y;
       const near = this.nearLamps; near.length = 0;
       const maxN = this.q.lamps;
       for (const l of City.lamps) {
         if (l.hx === undefined) continue;
-        const d = dist2(l.hx, l.hz, cam.x, cam.y);
-        if (d > 1000 * 1000) continue;
+        const d = dist2(l.hx, l.hz, vx, vz);
+        if (d > 1100 * 1100) continue;
         if (near.length < maxN) { near.push([d, l]); near.sort((a, b) => a[0] - b[0]); }
         else if (d < near[maxN - 1][0]) { near[maxN - 1] = [d, l]; near.sort((a, b) => a[0] - b[0]); }
       }
+      want.clear();
+      for (const n of near) want.add(n[1]);
     }
+    const slots = this.lampSlots || (this.lampSlots = this.lampLights.map(() => ({ lamp: null, k: 0 })));
     for (let i = 0; i < this.q.lamps; i++) {
-      const L = this.lampLights[i], n = this.nearLamps[i];
-      if (n) { L.position.set(n[1].hx, 80, n[1].hz); L.intensity = 1.25 * k; } else L.intensity = 0;
+      const sl = slots[i], L = this.lampLights[i];
+      const on = sl.lamp && want.has(sl.lamp);
+      sl.k = on ? Math.min(1, sl.k + 0.04) : Math.max(0, sl.k - 0.06);
+      if (!sl.k && !on) {
+        // свободный слот — берём фонарь, которому свет нужен, а его ещё нет
+        sl.lamp = null;
+        for (const l of want) if (!slots.some((o) => o.lamp === l)) { sl.lamp = l; break; }
+      }
+      if (sl.lamp) { L.position.set(sl.lamp.hx, 80, sl.lamp.hz); L.intensity = 1.1 * k * sl.k; } else L.intensity = 0;
     }
   },
 
@@ -1140,6 +1223,7 @@ const R3 = {
     this.syncPickups(view);
     this.syncMarkers(view);
     this.syncFx(view);
+    this.syncStrikes();
     this.waterTex.offset.set((World.time * 0.02) % 1, (World.time * 0.013) % 1);
     this.renderer.render(this.scene, this.camera);
   },

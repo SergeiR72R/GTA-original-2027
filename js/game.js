@@ -28,12 +28,13 @@ const Clock = {
     if (hm !== this.wasHamsin) { this.wasHamsin = hm; if (hm) Game.message('ХАМСИН! Жара +40°, пыль из пустыни.', 4); }
   },
   get shabbat() { const d = this.day, h = this.hour; return (d === 5 && h >= 18) || (d === 6 && h < 19); },
-  // сила хамсина 0..1: мгла наползает с 9:30 до 11:30 и уходит с 16:30 до 18:30
+  // сила хамсина 0..1: мгла наползает с 9:30 до 11:30 и медленно оседает
+  // с 16:30 до 20:00 — уже в сумерках, вместе с темнотой
   get hamsinK() {
     if (Math.floor(this.min / 1440) !== this.hamsinDay) return 0;
     const h = this.hour;
     const s = (x) => x * x * (3 - 2 * x);
-    return s(clamp((h - 9.5) / 2, 0, 1)) * s(clamp((18.5 - h) / 2, 0, 1));
+    return s(clamp((h - 9.5) / 2, 0, 1)) * s(clamp((20 - h) / 3.5, 0, 1));
   },
   get hamsin() { return this.hamsinK > 0.25; },
   // 0 — день, 1 — глубокая ночь
@@ -339,6 +340,8 @@ const Game = {
       if (d < bd) { bd = d; best = c; }
     }
     if (!best) return;
+    // бандиты не отдают машину — выходят драться
+    if (best.gang && best.driver && best.driver !== 'player') GangCars.exit(best);
     if (best.driver && best.driver !== 'player') {
       // выкидываем водителя
       const drv = best.driver;
@@ -740,7 +743,8 @@ const Game = {
     this.drawLighting(ctx, view, sx, sy);
 
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    if (Clock.hamsinK > 0) this.drawHamsin(ctx, Clock.hamsinK);
+    if (Clock.hamsinK > 0) this.drawHamsin(ctx, Clock.hamsinK * (1 - 0.6 * Clock.dark));
+    if (Strikes.on) this.drawAlarm(ctx);
     if (this.state === 'down') {
       ctx.fillStyle = this.downKind === 'dead' ? 'rgba(120,0,0,0.25)' : 'rgba(0,30,120,0.25)';
       ctx.fillRect(0, 0, this.vw, this.vh);
@@ -819,6 +823,16 @@ const Game = {
   },
 
   // Хамсин: жёлтая пыльная мгла
+  // тревога: красные края экрана пульсируют в такт сирене
+  drawAlarm(ctx) {
+    const a = 0.1 + 0.12 * (0.5 + 0.5 * Math.sin(World.time * TAU * 0.22));
+    const g = ctx.createRadialGradient(this.vw / 2, this.vh / 2, Math.min(this.vw, this.vh) * 0.35, this.vw / 2, this.vh / 2, Math.max(this.vw, this.vh) * 0.75);
+    g.addColorStop(0, 'rgba(255,0,0,0)');
+    g.addColorStop(1, `rgba(220,0,0,${a.toFixed(3)})`);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, this.vw, this.vh);
+  },
+
   drawHamsin(ctx, k) {
     ctx.fillStyle = `rgba(214,150,60,${(0.22 * k).toFixed(3)})`;
     ctx.fillRect(0, 0, this.vw, this.vh);
@@ -840,7 +854,8 @@ const Game = {
       const [x, y] = R3.worldToScreen(p.x, p.y, 20);
       ctx.fillStyle = `rgba(80,220,90,${k})`; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(p.text || '₪', x, y);
     }
-    if (Clock.hamsinK > 0) this.drawHamsin(ctx, Clock.hamsinK);
+    if (Clock.hamsinK > 0) this.drawHamsin(ctx, Clock.hamsinK * (1 - 0.6 * Clock.dark));
+    if (Strikes.on) this.drawAlarm(ctx);
     if (this.state === 'down') {
       ctx.fillStyle = this.downKind === 'dead' ? 'rgba(120,0,0,0.25)' : 'rgba(0,30,120,0.25)';
       ctx.fillRect(0, 0, this.vw, this.vh);
@@ -867,6 +882,16 @@ const Game = {
   },
 
   drawMarkers(ctx) {
+    // ракеты: красный круг с отсчётом и тень падающей ракеты
+    for (const st of Strikes.list) {
+      if (st.hit === 'icpt') continue;
+      const k = clamp(st.t / st.fuse, 0, 1);
+      ctx.fillStyle = 'rgba(255,40,40,0.22)'; ctx.beginPath(); ctx.arc(st.x, st.y, 120 * k, 0, TAU); ctx.fill();
+      ctx.strokeStyle = `rgba(255,30,30,${0.55 + 0.45 * Math.abs(Math.sin(st.t * (6 + k * 10)))})`; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(st.x, st.y, 116, 0, TAU); ctx.stroke();
+      const fall = clamp(1 - (st.fuse - st.t) / 1.4, 0, 1);
+      if (fall > 0) { ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.arc(st.x + Math.cos(st.from) * 300 * (1 - fall), st.y + Math.sin(st.from) * 300 * (1 - fall), 8, 0, TAU); ctx.fill(); }
+    }
     // телефоны-автоматы
     for (const key of ['phone1', 'phone2', 'phoneFlat', 'phoneRu', 'phoneAr', 'phoneLions']) {
       const p = City.places[key];

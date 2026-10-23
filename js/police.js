@@ -153,44 +153,8 @@ const Police = {
       this.exitCops(c);
       return;
     }
-    if (c.recover > 0) {
-      c.recover -= dt;
-      c.drive(dt, -1, c.recoverSteer, false);
-      return;
-    }
-    let gx, gy;
-    if (d < 260 && City.lineOfSight(c.x, c.y, tx, ty)) { gx = tx; gy = ty; }
-    else {
-      c.pathT = (c.pathT || 0) - dt;
-      if (!c.path || c.pathT <= 0) {
-        c.pathT = 0.6;
-        c.path = City.pathTo(Math.floor(c.x / TILE), Math.floor(c.y / TILE), Math.floor(tx / TILE), Math.floor(ty / TILE));
-      }
-      if (c.path && c.path.length > 1) {
-        // ближайшая точка пути и цель на 2 клетки вперёд
-        let bi = 0, bd = Infinity;
-        for (let i = 0; i < Math.min(c.path.length, 12); i++) {
-          const q = c.path[i]; const dd = dist2(c.x, c.y, q.x * TILE + 32, q.y * TILE + 32);
-          if (dd < bd) { bd = dd; bi = i; }
-        }
-        const q = c.path[Math.min(c.path.length - 1, bi + 2)];
-        gx = q.x * TILE + 32; gy = q.y * TILE + 32;
-      } else { gx = tx; gy = ty; }
-    }
-    const want = Math.atan2(gx - c.x, -(gy - c.y));
-    const diff = wrapAngle(want - c.a);
-    let throttle = 1;
-    if (Math.abs(diff) > 1.2 && c.speed > 160) throttle = -0.4;
-    else if (Math.abs(diff) > 2.2) throttle = 0.4;
     // к пешему подъезжаем и тормозим, а не давим; на 1 звезде не таранят
-    const calm = !pl.car || Wanted.level <= 1;
-    if (calm && d < 400) {
-      const limit = Math.max(50, (d - 120) * 0.8);
-      if (c.fspeed > limit) throttle = -1; else if (c.fspeed > limit * 0.7) throttle = 0;
-    }
-    c.drive(dt, throttle, clamp(diff * 2.2, -1, 1), Math.abs(diff) > 1.4 && c.speed > 150);
-    if (c.speed < 25) c.stuck += dt; else c.stuck = Math.max(0, c.stuck - dt * 2);
-    if (c.stuck > 1.3) { c.stuck = 0; c.recover = 0.8; c.recoverSteer = -Math.sign(diff || 1); }
+    chaseDrive(c, tx, ty, d, dt, !pl.car || Wanted.level <= 1);
   },
 
   exitCops(c) {
@@ -244,3 +208,44 @@ const Police = {
     }
   },
 };
+
+// Погоня по дорогам: путь до цели, вблизи — напрямую, выезд из тупика.
+// calm — подъезжает и тормозит рядом, а не таранит.
+function chaseDrive(c, tx, ty, d, dt, calm) {
+  if (c.recover > 0) {
+    c.recover -= dt;
+    c.drive(dt, -1, c.recoverSteer, false);
+    return;
+  }
+  let gx, gy;
+  if (d < 260 && City.lineOfSight(c.x, c.y, tx, ty)) { gx = tx; gy = ty; }
+  else {
+    c.pathT = (c.pathT || 0) - dt;
+    if (!c.path || c.pathT <= 0) {
+      c.pathT = 0.6;
+      c.path = City.pathTo(Math.floor(c.x / TILE), Math.floor(c.y / TILE), Math.floor(tx / TILE), Math.floor(ty / TILE));
+    }
+    if (c.path && c.path.length > 1) {
+      // ближайшая точка пути и цель на 2 клетки вперёд
+      let bi = 0, bd = Infinity;
+      for (let i = 0; i < Math.min(c.path.length, 12); i++) {
+        const q = c.path[i]; const dd = dist2(c.x, c.y, q.x * TILE + 32, q.y * TILE + 32);
+        if (dd < bd) { bd = dd; bi = i; }
+      }
+      const q = c.path[Math.min(c.path.length - 1, bi + 2)];
+      gx = q.x * TILE + 32; gy = q.y * TILE + 32;
+    } else { gx = tx; gy = ty; }
+  }
+  const want = Math.atan2(gx - c.x, -(gy - c.y));
+  const diff = wrapAngle(want - c.a);
+  let throttle = 1;
+  if (Math.abs(diff) > 1.2 && c.speed > 160) throttle = -0.4;
+  else if (Math.abs(diff) > 2.2) throttle = 0.4;
+  if (calm && d < 400) {
+    const limit = Math.max(50, (d - 120) * 0.8);
+    if (c.fspeed > limit) throttle = -1; else if (c.fspeed > limit * 0.7) throttle = 0;
+  }
+  c.drive(dt, throttle, clamp(diff * 2.2, -1, 1), Math.abs(diff) > 1.4 && c.speed > 150);
+  if (c.speed < 25) c.stuck += dt; else c.stuck = Math.max(0, c.stuck - dt * 2);
+  if (c.stuck > 1.3) { c.stuck = 0; c.recover = 0.8; c.recoverSteer = -Math.sign(diff || 1); }
+}

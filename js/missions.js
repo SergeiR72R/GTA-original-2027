@@ -99,6 +99,8 @@ function passengerStep(m, ped, dest, dt, who) {
 
 // Машина NPC едет к точке по дорогам
 function driveTo(c, gx, gy, dt, cruise) {
+  // упёрлись — сдаём назад с вывернутым рулём
+  if (c.recover > 0) { c.recover -= dt; c.drive(dt, -1, c.recoverSteer, false); return dist(c.x, c.y, gx, gy); }
   c.pathT = (c.pathT || 0) - dt;
   if (!c.path || c.pathT <= 0) {
     c.pathT = 0.8;
@@ -122,8 +124,62 @@ function driveTo(c, gx, gy, dt, cruise) {
     else { c.honk(); thr = 0.6; }
   } else c.blockT = 0;
   c.drive(dt, thr, clamp(diff * 2.4, -1, 1), false);
+  if (thr > 0 && c.speed < 20) c.stuck += dt; else c.stuck = Math.max(0, c.stuck - dt * 2);
+  if (c.stuck > 1.2) { c.stuck = 0; c.recover = 0.8; c.recoverSteer = -Math.sign(diff || 1); }
   return dist(c.x, c.y, gx, gy);
 }
+
+// Беглец на машине: катается между дальними точками города, подальше от игрока
+const FLEE_SPOTS = ['beach', 'port', 'azrieli', 'hospital', 'bank', 'jaffaClock', 'nevetzedek', 'shuk', 'florentin', 'flat'];
+function fleeDrive(c, dt, cruise) {
+  const pl = World.player;
+  if (!c.fleeTo || dist(c.x, c.y, c.fleeTo.x, c.fleeTo.y) < 150) {
+    const opts = FLEE_SPOTS.map((k) => City.places[k]).filter((p) => p && p !== c.fleeTo && dist(p.x, p.y, c.x, c.y) > 500);
+    opts.sort((a, b) => dist2(b.x, b.y, pl.x, pl.y) - dist2(a.x, a.y, pl.x, pl.y));
+    c.fleeTo = opts[randi(0, Math.min(2, opts.length - 1))];
+  }
+  driveTo(c, c.fleeTo.x, c.fleeTo.y, dt, cruise);
+}
+
+// Цель далеко дольше limit секунд — ушла
+function escaped(m, o, dt, limit = 8) {
+  const pl = World.player;
+  if (dist(pl.x, pl.y, o.x, o.y) > 1300) m.away = (m.away || 0) + dt;
+  else m.away = 0;
+  return m.away > limit;
+}
+
+// Враги миссии вместе с бандитами из машин погони (машину — пока они в ней)
+function foesWithChasers(foes, cars) {
+  const out = foes ? foes.filter((g) => !g.dead) : [];
+  for (const c of cars || []) {
+    if (c.ai === 'gang' && !c.dead) { out.push(c); continue; }
+    for (const g of c.gang || []) if (!g.dead && g.mission && !g.car) out.push(g);
+  }
+  return out;
+}
+
+// Ракетный обстрел: метки на земле, через пару секунд — удар.
+// «Железный купол» сбивает часть ракет ещё в воздухе.
+const Strikes = {
+  list: [],
+  on: false,
+  start() { this.list.length = 0; this.on = true; Sound.setAlarm(true); },
+  clear() { this.list.length = 0; this.on = false; Sound.setAlarm(false); },
+  add(x, y, fuse) {
+    // летят с востока (со стороны Ирана) и чуть с юга — так их видно с наклонной камеры
+    this.list.push({ x, y, t: 0, fuse, from: rand(-0.1, 0.45) * Math.PI, icpt: chance(0.25) ? fuse - rand(0.45, 0.7) : 0, hit: null, end: 0 });
+  },
+  update(dt) {
+    for (let i = this.list.length - 1; i >= 0; i--) {
+      const s = this.list[i];
+      s.t += dt;
+      if (!s.hit && s.icpt && s.t >= s.icpt) { s.hit = 'icpt'; s.end = s.t + 0.8; Sound.noiseBurst(0.9, 500, 0.3); }
+      if (!s.hit && s.t >= s.fuse) { s.hit = 'boom'; s.end = s.t; blast(s.x, s.y, { r: 120, plDmg: 55, carDmg: 50, shake: 16 }); }
+      if (s.hit && s.t >= s.end) this.list.splice(i, 1);
+    }
+  },
+};
 
 const MISSIONS = [
   // ===================== Акт 1: Алия =====================
@@ -205,6 +261,12 @@ const MISSIONS = [
       const pl = World.player;
       m.timer -= dt;
       if (m.timer <= 0) return 'fail:Опоздал. Клиент ушёл, а с ним и деньги.';
+      // на полпути гонщика замечает патруль
+      if (!m.cops && m.timer < 65 && pl.car && pl.car.speed > 200) {
+        m.cops = true;
+        Wanted.set(Math.max(Wanted.level, 1));
+        Game.message('Патруль засёк, как ты пролетел на красный! Пакет лучше не показывать полиции.', 4);
+      }
       m.text = pl.car ? 'Доставь пакет к часовой башне в Яффо' : 'Найди машину и вези пакет в Яффо';
       m.target = City.places.jaffaClock;
       if (dist(pl.x, pl.y, m.target.x, m.target.y) < 90) return 'ok';
@@ -248,14 +310,34 @@ const MISSIONS = [
       c.hp = c.maxHp = 160;
       World.cars.push(c);
       m.car = c;
+      m.gadi = new Ped(p.x + 44, p.y + 10, { look: Looks.named('gadi', Object.assign(Looks.civilian(), { shirt: '#6a1b9a' })), ai: 'idle', hp: 60 });
+      World.peds.push(m.gadi);
       World.pickups.push(new Pickup(City.places.pistol.x, City.places.pistol.y, 'pistol', { ammo: 36, once: true }));
     },
-    update(m) {
-      m.text = 'Уничтожь красный джип Гади во Флорентине';
-      m.target = m.car;
-      if (m.car.dead) { Wanted.set(Math.max(Wanted.level, 1)); return 'ok'; }
+    update(m, dt) {
+      const pl = World.player, c = m.car;
+      if (c.dead) {
+        if (c.driver && c.driver !== 'player') bailOut(c);
+        Wanted.set(Math.max(Wanted.level, 1));
+        return 'ok';
+      }
+      // Гади замечает Лёву (или выстрелы по джипу) и удирает
+      if (!m.fled && !m.gadi.dead && (dist(pl.x, pl.y, c.x, c.y) < 260 || c.hp < c.maxHp)) {
+        m.fled = true;
+        World.peds.splice(World.peds.indexOf(m.gadi), 1);
+        c.driver = m.gadi; m.gadi.car = c; c.ai = 'scripted';
+        Game.message('Гади: «Я всё отдам в пятницу!» — и даёт по газам', 3);
+      }
+      m.target = c;
+      if (!m.fled || c.driver !== m.gadi) { m.text = 'Уничтожь красный джип Гади во Флорентине'; return; }
+      fleeDrive(c, dt, 230);
+      m.text = 'Гади удирает! Догони и уничтожь красный джип';
+      if (escaped(m, c, dt)) return 'fail:Гади скрылся. Долг так и висит.';
     },
-    cleanup(m) { if (m.car) m.car.mission = null; },
+    cleanup(m) {
+      if (m.car) { m.car.mission = null; if (m.car.ai === 'scripted') m.car.ai = null; }
+      if (m.gadi && !m.gadi.car) m.gadi.ai = 'walk';
+    },
   },
   // ===================== Акт 2: Фракции =====================
   {
@@ -274,25 +356,43 @@ const MISSIONS = [
       const p = City.places.luxCar;
       const c = new Car(p.x, p.y, Math.PI / 2, { type: 'lux', faction: 'russian' });
       c.mission = 'target';
+      c.hp = c.maxHp = Math.round(c.maxHp * 1.6); // бронированный — переживёт погоню
       World.cars.push(c);
       m.car = c;
-      m.guards = spawnGroup('arab', { x: p.x, y: p.y + 70 }, 3, { spread: 50 });
+      m.guards = spawnGroup('arab', { x: p.x, y: p.y + 70 }, 4, { spread: 60 });
       for (const g of m.guards) g.mission = null;
+      m.chasers = [];
+      m.chaseT = 0;
     },
-    update(m) {
+    update(m, dt) {
       const pl = World.player;
       if (m.car.dead) return 'fail:Лимузин уничтожен. Сёма этого не простит.';
+      // охрана замечает, если подойти к лимузину или затеять стрельбу
+      if (!m.alarm && (dist(pl.x, pl.y, m.car.x, m.car.y) < 230 || pl.car === m.car || m.guards.some((g) => g.dead || g.alert > 0))) {
+        m.alarm = true;
+        for (const g of m.guards) { g.mission = 'target'; g.alert = 8; }
+        Game.message('Охрана: «Эй! Это машина Абу-Карима!»', 3);
+      }
       if (pl.car !== m.car) {
-        m.text = 'Угони чёрный лимузин в Яффо';
+        m.text = m.alarm ? 'Охрана подняла тревогу — прыгай в лимузин!' : 'Угони чёрный лимузин в Яффо';
         m.target = m.car;
         return;
       }
-      if (!m.angry) { m.angry = true; for (const g of m.guards) { g.mission = 'target'; g.alert = 8; } Factions.change('arab', -30); }
-      m.text = 'Гони лимузин к ресторану «Одесса» в Рамат-Гане';
+      if (!m.angry) {
+        m.angry = true;
+        Factions.change('arab', -30);
+        for (let i = 0; i < 2; i++) { const c = GangCars.spawn('arab', pl.x, pl.y, { min: 450, max: 800 }); if (c) m.chasers.push(c); }
+        Game.message('Клан Аль-Бахар погнался за лимузином!', 3);
+      }
+      // через полминуты подтягивается ещё одна машина
+      m.chaseT += dt;
+      if (m.chaseT > 30 && !m.extra) { m.extra = true; const c = GangCars.spawn('arab', pl.x, pl.y, { min: 600, max: 900 }); if (c) m.chasers.push(c); }
+      const tail = m.chasers.some((c) => c.ai === 'gang' && !c.dead);
+      m.text = tail ? 'Гони лимузин в Рамат-Ган — за тобой погоня!' : 'Гони лимузин к ресторану «Одесса» в Рамат-Гане';
       m.target = City.places.ruHQ;
       if (dist(pl.x, pl.y, m.target.x, m.target.y) < 110) { Factions.change('russian', 25); return 'ok'; }
     },
-    cleanup(m) { if (m.car) m.car.mission = null; for (const g of m.guards || []) g.mission = null; },
+    cleanup(m) { if (m.car) m.car.mission = null; for (const g of m.guards || []) g.mission = null; GangCars.release(m.chasers); },
   },
   {
     title: 'Бухгалтер',
@@ -313,8 +413,15 @@ const MISSIONS = [
     },
     update(m, dt) {
       const r = passengerStep(m, m.moshe, City.places.azrieli, dt, 'Моше');
-      if (r === 'boarded') Game.message('Моше: «Только не гони! Ой-вей...»');
-      if (m.pstage === 2) m.text = 'Отвези Моше в Азриэли';
+      const c = World.player.car;
+      if (r === 'boarded') { Game.message('Моше: «Только не гони! Ой-вей...»'); m.hp0 = c.hp; m.oy = 0; }
+      if (m.pstage === 2 && c && m.hp0 !== undefined) {
+        // каждый удар — по нервам Моше; разбитая машина — сердечный приступ
+        const lost = (m.hp0 - c.hp) / c.maxHp;
+        if (lost > m.oy + 0.08) { m.oy = lost; Game.message(pick(['Моше: «Ой-вей! Моё сердце!»', 'Моше: «Осторожнее, я ещё не подписал завещание!»', 'Моше: «Это была машина или стена?!»']), 2.5); }
+        if (lost > 0.35) return 'fail:У Моше прихватило сердце. Налоговая подождёт, Ицик — нет.';
+        m.text = `Отвези Моше в Азриэли (нервы Моше: ${Math.round(100 - lost / 0.35 * 100)}%)`;
+      }
       if (r === 'arrived') { m.moshe.ai = 'walk'; return 'ok'; }
       if (r && r.startsWith('fail')) return r;
     },
@@ -336,16 +443,23 @@ const MISSIONS = [
       const p = City.places.lionsHQ;
       m.foes = spawnGroup('russian', { x: p.x, y: p.y - 10 }, 4, { spread: 70 });
       m.allies = null;
+      m.chasers = [];
     },
     update(m) {
-      const pl = World.player;
-      const left = m.foes.filter((g) => !g.dead);
-      if (!m.allies && dist(pl.x, pl.y, City.places.lionsHQ.x, City.places.lionsHQ.y) < 500) { m.allies = spawnAllies(2); Game.message('Абеба: Мы с тобой!'); }
-      m.text = `Выгони сборщиков «Одессы» из гаража «Львов» (осталось: ${left.length})`;
-      m.target = nearestAlive(m.foes) || City.places.lionsHQ;
-      if (!left.length) { Factions.change('lions', 35); Factions.change('russian', -45); return 'ok'; }
+      const pl = World.player, P = City.places.lionsHQ;
+      if (!m.allies && dist(pl.x, pl.y, P.x, P.y) < 500) { m.allies = spawnAllies(2); Game.message('Абеба: Мы с тобой!'); }
+      // когда сборщиков почти не осталось — подъезжает их подмога
+      if (!m.reinf && m.foes.filter((g) => !g.dead).length <= 2) {
+        m.reinf = true;
+        const c = GangCars.spawn('russian', P.x, P.y, { min: 400, max: 700 });
+        if (c) { m.chasers.push(c); Game.message('Абеба: Ещё машина «Одессы»!', 3); }
+      }
+      const left = foesWithChasers(m.foes, m.chasers);
+      m.text = `Выгони сборщиков «Одессы» из гаража «Львов» (осталось: ${m.foes.filter((g) => !g.dead).length + GangCars.alive(m.chasers)})`;
+      m.target = nearestAlive(left) || P;
+      if (!left.length && m.reinf) { Factions.change('lions', 35); Factions.change('russian', -45); return 'ok'; }
     },
-    cleanup(m) { for (const a of m.allies || []) { a.mission = null; a.ai = 'gang'; a.home = { x: a.x, y: a.y }; } },
+    cleanup(m) { for (const a of m.allies || []) { a.mission = null; a.ai = 'gang'; a.home = { x: a.x, y: a.y }; } GangCars.release(m.chasers); },
   },
   {
     title: 'Налёт на Шук',
@@ -363,15 +477,23 @@ const MISSIONS = [
       m.itzik.mission = 'ally';
       World.peds.push(m.itzik);
       m.foes = spawnGroup('arab', { x: p.x, y: p.y - 160 }, 5, { spread: 90 });
+      m.chasers = [];
     },
     update(m) {
       if (m.itzik.dead) return 'fail:Ицик погиб. Шук осиротел.';
-      const left = m.foes.filter((g) => !g.dead);
-      m.text = `Защити Ицика и Шук (нападающих: ${left.length})`;
-      m.target = nearestAlive(m.foes);
-      if (!left.length) { Factions.change('arab', -20); return 'ok'; }
+      const P = City.places.shuk;
+      // вторая волна — пикап с подмогой
+      if (!m.wave2 && m.foes.filter((g) => !g.dead).length <= 2) {
+        m.wave2 = true;
+        const c = GangCars.spawn('arab', P.x, P.y, { min: 450, max: 750 });
+        if (c) { m.chasers.push(c); Game.message('Ицик: Ещё едут! Пикап с юга!', 3); }
+      }
+      const left = foesWithChasers(m.foes, m.chasers);
+      m.text = `Защити Ицика и Шук (нападающих: ${m.foes.filter((g) => !g.dead).length + GangCars.alive(m.chasers)})`;
+      m.target = nearestAlive(left);
+      if (!left.length && m.wave2) { Factions.change('arab', -20); return 'ok'; }
     },
-    cleanup(m) { if (m.itzik) { m.itzik.mission = null; m.itzik.ai = 'walk'; } },
+    cleanup(m) { if (m.itzik) { m.itzik.mission = null; m.itzik.ai = 'walk'; } GangCars.release(m.chasers); },
   },
   // ===================== Акт 3: Иранская сеть =====================
   {
@@ -433,20 +555,90 @@ const MISSIONS = [
     start(m) {
       const p = City.places.iranSafe;
       m.foes = spawnGroup('iran', { x: p.x, y: p.y + 10 }, 5, { spread: 80, weapon: 'uzi', hp: 80 });
-      const c = new Car(p.x + 60, p.y - 70, 0, { type: 'van', faction: 'iran' });
+      // фургон — на ближайшей улице, чтобы мог сразу уехать
+      const r = Game.findRoadSpawn(p.x, p.y, 60, 260, true) || { x: p.x + 60, y: p.y - 70, dir: 0 };
+      const c = new Car(r.x, r.y, DIR_ANGLE[r.dir], { type: 'van', faction: 'iran' });
       c.mission = 'target'; c.hp = c.maxHp = 200;
+      c.driver = new Ped(c.x, c.y, { faction: 'iran', ai: 'gang', weapon: 'pistol', hp: 80 });
+      c.driver.car = c;
       World.cars.push(c);
       m.van = c;
+      // фургон уходит в дальний конец города
+      const far = [City.places.port, City.places.azrieli, City.places.hospital].filter(Boolean);
+      far.sort((a, b) => dist2(b.x, b.y, p.x, p.y) - dist2(a.x, a.y, p.x, p.y));
+      m.dest = far[0];
       World.pickups.push(new Pickup(6.5 * TILE, 12 * TILE, 'uzi', { ammo: 150, once: true }));
       World.pickups.push(new Pickup(6.5 * TILE, 13 * TILE, 'armor', { once: true }));
     },
-    update(m) {
+    update(m, dt) {
+      const pl = World.player, v = m.van;
+      if (!v.dead && !m.vanGo && (dist(pl.x, pl.y, v.x, v.y) < 330 || v.hp < v.maxHp)) {
+        m.vanGo = true; v.ai = 'scripted';
+        Game.message('Дани: Фургон уходит! Не дай ему увезти оборудование!', 4);
+      }
+      if (m.vanGo && !v.dead && v.driver && v.driver !== 'player') {
+        if (driveTo(v, m.dest.x, m.dest.y, dt, 165) < 140) return 'fail:Фургон с оборудованием ушёл. Дани в ярости.';
+      }
+      // водитель подбитого фургона отстреливается
+      if (v.dead && v.driver && v.driver !== 'player') {
+        const d = v.driver;
+        bailOut(v);
+        d.ai = 'gang'; d.mission = 'target'; d.alert = 8; d.home = { x: d.x, y: d.y };
+        m.foes.push(d);
+      }
       const left = m.foes.filter((g) => !g.dead);
-      m.text = `Останови иранских агентов (${left.length}) и уничтожь их фургон${m.van.dead ? ' ✔' : ''}`;
-      m.target = nearestAlive(m.foes) || (m.van.dead ? null : m.van);
+      m.text = m.vanGo && !v.dead ? `Фургон уходит — уничтожь его! (агентов: ${left.length})` : `Останови иранских агентов (${left.length}) и уничтожь их фургон${v.dead ? ' ✔' : ''}`;
+      m.target = m.vanGo && !v.dead ? v : nearestAlive(m.foes) || (v.dead ? null : v);
       if (!left.length && m.van.dead) { Wanted.reset(); Factions.change('arab', 15); return 'ok'; }
     },
-    cleanup(m) { if (m.van) m.van.mission = null; },
+    cleanup(m) { if (m.van) { m.van.mission = null; if (m.van.ai === 'scripted') m.van.ai = null; } },
+  },
+  {
+    title: 'Цева Адом',
+    phone: null,
+    intro: [
+      [DANI, 'Лёва, слушай внимательно. Мы накрыли их сеть — и Тегеран решил «ответить». Ракеты уже в воздухе.'],
+      [DANI, '«Железный купол» собьёт не всё. Видишь красный круг на земле — беги оттуда: через пару секунд туда прилетит.'],
+      [HERO, 'В Питере самое страшное, что падает с неба, — сосульки...'],
+    ],
+    reward: 5000,
+    outro: 'Дани: Отбой тревоги. Ты цел — это главное. Сегодня весь Гуш-Дан выучил слово «мамад».',
+    start(m) {
+      const pl = World.player;
+      m.timer = 60; m.spawnT = 2.5; m.vx = 0; m.vy = 0; m.lx = pl.x; m.ly = pl.y;
+      Strikes.start();
+      World.pickups.push(new Pickup(pl.x + 50, pl.y + 10, 'armor', { once: true }));
+      Game.message('Сирена! «Цева адом» — красная тревога. Бронежилет рядом.', 4);
+    },
+    update(m, dt) {
+      const pl = World.player;
+      m.timer -= dt;
+      Strikes.update(dt);
+      // скорость игрока — ракеты целят с упреждением
+      if (dt > 0) { m.vx = lerp(m.vx, (pl.x - m.lx) / dt, 0.1); m.vy = lerp(m.vy, (pl.y - m.ly) / dt, 0.1); }
+      m.lx = pl.x; m.ly = pl.y;
+      const prog = clamp(1 - m.timer / 60, 0, 1);
+      m.spawnT -= dt;
+      if (m.timer > 2.5 && m.spawnT <= 0 && Strikes.list.length < 6) {
+        m.spawnT = lerp(1.7, 0.8, prog) * rand(0.8, 1.2);
+        const salvo = chance(lerp(0.1, 0.4, prog)) ? 2 : 1;
+        for (let i = 0; i < salvo; i++) {
+          const fuse = rand(2.0, 2.6);
+          if (i === 0 && chance(0.55)) Strikes.add(pl.x + m.vx * fuse * 0.7 + rand(-50, 50), pl.y + m.vy * fuse * 0.7 + rand(-50, 50), fuse);
+          else {
+            // случайные — по улицам и дворам, не по крышам
+            for (let k = 0; k < 8; k++) {
+              const a = rand(0, TAU), r = rand(110, 380), x = pl.x + Math.cos(a) * r, y = pl.y + Math.sin(a) * r;
+              if (!City.solidAt(x, y)) { Strikes.add(x, y, fuse); break; }
+            }
+          }
+        }
+      }
+      m.text = m.timer > 0 ? `Цева адом! Уворачивайся от ракет — до отбоя ${Math.ceil(m.timer)} с` : 'Последние ракеты...';
+      m.target = null;
+      if (m.timer <= 0 && !Strikes.list.length) return 'ok';
+    },
+    cleanup() { Strikes.clear(); },
   },
   {
     title: 'Перемирие',
@@ -465,11 +657,22 @@ const MISSIONS = [
       m.itzik.mission = 'target';
       World.peds.push(m.itzik);
       m.step = 0;
+      m.chasers = [];
+      m.ride = 0;
     },
     update(m, dt) {
       if (m.step === 0) {
         const r = passengerStep(m, m.itzik, City.places.arHQ, dt, 'Ицик');
-        if (m.pstage === 2) m.text = 'Отвези Ицика на встречу с Абу-Каримом в Яффо';
+        if (m.pstage === 2) {
+          m.text = 'Отвези Ицика на встречу с Абу-Каримом в Яффо';
+          // «Одесса» узнала о встрече и садится на хвост
+          m.ride += dt;
+          if (m.ride > 10 && !m.chasers.length) {
+            const pl = World.player;
+            const c = GangCars.spawn('russian', pl.x, pl.y, { min: 500, max: 800 });
+            if (c) { m.chasers.push(c); Game.message('Ицик: За нами «Одесса»! Жми, Лёва!', 3); }
+          }
+        }
         if (r && r.startsWith('fail')) return r;
         if (r === 'arrived') {
           m.step = 1;
@@ -486,7 +689,7 @@ const MISSIONS = [
       m.target = nearestAlive(m.foes);
       if (!left.length) { Factions.change('arab', Math.max(45, 30 - Factions.rep.arab)); Factions.change('russian', -20); return 'ok'; }
     },
-    cleanup(m) { if (m.itzik) { m.itzik.mission = null; m.itzik.ai = 'walk'; } },
+    cleanup(m) { if (m.itzik) { m.itzik.mission = null; m.itzik.ai = 'walk'; } GangCars.release(m.chasers); },
   },
   {
     title: 'Последний тост',
@@ -505,17 +708,44 @@ const MISSIONS = [
       m.boss = m.foes[0];
       m.boss.weapon = 'uzi';
       m.allies = null;
-      for (let i = 0; i < 2; i++) { const c = new Car(p.x + 80 + i * 60, p.y + 120, 0, { type: 'lux', faction: 'russian' }); World.cars.push(c); }
+      m.cars = [];
+      for (let i = 0; i < 2; i++) { const c = new Car(p.x + 80 + i * 60, p.y + 120, 0, { type: 'lux', faction: 'russian' }); c.keep = true; World.cars.push(c); m.cars.push(c); }
     },
-    update(m) {
-      const pl = World.player;
+    update(m, dt) {
+      const pl = World.player, b = m.boss;
       if (!m.allies && dist(pl.x, pl.y, City.places.ruHQ.x, City.places.ruHQ.y) < 700) { m.allies = spawnAllies(3); Game.message('Абеба: «Львы», вперёд!'); }
       const left = m.foes.filter((g) => !g.dead);
-      m.text = m.boss.dead ? `Добей охрану «Одессы» (осталось: ${left.length})` : `Ресторан «Одесса»: найди Сёму Каца (охраны: ${left.length - 1})`;
-      m.target = m.boss.dead ? nearestAlive(m.foes) : m.boss;
+      // ранен или охрана тает — Сёма бежит к лимузину
+      if (!m.run && !b.dead && m.allies && (b.hp < 130 || left.length <= 3)) {
+        m.runCar = m.cars.filter((c) => !c.dead && !c.driver).sort((x, y) => dist2(x.x, x.y, b.x, b.y) - dist2(y.x, y.y, b.x, b.y))[0];
+        if (m.runCar) { m.run = true; b.ai = 'idle'; Game.message('Сёма: «Пацаны, прикройте!» — бежит к машине', 3); }
+      }
+      const c = m.runCar;
+      if (m.run && !b.dead && !b.car && c && !c.dead && !c.driver) {
+        b.moveTo(c.x, c.y, 140, dt);
+        if (dist(b.x, b.y, c.x, c.y) < c.w / 2 + 18) {
+          World.peds.splice(World.peds.indexOf(b), 1);
+          c.driver = b; b.car = c; c.ai = 'scripted'; c.mission = 'target';
+        }
+      } else if (m.run && b.car && c.dead) {
+        // машина подбита — дальше пешком, с узи
+        bailOut(c);
+        b.ai = 'gang'; b.alert = 8; b.home = { x: b.x, y: b.y };
+      } else if (m.run && b.car === c && c.driver === b) {
+        fleeDrive(c, dt, 240);
+        if (escaped(m, c, dt)) return 'fail:Сёма ушёл. Охота не окончена.';
+      } else if (m.run && !b.car && b.ai === 'idle' && (!c || c.dead || c.driver)) { b.ai = 'gang'; b.alert = 8; }
+      if (b.car) { m.text = 'Сёма удирает на лимузине — останови его!'; m.target = b.car; }
+      else {
+        m.text = b.dead ? `Добей охрану «Одессы» (осталось: ${left.length})` : `Ресторан «Одесса»: найди Сёму Каца (охраны: ${left.length - 1})`;
+        m.target = b.dead ? nearestAlive(m.foes) : b;
+      }
       if (!left.length) { Factions.change('lions', 25); Factions.change('russian', -100, true); return 'ok'; }
     },
-    cleanup(m) { for (const a of m.allies || []) { a.mission = null; a.ai = 'gang'; a.home = { x: a.x, y: a.y }; } },
+    cleanup(m) {
+      for (const a of m.allies || []) { a.mission = null; a.ai = 'gang'; a.home = { x: a.x, y: a.y }; }
+      for (const c of m.cars || []) { c.keep = false; c.mission = null; if (c.ai === 'scripted') c.ai = null; }
+    },
   },
   {
     title: 'Горячий ветер',
@@ -555,6 +785,7 @@ const Missions = {
     this.done = this.index >= MISSIONS.length;
     this.dialog = null;
     this.retry = 1.5;
+    Strikes.clear();
   },
 
   blocking() { return !!this.active; },

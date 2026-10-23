@@ -202,34 +202,18 @@ class Car {
 
   explode() {
     this.burn = -1;
-    Sound.explosion();
-    Game.shake(14);
-    for (let i = 0; i < 26; i++) spawnParticle(this.x, this.y, 'fire');
-    for (let i = 0; i < 18; i++) spawnParticle(this.x, this.y, 'smoke');
-    World.decals.push({ k: 'burn', x: this.x, y: this.y, a: rand(0, TAU), s: rand(0.9, 1.3) });
     // выбросить водителя
     if (this.driver && this.driver !== 'player') { const d = this.driver; this.driver = null; d.car = null; d.x = this.x + 30; d.y = this.y; World.peds.push(d); d.kill('explosion'); }
     if (this.passenger) { this.passenger.car = null; this.passenger.x = this.x - 30; this.passenger.y = this.y; World.peds.push(this.passenger); this.passenger.kill('explosion'); this.passenger = null; }
     if (this.driver === 'player') Game.playerHurt(200, 'explosion');
-    // урон по округе
-    for (const c of World.cars) {
-      if (c === this || c.dead) continue;
-      const d = dist(c.x, c.y, this.x, this.y);
-      if (d < 120) { c.damage(45 * (1 - d / 120), this.killedBy); const k = 300 * (1 - d / 130) / (d || 1); c.vx += (c.x - this.x) * k; c.vy += (c.y - this.y) * k; }
-    }
-    for (const p of World.peds) {
-      if (p.dead) continue;
-      const d = dist(p.x, p.y, this.x, this.y);
-      if (d < 110) p.hurt(120, this.killedBy, this.x, this.y);
-      else if (d < 400) p.scare(this.x, this.y);
-    }
-    const pl = World.player;
-    if (!pl.car && !pl.dead) { const d = dist(pl.x, pl.y, this.x, this.y); if (d < 110) Game.playerHurt(80 * (1 - d / 110) + 10, 'explosion'); }
+    blast(this.x, this.y, { by: this.killedBy, skip: this });
     if (this.killedBy === 'player') { Game.addMoney(this.police ? 500 : 250); if (this.police) Wanted.crime('killcop', this.x, this.y); else Wanted.crime('explode', this.x, this.y); }
   }
 
   update(dt) {
     if (this.dead) {
+      // бандиты выскакивают из подбитой машины и дерутся пешком
+      if (this.gang && this.driver && this.driver !== 'player') GangCars.exit(this, 25);
       if (this.burn > 0) {
         this.burn -= dt;
         // сначала дымит, к концу пламя сильнее
@@ -243,6 +227,7 @@ class Car {
     }
     if (this.hp < this.maxHp * 0.45 && Math.random() < 0.25) spawnParticle(this.x + this.fwd.x * this.l * 0.35, this.y + this.fwd.y * this.l * 0.35, this.hp < this.maxHp * 0.15 ? 'fire' : 'smoke');
     if (this.driver === 'player') return; // управляется в Game
+    if (this.ai === 'gang' && this.driver) { GangCars.carAI(this, dt); return; }
     if (this.ai === 'traffic' && this.driver) this.trafficAI(dt);
     else if (this.ai === 'police' && this.driver) Police.carAI(this, dt);
     else if (this.ai === 'scripted') { /* управляется миссией */ }
@@ -707,7 +692,7 @@ function updateBullets(dt) {
     // машины
     if (!hit) {
       for (const c of World.cars) {
-        if (c === pl.car && byPlayer) continue;
+        if ((c === pl.car && byPlayer) || c === b.owner.car) continue;
         if (c.contains(nx, ny)) {
           c.damage(WEAPONS[b.weapon].carDmg, byPlayer ? 'player' : 'npc', nx, ny);
           spawnSparks(nx, ny, 3);
@@ -723,6 +708,30 @@ function updateBullets(dt) {
 }
 
 // Водитель в панике выскакивает из машины
+// Взрыв: огонь, дым, воронка, урон и отброс машин, люди в радиусе гибнут.
+// r — радиус поражения людей; by — кто виноват (для розыска и денег).
+function blast(x, y, opts = {}) {
+  const r = opts.r || 110;
+  Sound.explosion();
+  Game.shake(opts.shake || 14);
+  for (let i = 0; i < 26; i++) spawnParticle(x, y, 'fire');
+  for (let i = 0; i < 18; i++) spawnParticle(x, y, 'smoke');
+  World.decals.push({ k: 'burn', x, y, a: rand(0, TAU), s: rand(0.9, 1.3) * r / 110 });
+  for (const c of World.cars) {
+    if (c === opts.skip || c.dead) continue;
+    const d = dist(c.x, c.y, x, y);
+    if (d < r + 10) { c.damage((opts.carDmg || 45) * (1 - d / (r + 10)), opts.by, x, y); const k = 300 * (1 - d / (r + 20)) / (d || 1); c.vx += (c.x - x) * k; c.vy += (c.y - y) * k; }
+  }
+  for (const p of World.peds) {
+    if (p.dead) continue;
+    const d = dist(p.x, p.y, x, y);
+    if (d < r) p.hurt(120, opts.by, x, y);
+    else if (d < 400) p.scare(x, y);
+  }
+  const pl = World.player;
+  if (!pl.car && !pl.dead) { const d = dist(pl.x, pl.y, x, y); if (d < r) Game.playerHurt((opts.plDmg || 80) * (1 - d / r) + 10, 'explosion'); }
+}
+
 function bailOut(c) {
   const d = c.driver;
   if (!d || d === 'player') return;

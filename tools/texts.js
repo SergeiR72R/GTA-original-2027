@@ -189,9 +189,9 @@ function encode(s, text) {
 
 // Сравниваем отредактированный файл с исходным TEXTS.md из репозитория и
 // ищем изменённые строки в коде по старому тексту (ближайшую к метке).
-function readTexts(file) {
+function readTexts(text) {
   const map = {};
-  for (const l of fs.readFileSync(file, 'utf8').split('\n')) {
+  for (const l of text.split('\n')) {
     const m = l.match(/^\[([\w-]+):(\d+)(?:\.\d+)?\] ?(.*)$/);
     if (m) map[l.slice(1, l.indexOf(']'))] = { short: m[1], line: +m[2], body: m[3] };
   }
@@ -199,7 +199,19 @@ function readTexts(file) {
 }
 
 function applyTexts(file, baseFile) {
-  const base = readTexts(baseFile), edited = readTexts(file);
+  // исходник для сравнения — TEXTS.md той версии, что указана в шапке файла
+  const editedText = fs.readFileSync(file, 'utf8');
+  const rev = (editedText.match(/версия ([0-9a-f]{7,40})/) || [])[1];
+  let baseText = fs.readFileSync(baseFile, 'utf8');
+  if (rev) {
+    // в истории TEXTS.md ищем вариант с той же версией в шапке
+    const git = (c) => require('child_process').execSync(c, { cwd: root }).toString();
+    const found = git('git log --format=%H -- TEXTS.md').split('\n').filter(Boolean)
+      .map((h) => git(`git show ${h}:TEXTS.md`)).find((t) => t.includes(`версия ${rev})`));
+    if (found) baseText = found;
+    else console.log(`! TEXTS.md версии ${rev} нет в истории — сравниваю с текущим`);
+  }
+  const base = readTexts(baseText), edited = readTexts(editedText);
   const all = collect().flatMap((g) => g.list);
   const changed = [], srcs = {};
   for (const [id, e] of Object.entries(edited)) {
@@ -231,7 +243,7 @@ function applyTexts(file, baseFile) {
   for (const [f, src] of Object.entries(srcs)) fs.writeFileSync(path.join(root, f), src);
   console.log(changed.join('\n') || 'Изменений нет');
   console.log(`\nИзменено строк: ${changed.length}`);
-  const notes = fs.readFileSync(file, 'utf8').split('\n').filter((l) => l.startsWith('>'));
+  const notes = editedText.split('\n').filter((l) => l.startsWith('>'));
   if (notes.length) console.log(`\nКомментарии (${notes.length}):\n${notes.join('\n')}`);
 }
 

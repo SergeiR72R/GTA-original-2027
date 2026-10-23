@@ -156,6 +156,38 @@ const Sound = {
     if (this.siren) this.siren.g.gain.setTargetAtTime(clamp(vol, 0, 1) * 0.06, this.ctx.currentTime, 0.1);
   },
 
+  // Сирена воздушной тревоги: медленный вой вверх-вниз
+  setAlarm(on) {
+    if (!this.ctx) return;
+    if (on && !this.alarm) {
+      const o = this.ctx.createOscillator();
+      const lfo = this.ctx.createOscillator();
+      const lg = this.ctx.createGain();
+      const g = this.ctx.createGain();
+      o.type = 'sawtooth';
+      o.frequency.value = 520;
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.22;
+      lg.gain.value = 190;
+      lfo.connect(lg); lg.connect(o.frequency);
+      const f = this.ctx.createBiquadFilter();
+      f.type = 'lowpass'; f.frequency.value = 1400;
+      g.gain.value = 0;
+      o.connect(f); f.connect(g); g.connect(this.master);
+      o.start(); lfo.start();
+      this.alarm = { o, lfo, g };
+    }
+    if (!this.alarm) return;
+    const t = this.ctx.currentTime;
+    if (on) this.alarm.g.gain.setTargetAtTime(0.045, t, 0.4);
+    else {
+      const a = this.alarm;
+      this.alarm = null;
+      a.g.gain.setTargetAtTime(0, t, 0.6);
+      a.o.stop(t + 3); a.lfo.stop(t + 3);
+    }
+  },
+
   // ---------- Радио «Хамсин FM» ----------
   // Простой генеративный луп: ритм дарбуки + мелодия во фригийском доминантовом ладу.
   radioStart() {

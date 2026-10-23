@@ -55,3 +55,82 @@ const Factions = {
     }
   },
 };
+
+// Машины банд в миссиях: догоняют игрока, стреляют из окна, к пешему
+// выходят и дерутся. Умеренно: держат дистанцию, а не таранят, едут чуть
+// медленнее игрока и бросают погоню, если сильно отстали.
+const GangCars = {
+  spawn(faction, x, y, opts = {}) {
+    const p = Game.findRoadSpawn(x, y, opts.min || 450, opts.max || 850, opts.visible);
+    if (!p) return null;
+    const F = FACTIONS[faction];
+    const c = new Car(p.x, p.y, DIR_ANGLE[p.dir], { type: opts.type || F.car, faction, ai: 'gang' });
+    const crew = (w) => { const g = new Ped(p.x, p.y, { faction, ai: 'gang', weapon: w, hp: 70 }); g.mission = 'target'; g.car = c; return g; };
+    c.driver = crew('pistol');
+    c.gang = [c.driver, crew(opts.weapon || (chance(0.5) ? 'uzi' : 'pistol'))];
+    c.mission = 'target';
+    c.maxSpeed = c.T.max * (opts.speed || 0.95);
+    c.lostT = 0;
+    c.shootT = rand(1.5, 2.5);
+    World.cars.push(c);
+    return c;
+  },
+
+  carAI(c, dt) {
+    const pl = World.player;
+    if (pl.dead) { c.drive(dt, 0, 0, true); return; }
+    const tx = pl.car ? pl.car.x : pl.x, ty = pl.car ? pl.car.y : pl.y;
+    const d = dist(c.x, c.y, tx, ty);
+    // сильно отстали — бросают погоню
+    if (d > 1500) { c.lostT += dt; if (c.lostT > 5) { this.giveUp(c); return; } } else c.lostT = 0;
+    // игрок пешком или встал — выходят
+    if (!pl.car && ((d < 200 && c.speed < 120) || (d < 450 && c.speed < 60 && (!c.path || c.path.length <= 3)))) { this.exit(c); return; }
+    if (pl.car && pl.car.speed < 25 && d < 160 && c.speed < 80) { this.exit(c); return; }
+    chaseDrive(c, tx, ty, d, dt, d < 220);
+    // стреляют из окна
+    c.shootT -= dt;
+    if (d < 380 && c.shootT <= 0 && City.lineOfSight(c.x, c.y, tx, ty)) {
+      const g = c.gang.find((q) => q !== c.driver && !q.dead) || c.driver;
+      g.x = c.x; g.y = c.y;
+      g.burst = (g.burst || 0) + 1;
+      c.shootT = g.weapon === 'uzi' ? (g.burst % 4 === 0 ? rand(1.6, 2.4) : 0.14) : rand(1.1, 1.7);
+      fireBullet(g, g.weapon, Math.atan2(ty - c.y, tx - c.x));
+    }
+  },
+
+  exit(c, hurt) {
+    const f = c.fwd;
+    (c.gang || []).forEach((g, i) => {
+      if (g.dead || g.car !== c) return;
+      const side = i % 2 ? -1 : 1;
+      let x = c.x - side * f.y * (c.w / 2 + 14), y = c.y + side * f.x * (c.w / 2 + 14);
+      if (City.solidAt(x, y)) { x = c.x + side * f.y * (c.w / 2 + 14); y = c.y - side * f.x * (c.w / 2 + 14); }
+      g.car = null; g.x = x; g.y = y; g.ai = 'gang'; g.alert = 8; g.cool = 0.8; g.home = { x, y };
+      if (hurt) g.hp = Math.max(10, g.hp - hurt);
+      World.peds.push(g);
+    });
+    c.driver = null;
+    c.ai = null;
+  },
+
+  giveUp(c) {
+    c.ai = null; c.mission = null;
+    for (const g of c.gang || []) g.mission = null;
+  },
+
+  // конец миссии: погоня прекращается, вышедшие бандиты больше не цели миссии
+  release(cars) {
+    for (const c of cars || []) {
+      if (c.ai === 'gang') this.giveUp(c);
+      c.mission = null;
+      for (const g of c.gang || []) g.mission = null;
+    }
+  },
+
+  // живые бандиты из этих машин (в машине или уже пешком)
+  alive(cars) {
+    let n = 0;
+    for (const c of cars || []) for (const g of c.gang || []) if (!g.dead && g.mission) n++;
+    return n;
+  },
+};
