@@ -219,13 +219,14 @@ function applyTexts(file, baseFile) {
     if (!b) { console.log(`! неизвестная метка: ${id}`); continue; }
     if (b.body === e.body) continue;
     // кандидаты: тот же файл, тот же старый текст (вместе с именем говорящего)
+    // (в старых файлах реплика могла идти без имени говорящего)
     const cands = all.filter((s) => path.basename(s.file).replace(/\.\w+$/, '') === b.short
-      && (s.who ? `${s.who}: ${s.text}` : s.text) === b.body);
+      && (s.text === b.body || (s.who && `${s.who}: ${s.text}` === b.body)));
     if (!cands.length) { console.log(`! не найдено в коде (уже менялось?): ${id}`); continue; }
     cands.sort((x, y) => Math.abs(x.line - b.line) - Math.abs(y.line - b.line));
     const s = cands[0];
     let text = e.body;
-    if (s.who) {
+    if (s.who && b.body !== s.text) {
       if (!text.startsWith(s.who + ': ')) { console.log(`! ${id}: имя говорящего меняется в его отдельной строке — пропущено`); continue; }
       text = text.slice(s.who.length + 2);
     }

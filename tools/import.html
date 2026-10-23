@@ -46,7 +46,7 @@
     <label class="btn">Выбрать файлы<input id="pick" type="file" accept="image/*" multiple hidden></label>
     <label>Раскладывать с: <select id="start"></select></label>
     <label><input type="checkbox" id="onlyEmpty" checked> только в пустые слоты</label>
-    <select id="filter"><option value="all">все слоты</option><option value="empty">пустые</option><option value="filled">заполненные</option><option value="vehicles">машины</option><option value="chars">персонажи</option><option value="props">объекты</option><option value="facades">фасады</option><option value="textures">текстуры</option></select>
+    <select id="filter"><option value="all">все слоты</option><option value="empty">пустые</option><option value="filled">заполненные</option><option value="vehicles">машины</option><option value="chars">персонажи</option><option value="props">объекты</option><option value="facades">фасады</option><option value="textures">текстуры</option><option value="portraits">портреты</option></select>
     <button id="zip">Скачать ZIP</button>
     <button class="ghost" id="clear">Очистить всё</button>
     <span id="stats"></span>
@@ -83,11 +83,11 @@ function process(im, cat, rot) {
     c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
     return c;
   }
-  if (cat === 'textures') {
-    // квадрат 1024 по центру
-    const s = Math.min(im.width, im.height);
-    c.width = c.height = 1024;
-    c.getContext('2d').drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, 1024, 1024);
+  if (cat === 'textures' || cat === 'portraits') {
+    // квадрат по центру: текстуры — 1024, портреты — 512 (фон портрета оставляем)
+    const s = Math.min(im.width, im.height), n = cat === 'textures' ? 1024 : 512;
+    c.width = c.height = n;
+    c.getContext('2d').drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, n, n);
     return c;
   }
   const k = Math.min(1, 512 / Math.max(im.width, im.height));
@@ -188,7 +188,7 @@ function render() {
   for (const s of slots) {
     if (f === 'empty' && s.canvas) continue;
     if (f === 'filled' && !s.canvas) continue;
-    if (['vehicles', 'chars', 'props', 'textures', 'facades'].includes(f) && s.cat !== f) continue;
+    if (['vehicles', 'chars', 'props', 'textures', 'facades', 'portraits'].includes(f) && s.cat !== f) continue;
     const card = document.createElement('div');
     card.className = 'card' + (s.canvas ? ' filled' : '');
     card.innerHTML = `<div class="head"><span>#${s.i + 1}</span><span class="badge">${s.cat}</span></div>

@@ -90,7 +90,7 @@ const Assets = {
   // при открытии файла с диска браузер запрещает читать пиксели — тогда
   // картинка используется как есть (нужен прозрачный фон).
   prepare(im, cat) {
-    if (cat === 'textures' || cat === 'facades') return im;
+    if (cat === 'textures' || cat === 'facades' || cat === 'portraits') return im;
     const c = document.createElement('canvas');
     const maxS = 512;
     const k = Math.min(1, maxS / Math.max(im.width, im.height));

@@ -12,6 +12,7 @@ const ASSET_STYLE = {
   personGun: 'A single person seen from directly above (bird\'s-eye view, top of the head and shoulders visible), standing, FACING RIGHT, both arms extended forward to the right holding a compact pistol. Character fills about 70% of the image.',
   facade: 'Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars.',
   shop: 'Orthographic straight-on FRONT VIEW of ONE ground-floor shopfront of an old Tel Aviv apartment building (elevation drawing, no perspective, no sky, no sidewalk), the shopfront fills the entire image edge to edge: a slightly faded backlit plastic sign box at the top with a phone number, a frayed awning, a slightly dirty shop window with stickers and paper sale ads taped inside, aluminium door, grimy plaster, a few electric cables above, seamless at the left and right edges. Authentic, lived-in, a bit shabby.',
+  portrait: 'Head-and-shoulders caricature portrait for the phone-call dialog box of a satirical crime video game set in Tel Aviv: bold comic-book style, thick black ink outlines, flat cel shading, exaggerated proportions (big head, small shoulders, oversized nose and expressive eyebrows), the character looks toward the viewer at a slight three-quarter angle, flat solid single-color background with a subtle halftone dot pattern, square format, head and shoulders fill the frame. Funny and good-natured, never mean; exaggerate expression and props, not ethnic features. No text, no letters, no speech bubbles, no frame, no logos, no watermark.',
   vehicle: 'A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height.',
 };
 
@@ -132,7 +133,22 @@ const TEXTURE_ASSETS = [
   ['roof_metal', 'Металлическая крыша', 'Corrugated metal warehouse roof seen from above, light grey with parallel ridges, a little rust.'],
 ];
 
-// Полный упорядоченный список: машины (с уроном), персонажи, объекты, текстуры
+// Портреты героев для окна звонка. Добавлены в конец списка, чтобы номера
+// уже сгенерированных картинок не сдвинулись.
+const PORTRAIT_ASSETS = [
+  ['portrait_leva', 'Портрет: Лёва Гольдман', 'Leva, a Russian-Jewish new immigrant from St. Petersburg in his late 20s: short light-brown hair, sunburnt nose and cheeks, a drop of sweat on the forehead from the heat, tired but stubborn half-smile, white-and-navy striped sailor undershirt (telnyashka). Background: pale sky blue.'],
+  ['portrait_itzik', 'Портрет: Ицик «Фалафель»', 'Itzik, a stocky bald Tel Aviv market vendor in his 50s: huge black mustache, bushy eyebrows, wide grin with one gold tooth, green short-sleeve shirt with a white apron, gold watch, holding a falafel pita. Background: warm yellow.'],
+  ['portrait_sema', 'Портрет: Сёма Кац', 'Syoma, a heavy-set Russian mobster boss in his 50s: shaved head, square jaw, narrow smug eyes and a crooked smirk, black leather coat over a burgundy silk shirt, thick gold chain, gold rings, raising a small shot glass. Background: dark red.'],
+  ['portrait_abu', 'Портрет: Абу-Карим', 'Abu-Karim, a dignified clan elder from Jaffa in his 60s: short neat grey beard, calm wise eyes, cream linen suit with an open collar, prayer beads in one hand, a tiny cup of cardamom coffee in the other. Background: deep teal.'],
+  ['portrait_abeba', 'Портрет: Абеба', 'Abeba, an Ethiopian-Israeli community leader in his early 30s: short neat hair and trimmed beard, confident warm smile, olive bomber jacket over a yellow t-shirt, big headphones around the neck. Respectful depiction. Background: green.'],
+  ['portrait_dani', 'Портрет: Дани из Шабака', 'Dani, a Shin Bet agent in his 40s: square jaw, deadpan serious face, dark sunglasses, short dark hair, earpiece with a coiled wire, plain dark polo shirt. Background: grey-blue.'],
+  ['portrait_ali', 'Портрет: «Али» из Телеграма', 'A mysterious anonymous online recruiter: a man in a dark hoodie, face mostly hidden in shadow with only a sly smile and glinting eyes, the cold blue glow of a smartphone screen lighting his chin. No app logos. Background: dark navy.'],
+  ['portrait_ortal', 'Портрет: Орталь из Мисрад а-Клита', 'Ortal, a bored Israeli government office clerk in her 40s: big curly dyed-blonde hair, long bright pink nails, reading glasses, unimpressed raised eyebrow, holding a paper cup of coffee. Background: pale institutional green.'],
+  ['portrait_shmulik', 'Портрет: Шмулик, хозяин квартиры', 'Shmulik, a chubby Tel Aviv landlord in his 50s: receding hair, stubble, scheming grin, white tank top, gold chain, a phone pressed to his ear and a bunch of keys in the other hand. Background: orange.'],
+  ['portrait_dvora', 'Портрет: Двора, учительница ульпана', 'Dvora, a strict but kind Hebrew teacher in her 60s: short curly grey hair, colorful orange scarf, reading glasses on the tip of her nose, raised index finger, holding a stack of textbooks. Background: lilac.'],
+];
+
+// Полный упорядоченный список: машины (с уроном), персонажи, фасады, объекты, текстуры, портреты
 const ASSET_MANIFEST = (() => {
   const out = [];
   for (const [file, title, desc] of VEHICLE_ASSETS) {
@@ -156,11 +172,14 @@ const ASSET_MANIFEST = (() => {
   for (const [file, title, desc] of TEXTURE_ASSETS) {
     out.push({ cat: 'textures', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.common.replace('single object centered, ', '')} ${desc} ${ASSET_STYLE.texture}` });
   }
+  for (const [file, title, desc] of PORTRAIT_ASSETS) {
+    out.push({ cat: 'portraits', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.portrait} ${desc}` });
+  }
   return out;
 })();
 
 // Что игра пытается загрузить из assets/gen/
-const GEN_FILES = { textures: [], chars: [], vehicles: [], props: [], facades: [] };
+const GEN_FILES = { textures: [], chars: [], vehicles: [], props: [], facades: [], portraits: [] };
 for (const a of ASSET_MANIFEST) GEN_FILES[a.cat].push(a.file);
 
 if (typeof module !== 'undefined') module.exports = { ASSET_MANIFEST, ASSET_STYLE, DAMAGE_STAGES };

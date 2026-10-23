@@ -335,7 +335,7 @@ const Game = {
     const pl = World.player;
     let best = null, bd = 75 * 75;
     for (const c of World.cars) {
-      if (c.dead || c.speed > 160) continue;
+      if (c.dead || c.speed > 160 || c.locked) continue; // locked — уже чужая (сдана по миссии)
       const d = dist2(c.x, c.y, pl.x, pl.y);
       if (d < bd) { bd = d; best = c; }
     }

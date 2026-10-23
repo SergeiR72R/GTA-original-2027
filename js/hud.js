@@ -242,23 +242,34 @@ const HUD = {
   drawDialog(ctx, vw, vh) {
     const d = Missions.dialog;
     const [who, line] = d.lines[d.i];
-    const w = Math.min(760, vw - 40), h = 130;
+    const pic = Portraits.get(PORTRAIT_OF[who]);
+    const w = Math.min(820, vw - 40), h = pic ? 150 : 130;
     const x = (vw - w) / 2, y = vh - h - 60;
     ctx.fillStyle = 'rgba(10,12,20,0.88)';
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
-    this.text(ctx, '☎ ' + who, x + 18, y + 30, 20, '#ffd23f');
+    // портрет говорящего слева, текст справа от него
+    let tx = x + 18;
+    if (pic) {
+      const ps = h - 24, px = x + 12, py = y + 12;
+      const sw = pic.width || pic.naturalWidth, sh = pic.height || pic.naturalHeight, sq = Math.min(sw, sh);
+      ctx.drawImage(pic, (sw - sq) / 2, (sh - sq) / 2, sq, sq, px, py, ps, ps);
+      ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 3; ctx.strokeRect(px, py, ps, ps);
+      tx = px + ps + 16;
+    }
+    this.text(ctx, '☎ ' + who, tx, y + 30, 20, '#ffd23f');
     if (d.i === 0) this.text(ctx, d.title, x + w - 18, y + 30, 16, '#9be15d', 'right');
     ctx.font = '18px "Trebuchet MS", "Segoe UI", sans-serif';
     ctx.fillStyle = '#fff'; ctx.textAlign = 'left';
     // перенос строк
     const words = line.split(' ');
+    const maxW = x + w - 18 - tx;
     let s = '', yy = y + 62;
     for (const wd of words) {
-      if (ctx.measureText(s + wd).width > w - 36) { ctx.fillText(s, x + 18, yy); s = ''; yy += 24; }
+      if (ctx.measureText(s + wd).width > maxW) { ctx.fillText(s, tx, yy); s = ''; yy += 24; }
       s += wd + ' ';
     }
-    ctx.fillText(s, x + 18, yy);
+    ctx.fillText(s, tx, yy);
     const blink = Math.floor(performance.now() / 400) % 2;
     if (blink) this.text(ctx, 'Enter ▶', x + w - 18, y + h - 14, 14, '#aaa', 'right', 'normal');
   },
