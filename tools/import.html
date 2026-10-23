@@ -41,12 +41,12 @@
   <h1>Импорт сгенерированных ассетов</h1>
   <p>1. Перетащите сюда все картинки, скачанные из Gemini (можно сразу пачкой). Файлы раскладываются по слотам <b>в порядке скачивания</b> — в том же порядке, что в CLAUDE_CHROME_ASSETS.md.</p>
   <p>2. Проверьте превью. Если что-то съехало: «⇥ пусто» вставляет пустой слот и сдвигает остальные вниз, «⇤» убирает картинку и сдвигает вверх. Отдельный файл можно бросить прямо на карточку.</p>
-  <p>3. Нажмите «Скачать ZIP» и распакуйте архив в папку игры (появится <code>assets/gen/…</code>). Фон уже вырезан, края обрезаны — игра будет работать даже при открытии index.html с диска.</p>
+  <p>3. Нажмите «Скачать ZIP» и распакуйте архив в папку игры (появится <code>assets/gen/…</code> и <code>assets/gen/bundle.js</code>). Фон уже вырезан, края обрезаны — игра подхватит картинки и в 2D, и в 3D, даже при открытии index.html с диска.</p>
   <div class="bar">
     <label class="btn">Выбрать файлы<input id="pick" type="file" accept="image/*" multiple hidden></label>
     <label>Раскладывать с: <select id="start"></select></label>
     <label><input type="checkbox" id="onlyEmpty" checked> только в пустые слоты</label>
-    <select id="filter"><option value="all">все слоты</option><option value="empty">пустые</option><option value="filled">заполненные</option><option value="vehicles">машины</option><option value="chars">персонажи</option><option value="props">объекты</option><option value="textures">текстуры</option></select>
+    <select id="filter"><option value="all">все слоты</option><option value="empty">пустые</option><option value="filled">заполненные</option><option value="vehicles">машины</option><option value="chars">персонажи</option><option value="props">объекты</option><option value="facades">фасады</option><option value="textures">текстуры</option></select>
     <button id="zip">Скачать ZIP</button>
     <button class="ghost" id="clear">Очистить всё</button>
     <span id="stats"></span>
@@ -76,6 +76,13 @@ function loadImage(file) {
 
 function process(im, cat, rot) {
   let c = document.createElement('canvas');
+  if (cat === 'facades') {
+    // фасады: без вырезания фона, ширина до 1024
+    const k = Math.min(1, 1024 / im.width);
+    c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+    c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+    return c;
+  }
   if (cat === 'textures') {
     // квадрат 1024 по центру
     const s = Math.min(im.width, im.height);
@@ -181,7 +188,7 @@ function render() {
   for (const s of slots) {
     if (f === 'empty' && s.canvas) continue;
     if (f === 'filled' && !s.canvas) continue;
-    if (['vehicles', 'chars', 'props', 'textures'].includes(f) && s.cat !== f) continue;
+    if (['vehicles', 'chars', 'props', 'textures', 'facades'].includes(f) && s.cat !== f) continue;
     const card = document.createElement('div');
     card.className = 'card' + (s.canvas ? ' filled' : '');
     card.innerHTML = `<div class="head"><span>#${s.i + 1}</span><span class="badge">${s.cat}</span></div>
@@ -265,14 +272,25 @@ document.getElementById('zip').onclick = async () => {
   const btn = document.getElementById('zip');
   btn.disabled = true; btn.textContent = 'Собираю…';
   const entries = [];
+  const bundle = {};
   for (const s of slots) {
     if (!s.canvas) continue;
     const blob = await new Promise((r) => s.canvas.toBlob(r, 'image/png'));
-    entries.push({ name: `assets/gen/${s.cat}/${s.file}.png`, data: new Uint8Array(await blob.arrayBuffer()) });
+    const data = new Uint8Array(await blob.arrayBuffer());
+    entries.push({ name: `assets/gen/${s.cat}/${s.file}.png`, data });
+    bundle[`${s.cat}/${s.file}`] = 'data:image/png;base64,' + toBase64(data);
   }
+  // те же картинки одним скриптом — чтобы 3D-режим работал и при открытии игры с диска
+  entries.push({ name: 'assets/gen/bundle.js', data: new TextEncoder().encode('window.GEN_BUNDLE = ' + JSON.stringify(bundle) + ';\n') });
   saveBlob(makeZip(entries), 'hamsin-generated-assets.zip');
   btn.textContent = 'Скачать ZIP'; btn.disabled = false;
 };
+
+function toBase64(u8) {
+  let s = '';
+  for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+  return btoa(s);
+}
 
 const drop = document.getElementById('drop');
 document.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });

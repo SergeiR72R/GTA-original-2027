@@ -83,7 +83,11 @@ const Game = {
     const bar = document.getElementById('loadbar');
     Assets.load((p) => { bar.style.width = Math.min(100, Math.round(p * 100)) + '%'; }).then(() => {
       Tex.init();
+      // 3D-режим (WebGL), если доступен; иначе — 2D. ?2d в адресе — принудительно 2D
+      this.gl = R3.init(document.getElementById('gl'));
       City.generate();
+      if (this.gl) { R3.build(); R3.resize(this.vw, this.vh); }
+      else document.getElementById('gl').style.display = 'none';
       this.setupWorld();
       document.getElementById('loading').classList.add('hidden');
       this.showTitle();
@@ -98,6 +102,7 @@ const Game = {
     this.canvas.height = Math.floor(this.vh * this.dpr);
     this.canvas.style.width = this.vw + 'px';
     this.canvas.style.height = this.vh + 'px';
+    if (this.gl) R3.resize(this.vw, this.vh);
   },
 
   // ---------------------------------------------------------------- ввод
@@ -110,6 +115,7 @@ const Game = {
       Sound.resume();
       if (e.code === 'Escape') this.togglePause();
       if (e.code === 'KeyM') Sound.toggleMute();
+      if (e.code === 'KeyV' && this.gl && this.state === 'play') { this.topDown = !this.topDown; this.message(this.topDown ? 'Камера: строго сверху' : 'Камера: с наклоном — видно фасады', 2); }
     });
     window.addEventListener('keyup', (e) => { this.keys[e.code] = false; });
     window.addEventListener('blur', () => { this.keys = {}; if (this.state === 'play') this.togglePause(); });
@@ -217,6 +223,7 @@ const Game = {
 
   // ---------------------------------------------------------------- спавн
   inView(x, y, m = 80) {
+    if (this.gl && R3.bounds) { const b = R3.bounds; return x > b.x0 - m && x < b.x1 + m && y > b.y0 - m && y < b.y1 + m; }
     const z = this.zoomTotal;
     return Math.abs(x - this.cam.x) < this.vw / 2 / z + m && Math.abs(y - this.cam.y) < this.vh / 2 / z + m;
   },
@@ -478,7 +485,8 @@ const Game = {
     const mouseAim = this.mouse.active && World.time - this.mouse.moved < 3;
     if (mouseAim) {
       const z = this.zoomTotal;
-      const wx = this.cam.x + (this.mouse.x - this.vw / 2) / z, wy = this.cam.y + (this.mouse.y - this.vh / 2) / z;
+      let wx = this.cam.x + (this.mouse.x - this.vw / 2) / z, wy = this.cam.y + (this.mouse.y - this.vh / 2) / z;
+      if (this.gl) { const g = R3.screenToGround(this.mouse.x, this.mouse.y); wx = g.x; wy = g.y; }
       pl.a = Math.atan2(wy - pl.y, wx - pl.x);
     } else if (ml > 0) {
       pl.a += wrapAngle(Math.atan2(my, mx) - pl.a) * Math.min(1, dt * 14);
@@ -673,14 +681,21 @@ const Game = {
     const ctx = this.ctx;
     const z = this.zoomTotal;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    ctx.fillStyle = '#2a6f9f';
-    ctx.fillRect(0, 0, this.vw, this.vh);
-    if (this.state === 'loading') return;
+    if (this.state === 'loading') { ctx.fillStyle = '#2a6f9f'; ctx.fillRect(0, 0, this.vw, this.vh); return; }
     const sx = rand(-1, 1) * this.shakeAmt, sy = rand(-1, 1) * this.shakeAmt;
     const view = {
       x0: this.cam.x - this.vw / 2 / z, x1: this.cam.x + this.vw / 2 / z,
       y0: this.cam.y - this.vh / 2 / z, y1: this.cam.y + this.vh / 2 / z,
     };
+    if (this.gl) {
+      // 3D-сцена на нижнем холсте, поверх — прозрачный слой интерфейса
+      R3.render(view, this.cam, sx, sy, this.night || 0);
+      ctx.clearRect(0, 0, this.vw, this.vh);
+      this.drawOverlay(ctx, dt);
+      return;
+    }
+    ctx.fillStyle = '#2a6f9f';
+    ctx.fillRect(0, 0, this.vw, this.vh);
     ctx.setTransform(this.dpr * z, 0, 0, this.dpr * z, this.dpr * (this.vw / 2 - this.cam.x * z + sx), this.dpr * (this.vh / 2 - this.cam.y * z + sy));
     // за краем карты: на западе море, в остальных сторонах — пригороды
     ctx.fillStyle = '#56703e';
@@ -797,6 +812,23 @@ const Game = {
       const x = ((d.x + t * 0.05 * d.s) % 1) * this.vw, y = ((d.y + Math.sin(t + d.x * 10) * 0.01) % 1) * this.vh;
       ctx.fillRect(x, y, 2 * d.s + 1, 1);
     }
+  },
+
+  // Интерфейс поверх 3D: всплывающие суммы, хамсин, затемнение при смерти/аресте, HUD
+  drawOverlay(ctx, dt) {
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    for (const p of World.particles) {
+      if (p.k !== 'money') continue;
+      const k = 1 - p.t / p.life;
+      const [x, y] = R3.worldToScreen(p.x, p.y, 20);
+      ctx.fillStyle = `rgba(80,220,90,${k})`; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(p.text || '₪', x, y);
+    }
+    if (Clock.hamsin) this.drawHamsin(ctx);
+    if (this.state === 'down') {
+      ctx.fillStyle = this.downKind === 'dead' ? 'rgba(120,0,0,0.25)' : 'rgba(0,30,120,0.25)';
+      ctx.fillRect(0, 0, this.vw, this.vh);
+    }
+    if (this.state !== 'title') HUD.draw(ctx, this.vw, this.vh, this.state === 'pause' ? 0 : dt);
   },
 
   drawMarkers(ctx) {

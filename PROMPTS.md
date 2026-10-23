@@ -30,9 +30,10 @@ Claude в Chrome).
 | Машины | сплошной #FF00FF | вид сверху, **нос вверх** | 3:4, например 768×1024 |
 | Персонажи | сплошной #FF00FF | вид сверху, **лицом вправо** | квадрат |
 | Объекты | сплошной #FF00FF | вид сверху | квадрат |
+| Фасады, витрины | без фона, заполнена целиком | **вид спереди**, как чертёж стены | 16:9 |
 | Текстуры | без фона, бесшовная | вид сверху | квадрат 1024×1024 |
 
-# Список (142)
+# Список (158)
 
 ## Машины (88)
 
@@ -1008,9 +1009,140 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
+## Фасады и витрины (16)
+
+### 122. `facades/facade_bauhaus.png` — Фасад баухауз (центр)
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars. Slightly weathered white plaster Tel Aviv Bauhaus apartment facade: horizontal ribbon windows with white frames, half-lowered grey plastic roller shutters, long curved white balcony slabs, air-conditioner boxes with black drip stains below them, electric cables, potted plants and laundry on balconies.
+```
+
+### 123. `facades/facade_florentin.png` — Фасад Флорентина
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars. Worn beige-grey plaster facade of an old apartment building in a gritty artsy neighbourhood: mismatched roller shutters, rusty balcony railings with laundry, black water stains, peeling plaster, tangled cables, a colourful graffiti piece on the lower part, many air-conditioner boxes, a paper «להשכרה» (for rent) sign on a balcony.
+```
+
+### 124. `facades/facade_jaffa.png` — Фасад Яффо (камень)
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars. Old Ottoman-era facade of warm honey-coloured limestone blocks: tall arched windows with green wooden shutters, small decorative stone details.
+```
+
+### 125. `facades/facade_nevetzedek.png` — Фасад Неве-Цедека
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars. Restored 1900s low-rise facade in pastel plaster (peach or cream): tall rectangular windows with teal wooden shutters, ornamental cornice.
+```
+
+### 126. `facades/facade_concrete.png` — Фасад «шикун» (бетон)
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars. Plain 1960s concrete housing block facade: grey-beige concrete, simple windows, boxy enclosed balconies, many air-conditioner units, water stains.
+```
+
+### 127. `facades/facade_hotel.png` — Фасад отеля на набережной
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars. Modern white beachfront hotel facade: floor-to-ceiling blue-tinted windows and continuous glass balcony railings.
+```
+
+### 128. `facades/facade_tower.png` — Фасад стеклянной башни
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars. Glass curtain wall of a modern office skyscraper: blue reflective glass panels in a dark metal grid.
+```
+
+### 129. `facades/facade_warehouse.png` — Фасад склада в порту
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars. Old port warehouse wall: grey corrugated metal with rust streaks and a large roller door.
+```
+
+### 130. `facades/shop_1.png` — Витрина: маколет
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no logos, no watermark. Orthographic straight-on FRONT VIEW of ONE ground-floor shopfront of an old Tel Aviv apartment building (elevation drawing, no perspective, no sky, no sidewalk), the shopfront fills the entire image edge to edge: a slightly faded backlit plastic sign box at the top with a phone number, a frayed awning, a slightly dirty shop window with stickers and paper sale ads taped inside, aluminium door, grimy plaster, a few electric cables above, seamless at the left and right edges. Authentic, lived-in, a bit shabby. Neighbourhood grocery (makolet) with a blue sign reading «מכולת» and «24/7», stacked plastic crates of drink bottles at the door, white ice-cream freezer, shelves crammed with colourful products behind dirty glass.
+```
+
+### 131. `facades/shop_2.png` — Витрина: пицуцийя
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no logos, no watermark. Orthographic straight-on FRONT VIEW of ONE ground-floor shopfront of an old Tel Aviv apartment building (elevation drawing, no perspective, no sky, no sidewalk), the shopfront fills the entire image edge to edge: a slightly faded backlit plastic sign box at the top with a phone number, a frayed awning, a slightly dirty shop window with stickers and paper sale ads taped inside, aluminium door, grimy plaster, a few electric cables above, seamless at the left and right edges. Authentic, lived-in, a bit shabby. Late-night kiosk (pitzutzia) with a red sign reading «פיצוצייה», a pink neon OPEN sign, snacks and sweets piled in the window, lottery posters.
+```
+
+### 132. `facades/shop_3.png` — Витрина: шаварма
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no logos, no watermark. Orthographic straight-on FRONT VIEW of ONE ground-floor shopfront of an old Tel Aviv apartment building (elevation drawing, no perspective, no sky, no sidewalk), the shopfront fills the entire image edge to edge: a slightly faded backlit plastic sign box at the top with a phone number, a frayed awning, a slightly dirty shop window with stickers and paper sale ads taped inside, aluminium door, grimy plaster, a few electric cables above, seamless at the left and right edges. Authentic, lived-in, a bit shabby. Shawarma joint with a yellow sign reading «שווארמה», a rotating meat spit visible through the window, a black menu board with prices in shekels, plastic chairs outside.
+```
+
+### 133. `facades/shop_4.png` — Витрина: фалафельная
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no logos, no watermark. Orthographic straight-on FRONT VIEW of ONE ground-floor shopfront of an old Tel Aviv apartment building (elevation drawing, no perspective, no sky, no sidewalk), the shopfront fills the entire image edge to edge: a slightly faded backlit plastic sign box at the top with a phone number, a frayed awning, a slightly dirty shop window with stickers and paper sale ads taped inside, aluminium door, grimy plaster, a few electric cables above, seamless at the left and right edges. Authentic, lived-in, a bit shabby. Small falafel stand with a green sign reading «פלאפל», striped awning, counter with colourful salad trays.
+```
+
+### 134. `facades/shop_5.png` — Витрина: русский гастроном
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no logos, no watermark. Orthographic straight-on FRONT VIEW of ONE ground-floor shopfront of an old Tel Aviv apartment building (elevation drawing, no perspective, no sky, no sidewalk), the shopfront fills the entire image edge to edge: a slightly faded backlit plastic sign box at the top with a phone number, a frayed awning, a slightly dirty shop window with stickers and paper sale ads taped inside, aluminium door, grimy plaster, a few electric cables above, seamless at the left and right edges. Authentic, lived-in, a bit shabby. Russian delicatessen with a dark green sign reading «ГАСТРОНОМ» in Cyrillic, hanging sausages, jars and bottles in the window.
+```
+
+### 135. `facades/shop_6.png` — Витрина: парикмахерская
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no logos, no watermark. Orthographic straight-on FRONT VIEW of ONE ground-floor shopfront of an old Tel Aviv apartment building (elevation drawing, no perspective, no sky, no sidewalk), the shopfront fills the entire image edge to edge: a slightly faded backlit plastic sign box at the top with a phone number, a frayed awning, a slightly dirty shop window with stickers and paper sale ads taped inside, aluminium door, grimy plaster, a few electric cables above, seamless at the left and right edges. Authentic, lived-in, a bit shabby. Old barber shop with a dark sign reading «מספרה» and below «Парикмахерская», a red-white-blue barber pole, a mirror and a barber chair inside.
+```
+
+### 136. `facades/shop_7.png` — Витрина: ремонт телефонов
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no logos, no watermark. Orthographic straight-on FRONT VIEW of ONE ground-floor shopfront of an old Tel Aviv apartment building (elevation drawing, no perspective, no sky, no sidewalk), the shopfront fills the entire image edge to edge: a slightly faded backlit plastic sign box at the top with a phone number, a frayed awning, a slightly dirty shop window with stickers and paper sale ads taped inside, aluminium door, grimy plaster, a few electric cables above, seamless at the left and right edges. Authentic, lived-in, a bit shabby. Phone repair and accessories shop with a red sign reading «סלולר», phone cases on the wall, yellow sale stickers on the glass.
+```
+
+### 137. `facades/shop_8.png` — Витрина: закрытая лавка «сдаётся»
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no logos, no watermark. Orthographic straight-on FRONT VIEW of ONE ground-floor shopfront of an old Tel Aviv apartment building (elevation drawing, no perspective, no sky, no sidewalk), the shopfront fills the entire image edge to edge: a slightly faded backlit plastic sign box at the top with a phone number, a frayed awning, a slightly dirty shop window with stickers and paper sale ads taped inside, aluminium door, grimy plaster, a few electric cables above, seamless at the left and right edges. Authentic, lived-in, a bit shabby. Closed shop with a lowered grey metal roller shutter covered in colourful graffiti, faded old sign above, a paper sign «להשכרה» with a phone number taped on the shutter.
+```
+
+
 ## Объекты улиц (9)
 
-### 122. `props/palm.png` — Финиковая пальма
+### 138. `props/palm.png` — Финиковая пальма
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1018,7 +1150,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Date palm tree seen from directly above: radial green fronds around a brown center, a few orange date clusters. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 123. `props/ficus.png` — Фикус
+### 139. `props/ficus.png` — Фикус
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1026,7 +1158,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Large ficus street tree crown seen from above, dense round dark-green foliage. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 124. `props/bougainvillea.png` — Бугенвиллея
+### 140. `props/bougainvillea.png` — Бугенвиллея
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1034,7 +1166,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Bougainvillea bush seen from above, bright magenta-pink flowers over green leaves. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 125. `props/bottle_cage.png` — Клетка для бутылок
+### 141. `props/bottle_cage.png` — Клетка для бутылок
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1042,7 +1174,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Plastic bottle recycling cage seen from above: square metal mesh cage painted yellow, full of plastic bottles. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 126. `props/trash_bin.png` — Мусорный контейнер
+### 142. `props/trash_bin.png` — Мусорный контейнер
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1050,7 +1182,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Large green municipal garbage container on wheels, seen from above, lid closed. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 127. `props/bus_stop.png` — Остановка
+### 143. `props/bus_stop.png` — Остановка
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1058,7 +1190,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. City bus stop shelter seen from above: long transparent roof panel on a metal frame with a bench, wider than tall. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 128. `props/umbrella.png` — Пляжный зонтик
+### 144. `props/umbrella.png` — Пляжный зонтик
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1066,7 +1198,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Beach umbrella seen from above, alternating white and turquoise segments. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 129. `props/lifeguard_tower.png` — Вышка спасателей
+### 145. `props/lifeguard_tower.png` — Вышка спасателей
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1074,7 +1206,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Beach lifeguard hut on stilts seen from above, white with a red stripe on the roof. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 130. `props/market_stall.png` — Прилавок Шука
+### 146. `props/market_stall.png` — Прилавок Шука
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1085,7 +1217,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 
 ## Текстуры (12)
 
-### 131. `textures/asphalt.png` — Асфальт
+### 147. `textures/asphalt.png` — Асфальт
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1093,7 +1225,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Worn city asphalt road surface seen from above, dark grey with fine aggregate grain, subtle tire wear, a few faint patches and tiny cracks. Area covers about 4x4 meters. Seamless tileable texture, fills the entire square edge to edge, no object in the center, no perspective, no vignette, no shadow gradient.
 ```
 
-### 132. `textures/sidewalk.png` — Тротуарная плитка
+### 148. `textures/sidewalk.png` — Тротуарная плитка
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1101,7 +1233,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. City sidewalk made of small interlocking concrete paving blocks (grey and faded red-brown rows), slightly dusty, a few stains, seen from above. About 2x2 meters, roughly 12 blocks across. Seamless tileable texture, fills the entire square edge to edge, no object in the center, no perspective, no vignette, no shadow gradient.
 ```
 
-### 133. `textures/jaffa_stone.png` — Камень Яффо
+### 149. `textures/jaffa_stone.png` — Камень Яффо
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1109,7 +1241,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Old pavement made of large worn limestone blocks (warm cream and honey colors), irregular joints with sand in them, seen from above. About 2x2 meters. Seamless tileable texture, fills the entire square edge to edge, no object in the center, no perspective, no vignette, no shadow gradient.
 ```
 
-### 134. `textures/plaza.png` — Плиты площади
+### 150. `textures/plaza.png` — Плиты площади
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1117,7 +1249,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Large light beige stone slabs of a modern city square, subtle variations between slabs, clean joints, seen from above. About 2x2 meters. Seamless tileable texture, fills the entire square edge to edge, no object in the center, no perspective, no vignette, no shadow gradient.
 ```
 
-### 135. `textures/sand.png` — Песок пляжа
+### 151. `textures/sand.png` — Песок пляжа
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1125,7 +1257,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Fine Mediterranean beach sand, pale golden, gentle wind ripples, a few footprints and tiny shells, seen from above. About 4x4 meters. Seamless tileable texture, fills the entire square edge to edge, no object in the center, no perspective, no vignette, no shadow gradient.
 ```
 
-### 136. `textures/grass.png` — Газон
+### 152. `textures/grass.png` — Газон
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1133,7 +1265,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Sun-dried park lawn, mix of green and yellowish patches, short grass blades, seen from above. About 4x4 meters. Seamless tileable texture, fills the entire square edge to edge, no object in the center, no perspective, no vignette, no shadow gradient.
 ```
 
-### 137. `textures/water.png` — Море
+### 153. `textures/water.png` — Море
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1141,7 +1273,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Turquoise-blue Mediterranean sea water seen from above, gentle small waves and sun glints. About 4x4 meters. Seamless tileable texture, fills the entire square edge to edge, no object in the center, no perspective, no vignette, no shadow gradient.
 ```
 
-### 138. `textures/deck.png` — Настил порта
+### 154. `textures/deck.png` — Настил порта
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1149,7 +1281,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Weathered wooden boardwalk planks, warm brown, visible plank gaps and nail heads, seen from above. About 2x2 meters. Seamless tileable texture, fills the entire square edge to edge, no object in the center, no perspective, no vignette, no shadow gradient.
 ```
 
-### 139. `textures/scrub.png` — Сухой кустарник
+### 155. `textures/scrub.png` — Сухой кустарник
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1157,7 +1289,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Dry Mediterranean scrubland ground: dusty olive-green bushes, dry yellow grass, small stones, seen from above. About 4x4 meters. Seamless tileable texture, fills the entire square edge to edge, no object in the center, no perspective, no vignette, no shadow gradient.
 ```
 
-### 140. `textures/roof_gravel.png` — Плоская крыша
+### 156. `textures/roof_gravel.png` — Плоская крыша
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1165,7 +1297,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Flat apartment rooftop surface: white bitumen waterproof coating, slightly dirty with water stains and patches, seen from above. Mostly light. Seamless tileable texture, fills the entire square edge to edge, no object in the center, no perspective, no vignette, no shadow gradient.
 ```
 
-### 141. `textures/roof_tiles.png` — Черепица
+### 157. `textures/roof_tiles.png` — Черепица
 
 Новая картинка, формат квадрат 1:1.
 
@@ -1173,7 +1305,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Terracotta clay roof tiles, rows of orange-red tiles seen straight from above, slight weathering. Seamless tileable texture, fills the entire square edge to edge, no object in the center, no perspective, no vignette, no shadow gradient.
 ```
 
-### 142. `textures/roof_metal.png` — Металлическая крыша
+### 158. `textures/roof_metal.png` — Металлическая крыша
 
 Новая картинка, формат квадрат 1:1.
 

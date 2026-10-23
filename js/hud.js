@@ -144,7 +144,8 @@ const HUD = {
     const obj = Missions.objective();
     if (!obj || pl.dead) return;
     const z = Game.zoomTotal;
-    const sx = vw / 2 + (pl.x - Game.cam.x) * z, sy = vh / 2 + (pl.y - Game.cam.y) * z;
+    let sx = vw / 2 + (pl.x - Game.cam.x) * z, sy = vh / 2 + (pl.y - Game.cam.y) * z;
+    if (Game.gl) [sx, sy] = R3.worldToScreen(pl.x, pl.y, 10);
     const ang = Math.atan2(obj.y - pl.y, obj.x - pl.x);
     const d = dist(obj.x, obj.y, pl.x, pl.y);
     if (d < 120) return;

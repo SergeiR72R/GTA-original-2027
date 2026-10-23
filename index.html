@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <canvas id="gl"></canvas>
   <canvas id="game"></canvas>
 
   <div id="loading" class="overlay">
@@ -31,7 +32,7 @@
     <div class="controls">
       <div><b>Пешком:</b> WASD/стрелки — идти · мышь или пробел/Ctrl — стрелять · Q/Tab — оружие · F/Enter — сесть в машину</div>
       <div><b>За рулём:</b> W/S — газ/тормоз · A/D — руль · пробел — ручник · H — сигнал · R — радио · F — выйти</div>
-      <div><b>Подработка:</b> J — смена «Шмоне-Бис» на скутере или работа в такси · Esc — пауза · M — звук</div>
+      <div><b>Подработка:</b> J — смена «Шмоне-Бис» на скутере или работа в такси · Esc — пауза · M — звук · V — камера</div>
     </div>
   </div>
 
@@ -60,13 +61,16 @@
     <div class="buttons"><button id="btn-free">Свободная игра</button></div>
   </div>
 
+  <script src="vendor/three.min.js"></script>
   <script src="js/util.js"></script>
   <script src="js/asset-manifest.js"></script>
+  <script src="assets/gen/bundle.js"></script>
   <script src="js/assets.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/textures.js"></script>
   <script src="js/vehicles.js"></script>
   <script src="js/people.js"></script>
+  <script src="js/facades.js"></script>
   <script src="js/map.js"></script>
   <script src="js/entities.js"></script>
   <script src="js/factions.js"></script>
@@ -74,6 +78,7 @@
   <script src="js/jobs.js"></script>
   <script src="js/missions.js"></script>
   <script src="js/hud.js"></script>
+  <script src="js/render3d.js"></script>
   <script src="js/game.js"></script>
 </body>
 </html>

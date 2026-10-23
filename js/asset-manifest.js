@@ -10,6 +10,8 @@ const ASSET_STYLE = {
   texture: 'Seamless tileable texture, fills the entire square edge to edge, no object in the center, no perspective, no vignette, no shadow gradient.',
   person: 'A single person seen from directly above (bird\'s-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), arms relaxed. Character fills about 70% of the image.',
   personGun: 'A single person seen from directly above (bird\'s-eye view, top of the head and shoulders visible), standing, FACING RIGHT, both arms extended forward to the right holding a compact pistol. Character fills about 70% of the image.',
+  facade: 'Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars.',
+  shop: 'Orthographic straight-on FRONT VIEW of ONE ground-floor shopfront of an old Tel Aviv apartment building (elevation drawing, no perspective, no sky, no sidewalk), the shopfront fills the entire image edge to edge: a slightly faded backlit plastic sign box at the top with a phone number, a frayed awning, a slightly dirty shop window with stickers and paper sale ads taped inside, aluminium door, grimy plaster, a few electric cables above, seamless at the left and right edges. Authentic, lived-in, a bit shabby.',
   vehicle: 'A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height.',
 };
 
@@ -93,6 +95,28 @@ const PROP_ASSETS = [
   ['market_stall', 'Прилавок Шука', 'Market stall seen from above: colorful striped awning covering crates of fruit and spices.'],
 ];
 
+const FACADE_ASSETS = [
+  ['facade_bauhaus', 'Фасад баухауз (центр)', 'Slightly weathered white plaster Tel Aviv Bauhaus apartment facade: horizontal ribbon windows with white frames, half-lowered grey plastic roller shutters, long curved white balcony slabs, air-conditioner boxes with black drip stains below them, electric cables, potted plants and laundry on balconies.'],
+  ['facade_florentin', 'Фасад Флорентина', 'Worn beige-grey plaster facade of an old apartment building in a gritty artsy neighbourhood: mismatched roller shutters, rusty balcony railings with laundry, black water stains, peeling plaster, tangled cables, a colourful graffiti piece on the lower part, many air-conditioner boxes, a paper «להשכרה» (for rent) sign on a balcony.'],
+  ['facade_jaffa', 'Фасад Яффо (камень)', 'Old Ottoman-era facade of warm honey-coloured limestone blocks: tall arched windows with green wooden shutters, small decorative stone details.'],
+  ['facade_nevetzedek', 'Фасад Неве-Цедека', 'Restored 1900s low-rise facade in pastel plaster (peach or cream): tall rectangular windows with teal wooden shutters, ornamental cornice.'],
+  ['facade_concrete', 'Фасад «шикун» (бетон)', 'Plain 1960s concrete housing block facade: grey-beige concrete, simple windows, boxy enclosed balconies, many air-conditioner units, water stains.'],
+  ['facade_hotel', 'Фасад отеля на набережной', 'Modern white beachfront hotel facade: floor-to-ceiling blue-tinted windows and continuous glass balcony railings.'],
+  ['facade_tower', 'Фасад стеклянной башни', 'Glass curtain wall of a modern office skyscraper: blue reflective glass panels in a dark metal grid.'],
+  ['facade_warehouse', 'Фасад склада в порту', 'Old port warehouse wall: grey corrugated metal with rust streaks and a large roller door.'],
+];
+
+const SHOP_ASSETS = [
+  ['shop_1', 'Витрина: маколет', 'Neighbourhood grocery (makolet) with a blue sign reading «מכולת» and «24/7», stacked plastic crates of drink bottles at the door, white ice-cream freezer, shelves crammed with colourful products behind dirty glass.'],
+  ['shop_2', 'Витрина: пицуцийя', 'Late-night kiosk (pitzutzia) with a red sign reading «פיצוצייה», a pink neon OPEN sign, snacks and sweets piled in the window, lottery posters.'],
+  ['shop_3', 'Витрина: шаварма', 'Shawarma joint with a yellow sign reading «שווארמה», a rotating meat spit visible through the window, a black menu board with prices in shekels, plastic chairs outside.'],
+  ['shop_4', 'Витрина: фалафельная', 'Small falafel stand with a green sign reading «פלאפל», striped awning, counter with colourful salad trays.'],
+  ['shop_5', 'Витрина: русский гастроном', 'Russian delicatessen with a dark green sign reading «ГАСТРОНОМ» in Cyrillic, hanging sausages, jars and bottles in the window.'],
+  ['shop_6', 'Витрина: парикмахерская', 'Old barber shop with a dark sign reading «מספרה» and below «Парикмахерская», a red-white-blue barber pole, a mirror and a barber chair inside.'],
+  ['shop_7', 'Витрина: ремонт телефонов', 'Phone repair and accessories shop with a red sign reading «סלולר», phone cases on the wall, yellow sale stickers on the glass.'],
+  ['shop_8', 'Витрина: закрытая лавка «сдаётся»', 'Closed shop with a lowered grey metal roller shutter covered in colourful graffiti, faded old sign above, a paper sign «להשכרה» with a phone number taped on the shutter.'],
+];
+
 const TEXTURE_ASSETS = [
   ['asphalt', 'Асфальт', 'Worn city asphalt road surface seen from above, dark grey with fine aggregate grain, subtle tire wear, a few faint patches and tiny cracks. Area covers about 4x4 meters.'],
   ['sidewalk', 'Тротуарная плитка', 'City sidewalk made of small interlocking concrete paving blocks (grey and faded red-brown rows), slightly dusty, a few stains, seen from above. About 2x2 meters, roughly 12 blocks across.'],
@@ -120,6 +144,12 @@ const ASSET_MANIFEST = (() => {
   for (const [file, title, desc, gun] of CHAR_ASSETS) {
     out.push({ cat: 'chars', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.common} ${gun ? ASSET_STYLE.personGun : ASSET_STYLE.person} ${desc} ${ASSET_STYLE.isolated}` });
   }
+  for (const [file, title, desc] of FACADE_ASSETS) {
+    out.push({ cat: 'facades', file, title, kind: 'new', size: '16:9', prompt: `${ASSET_STYLE.common.replace('single object centered, ', '')} ${ASSET_STYLE.facade} ${desc}` });
+  }
+  for (const [file, title, desc] of SHOP_ASSETS) {
+    out.push({ cat: 'facades', file, title, kind: 'new', size: '16:9', prompt: `${ASSET_STYLE.common.replace('single object centered, ', '').replace('no text, no logos', 'no logos')} ${ASSET_STYLE.shop} ${desc}` });
+  }
   for (const [file, title, desc] of PROP_ASSETS) {
     out.push({ cat: 'props', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.common} ${desc} ${ASSET_STYLE.isolated}` });
   }
@@ -130,7 +160,7 @@ const ASSET_MANIFEST = (() => {
 })();
 
 // Что игра пытается загрузить из assets/gen/
-const GEN_FILES = { textures: [], chars: [], vehicles: [], props: [] };
+const GEN_FILES = { textures: [], chars: [], vehicles: [], props: [], facades: [] };
 for (const a of ASSET_MANIFEST) GEN_FILES[a.cat].push(a.file);
 
 if (typeof module !== 'undefined') module.exports = { ASSET_MANIFEST, ASSET_STYLE, DAMAGE_STAGES };

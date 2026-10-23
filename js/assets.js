@@ -75,7 +75,9 @@ const Assets = {
           const im = new Image();
           im.onload = () => { this.gen[cat + '/' + name] = this.prepare(im, cat); this.genCount++; res(); };
           im.onerror = () => res();
-          im.src = `assets/gen/${cat}/${name}.png`;
+          // bundle.js из импортёра — те же картинки как data-URL: так они работают и в 3D при запуске с диска
+          const b = window.GEN_BUNDLE && window.GEN_BUNDLE[cat + '/' + name];
+          im.src = b || `assets/gen/${cat}/${name}.png`;
         }));
       }
     }
@@ -88,7 +90,7 @@ const Assets = {
   // при открытии файла с диска браузер запрещает читать пиксели — тогда
   // картинка используется как есть (нужен прозрачный фон).
   prepare(im, cat) {
-    if (cat === 'textures') return im;
+    if (cat === 'textures' || cat === 'facades') return im;
     const c = document.createElement('canvas');
     const maxS = 512;
     const k = Math.min(1, maxS / Math.max(im.width, im.height));

@@ -7,10 +7,21 @@ html, body {
   font-family: "Trebuchet MS", "Segoe UI", sans-serif;
 }
 
-#game {
+#game, #gl {
+  position: fixed;
+  left: 0;
+  top: 0;
   display: block;
-  cursor: crosshair;
 }
+
+#gl { width: 100vw; height: 100vh; }
+
+#game {
+  cursor: crosshair;
+  z-index: 1;
+}
+
+.overlay { z-index: 2; }
 
 .overlay {
   position: fixed;

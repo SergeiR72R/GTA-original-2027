@@ -190,6 +190,8 @@ const City = {
       h0: 0, h1: rng.range(style.hmin, style.hmax),
       roof: rng.pick(style.roofs), wall: null, items: [],
       floors: style.floor || 24,
+      style: style.name,
+      shops: rng() < 0.55, // витрины на первом этаже (для 3D-фасадов)
     };
     b.wall = style.wall || shade(b.roof, 0.82);
     const n = rng.int(style.solar ? 0 : 0, style.solar || 0);
@@ -279,7 +281,7 @@ const City = {
         for (const l of [{ x: ix, y: iy, w: 3, h: 2 }, { x: ix + iw - 3, y: iy, w: 3, h: 2 }, { x: ix, y: iy + ih - 2, w: 3, h: 2 }, { x: ix + iw - 3, y: iy + ih - 2, w: 3, h: 2 }]) this.lotBuilding(l, S.bauhaus, rng);
         const cx = (ix + iw / 2) * TILE, cy = (iy + ih / 2) * TILE;
         this.fill(ix + iw / 2 - 1, iy + ih / 2 - 1, 2, 2, T_BUILD);
-        this.addBuilding({ kind: 'circle', cx, cy, r: 58, h0: 0, h1: 10, roof: '#7fc4d8', wall: '#9a9a9a', items: [{ t: 'fountain' }], floors: 99 });
+        this.addBuilding({ kind: 'circle', cx, cy, r: 58, h0: 0, h1: 10, roof: '#7fc4d8', wall: '#9a9a9a', items: [{ t: 'fountain' }], floors: 99, style: 'fountain' });
         for (let i = 0; i < 8; i++) this.decor.push({ k: 'palm', x: cx + Math.cos(i / 8 * TAU) * 200, y: cy + Math.sin(i / 8 * TAU) * 200, h: 80, r: i });
         break;
       }
@@ -303,9 +305,9 @@ const City = {
         const pod = this.lotBuilding({ x: ix + 1, y: iy + 1, w: iw - 2, h: ih - 3 }, S.mall, rng);
         pod.h1 = 36;
         const bxp = pod.x, byp = pod.y, bw = pod.w, bh = pod.h;
-        this.addBuilding({ kind: 'circle', cx: bxp + bw * 0.22, cy: byp + bh * 0.3, r: 70, h0: 36, h1: 300, roof: '#a9c8d8', wall: '#6d8fa3', items: [], floors: 14, glass: true });
-        this.addBuilding({ kind: 'poly', pts: [[bxp + bw * 0.55, byp + bh * 0.12], [bxp + bw * 0.78, byp + bh * 0.55], [bxp + bw * 0.38, byp + bh * 0.58]], h0: 36, h1: 270, roof: '#b4cfdb', wall: '#5f8397', items: [], floors: 14, glass: true });
-        this.addBuilding({ kind: 'rect', x: bxp + bw * 0.62, y: byp + bh * 0.62, w: 120, h: 120, h0: 36, h1: 240, roof: '#9fbfcf', wall: '#58798d', items: [{ t: 'ac', u: 0.5, v: 0.5 }], floors: 14, glass: true });
+        this.addBuilding({ kind: 'circle', cx: bxp + bw * 0.22, cy: byp + bh * 0.3, r: 70, h0: 36, h1: 300, roof: '#a9c8d8', wall: '#6d8fa3', items: [], floors: 14, glass: true, style: 'tower' });
+        this.addBuilding({ kind: 'poly', pts: [[bxp + bw * 0.55, byp + bh * 0.12], [bxp + bw * 0.78, byp + bh * 0.55], [bxp + bw * 0.38, byp + bh * 0.58]], h0: 36, h1: 270, roof: '#b4cfdb', wall: '#5f8397', items: [], floors: 14, glass: true, style: 'tower' });
+        this.addBuilding({ kind: 'rect', x: bxp + bw * 0.62, y: byp + bh * 0.62, w: 120, h: 120, h0: 36, h1: 240, roof: '#9fbfcf', wall: '#58798d', items: [{ t: 'ac', u: 0.5, v: 0.5 }], floors: 14, glass: true, style: 'tower' });
         break;
       }
       case 'shuk': {
@@ -359,7 +361,7 @@ const City = {
           // площадь с часовой башней
           this.fill(ix, iy, iw, ih, T_PLAZA);
           this.fill(ix + 3, iy + 4, 2, 2, T_BUILD);
-          this.addBuilding({ kind: 'rect', x: (ix + 3) * TILE + 30, y: (iy + 4) * TILE + 30, w: 68, h: 68, h0: 0, h1: 150, roof: '#c9a46a', wall: '#b88f55', items: [{ t: 'clock' }], floors: 30 });
+          this.addBuilding({ kind: 'rect', x: (ix + 3) * TILE + 30, y: (iy + 4) * TILE + 30, w: 68, h: 68, h0: 0, h1: 150, roof: '#c9a46a', wall: '#b88f55', items: [{ t: 'clock' }], floors: 30, style: 'jaffa' });
           this.splitLots({ x: ix, y: iy + 7, w: iw, h: ih - 7 }, rng, 3, lots);
           this.splitLots({ x: ix, y: iy, w: iw, h: 3 }, rng, 3, lots);
           for (const l of lots) this.lotBuilding(l, S.jaffa, rng);
@@ -1261,6 +1263,8 @@ const STYLES = {
   jaffa: { hmin: 22, hmax: 55, roofs: ['#d9b47a', '#cfa86b', '#e0bf87'], wall: '#c49a5c', solar: 1, floor: 22, stone: true },
   tower: { hmin: 140, hmax: 280, roofs: ['#9fb8c8', '#8fa9ba', '#b6c4cc', '#7f98a8'], wall: '#5f7a8c', ac: 5, floor: 16 },
 };
+
+for (const k in STYLES) STYLES[k].name = k;
 
 // Затемнить/осветлить цвет #rrggbb
 const _shadeCache = new Map();
