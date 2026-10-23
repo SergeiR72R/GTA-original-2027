@@ -139,9 +139,10 @@ class Car {
     if (!this.hitsWall(nx, this.y, this.a)) this.x = nx; else { hit = true; this.vx *= -0.3; }
     const ny = this.y + this.vy * dt;
     if (!this.hitsWall(this.x, ny, this.a)) this.y = ny; else { hit = true; this.vy *= -0.3; }
-    if (hit && sp > 110 && World.time - this.lastHit > 0.3) {
+    if (hit && sp > 110 && World.time - this.lastHit > 0.4) {
       this.lastHit = World.time;
-      this.damage((sp - 100) * 0.12, null);
+      // удар о стену на полной скорости — примерно 15% «здоровья» обычной машины
+      if (sp > 150) this.damage((sp - 150) * 0.07, null);
       if (this.driver === 'player' || dist2(this.x, this.y, World.player.x, World.player.y) < 600 * 600) Sound.play('crash' + randi(0, 2), clamp(sp / 400, 0.2, 1));
       spawnSparks(this.x + this.fwd.x * this.l / 2, this.y + this.fwd.y * this.l / 2, 6);
     }
@@ -152,10 +153,12 @@ class Car {
     this.hp -= n;
     if (by === 'player' && this.police) Wanted.crime('hitcop', this.x, this.y);
     if (this.hp <= 0) {
+      // машина загорается и взрывается не сразу — есть время выскочить
       this.hp = 0;
       this.dead = true;
-      this.burn = 2.2;
+      this.burn = 5;
       this.killedBy = by;
+      if (this.driver === 'player') Game.message('Машина горит — выпрыгивай (F)!', 3);
     }
   }
 
@@ -174,7 +177,7 @@ class Car {
     for (const c of World.cars) {
       if (c === this || c.dead) continue;
       const d = dist(c.x, c.y, this.x, this.y);
-      if (d < 130) { c.damage(60 * (1 - d / 130), this.killedBy); const k = 300 * (1 - d / 130) / (d || 1); c.vx += (c.x - this.x) * k; c.vy += (c.y - this.y) * k; }
+      if (d < 120) { c.damage(45 * (1 - d / 120), this.killedBy); const k = 300 * (1 - d / 130) / (d || 1); c.vx += (c.x - this.x) * k; c.vy += (c.y - this.y) * k; }
     }
     for (const p of World.peds) {
       if (p.dead) continue;
@@ -191,14 +194,16 @@ class Car {
     if (this.dead) {
       if (this.burn > 0) {
         this.burn -= dt;
-        if (Math.random() < 0.6) spawnParticle(this.x + rand(-10, 10), this.y + rand(-10, 10), 'fire');
+        // сначала дымит, к концу пламя сильнее
+        if (Math.random() < (this.burn > 3 ? 0.3 : 0.7)) spawnParticle(this.x + rand(-10, 10), this.y + rand(-10, 10), 'fire');
+        if (Math.random() < 0.3) spawnParticle(this.x, this.y, 'smoke');
         if (this.burn <= 0) this.explode();
       }
       if (this.burn < 0 && Math.random() < 0.08) spawnParticle(this.x, this.y, 'smoke');
       this.drive(dt, 0, 0, true);
       return;
     }
-    if (this.hp < this.maxHp * 0.4 && Math.random() < 0.25) spawnParticle(this.x + this.fwd.x * this.l * 0.35, this.y + this.fwd.y * this.l * 0.35, this.hp < this.maxHp * 0.2 ? 'fire' : 'smoke');
+    if (this.hp < this.maxHp * 0.45 && Math.random() < 0.25) spawnParticle(this.x + this.fwd.x * this.l * 0.35, this.y + this.fwd.y * this.l * 0.35, this.hp < this.maxHp * 0.15 ? 'fire' : 'smoke');
     if (this.driver === 'player') return; // управляется в Game
     if (this.ai === 'traffic' && this.driver) this.trafficAI(dt);
     else if (this.ai === 'police' && this.driver) Police.carAI(this, dt);

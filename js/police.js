@@ -1,18 +1,38 @@
 // Розыск и полиция: уровни звёзд, патрульные машины, полицейские на ногах.
 'use strict';
 
+// Розыск копится постепенно: преступления дают «накал», звёзды открываются
+// по порогам. Пока полиция тебя не видит, накал медленно остывает.
+const HEAT_LEVELS = [0, 1, 4, 9, 16, 25];
+
 const Wanted = {
+  heat: 0,
   level: 0,
   unseen: 0,   // сколько секунд полиция не видит игрока
   flash: 0,
+  cool: {},    // паузы, чтобы очередь из узи не давала звезду за каждую пулю
 
-  reset() { this.level = 0; this.unseen = 0; },
+  reset() { this.heat = 0; this.level = 0; this.unseen = 0; this.cool = {}; },
 
+  recompute() {
+    let lvl = 0;
+    for (let i = 1; i < HEAT_LEVELS.length; i++) if (this.heat >= HEAT_LEVELS[i]) lvl = i;
+    if (lvl > this.level) { this.flash = 2; this.unseen = 0; }
+    this.level = lvl;
+  },
+
+  add(n) {
+    this.heat = clamp(this.heat + n, 0, 30);
+    this.recompute();
+  },
+
+  // для миссий: сразу поднять до нужного числа звёзд
   set(n) {
     n = clamp(n, 0, 5);
-    if (n > this.level) this.flash = 2;
-    this.level = n;
+    if (n === 0) { this.reset(); return; }
+    this.heat = Math.max(this.heat, HEAT_LEVELS[n] + 0.5);
     this.unseen = 0;
+    this.recompute();
   },
 
   copNear(x, y, r) {
@@ -21,22 +41,29 @@ const Wanted = {
     return false;
   },
 
+  ready(kind, gap) {
+    if (World.time - (this.cool[kind] || -99) < gap) return false;
+    this.cool[kind] = World.time;
+    return true;
+  },
+
   crime(kind, x, y) {
-    const near = this.copNear(x, y, 650);
+    const near = this.copNear(x, y, 600);
     switch (kind) {
-      case 'carjack': if (near) this.set(Math.max(this.level, 1)); break;
-      case 'shoot': if (near) this.set(Math.max(this.level, 1)); break;
-      case 'kill': if (near || Math.random() < 0.4) this.set(Math.min(this.level + 1, near ? 5 : 2)); break;
-      case 'explode': if (near || Math.random() < 0.5) this.set(Math.max(this.level, 1) + (this.level >= 1 ? 1 : 0)); break;
-      case 'hitcop': if (this.level < 1) this.set(1); break;
-      case 'shootcop': this.set(Math.max(this.level, 2)); break;
-      case 'killcop': this.set(Math.max(this.level + 1, 3)); break;
+      case 'carjack': if (near && this.ready(kind, 2)) this.add(1); break;
+      case 'shoot': if (near && this.ready(kind, 3)) this.add(1); break;
+      // убийство: свидетель-полицейский — сразу, иначе иногда кто-то звонит в полицию
+      case 'kill': if (near) this.add(2); else if (Math.random() < 0.35) this.add(1); break;
+      case 'explode': if (near) this.add(2); else if (Math.random() < 0.4) this.add(1); break;
+      case 'hitcop': if (this.ready(kind, 3)) this.add(1); break;
+      case 'shootcop': if (this.ready(kind, 1)) this.add(3); break;
+      case 'killcop': this.add(5); break;
     }
   },
 
   update(dt) {
     if (this.flash > 0) this.flash -= dt;
-    if (this.level === 0) return;
+    if (this.heat <= 0) return;
     const pl = World.player;
     let seen = false;
     for (const c of World.cars) {
@@ -50,7 +77,15 @@ const Wanted = {
     if (seen) this.unseen = 0;
     else {
       this.unseen += dt;
-      if (this.unseen > 9 + this.level * 3) { this.level--; this.unseen = 0; }
+      // через 6 секунд вне поля зрения накал начинает остывать
+      if (this.unseen > 6) {
+        this.heat = Math.max(0, this.heat - dt * 0.6);
+        const was = this.level;
+        let lvl = 0;
+        for (let i = 1; i < HEAT_LEVELS.length; i++) if (this.heat >= HEAT_LEVELS[i]) lvl = i;
+        this.level = lvl;
+        if (lvl < was && lvl === 0) Game.message('Розыск снят', 2);
+      }
     }
   },
 };
@@ -58,20 +93,27 @@ const Wanted = {
 const Police = {
   spawnT: 0,
 
+  // сколько машин гоняется, как часто подъезжают новые, с какого радиуса реагируют патрули
+  MAX_CARS: [0, 1, 2, 3, 4, 6],
+  SPAWN_GAP: [0, 30, 14, 9, 6, 4],
+  ALERT_R: [0, 500, 700, 900, 1100, 1300],
+  lastLevel: 0,
+
   update(dt) {
     const lvl = Wanted.level;
     const pl = World.player;
-    const want = [0, 2, 3, 4, 6, 7][lvl];
+    if (lvl > this.lastLevel) this.spawnT = Math.max(this.spawnT, this.SPAWN_GAP[lvl] * 0.5);
+    this.lastLevel = lvl;
     const cops = World.cars.filter((c) => c.police && !c.dead && c.ai === 'police');
     this.spawnT -= dt;
-    if (cops.length < want && this.spawnT <= 0) {
-      this.spawnT = 2.5;
-      const p = Game.findRoadSpawn(pl.x, pl.y, 800, 1200);
+    if (lvl > 0 && cops.length < this.MAX_CARS[lvl] && this.spawnT <= 0) {
+      this.spawnT = this.SPAWN_GAP[lvl];
+      const p = Game.findRoadSpawn(pl.x, pl.y, 900, 1300);
       if (p) {
         const c = new Car(p.x, p.y, DIR_ANGLE[p.dir], { police: true, ai: 'police' });
         c.driver = new Ped(p.x, p.y, { look: Looks.police(), ai: 'cop', weapon: 'pistol', hp: 70 });
         c.driver.car = c;
-        c.partner = chance(0.5);
+        c.partner = lvl >= 2 && chance(0.5);
         World.cars.push(c);
       }
     }
@@ -81,10 +123,18 @@ const Police = {
     Sound.setSiren(lvl > 0 && near < 1100 ? 1 - near / 1100 : 0);
     // когда розыск снят — полицейские возвращаются к патрулю
     if (lvl === 0) {
-      for (const c of World.cars) if (c.police && c.ai === 'police') { c.ai = 'traffic'; c.siren = false; c.target = null; }
+      for (const c of World.cars) if (c.police && c.ai === 'police') { c.ai = 'traffic'; c.siren = false; c.target = null; c.maxSpeed = c.T.max; }
       for (const p of World.peds) if (p.ai === 'cop' && !p.dead) { p.ai = 'walk'; p.target = null; }
     } else {
-      for (const c of World.cars) if (c.police && c.ai === 'traffic' && c.driver && dist2(c.x, c.y, pl.x, pl.y) < 900 * 900) { c.ai = 'police'; c.siren = true; }
+      // на погоню реагируют только патрули поблизости, и не больше лимита
+      let chasing = cops.length;
+      const r = this.ALERT_R[lvl];
+      for (const c of World.cars) {
+        if (chasing >= this.MAX_CARS[lvl] + 1) break;
+        if (c.police && c.ai === 'traffic' && c.driver && dist2(c.x, c.y, pl.x, pl.y) < r * r) { c.ai = 'police'; c.siren = true; chasing++; }
+      }
+      // на 1–2 звёздах полиция едет осторожнее
+      for (const c of World.cars) if (c.police && c.ai === 'police') c.maxSpeed = c.T.max * (lvl <= 2 ? 0.85 : 1);
     }
   },
 
@@ -94,7 +144,8 @@ const Police = {
     const d = dist(c.x, c.y, tx, ty);
     c.siren = true;
     // игрок пешком рядом — выходим и ловим
-    if (!pl.car && d < 170 && c.speed < 120) {
+    // ...или машина встала неподалёку, а дальше не проехать (игрок во дворе)
+    if (!pl.car && ((d < 170 && c.speed < 120) || (d < 450 && c.speed < 60 && (!c.path || c.path.length <= 3)))) {
       this.exitCops(c);
       return;
     }
@@ -131,6 +182,12 @@ const Police = {
     let throttle = 1;
     if (Math.abs(diff) > 1.2 && c.speed > 160) throttle = -0.4;
     else if (Math.abs(diff) > 2.2) throttle = 0.4;
+    // к пешему подъезжаем и тормозим, а не давим; на 1 звезде не таранят
+    const calm = !pl.car || Wanted.level <= 1;
+    if (calm && d < 400) {
+      const limit = Math.max(50, (d - 120) * 0.8);
+      if (c.fspeed > limit) throttle = -1; else if (c.fspeed > limit * 0.7) throttle = 0;
+    }
     c.drive(dt, throttle, clamp(diff * 2.2, -1, 1), Math.abs(diff) > 1.4 && c.speed > 150);
     if (c.speed < 25) c.stuck += dt; else c.stuck = Math.max(0, c.stuck - dt * 2);
     if (c.stuck > 1.3) { c.stuck = 0; c.recover = 0.8; c.recoverSteer = -Math.sign(diff || 1); }
@@ -163,7 +220,7 @@ const Police = {
     const sees = d < 450 && City.lineOfSight(p.x, p.y, tx, ty);
     // на 3+ звёздах стреляют
     if (Wanted.level >= 3 && sees && d > 60 && p.cool <= 0) {
-      p.cool = rand(0.7, 1.2);
+      p.cool = Wanted.level === 3 ? rand(1.4, 2.2) : Wanted.level === 4 ? rand(1.0, 1.6) : rand(0.7, 1.2);
       fireBullet(p, 'pistol', p.a);
     }
     // садимся обратно в пустую полицейскую машину, если игрок уехал
@@ -183,7 +240,7 @@ const Police = {
     const close = pl.car ? (d < pl.car.w / 2 + 30 && pl.car.speed < 30) : d < 24;
     if (close) {
       pl.bust += dt;
-      if (pl.bust > (pl.car ? 1.0 : 0.7)) Game.busted();
+      if (pl.bust > (pl.car ? 1.2 : 1.0)) Game.busted();
     }
   },
 };

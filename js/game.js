@@ -519,6 +519,8 @@ const Game = {
       for (let j = i + 1; j < cars.length; j++) {
         const b = cars[j];
         if (dist2(a.x, a.y, b.x, b.y) > 110 * 110) continue;
+        // все точки касания пары машин — но урон считаем один раз за удар
+        let maxRv = 0, hx = 0, hy = 0;
         for (const ca of a.circles()) for (const cb of b.circles()) {
           const dx = cb.x - ca.x, dy = cb.y - ca.y;
           const d = Math.hypot(dx, dy), m = ca.r + cb.r;
@@ -531,17 +533,21 @@ const Game = {
           if (rv < 0) {
             const imp = -rv * 0.8;
             a.vx -= nx * imp; a.vy -= ny * imp; b.vx += nx * imp; b.vy += ny * imp;
-            if (-rv > 90) {
-              const by = a.driver === 'player' ? 'player' : b.driver === 'player' ? 'player' : null;
-              a.damage((-rv - 80) * 0.08, b.driver === 'player' ? 'player' : null);
-              b.damage((-rv - 80) * 0.08, a.driver === 'player' ? 'player' : null);
-              if (by || dist2(a.x, a.y, pl.x, pl.y) < 500 * 500) Sound.play('crash' + randi(0, 2), clamp(-rv / 300, 0.2, 1));
-              spawnSparks((ca.x + cb.x) / 2, (ca.y + cb.y) / 2, 5);
-              if (by) this.shake(clamp(-rv / 60, 1, 8));
-              // водитель трафика злится и сигналит
-              for (const c of [a, b]) if (c.ai === 'traffic' && c.driver && by) c.honk();
-            }
+            if (-rv > maxRv) { maxRv = -rv; hx = (ca.x + cb.x) / 2; hy = (ca.y + cb.y) / 2; }
           }
+        }
+        if (maxRv > 130 && World.time - (a.lastCrash || -9) > 0.5 && World.time - (b.lastCrash || -9) > 0.5) {
+          a.lastCrash = b.lastCrash = World.time;
+          const by = a.driver === 'player' ? 'player' : b.driver === 'player' ? 'player' : null;
+          // лобовое на 200 км/ч — около 20% «здоровья» обычной машины
+          const dmg = (maxRv - 130) * 0.05;
+          a.damage(dmg, b.driver === 'player' ? 'player' : null);
+          b.damage(dmg, a.driver === 'player' ? 'player' : null);
+          if (by || dist2(a.x, a.y, pl.x, pl.y) < 500 * 500) Sound.play('crash' + randi(0, 2), clamp(maxRv / 300, 0.2, 1));
+          spawnSparks(hx, hy, 5);
+          if (by) this.shake(clamp(maxRv / 60, 1, 8));
+          // водитель трафика злится и сигналит
+          for (const c of [a, b]) if (c.ai === 'traffic' && c.driver && by) c.honk();
         }
       }
       // машина и люди

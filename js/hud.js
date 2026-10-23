@@ -42,6 +42,14 @@ const HUD = {
       const blink = Wanted.flash > 0 && Math.floor(World.time * 8) % 2;
       this.drawStar(ctx, vw - 34 - (4 - i) * 30, 76, 12, on && !blink, on ? '#ffd23f' : null);
     }
+    // накал до следующей звезды
+    if (Wanted.heat > 0 && Wanted.level < 5) {
+      const lo = HEAT_LEVELS[Wanted.level], hi = HEAT_LEVELS[Wanted.level + 1];
+      const k = clamp((Wanted.heat - lo) / (hi - lo), 0, 1);
+      const bx = vw - 46 - (4 - Wanted.level) * 30;
+      ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(bx, 90, 24, 4);
+      ctx.fillStyle = Wanted.unseen > 6 ? '#90caf9' : '#ff8a65'; ctx.fillRect(bx, 90, 24 * k, 4);
+    }
     // ---- здоровье и оружие (слева сверху)
     const hpw = 180;
     ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(18, 18, hpw + 4, 16);
