@@ -148,6 +148,15 @@ const PORTRAIT_ASSETS = [
   ['portrait_dvora', 'Портрет: Двора, учительница ульпана', 'Dvora, a strict but kind Hebrew teacher in her 60s: short curly grey hair, colorful orange scarf, reading glasses on the tip of her nose, raised index finger, holding a stack of textbooks. Background: lilac.'],
 ];
 
+// Фасады достопримечательностей (добавлены в конец, номера не сдвигаются)
+const LANDMARK_FACADES = [
+  ['facade_power', 'Фасад: электростанция Ридинг', 'Industrial facade of a 1930s seaside power station: pale weathered concrete, tall narrow vertical strip windows with rusty steel frames, a faded red stripe along the top, exposed pipes and ventilation grilles.'],
+  ['facade_church', 'Фасад: церковь в Яффо', 'Facade of an old Franciscan stone church in Jaffa: warm honey-coloured limestone blocks, tall arched windows with simple coloured glass, carved stone cornice and pilasters.'],
+  ['facade_mosque', 'Фасад: мечеть Хасан-Бек', 'Ottoman-era mosque wall near the sea: pale sand-coloured limestone, a row of pointed arch windows with green wooden shutters and iron grilles, a decorative stone band between floors.'],
+  ['facade_arena', 'Фасад: спортивная арена', 'Exterior wall of a modern indoor sports arena: horizontal bands of light grey aluminium panels alternating with strips of dark blue glass, white vertical structural ribs.'],
+  ['facade_citygate', 'Фасад: башня «Городские ворота»', 'Curtain wall of the tallest skyscraper in Ramat Gan: dark blue reflective glass with thin vertical silver fins in a very regular grid, a few lit office windows.'],
+];
+
 // Полный упорядоченный список: машины (с уроном), персонажи, фасады, объекты, текстуры, портреты
 const ASSET_MANIFEST = (() => {
   const out = [];
@@ -174,6 +183,9 @@ const ASSET_MANIFEST = (() => {
   }
   for (const [file, title, desc] of PORTRAIT_ASSETS) {
     out.push({ cat: 'portraits', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.portrait} ${desc}` });
+  }
+  for (const [file, title, desc] of LANDMARK_FACADES) {
+    out.push({ cat: 'facades', file, title, kind: 'new', size: '16:9', prompt: `${ASSET_STYLE.common.replace('single object centered, ', '')} ${ASSET_STYLE.facade} ${desc}` });
   }
   return out;
 })();

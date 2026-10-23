@@ -12,7 +12,11 @@ const FACADE_OF = {
   bauhaus: 'bauhaus', florentin: 'florentin', hotel: 'hotel', warehouse: 'warehouse', cityhall: 'cityhall', templer: 'templer',
   mall: 'mall', hospital: 'hospital', police: 'police', garage: 'garage', busstation: 'busstation', concrete: 'concrete',
   nevetzedek: 'nevetzedek', jaffa: 'jaffa', tower: 'tower', fountain: 'concrete',
+  // достопримечательности: свои фасады (если сгенерированы) и гладкая покраска
+  plain: 'plain', power: 'power', church: 'church', mosque: 'mosque', arena: 'arena', citygate: 'citygate',
 };
+// пока своей картинки нет — процедурный фасад похожего стиля
+const FACADE_FALLBACK = { power: 'warehouse', church: 'jaffa', mosque: 'jaffa', arena: 'concrete', citygate: 'tower' };
 const SHOP_STYLES = { bauhaus: 1, florentin: 1, concrete: 1, jaffa: 1, nevetzedek: 1 };
 const FACADE_VARIANTS = { bauhaus: 3, florentin: 3, concrete: 3 };
 const PILOTIS_STYLES = { bauhaus: 1, concrete: 1 };
@@ -25,6 +29,7 @@ const FACADE_GEN = {
   bauhaus: 'facade_bauhaus', florentin: 'facade_florentin', jaffa: 'facade_jaffa', templer: 'facade_jaffa', nevetzedek: 'facade_nevetzedek',
   concrete: 'facade_concrete', hospital: 'facade_concrete', police: 'facade_concrete', busstation: 'facade_concrete', cityhall: 'facade_concrete',
   hotel: 'facade_hotel', tower: 'facade_tower', mall: 'facade_tower', warehouse: 'facade_warehouse', garage: 'facade_warehouse',
+  power: 'facade_power', church: 'facade_church', mosque: 'facade_mosque', arena: 'facade_arena', citygate: 'facade_citygate',
 };
 const LAMP_LIGHTS = 24;  // точечный свет ночных фонарей (днём выключен совсем)
 // Качество графики: разрешение 3D-сцены, тени, число фонарей-источников света
@@ -291,8 +296,15 @@ const R3 = {
       const gen = Assets.gen['facades/' + FACADE_GEN[st]];
       const n = FACADE_VARIANTS[st] || 1;
       for (let v = 0; v < n; v++) {
-        if (gen) M[`f_${st}_${v}`] = facadeMat(gen, this.windowGlow(gen), { fw: FACADE_H * gen.width / gen.height, fh: FACADE_H, gen: true });
-        else { const f = Facades.facade(st, v); M[`f_${st}_${v}`] = facadeMat(f.map, f.emissive, { fw: FACADE_W, fh: FACADE_H }); }
+        if (st === 'plain') {
+          // ровная покраска: цвет берётся из wall здания
+          const c = Facades.canvas(64, 64), g = c.getContext('2d');
+          g.fillStyle = '#fff'; g.fillRect(0, 0, 64, 64);
+          for (let i = 0; i < 60; i++) { g.fillStyle = `rgba(0,0,0,${(Math.random() * 0.05).toFixed(3)})`; g.fillRect(Math.random() * 64, Math.random() * 64, 3, 3); }
+          const em = Facades.canvas(4, 4), eg = em.getContext('2d'); eg.fillStyle = '#000'; eg.fillRect(0, 0, 4, 4);
+          M[`f_${st}_${v}`] = facadeMat(c, em, { fw: FACADE_W, fh: FACADE_H });
+        } else if (gen) M[`f_${st}_${v}`] = facadeMat(gen, this.windowGlow(gen), { fw: FACADE_H * gen.width / gen.height, fh: FACADE_H, gen: true });
+        else { const f = Facades.facade(FACADE_FALLBACK[st] || st, v); M[`f_${st}_${v}`] = facadeMat(f.map, f.emissive, { fw: FACADE_W, fh: FACADE_H }); }
       }
     }
     // витрины первых этажей: сгенерированные (одна витрина на картинку) вперемешку с процедурными (4 в ряд)
@@ -393,7 +405,7 @@ const R3 = {
       }
     }
     // таблички и вывески на крышах — отдельными плоскостями
-    for (const b of City.buildings) if (b.sign || b.label) this.roofSign(b);
+    for (const b of City.buildings) if (!b.removed && (b.sign || b.label)) this.roofSign(b);
     this.applyQuality(true);
     // заранее рисуем спрайты всех машин всех цветов: первый показ не даст рывка
     for (const t in VTYPES) {
@@ -407,7 +419,7 @@ const R3 = {
   building(b, B) {
     const style = FACADE_OF[b.style] || 'concrete';
     const y0 = h3(b.h0), y1 = h3(b.h1);
-    const tint = TINTED[style] ? COL(b.style === 'nevetzedek' || b.style === 'jaffa' ? b.wall : b.roof).lerp(WHITE, 0.25) : WHITE;
+    const tint = style === 'plain' ? COL(b.wall) : TINTED[style] ? COL(b.style === 'nevetzedek' || b.style === 'jaffa' ? b.wall : b.roof).lerp(WHITE, 0.25) : WHITE;
     const pts = b.pts;
     const n = pts.length;
     const tall = b.kind === 'rect' && y1 - y0 > FLOOR_H * 2.2;

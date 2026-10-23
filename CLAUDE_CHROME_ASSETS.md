@@ -7,9 +7,9 @@
 
 ## Цель
 
-Сгенерировать в **Gemini** (https://gemini.google.com) 168 картинок для
+Сгенерировать в **Gemini** (https://gemini.google.com) 173 картинок для
 браузерной игры с видом сверху: 88 спрайтов машин (каждая — целая и
-три стадии повреждений), 33 персонажей, 16 фасадов и витрин,
+три стадии повреждений), 33 персонажей, 21 фасадов и витрин,
 9 объектов улиц, 12 текстур и 10 портретов героев для окна звонка. Скачать каждую картинку **ровно один раз и строго по порядку
 номеров** из списка ниже.
 
@@ -94,7 +94,7 @@ only add the damage» и повтори.
 
 ---
 
-# Список ассетов (168)
+# Список ассетов (173)
 
 ## Машины (88)
 
@@ -1074,7 +1074,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Фасады и витрины (16)
+## Фасады и витрины (21)
 
 Все фасады и витрины — в одном новом чате, **формат 16:9**, вид строго спереди (как чертёж), без неба и перспективы.
 
@@ -1467,5 +1467,50 @@ Head-and-shoulders caricature portrait for the phone-call dialog box of a satiri
 
 ```
 Head-and-shoulders caricature portrait for the phone-call dialog box of a satirical crime video game set in Tel Aviv: bold comic-book style, thick black ink outlines, flat cel shading, exaggerated proportions (big head, small shoulders, oversized nose and expressive eyebrows), the character looks toward the viewer at a slight three-quarter angle, flat solid single-color background with a subtle halftone dot pattern, square format, head and shoulders fill the frame. Funny and good-natured, never mean; exaggerate expression and props, not ethnic features. No text, no letters, no speech bubbles, no frame, no logos, no watermark. Dvora, a strict but kind Hebrew teacher in her 60s: short curly grey hair, colorful orange scarf, reading glasses on the tip of her nose, raised index finger, holding a stack of textbooks. Background: lilac.
+```
+
+
+## Фасады и витрины (21)
+
+Все фасады и витрины — в одном новом чате, **формат 16:9**, вид строго спереди (как чертёж), без неба и перспективы.
+
+### 169. `facades/facade_power.png` — Фасад: электростанция Ридинг
+
+- [ ] Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars. Industrial facade of a 1930s seaside power station: pale weathered concrete, tall narrow vertical strip windows with rusty steel frames, a faded red stripe along the top, exposed pipes and ventilation grilles.
+```
+
+### 170. `facades/facade_church.png` — Фасад: церковь в Яффо
+
+- [ ] Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars. Facade of an old Franciscan stone church in Jaffa: warm honey-coloured limestone blocks, tall arched windows with simple coloured glass, carved stone cornice and pilasters.
+```
+
+### 171. `facades/facade_mosque.png` — Фасад: мечеть Хасан-Бек
+
+- [ ] Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars. Ottoman-era mosque wall near the sea: pale sand-coloured limestone, a row of pointed arch windows with green wooden shutters and iron grilles, a decorative stone band between floors.
+```
+
+### 172. `facades/facade_arena.png` — Фасад: спортивная арена
+
+- [ ] Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars. Exterior wall of a modern indoor sports arena: horizontal bands of light grey aluminium panels alternating with strips of dark blue glass, white vertical structural ribs.
+```
+
+### 173. `facades/facade_citygate.png` — Фасад: башня «Городские ворота»
+
+- [ ] Новая картинка, формат горизонтальный 16:9.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, no text, no logos, no watermark. Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars. Curtain wall of the tallest skyscraper in Ramat Gan: dark blue reflective glass with thin vertical silver fins in a very regular grid, a few lit office windows.
 ```
 

@@ -162,6 +162,7 @@ const City = {
       this.decor.push({ k: rng() < 0.5 ? 'tree' : 'treeS', x, y, h: 40 });
     }
 
+    this.landmarks();
     this.indexBuildings();
     this.definePlaces();
     this.buildMinimap();
@@ -171,6 +172,109 @@ const City = {
     b.id = this.buildings.length;
     this.buildings.push(b);
     return b;
+  },
+
+  // Деталь достопримечательности: по умолчанию без окон (floors 99)
+  piece(o) { return this.addBuilding(Object.assign({ h0: 0, items: [], floors: 99, roof: o.wall, landmark: true }, o)); },
+  // Цилиндр в клетках (центр tx, ty — в клетках, можно дробно)
+  cyl(tx, ty, r, h0, h1, wall, style = 'plain', roof) { return this.piece({ kind: 'circle', cx: tx * TILE, cy: ty * TILE, r, h0, h1, wall, roof: roof || wall, style }); },
+  // Полосатый цилиндр: трубы, маяк, мачта
+  bands(tx, ty, r, h0, h1, n, a, b) { const st = (h1 - h0) / n; for (let i = 0; i < n; i++) this.cyl(tx, ty, r, h0 + i * st, h0 + (i + 1) * st, i % 2 ? b : a); },
+  // «Луковица» купола: стопка сужающихся колец
+  onion(tx, ty, r, h0, col) {
+    const k = [[1, 0.35], [0.85, 0.3], [0.6, 0.22], [0.32, 0.18]];
+    let h = h0;
+    for (const [rr, hh] of k) { this.cyl(tx, ty, r * rr, h, h + r * hh, col); h += r * hh; }
+    return h;
+  },
+  // Коробка в клетках с отступом, непроходимая
+  box(tx, ty, tw, th, h0, h1, wall, roof, style = 'plain', extra = {}) {
+    const b = this.piece(Object.assign({ kind: 'rect', x: tx * TILE + 4, y: ty * TILE + 4, w: tw * TILE - 8, h: th * TILE - 8, h0, h1, wall, roof, style }, extra));
+    this.markSolid(tx, ty, tw, th, b.id);
+    return b;
+  },
+
+  // Расчистить участок под достопримечательность: убрать дома, декор, парковку
+  clearRect(x0, y0, w, h, tt) {
+    const inR = (px, py) => px >= x0 * TILE && px < (x0 + w) * TILE && py >= y0 * TILE && py < (y0 + h) * TILE;
+    for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) {
+      const id = this.bid[this.idx(x, y)];
+      if (id >= 0 && !this.buildings[id].removed) {
+        const b = this.buildings[id];
+        b.removed = true;
+        // весь лот снесённого дома становится площадкой
+        for (let yy = Math.floor(b.y / TILE); yy <= Math.floor((b.y + b.h - 1) / TILE); yy++) for (let xx = Math.floor(b.x / TILE); xx <= Math.floor((b.x + b.w - 1) / TILE); xx++) {
+          if (this.bid[this.idx(xx, yy)] === id) { this.bid[this.idx(xx, yy)] = -1; this.type[this.idx(xx, yy)] = tt; }
+        }
+      }
+      this.type[this.idx(x, y)] = tt;
+    }
+    this.decor = this.decor.filter((d) => !inR(d.x, d.y));
+    this.parkingSpots = this.parkingSpots.filter((p) => !inR(p.x, p.y));
+  },
+
+  // Достопримечательности районов — из простых объёмов, поэтому одинаково
+  // видны в 2D и 3D. Квадраты в клетках внутри кварталов (см. LAYOUT).
+  landmarks() {
+    const sign = (b, text, sub, bg, fg) => { b.sign = { text, sub, bg, fg }; };
+    // Порт: электростанция Ридинг — корпус и две полосатые трубы
+    this.clearRect(24, 10, 6, 5, T_DECK);
+    const rd = this.box(24, 11, 6, 3, 0, 70, '#b9b0a2', '#8f8f8f', 'power');
+    this.bands(25.5, 12.5, 17, 0, 300, 8, '#c62828', '#f5f5f5');
+    this.bands(28.5, 12.5, 17, 0, 300, 8, '#c62828', '#f5f5f5');
+    sign(rd, 'רדינג', 'электростанция Ридинг', '#b71c1c', '#fff');
+    // Ротшильд: башня Шалом и театр Габима
+    this.clearRect(47, 57, 4, 3, T_WALK);
+    const sh = this.box(47, 57, 4, 3, 0, 420, '#7b6a58', '#8d7b68', 'tower', { floors: 16 });
+    sign(sh, 'מגדל שלום', 'башня Шалом', '#4e342e', '#ffe0b2');
+    this.clearRect(63, 61, 4, 4, T_PLAZA);
+    this.markSolid(63, 61, 4, 4);
+    this.cyl(65, 63, 100, 0, 52, '#e8e4da', 'arena', '#f2f2f2');
+    this.cyl(65, 63, 76, 52, 64, '#d7d2c6', 'plain', '#ffffff');
+    // Кирья: мачта связи на штабе
+    const kq = this.buildings.find((b) => b.label === 'KIRYA');
+    if (kq) this.bands((kq.x + kq.w / 2) / TILE, (kq.y + kq.h / 2) / TILE, 7, kq.h1, kq.h1 + 230, 6, '#d32f2f', '#fafafa');
+    // Яффо: церковь Святого Петра с колокольней и маяк в гавани
+    this.clearRect(48, 94, 5, 4, T_PLAZA);
+    const ch = this.box(48, 95, 4, 3, 0, 70, '#dcbc85', '#c9a46a', 'church', { stone: true });
+    this.box(52, 94, 1, 2, 0, 175, '#d6b47c', '#b88f55', 'church', { stone: true });
+    this.onion(50, 96.5, 34, 70, '#b88f55');
+    sign(ch, 'כנסיית פטרוס', 'церковь Св. Петра', '#6d4c41', '#fff3e0');
+    this.clearRect(11, 96, 1, 1, T_DECK);
+    this.markSolid(11, 96, 1, 1);
+    this.bands(11.5, 96.5, 18, 0, 150, 5, '#fafafa', '#d32f2f');
+    this.cyl(11.5, 96.5, 12, 150, 168, '#fff59d');
+    this.cyl(11.5, 96.5, 16, 168, 174, '#c62828');
+    // Рамат-Ган: православная церковь с луковицами — приход «земляков»
+    this.clearRect(108, 58, 4, 4, T_PLAZA);
+    const rc = this.box(108, 58, 4, 4, 0, 55, '#f2eee6', '#e0dbd0', 'church');
+    this.cyl(110, 60, 40, 55, 92, '#f5f5f5');
+    const top = this.onion(110, 60, 50, 92, '#d4a017');
+    this.cyl(110, 60, 3, top, top + 34, '#d4a017');
+    for (const [dx, dy] of [[-1.35, -1.35], [1.35, -1.35], [-1.35, 1.35], [1.35, 1.35]]) {
+      this.cyl(110 + dx, 60 + dy, 14, 55, 78, '#f5f5f5');
+      this.onion(110 + dx, 60 + dy, 18, 78, '#1e88e5');
+    }
+    sign(rc, 'ЦЕРКОВЬ', 'русский приход', '#1565c0', '#ffd54f');
+    // Пляж: заброшенный Дельфинариум
+    this.clearRect(5, 60, 3, 3, T_SAND);
+    const dl = this.box(5, 60, 3, 3, 0, 22, '#9fb0b8', '#8a9aa2', 'arena');
+    sign(dl, 'דולפינריום', 'заброшенный дельфинарий', '#455a64', '#e0f7fa');
+    // Набережная: мечеть Хасан-Бек с минаретом
+    this.clearRect(11, 70, 4, 4, T_PLAZA);
+    const mq = this.box(11, 71, 3, 3, 0, 45, '#e3cfa4', '#d9c49a', 'mosque', { stone: true });
+    this.onion(12.5, 72.5, 42, 45, '#c8b48a');
+    this.markSolid(14, 70, 1, 1);
+    this.cyl(14.5, 70.5, 13, 0, 165, '#e8d5a8');
+    this.cyl(14.5, 70.5, 19, 118, 124, '#d4bf90');
+    this.cyl(14.5, 70.5, 9, 165, 190, '#9e9e9e');
+    sign(mq, 'מסגד חסן בק', 'мечеть Хасан-Бек', '#00695c', '#fff');
+    // Юг: арена «Менора» в шхунот
+    this.clearRect(72, 118, 6, 6, T_PLAZA);
+    this.markSolid(72, 118, 6, 6);
+    this.cyl(75, 121, 170, 0, 58, '#cfd8dc', 'arena', '#90a4ae');
+    this.cyl(75, 121, 140, 58, 72, '#b0bec5', 'plain', '#cfd8dc');
+    this.cyl(75, 121, 95, 72, 82, '#cfd8dc', 'plain', '#eceff1');
   },
 
   markSolid(x0, y0, w, h, id) {
@@ -451,6 +555,12 @@ const City = {
           const b = this.lotBuilding(l, S.tower, rng);
           b.h1 = rng.range(220, 320); b.glass = true;
         }
+        if (by === 1) {
+          // «Городские ворота» — самая высокая башня, с короной на крыше
+          const gate = this.buildings[this.buildings.length - 3];
+          gate.h1 = 520; gate.style = 'citygate';
+          this.piece({ kind: 'rect', x: gate.x + 18, y: gate.y + 18, w: gate.w - 36, h: gate.h - 36, h0: 520, h1: 560, wall: '#37474f', roof: '#263238', style: 'plain' });
+        }
         const dx = ix + iw - 4, dy = iy + ih - 4;
         this.markSolid(dx, dy, 3, 3);
         const cx = (dx + 1.5) * TILE, cy = (dy + 1.5) * TILE;
@@ -490,6 +600,7 @@ const City = {
     this.bgrid = [];
     for (let i = 0; i < cw * ch; i++) this.bgrid.push([]);
     for (const b of this.buildings) {
+      if (b.removed) continue;
       if (b.kind === 'circle') { b.pts = []; for (let i = 0; i < 20; i++) b.pts.push([b.cx + Math.cos(i / 20 * TAU) * b.r, b.cy + Math.sin(i / 20 * TAU) * b.r]); }
       else if (b.kind === 'rect') b.pts = [[b.x, b.y], [b.x + b.w, b.y], [b.x + b.w, b.y + b.h], [b.x, b.y + b.h]];
       let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
@@ -607,7 +718,7 @@ const City = {
     ];
     const srng = makeRng(42);
     for (const b of this.buildings) {
-      if (b.kind !== 'rect' || b.sign || b.h1 > 90 || b.w < 90 || b.h < 90 || b.glass) continue;
+      if (b.kind !== 'rect' || b.sign || b.removed || b.landmark || b.h1 > 90 || b.w < 90 || b.h < 90 || b.glass) continue;
       if (srng() < 0.16) { const sg = srng.pick(SIGNS); b.sign = { text: sg[0], bg: sg[1], fg: '#fff' }; }
     }
   },
