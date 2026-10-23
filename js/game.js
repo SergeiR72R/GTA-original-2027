@@ -121,7 +121,7 @@ const Game = {
       if (!this.keys[e.code]) this.pressed[e.code] = true;
       this.keys[e.code] = true;
       Sound.resume();
-      if (e.code === 'Escape') this.togglePause();
+      if (e.code === 'Escape' && !Shops.open) this.togglePause();
       if (e.code === 'KeyM') Sound.toggleMute();
       if ((e.code === 'F3' || e.code === 'KeyP') && this.gl) { e.preventDefault(); this.showPerf = !this.showPerf; }
       if (e.code === 'KeyO' && this.gl && this.state !== 'title') this.message('Качество графики: ' + R3.cycleQuality(), 3);
@@ -153,7 +153,7 @@ const Game = {
     const P = City.places;
     World.player = new Ped(P.flat.x, P.flat.y, { look: Looks.player(), ai: 'player', a: 0 });
     const pl = World.player;
-    pl.hp = 100; pl.armor = 0; pl.money = 500; pl.ammo = { pistol: 0, uzi: 0 }; pl.weapon = null; pl.bust = 0;
+    pl.hp = 100; pl.armor = 0; pl.money = 500; pl.ammo = emptyAmmo(); pl.weapon = null; pl.bust = 0;
     this.placeHomeScooter();
     // такси у Шука — для подработки
     const tx = City.tc(31, 54);
@@ -181,13 +181,13 @@ const Game = {
     const P = City.places;
     if (pl.car) this.exitCar(true);
     pl.x = P.flat.x; pl.y = P.flat.y; pl.hp = 100; pl.armor = 0; pl.dead = false;
-    pl.ammo = { pistol: 0, uzi: 0 }; pl.weapon = null;
+    pl.ammo = emptyAmmo(); pl.weapon = null;
     Wanted.reset();
     const sv = !fresh && save ? save : null;
     Factions.reset(sv && sv.rep);
     Jobs.reset(sv);
     Clock.reset(sv && sv.clock);
-    if (sv) { pl.money = sv.money; Missions.reset(sv.index); Missions.word = sv.word || 0; }
+    if (sv) { pl.money = sv.money; Missions.reset(sv.index); Missions.word = sv.word || 0; Object.assign(pl.ammo, sv.ammo || {}); pl.armor = sv.armor || 0; pl.weapon = this.bestWeapon(); }
     else { pl.money = 500; Missions.reset(0); Missions.word = 0; this.bigText('ХАМСИН', 'Часть 1: Тель-Авив', '#ffd23f'); }
     this.placeHomeScooter();
     this.cam.x = pl.x; this.cam.y = pl.y;
@@ -215,6 +215,7 @@ const Game = {
       localStorage.setItem(SAVE_KEY, JSON.stringify({
         index: Missions.index, money: World.player.money, rep: Factions.rep, word: Missions.word,
         deliveries: Jobs.deliveries, rides: Jobs.rides, clock: Clock.min,
+        ammo: World.player.ammo, armor: Math.round(World.player.armor),
       }));
     } catch (e) { /* без сохранений */ }
   },
@@ -268,7 +269,7 @@ const Game = {
     if (isFac) type = FACTIONS[fac].car;
     const c = new Car(p.x, p.y, DIR_ANGLE[p.dir], { type: police ? 'police' : type, ai: 'traffic', faction: isFac ? fac : null });
     c.dir = p.dir;
-    c.driver = new Ped(p.x, p.y, isFac ? { faction: fac, ai: 'gang', weapon: 'pistol' } : police ? { look: Looks.police(), ai: 'cop', weapon: 'pistol' } : {});
+    c.driver = new Ped(p.x, p.y, isFac ? { faction: fac, ai: 'gang', weapon: factionGun(fac) } : police ? { look: Looks.police(), ai: 'cop', weapon: 'pistol' } : {});
     c.driver.car = c;
     c.siren = false;
     const v = DIRS[p.dir];
@@ -420,7 +421,7 @@ const Game = {
     const P = this.downKind === 'dead' ? City.places.hospital : City.places.police;
     pl.x = P.x; pl.y = P.y + 10;
     pl.hp = 100; pl.dead = false; pl.bust = 0;
-    pl.ammo = { pistol: 0, uzi: 0 }; pl.weapon = null;
+    pl.ammo = emptyAmmo(); pl.weapon = null;
     pl.money = Math.max(0, pl.money - (this.downKind === 'dead' ? 1000 : 1500));
     Wanted.reset();
     // убираем погоню
@@ -438,9 +439,15 @@ const Game = {
     document.getElementById('end').classList.remove('hidden');
   },
 
+  // лучшее огнестрельное, что есть (взрывчатку сами не выбираем)
+  bestWeapon() {
+    const pl = World.player;
+    return ['ak', 'uzi', 'shotgun', 'pistol', 'bat'].find((w) => pl.ammo[w] > 0) || null;
+  },
+
   cycleWeapon() {
     const pl = World.player;
-    const list = [null, 'pistol', 'uzi'].filter((w) => w === null || pl.ammo[w] > 0);
+    const list = [null, ...WEAPON_ORDER].filter((w) => w === null || pl.ammo[w] > 0);
     const i = list.indexOf(pl.weapon);
     pl.weapon = list[(i + 1) % list.length];
     Sound.play('weapon', 0.5);
@@ -505,28 +512,29 @@ const Game = {
     }
     if (this.hit('Tab', 'KeyQ')) this.cycleWeapon();
     if (this.hit('Digit1')) pl.weapon = null;
-    if (this.hit('Digit2') && pl.ammo.pistol > 0) pl.weapon = 'pistol';
-    if (this.hit('Digit3') && pl.ammo.uzi > 0) pl.weapon = 'uzi';
+    WEAPON_ORDER.forEach((w, i) => { if (this.hit('Digit' + (i + 2)) && pl.ammo[w] > 0) pl.weapon = w; });
     const fire = this.key('Space', 'ControlLeft', 'ControlRight') || this.mouse.down;
     if (fire && pl.cool <= 0) {
-      const w = pl.weapon;
-      if (!w) {
-        pl.cool = WEAPONS.fists.cd;
+      const w = pl.weapon, W = WEAPONS[w || 'fists'];
+      pl.cool = W.cd;
+      if (W.melee) {
+        // кулаки и бита
         for (const p of World.peds) {
           if (p.dead) continue;
           const d = dist(p.x, p.y, pl.x, pl.y);
-          if (d < 34 && Math.abs(wrapAngle(Math.atan2(p.y - pl.y, p.x - pl.x) - pl.a)) < 1.1) {
-            p.hurt(WEAPONS.fists.dmg, 'player', pl.x, pl.y);
+          if (d < W.melee && Math.abs(wrapAngle(Math.atan2(p.y - pl.y, p.x - pl.x) - pl.a)) < 1.1) {
+            p.hurt(W.dmg, 'player', pl.x, pl.y);
             if (p.ai === 'cop') Wanted.crime('shootcop', p.x, p.y);
             Sound.play('punch', 0.8);
             break;
           }
         }
       } else {
-        pl.cool = WEAPONS[w].cd;
         pl.ammo[w]--;
-        fireBullet(pl, w, pl.a);
-        if (pl.ammo[w] <= 0) { pl.weapon = pl.ammo.uzi > 0 ? 'uzi' : pl.ammo.pistol > 0 ? 'pistol' : null; }
+        if (W.throw) throwGrenade(pl, pl.a);
+        else if (W.rocket) fireRocket(pl, pl.a);
+        else fireBullet(pl, w, pl.a);
+        if (pl.ammo[w] <= 0) pl.weapon = this.bestWeapon();
       }
     }
   },
@@ -638,8 +646,10 @@ const Game = {
       Sound.setEngine(false, 0);
       return;
     }
+    // у витрины магазина мир тоже стоит
+    if (Shops.open && this.state === 'play') { Shops.input(this); return; }
     World.time += dt;
-    if (this.state === 'play') this.updatePlayer(dt);
+    if (this.state === 'play') { this.updatePlayer(dt); Shops.update(); }
     if (this.state === 'down') {
       this.downT -= dt;
       if (this.downT <= 0) this.respawn();
@@ -650,6 +660,7 @@ const Game = {
     if (pl.bust === bust0) pl.bust = 0;
     this.collide(dt);
     updateBullets(dt);
+    updateProjectiles(dt);
     updateParticles(dt);
     for (const p of World.pickups) p.update(dt);
     if (this.state === 'play') {
@@ -737,6 +748,7 @@ const Game = {
       pl.draw(ctx);
     }
     drawBullets(ctx);
+    drawProjectiles(ctx);
     drawParticles(ctx);
     City.nightWin = [];
     City.drawTall(ctx, view, this.cam, World.time);
@@ -882,6 +894,14 @@ const Game = {
   },
 
   drawMarkers(ctx) {
+    // двери магазинов оружия
+    for (const sh of SHOPS) {
+      const p = Shops.place(sh);
+      if (!this.inView(p.x, p.y)) continue;
+      ctx.fillStyle = 'rgba(255,152,0,0.25)'; ctx.strokeStyle = '#ff9800'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 22, 0, TAU); ctx.fill(); ctx.stroke();
+      ctx.save(); ctx.translate(p.x, p.y); drawWeaponIcon(ctx, sh.place === 'gunShop' ? 'pistol' : 'ak', 0.6); ctx.restore();
+    }
     // ракеты: красный круг с отсчётом и тень падающей ракеты
     for (const st of Strikes.list) {
       if (st.hit === 'icpt') continue;

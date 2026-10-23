@@ -47,7 +47,7 @@ function spawnGroup(faction, p, n, opts = {}) {
     const a = i / n * TAU;
     const home = { x: p.x + Math.cos(a) * (opts.spread || 60), y: p.y + Math.sin(a) * (opts.spread || 60) };
     if (City.solidAt(home.x, home.y)) { home.x = p.x; home.y = p.y; }
-    const g = new Ped(home.x, home.y, { faction, ai: 'gang', weapon: opts.weapon || (i % 3 === 0 ? 'uzi' : 'pistol'), hp: opts.hp || 70, home, boss: opts.boss && i === 0 });
+    const g = new Ped(home.x, home.y, { faction, ai: 'gang', weapon: opts.weapon || factionWeapon(faction), hp: opts.hp || 70, home, boss: opts.boss && i === 0 });
     if (opts.boss && i === 0) { g.hp = opts.bossHp || 220; g.name = opts.bossName; }
     g.mission = 'target';
     World.peds.push(g);
@@ -446,25 +446,39 @@ const MISSIONS = [
   },
   {
     title: 'Крыша',
-    phone: 'phoneLions',
-    giver: ABEBA,
+    phone: null,
     intro: [
-      [ABEBA, 'Лёва, беда. Люди Сёмы из «Одессы» пришли к нам в гараж. Говорят, теперь мы платим им «за защиту».'],
-      [ABEBA, 'Мы двадцать лет строили эту мастерскую с отцом. Платить бандитам не будем. Поможешь? Нас трое, с тобой — четверо.'],
-      [HERO, 'Сёма называл меня земляком... Но земляки так не поступают. Еду.'],
+      [ABEBA, 'Лёва, привет! Это Абеба, из ульпана. Помнишь, я говорил про нашу мастерскую? Есть работа: перегнать пару машин, подкрасить, кое-что починить.'],
+      [ABEBA, 'Платим честно, без «конвертов». Мастерская «Gondar Garage» на юге, у автовокзала.'],
+      [HERO, 'Честная работа? В этом городе? Уже еду.'],
     ],
     reward: 3000,
-    outro: 'Абеба: Ты свой, Лёва. Теперь у тебя в южном Тель-Авиве есть братья.',
-    after: [[SEMA, 'Ты кому помогаешь, земляк?! Ты пожалеешь. В «Одессе» тебя больше не ждут.']],
+    outro: 'Абеба: Ты не обязан был за нас вступаться, Лёва. Но ты свой. Теперь у тебя на юге есть братья.',
+    after: [
+      [SEMA, 'Ты положил моих пацанов, земляк. Мне без разницы, кто начал. В «Одессе» тебя больше не ждут.'],
+      [HERO, 'Они стреляли первыми, Сёма. Выбора не было.'],
+      [SEMA, 'Выбор есть всегда. Ты его сделал.'],
+    ],
     start(m) {
-      const p = City.places.lionsHQ;
-      m.foes = spawnGroup('russian', { x: p.x, y: p.y - 10 }, 4, { spread: 70 });
+      m.foes = [];
       m.allies = null;
       m.chasers = [];
     },
     update(m) {
       const pl = World.player, P = City.places.lionsHQ;
-      if (!m.allies && dist(pl.x, pl.y, P.x, P.y) < 500) { m.allies = spawnAllies(2); Game.message('Абеба: Мы с тобой!'); }
+      // Лёва едет на работу — и попадает на «сбор дани»
+      if (!m.raid) {
+        m.text = pl.car ? 'Приезжай в мастерскую «Львов Гондэра» у автовокзала' : 'Найди машину и приезжай в мастерскую «Львов Гондэра»';
+        m.target = P;
+        if (dist(pl.x, pl.y, P.x, P.y) > 230) return;
+        m.raid = true;
+        m.allies = spawnAllies(2);
+        m.foes = spawnGroup('russian', { x: P.x, y: P.y - 10 }, 4, { spread: 80 });
+        const c = GangCars.spawn('russian', P.x, P.y, { min: 260, max: 420, visible: true });
+        if (c) m.chasers.push(c);
+        Game.bigText('НАЛЁТ!', 'Бригада «Одесса» приехала за «данью»', '#ff5252');
+        Game.message('«Одесса»: «Опа, земляк! Ты теперь с этими? Значит, и с тебя причитается!» Выбора нет — отбивайся.', 5);
+      }
       // когда сборщиков почти не осталось — подъезжает их подмога
       if (!m.reinf && m.foes.filter((g) => !g.dead).length <= 2) {
         m.reinf = true;
@@ -472,7 +486,7 @@ const MISSIONS = [
         if (c) { m.chasers.push(c); Game.message('Абеба: Ещё машина «Одессы»!', 3); }
       }
       const left = foesWithChasers(m.foes, m.chasers);
-      m.text = `Выгони сборщиков «Одессы» из гаража «Львов» (осталось: ${m.foes.filter((g) => !g.dead).length + GangCars.alive(m.chasers)})`;
+      m.text = `Отбейся от «Одессы» у мастерской «Львов» (осталось: ${m.foes.filter((g) => !g.dead).length + GangCars.alive(m.chasers)})`;
       m.target = nearestAlive(left) || P;
       if (!left.length && m.reinf) { Factions.change('lions', 35); Factions.change('russian', -45); return 'ok'; }
     },
@@ -571,7 +585,7 @@ const MISSIONS = [
     outro: 'Дани: Сеть накрыта. Страна тебе благодарна — неофициально, конечно. Розыск снят.',
     start(m) {
       const p = City.places.iranSafe;
-      m.foes = spawnGroup('iran', { x: p.x, y: p.y + 10 }, 5, { spread: 80, weapon: 'uzi', hp: 80 });
+      m.foes = spawnGroup('iran', { x: p.x, y: p.y + 10 }, 5, { spread: 80, hp: 80 });
       // фургон — на ближайшей улице, чтобы мог сразу уехать
       const r = Game.findRoadSpawn(p.x, p.y, 60, 260, true) || { x: p.x + 60, y: p.y - 70, dir: 0 };
       const c = new Car(r.x, r.y, DIR_ANGLE[r.dir], { type: 'van', faction: 'iran' });
@@ -723,7 +737,7 @@ const MISSIONS = [
       const p = City.places.ruHQ;
       m.foes = spawnGroup('russian', { x: p.x + 20, y: p.y }, 6, { spread: 110, boss: true, bossHp: 260, bossName: SEMA });
       m.boss = m.foes[0];
-      m.boss.weapon = 'uzi';
+      m.boss.weapon = 'ak';
       m.allies = null;
       m.cars = [];
       for (let i = 0; i < 2; i++) { const c = new Car(p.x + 80 + i * 60, p.y + 120, 0, { type: 'lux', faction: 'russian' }); c.keep = true; World.cars.push(c); m.cars.push(c); }
@@ -745,7 +759,7 @@ const MISSIONS = [
           c.driver = b; b.car = c; c.ai = 'scripted'; c.mission = 'target';
         }
       } else if (m.run && b.car && c.dead) {
-        // машина подбита — дальше пешком, с узи
+        // машина подбита — дальше пешком, с автоматом
         bailOut(c);
         b.ai = 'gang'; b.alert = 8; b.home = { x: b.x, y: b.y };
       } else if (m.run && b.car === c && c.driver === b) {

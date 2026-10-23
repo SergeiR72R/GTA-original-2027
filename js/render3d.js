@@ -840,11 +840,7 @@ const R3 = {
     if (kind === 'health') { g.fillStyle = '#e53935'; g.beginPath(); g.moveTo(0, 18); g.bezierCurveTo(-30, -4, -18, -30, 0, -12); g.bezierCurveTo(18, -30, 30, -4, 0, 18); g.fill(); }
     else if (kind === 'armor') { g.fillStyle = '#455a64'; g.beginPath(); g.moveTo(-18, -18); g.lineTo(18, -18); g.lineTo(16, 18); g.lineTo(-16, 18); g.closePath(); g.fill(); g.fillStyle = '#90a4ae'; g.fillRect(-12, -12, 24, 8); }
     else if (kind === 'money') { g.fillStyle = '#3fae49'; g.fillRect(-22, -13, 44, 26); g.fillStyle = '#fff'; g.font = 'bold 20px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('₪', 0, 1); }
-    else {
-      // пистолет / узи
-      g.fillStyle = '#222'; g.fillRect(-20, -6, kind === 'uzi' ? 40 : 30, 10); g.fillRect(kind === 'uzi' ? 2 : -8, 2, 8, 14);
-      if (kind === 'uzi') g.fillRect(-14, 2, 6, 18);
-    }
+    else drawWeaponIcon(g, kind, 1.25);
     this.mats[key] = new THREE.MeshBasicMaterial({ map: this.tex(c), transparent: true, depthWrite: false });
     return this.mats[key];
   },
@@ -888,6 +884,22 @@ const R3 = {
       const ringing = Missions.phonePlace() === p;
       o.ring.visible = ringing;
       if (ringing) { const k = (World.time * 1.5) % 1; o.ring.scale.setScalar(1 + k * 1.8); o.ring.material.opacity = 1 - k; }
+    }
+    // магазины оружия: оранжевое кольцо и вращающийся значок
+    for (const sh of SHOPS) {
+      const p = Shops.place(sh);
+      const o = get('shop_' + sh.place, () => {
+        const grp = new THREE.Group();
+        const ring = new THREE.Mesh(new THREE.RingGeometry(20, 25, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xff9800, transparent: true, opacity: 0.85, depthWrite: false }));
+        ring.position.y = 1.5;
+        const mat = this.pickupTex(sh.place === 'gunShop' ? 'pistol' : 'ak').clone(); mat.side = THREE.DoubleSide;
+        const icon = new THREE.Mesh(new THREE.PlaneGeometry(34, 34), mat);
+        icon.position.y = 30;
+        grp.add(ring, icon); grp.icon = icon;
+        return grp;
+      });
+      o.position.set(p.x, 0, p.y);
+      o.icon.rotation.y = World.time * 1.5;
     }
     const obj = Missions.active && Missions.active.target;
     const tgt = get('target', () => {
@@ -965,6 +977,34 @@ const R3 = {
       burn: dtex((g) => { const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(10,10,10,0.7)'); gr.addColorStop(1, 'rgba(10,10,10,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); }),
     };
     this.decalGeo = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
+  },
+
+  // Гранаты и ракеты РПГ
+  syncProjectiles() {
+    const S = this.projObjs || (this.projObjs = new Map());
+    if (!S.size && !World.projectiles.length) return;
+    if (!this.projKit) {
+      this.projKit = {
+        gren: new THREE.SphereGeometry(5, 10, 8), mGren: new THREE.MeshLambertMaterial({ color: 0x4b5d2a }),
+        body: new THREE.CylinderGeometry(3.5, 3.5, 20, 8).rotateZ(-Math.PI / 2), mBody: new THREE.MeshLambertMaterial({ color: 0x556b2f }),
+        mFlame: new THREE.SpriteMaterial({ map: this.tex(Facades.glow('rgba(255,170,60,1)')), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }),
+      };
+    }
+    const K = this.projKit, live = new Set(World.projectiles);
+    for (const q of World.projectiles) {
+      let o = S.get(q);
+      if (!o) {
+        o = new THREE.Group();
+        if (q.k === 'grenade') o.add(new THREE.Mesh(K.gren, K.mGren));
+        else { o.add(new THREE.Mesh(K.body, K.mBody)); const f = new THREE.Sprite(K.mFlame); f.position.x = -14; f.scale.set(22, 22, 1); o.add(f); }
+        this.scene.add(o); S.set(q, o);
+      }
+      // граната летит дугой первые полсекунды, ракета — на высоте плеча
+      const hgt = q.k === 'grenade' ? 6 + Math.max(0, Math.sin(Math.min(1, q.t / 0.55) * Math.PI)) * 34 : 24;
+      o.position.set(q.x, hgt, q.y);
+      o.rotation.y = q.k === 'rocket' ? -q.a : -q.spin;
+    }
+    for (const [q, o] of S) if (!live.has(q)) { this.scene.remove(o); S.delete(q); }
   },
 
   // Ракетный обстрел: круг-метка с отсчётом, ракета с огненным хвостом,
@@ -1228,6 +1268,7 @@ const R3 = {
     this.syncMarkers(view);
     this.syncFx(view);
     this.syncStrikes();
+    this.syncProjectiles();
     this.waterTex.offset.set((World.time * 0.02) % 1, (World.time * 0.013) % 1);
     this.renderer.render(this.scene, this.camera);
   },

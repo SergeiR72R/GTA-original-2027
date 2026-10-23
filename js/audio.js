@@ -69,7 +69,8 @@ const Sound = {
     src.start(t, Math.random() * 0.5, dur + 0.05);
   },
 
-  gunshot(heavy) {
+  gunshot(heavy, boom) {
+    if (boom) this.noiseBurst(0.35, 1400, 0.9); // дробовик — глухой раскат
     this.noiseBurst(heavy ? 0.12 : 0.18, heavy ? 3500 : 2600, heavy ? 0.5 : 0.7);
     if (!this.ctx || this.muted) return;
     const t = this.ctx.currentTime;

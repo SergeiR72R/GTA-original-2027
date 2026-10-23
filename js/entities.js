@@ -5,6 +5,7 @@ const World = {
   cars: [],
   peds: [],
   bullets: [],
+  projectiles: [], // гранаты и ракеты РПГ
   particles: [],
   decals: [],
   pickups: [],
@@ -15,11 +16,22 @@ const World = {
 };
 
 
+// melee — дальность удара; plDmg — урон по игроку от пули NPC; npcCd — пауза
+// между выстрелами у NPC; burst — очередь из N выстрелов; pellets — дробь;
+// life — дальность пули (секунды полёта); throw/rocket — гранаты и РПГ
 const WEAPONS = {
-  fists: { name: 'Кулаки', cd: 0.4, dmg: 25, sprite: 'stand' },
-  pistol: { name: 'Пистолет', cd: 0.32, dmg: 34, carDmg: 6, spread: 0.04, sprite: 'gun' },
-  uzi: { name: 'Узи', cd: 0.08, dmg: 20, carDmg: 4, spread: 0.12, sprite: 'machine' },
+  fists: { name: 'Кулаки', cd: 0.4, dmg: 25, melee: 34, sprite: 'stand' },
+  bat: { name: 'Бита', cd: 0.55, dmg: 50, melee: 44, npcDmg: 14, sprite: 'stand' },
+  pistol: { name: 'Пистолет', cd: 0.32, dmg: 34, carDmg: 6, spread: 0.04, plDmg: 9, npcCd: [0.8, 1.3], sprite: 'gun' },
+  shotgun: { name: 'Дробовик', cd: 0.85, dmg: 16, carDmg: 4, spread: 0.2, pellets: 6, life: 0.24, plDmg: 6, npcCd: [1.3, 1.9], sprite: 'machine' },
+  uzi: { name: 'Узи', cd: 0.08, dmg: 20, carDmg: 4, spread: 0.12, plDmg: 5, burst: 4, npcCd: [1.0, 1.6], sprite: 'machine' },
+  ak: { name: 'Автомат АК', cd: 0.11, dmg: 30, carDmg: 7, spread: 0.06, plDmg: 8, burst: 3, npcCd: [1.1, 1.7], life: 0.55, sprite: 'machine' },
+  grenade: { name: 'Гранаты', cd: 0.9, throw: true, sprite: 'stand' },
+  rpg: { name: 'РПГ', cd: 1.4, rocket: true, sprite: 'machine' },
 };
+// порядок на клавишах 2–8 (1 — кулаки)
+const WEAPON_ORDER = ['bat', 'pistol', 'shotgun', 'uzi', 'ak', 'grenade', 'rpg'];
+const emptyAmmo = () => Object.fromEntries(WEAPON_ORDER.map((w) => [w, 0]));
 
 // =====================================================================
 //                               МАШИНА
@@ -432,7 +444,7 @@ class Ped {
       for (const p of World.peds) if (!p.dead && p !== this && dist2(p.x, p.y, this.x, this.y) < 300 * 300) p.scare(this.x, this.y);
     }
     if (this.weapon && this.ai !== 'player') {
-      World.pickups.push(new Pickup(this.x + 8, this.y + 8, this.weapon, { ammo: this.weapon === 'uzi' ? 40 : 12, once: true }));
+      World.pickups.push(new Pickup(this.x + 8, this.y + 8, this.weapon, { ammo: { uzi: 40, ak: 30, shotgun: 8, bat: 1 }[this.weapon] || 12, once: true }));
     }
   }
 
@@ -560,13 +572,23 @@ class Ped {
     if (this.alert > 0) {
       this.alert -= dt;
       this.faceTo(pl.x, pl.y);
-      if (d > 190) this.moveTo(pl.x, pl.y, 85, dt);
-      if (sees && this.cool <= 0 && this.weapon) {
-        // узи — короткими очередями
-        this.burst = (this.burst || 0) + 1;
-        if (this.weapon === 'uzi') this.cool = this.burst % 4 === 0 ? rand(1.0, 1.6) : 0.12;
-        else this.cool = rand(0.8, 1.3);
-        fireBullet(this, this.weapon, this.a);
+      const W = this.weapon && WEAPONS[this.weapon];
+      if (W && W.melee) {
+        // с битой — вплотную
+        if (d > W.melee - 8) this.moveTo(pl.x, pl.y, 115, dt);
+        if (d < W.melee + 6 && this.cool <= 0) {
+          this.cool = rand(0.8, 1.1);
+          if (pl.car) pl.car.damage(3, 'npc', pl.x, pl.y); else Game.playerHurt(W.npcDmg, 'melee');
+          Sound.play('punch', 0.8);
+        }
+      } else {
+        if (d > (this.weapon === 'shotgun' ? 120 : 190)) this.moveTo(pl.x, pl.y, 85, dt);
+        if (sees && this.cool <= 0 && W) {
+          // автоматы — короткими очередями
+          this.burst = (this.burst || 0) + 1;
+          this.cool = W.burst && this.burst % W.burst !== 0 ? W.cd * 1.4 : rand(W.npcCd[0], W.npcCd[1]);
+          fireBullet(this, this.weapon, this.a);
+        }
       }
     } else if (this.home) {
       if (dist2(this.x, this.y, this.home.x, this.home.y) > 40 * 40) this.moveTo(this.home.x, this.home.y, 40, dt);
@@ -605,7 +627,7 @@ class Ped {
     }
     if (foe) {
       this.faceTo(foe.x, foe.y);
-      if (this.cool <= 0 && this.weapon) { this.cool = rand(0.5, 0.9); fireBullet(this, this.weapon, this.a); }
+      if (this.cool <= 0 && this.weapon && !WEAPONS[this.weapon].melee) { this.cool = rand(0.5, 0.9); fireBullet(this, this.weapon, this.a); }
       return;
     }
     const tx = pl.car ? pl.car.x : pl.x, ty = pl.car ? pl.car.y : pl.y;
@@ -651,13 +673,15 @@ function drawTargetMark(ctx, x, y, col = '#ff3b3b') {
 function fireBullet(shooter, weapon, angle) {
   const W = WEAPONS[weapon];
   const sp = W.spread + (shooter === World.player ? 0 : 0.09);
-  const a = angle + rand(-sp, sp);
   const mx = shooter.x + Math.cos(angle) * 20, my = shooter.y + Math.sin(angle) * 20;
-  World.bullets.push({ x: mx, y: my, vx: Math.cos(a) * 1500, vy: Math.sin(a) * 1500, life: 0.45, owner: shooter, weapon });
+  for (let i = 0; i < (W.pellets || 1); i++) {
+    const a = angle + rand(-sp, sp), v = W.pellets ? rand(1250, 1550) : 1500;
+    World.bullets.push({ x: mx, y: my, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: W.life || 0.45, owner: shooter, weapon });
+  }
   spawnParticle(mx, my, 'flash');
   const pl = World.player;
   const d = dist(shooter.x, shooter.y, pl.x, pl.y);
-  if (d < 900) Sound.gunshot(weapon === 'uzi');
+  if (d < 900) Sound.gunshot(weapon === 'uzi' || weapon === 'ak', weapon === 'shotgun');
   // выстрелы пугают прохожих
   for (const p of World.peds) if (!p.dead && dist2(p.x, p.y, shooter.x, shooter.y) < 350 * 350) p.scare(shooter.x, shooter.y);
   if (shooter === pl) Wanted.crime('shoot', pl.x, pl.y);
@@ -684,7 +708,7 @@ function updateBullets(dt) {
       if (pl.car) {
         if (pl.car.contains(nx, ny)) { pl.car.damage(WEAPONS[b.weapon].carDmg, 'npc', nx, ny); spawnSparks(nx, ny, 2); hit = true; }
       } else if (segCircle(b.x, b.y, nx, ny, pl.x, pl.y, 11) >= 0) {
-        Game.playerHurt(b.weapon === 'uzi' ? 5 : 9, 'shot');
+        Game.playerHurt(WEAPONS[b.weapon].plDmg || 8, 'shot');
         spawnBlood(pl.x, pl.y, 2);
         hit = true;
       }
@@ -708,6 +732,80 @@ function updateBullets(dt) {
 }
 
 // Водитель в панике выскакивает из машины
+// Значок оружия по центру (пикапы, витрина магазина): ширина ~44·s
+function drawWeaponIcon(g, kind, s = 1) {
+  const D = '#212121';
+  g.save(); g.scale(s, s);
+  switch (kind) {
+    case 'bat': g.rotate(-0.5); g.fillStyle = '#a1662f'; g.beginPath(); g.moveTo(-20, -2); g.lineTo(13, -5); g.quadraticCurveTo(22, 0, 13, 5); g.lineTo(-20, 2); g.closePath(); g.fill(); g.fillStyle = '#3e2723'; g.fillRect(-22, -2.5, 6, 5); break;
+    case 'pistol': g.fillStyle = D; g.fillRect(-12, -6, 24, 7); g.fillRect(-10, 0, 7, 12); break;
+    case 'uzi': g.fillStyle = D; g.fillRect(-16, -6, 32, 9); g.fillRect(-3, 2, 6, 15); g.fillRect(-14, 2, 5, 8); break;
+    case 'shotgun': g.fillStyle = '#6d4c41'; g.fillRect(-22, -3, 14, 8); g.fillStyle = D; g.fillRect(-8, -4, 30, 5); g.fillStyle = '#5d4037'; g.fillRect(2, 1, 10, 4); break;
+    case 'ak': g.fillStyle = '#8d5524'; g.fillRect(-22, -3, 12, 8); g.fillRect(6, -4, 8, 5); g.fillStyle = D; g.fillRect(-10, -5, 32, 5); g.fillStyle = '#bf6c2f'; g.beginPath(); g.moveTo(-4, 0); g.quadraticCurveTo(-2, 12, 4, 14); g.lineTo(8, 12); g.quadraticCurveTo(2, 8, 2, 0); g.fill(); break;
+    case 'grenade': g.fillStyle = '#4b5d2a'; g.beginPath(); g.ellipse(0, 3, 9, 11, 0, 0, TAU); g.fill(); g.fillStyle = '#9e9e9e'; g.fillRect(-4, -11, 8, 5); g.strokeStyle = '#9e9e9e'; g.lineWidth = 2; g.beginPath(); g.arc(7, -9, 5, 0, TAU); g.stroke(); break;
+    case 'rpg': g.fillStyle = '#556b2f'; g.fillRect(-22, -4, 36, 8); g.fillStyle = '#8d6e63'; g.beginPath(); g.moveTo(14, -7); g.lineTo(24, 0); g.lineTo(14, 7); g.fill(); g.fillStyle = D; g.fillRect(-6, 4, 5, 8); break;
+    case 'armor': g.fillStyle = '#455a64'; g.beginPath(); g.moveTo(-14, -14); g.lineTo(14, -14); g.lineTo(12, 14); g.lineTo(-12, 14); g.closePath(); g.fill(); g.fillStyle = '#90a4ae'; g.fillRect(-9, -9, 18, 6); break;
+  }
+  g.restore();
+}
+
+// Гранаты и ракеты РПГ
+function throwGrenade(owner, a) {
+  World.projectiles.push({ k: 'grenade', x: owner.x + Math.cos(a) * 16, y: owner.y + Math.sin(a) * 16, vx: Math.cos(a) * 430, vy: Math.sin(a) * 430, t: 0, owner, spin: 0 });
+  Sound.play('weapon', 0.5);
+}
+
+function fireRocket(owner, a) {
+  World.projectiles.push({ k: 'rocket', x: owner.x + Math.cos(a) * 24, y: owner.y + Math.sin(a) * 24, vx: Math.cos(a) * 820, vy: Math.sin(a) * 820, a, t: 0, owner });
+  Sound.noiseBurst(0.5, 1800, 0.6);
+  spawnParticle(owner.x + Math.cos(a) * 20, owner.y + Math.sin(a) * 20, 'flash');
+  if (owner === World.player) Wanted.crime('shoot', owner.x, owner.y);
+}
+
+function updateProjectiles(dt) {
+  const pl = World.player;
+  for (let i = World.projectiles.length - 1; i >= 0; i--) {
+    const q = World.projectiles[i];
+    q.t += dt;
+    const byPl = q.owner === pl;
+    let boom = false;
+    if (q.k === 'grenade') {
+      // катится и отскакивает от стен, взрывается через 1,4 с
+      const k = Math.max(0, 1 - dt * 1.6);
+      q.vx *= k; q.vy *= k; q.spin += dt * Math.hypot(q.vx, q.vy) * 0.05;
+      if (City.solidAt(q.x + q.vx * dt, q.y)) q.vx *= -0.5;
+      if (City.solidAt(q.x, q.y + q.vy * dt)) q.vy *= -0.5;
+      q.x += q.vx * dt; q.y += q.vy * dt;
+      boom = q.t >= 1.4;
+    } else {
+      // ракета летит прямо до первого препятствия
+      const nx = q.x + q.vx * dt, ny = q.y + q.vy * dt;
+      if (Math.random() < 0.8) spawnParticle(q.x, q.y, 'smoke');
+      boom = q.t > 1.5 || City.solidAt(nx, ny);
+      for (const c of World.cars) if (!boom && c !== (q.owner.car || null) && !c.dead && c.contains(nx, ny, 4)) { boom = true; q.hitCar = c; }
+      for (const p of World.peds) if (!boom && p !== q.owner && !p.dead && !p.car && dist2(p.x, p.y, nx, ny) < 16 * 16) boom = true;
+      if (!boom && !byPl && !pl.dead && (pl.car ? pl.car.contains(nx, ny, 4) : dist2(pl.x, pl.y, nx, ny) < 16 * 16)) boom = true;
+      q.x = nx; q.y = ny;
+    }
+    if (boom) {
+      World.projectiles.splice(i, 1);
+      blast(q.x, q.y, { r: q.k === 'rocket' ? 120 : 105, carDmg: q.k === 'rocket' ? 90 : 60, by: byPl ? 'player' : null, plDmg: 70 });
+      // прямое попадание ракеты — машина гарантированно выведена из строя
+      if (q.hitCar && !q.hitCar.dead) q.hitCar.damage(q.hitCar.maxHp, byPl ? 'player' : null, q.x, q.y);
+      if (byPl) Wanted.crime('explode', q.x, q.y);
+    }
+  }
+}
+
+function drawProjectiles(ctx) {
+  for (const q of World.projectiles) {
+    ctx.save(); ctx.translate(q.x, q.y);
+    if (q.k === 'grenade') { ctx.rotate(q.spin); ctx.fillStyle = '#4b5d2a'; ctx.beginPath(); ctx.ellipse(0, 0, 5, 4, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#9e9e9e'; ctx.fillRect(3, -1.5, 3, 3); }
+    else { ctx.rotate(q.a); ctx.fillStyle = '#556b2f'; ctx.fillRect(-8, -2.5, 14, 5); ctx.fillStyle = '#8d6e63'; ctx.beginPath(); ctx.moveTo(6, -3.5); ctx.lineTo(12, 0); ctx.lineTo(6, 3.5); ctx.fill(); ctx.fillStyle = '#ffb74d'; ctx.beginPath(); ctx.arc(-10, 0, 3.5, 0, TAU); ctx.fill(); }
+    ctx.restore();
+  }
+}
+
 // Взрыв: огонь, дым, воронка, урон и отброс машин, люди в радиусе гибнут.
 // r — радиус поражения людей; by — кто виноват (для розыска и денег).
 function blast(x, y, opts = {}) {
@@ -812,7 +910,7 @@ function drawBullets(ctx) {
 class Pickup {
   constructor(x, y, kind, opts = {}) {
     this.x = x; this.y = y; this.kind = kind;
-    this.ammo = opts.ammo || (kind === 'uzi' ? 60 : kind === 'pistol' ? 24 : 0);
+    this.ammo = opts.ammo || ({ uzi: 60, pistol: 24, shotgun: 12, ak: 60, grenade: 3, rpg: 2, bat: 1 }[kind] || 0);
     this.amount = opts.amount || 0;
     this.once = !!opts.once;
     this.respawn = 0;
@@ -840,7 +938,7 @@ class Pickup {
       } else {
         pl.ammo[this.kind] = (pl.ammo[this.kind] || 0) + this.ammo;
         pl.weapon = this.kind;
-        Game.message(WEAPONS[this.kind].name + ' +' + this.ammo);
+        Game.message(WEAPONS[this.kind].name + (WEAPONS[this.kind].melee ? '' : ' +' + this.ammo));
       }
       Sound.play('pickup', 0.7);
       this.active = false;
@@ -865,8 +963,9 @@ class Pickup {
     } else if (this.kind === 'money') {
       ctx.fillStyle = '#3fae49'; ctx.fillRect(-10, -6, 20, 12); ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('₪', 0, 0);
     } else {
-      const im = Assets.img[this.kind === 'uzi' ? 'weapon_machine' : 'weapon_gun'];
+      const im = (this.kind === 'uzi' || this.kind === 'pistol') && Assets.img[this.kind === 'uzi' ? 'weapon_machine' : 'weapon_gun'];
       if (im && im.width) ctx.drawImage(im, -im.width, -im.height, im.width * 2, im.height * 2);
+      else drawWeaponIcon(ctx, this.kind, 0.55);
     }
     ctx.restore();
   }

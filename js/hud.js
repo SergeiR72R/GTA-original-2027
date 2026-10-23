@@ -58,7 +58,7 @@ const HUD = {
     if (pl.armor > 0) { ctx.fillStyle = '#90a4ae'; ctx.fillRect(20, 33, hpw * clamp(pl.armor / 100, 0, 1), 4); }
     this.text(ctx, '❤ ' + Math.ceil(Math.max(0, pl.hp)) + (pl.armor > 0 ? '  🛡 ' + Math.ceil(pl.armor) : ''), 22, 54, 18, '#fff');
     const w = pl.weapon || 'fists';
-    const ammo = w === 'fists' ? '' : ' × ' + (pl.ammo[w] || 0);
+    const ammo = WEAPONS[w].melee ? '' : ' × ' + (pl.ammo[w] || 0);
     this.text(ctx, WEAPONS[w].name + ammo, 22, 78, 18, '#ffe082');
     if (pl.car) {
       const kmh = Math.round(pl.car.speed * 0.36);
@@ -88,6 +88,7 @@ const HUD = {
     this.drawRep(ctx, vw, vh);
     this.drawWord(ctx, vw, vh, dt);
     if (Missions.dialog) this.drawDialog(ctx, vw, vh);
+    Shops.draw(ctx, vw, vh);
   },
 
   drawMinimap(ctx, vw, vh) {
@@ -104,6 +105,13 @@ const HUD = {
     ctx.drawImage(City.minimap, x0 + size / 2 - ptx * k, y0 + size / 2 - pty * k, City.W * k, City.H * k);
     ctx.imageSmoothingEnabled = true;
     const toMap = (wx, wy) => [x0 + size / 2 + (wx / TILE - ptx) * k, y0 + size / 2 + (wy / TILE - pty) * k];
+    // магазины оружия — оранжевые ромбы
+    for (const sh of SHOPS) {
+      const p = Shops.place(sh);
+      const [mx, my] = toMap(p.x, p.y);
+      ctx.fillStyle = '#ff9800'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(mx, my - 5); ctx.lineTo(mx + 5, my); ctx.lineTo(mx, my + 5); ctx.lineTo(mx - 5, my); ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
     // полиция
     for (const c of World.cars) {
       if (!c.police || c.dead) continue;

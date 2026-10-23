@@ -67,8 +67,15 @@ const People = {
       ctx.fillStyle = sleeve;
       ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(9, -2); ctx.lineTo(9, 1); ctx.lineTo(0, -5); ctx.fill();
       ctx.beginPath(); ctx.moveTo(0, 8); ctx.lineTo(9, 2); ctx.lineTo(9, -1); ctx.lineTo(0, 5); ctx.fill();
-      ctx.fillStyle = '#1d1d1d'; ctx.fillRect(8, -1.6, len, 3.2);
-      if (weapon === 'uzi') ctx.fillRect(10, 1, 3, 4);
+      ctx.fillStyle = '#1d1d1d';
+      if (weapon === 'bat') { ctx.fillStyle = '#a1662f'; ctx.beginPath(); ctx.moveTo(8, -1.2); ctx.lineTo(24, -2.8); ctx.lineTo(24, 2.8); ctx.lineTo(8, 1.2); ctx.fill(); }
+      else if (weapon === 'shotgun' || weapon === 'ak') {
+        ctx.fillStyle = weapon === 'ak' ? '#8d5524' : '#6d4c41'; ctx.fillRect(2, -2, 8, 4); // приклад
+        ctx.fillStyle = '#1d1d1d'; ctx.fillRect(8, -1.4, 17, 2.8);
+        if (weapon === 'ak') { ctx.fillStyle = '#bf6c2f'; ctx.fillRect(13, 1, 3, 5); }
+      } else if (weapon === 'rpg') { ctx.fillStyle = '#556b2f'; ctx.fillRect(-4, -2.6, 26, 5.2); ctx.fillStyle = '#8d6e63'; ctx.beginPath(); ctx.moveTo(22, -3.6); ctx.lineTo(28, 0); ctx.lineTo(22, 3.6); ctx.fill(); }
+      else if (weapon === 'grenade') { ctx.fillStyle = '#4b5d2a'; ctx.beginPath(); ctx.arc(11, 0, 3.2, 0, TAU); ctx.fill(); }
+      else { ctx.fillRect(8, -1.6, len, 3.2); if (weapon === 'uzi') ctx.fillRect(10, 1, 3, 4); }
       ctx.fillStyle = skin; ctx.beginPath(); ctx.arc(9, 0, 2.4, 0, TAU); ctx.fill();
     } else {
       const sw = moving ? -k * 4 : 0;

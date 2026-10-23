@@ -8,6 +8,18 @@ const GREETINGS = {
   lions: ['Ахи! Как дела?', 'Заходи в студию, послушаешь новый трек.', 'Абеба про тебя спрашивал.', 'Сабаба, брат!'],
 };
 
+// Чем вооружены банды: «Одесса» — «калаши» и ТТ из 90-х, Аль-Бахар — узи
+// и дробовики, «Львы» — пистолеты и биты, иранские агенты — узи и АК
+const FACTION_ARMS = {
+  russian: [['pistol', 5], ['ak', 3], ['shotgun', 1]],
+  arab: [['pistol', 4], ['uzi', 3], ['shotgun', 2]],
+  lions: [['pistol', 5], ['bat', 3], ['uzi', 1]],
+  iran: [['uzi', 3], ['ak', 2], ['pistol', 1]],
+};
+const factionWeapon = (f) => (FACTION_ARMS[f] ? pickWeighted(FACTION_ARMS[f]) : 'pistol');
+// стрелок в машине — без биты
+const factionGun = (f) => { const w = factionWeapon(f); return w === 'bat' ? 'pistol' : w; };
+
 const Factions = {
   rep: { russian: 0, arab: 0, lions: 0 },
   spawnT: 0,
@@ -49,7 +61,7 @@ const Factions = {
       const n = randi(2, 3);
       for (let k = 0; k < n; k++) {
         const home = { x: c.x + rand(-20, 20), y: c.y + rand(-20, 20) };
-        World.peds.push(new Ped(home.x, home.y, { faction: f, ai: 'gang', weapon: chance(0.7) ? 'pistol' : 'uzi', hp: 70, home }));
+        World.peds.push(new Ped(home.x, home.y, { faction: f, ai: 'gang', weapon: factionWeapon(f), hp: 70, home }));
       }
       return;
     }
@@ -67,7 +79,7 @@ const GangCars = {
     const c = new Car(p.x, p.y, DIR_ANGLE[p.dir], { type: opts.type || F.car, faction, ai: 'gang' });
     const crew = (w) => { const g = new Ped(p.x, p.y, { faction, ai: 'gang', weapon: w, hp: 70 }); g.mission = 'target'; g.car = c; return g; };
     c.driver = crew('pistol');
-    c.gang = [c.driver, crew(opts.weapon || (chance(0.5) ? 'uzi' : 'pistol'))];
+    c.gang = [c.driver, crew(opts.weapon || factionGun(faction))];
     c.mission = 'target';
     c.maxSpeed = c.T.max * (opts.speed || 0.95);
     c.lostT = 0;
@@ -93,7 +105,8 @@ const GangCars = {
       const g = c.gang.find((q) => q !== c.driver && !q.dead) || c.driver;
       g.x = c.x; g.y = c.y;
       g.burst = (g.burst || 0) + 1;
-      c.shootT = g.weapon === 'uzi' ? (g.burst % 4 === 0 ? rand(1.6, 2.4) : 0.14) : rand(1.1, 1.7);
+      const W = WEAPONS[g.weapon];
+      c.shootT = W.burst && g.burst % W.burst !== 0 ? W.cd * 1.6 : rand(W.npcCd[0] + 0.3, W.npcCd[1] + 0.5);
       fireBullet(g, g.weapon, Math.atan2(ty - c.y, tx - c.x));
     }
   },

@@ -111,7 +111,7 @@ const Police = {
       const p = Game.findRoadSpawn(pl.x, pl.y, 900, 1300);
       if (p) {
         const c = new Car(p.x, p.y, DIR_ANGLE[p.dir], { police: true, ai: 'police' });
-        c.driver = new Ped(p.x, p.y, { look: Looks.police(), ai: 'cop', weapon: 'pistol', hp: 70 });
+        c.driver = new Ped(p.x, p.y, { look: Looks.police(), ai: 'cop', weapon: copWeapon(lvl), hp: 70 });
         c.driver.car = c;
         c.partner = lvl >= 2 && chance(0.5);
         World.cars.push(c);
@@ -169,7 +169,7 @@ const Police = {
     }
     if (c.partner) {
       const p = out(-1);
-      World.peds.push(new Ped(p.x, p.y, { look: Looks.police(), ai: 'cop', weapon: 'pistol', hp: 70 }));
+      World.peds.push(new Ped(p.x, p.y, { look: Looks.police(), ai: 'cop', weapon: copWeapon(Wanted.level), hp: 70 }));
       c.partner = false;
     }
     c.ai = null;
@@ -185,7 +185,7 @@ const Police = {
     // на 3+ звёздах стреляют
     if (Wanted.level >= 3 && sees && d > 60 && p.cool <= 0) {
       p.cool = Wanted.level === 3 ? rand(1.4, 2.2) : Wanted.level === 4 ? rand(1.0, 1.6) : rand(0.7, 1.2);
-      fireBullet(p, 'pistol', p.a);
+      fireBullet(p, p.weapon || 'pistol', p.a);
     }
     // садимся обратно в пустую полицейскую машину, если игрок уехал
     if (pl.car && d > 300) {
@@ -248,4 +248,11 @@ function chaseDrive(c, tx, ty, d, dt, calm) {
   c.drive(dt, throttle, clamp(diff * 2.2, -1, 1), Math.abs(diff) > 1.4 && c.speed > 150);
   if (c.speed < 25) c.stuck += dt; else c.stuck = Math.max(0, c.stuck - dt * 2);
   if (c.stuck > 1.3) { c.stuck = 0; c.recover = 0.8; c.recoverSteer = -Math.sign(diff || 1); }
+}
+
+// Оружие полиции растёт с розыском: на 4★ — дробовики, на 5★ — спецназ с АК
+function copWeapon(lvl) {
+  if (lvl >= 5 && chance(0.5)) return 'ak';
+  if (lvl >= 4 && chance(0.4)) return 'shotgun';
+  return 'pistol';
 }

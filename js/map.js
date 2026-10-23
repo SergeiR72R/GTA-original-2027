@@ -452,6 +452,9 @@ const City = {
     P.iranMeet = side(4, 2, 'E');
     P.iranSafe = side(1, 0, 'S');
     P.shabak = side(3, 1, 'S');
+    // Оружие: легальный магазин у Флорентина и склад «без лишних вопросов» в порту
+    P.gunShop = side(3, 4, 'N', -2);
+    P.blackMarket = side(0, 0, 'E');
     // Телефоны-автоматы — у каждого свой «заказчик»
     P.phone1 = side(1, 4, 'E');
     P.phone2 = side(2, 3, 'S');
@@ -468,6 +471,8 @@ const City = {
     this.labelNear(P.ruHQ, { text: 'РЕСТОРАН «ОДЕССА»', sub: '', bg: '#b71c1c', fg: '#ffd54f' });
     this.labelNear(P.arHQ, { text: 'מוסך אל-בחר', sub: 'гараж Аль-Бахар', bg: '#eeeeee', fg: '#212121' });
     this.labelNear(P.lionsHQ, { text: 'GONDAR GARAGE', sub: 'студия и мастерская', bg: '#1b7f3a', fg: '#f2c230' });
+    this.labelNear(P.gunShop, { text: 'חנות נשק', sub: 'Оружие «Шломо и сыновья»', bg: '#263238', fg: '#ffca28' });
+    this.labelNear(P.blackMarket, { text: 'מחסן', sub: 'склад Рафи', bg: '#4e342e', fg: '#d7ccc8' });
     for (const r of P.restaurants) this.labelNear(r.p, { text: r.name, sub: '', bg: '#ff6a1a', fg: '#fff' });
     const SIGNS = [
       ['פלאפל', '#2e7d32'], ['שווארמה', '#c62828'], ['מכולת', '#1565c0'], ['קיוסק', '#6a1b9a'],
