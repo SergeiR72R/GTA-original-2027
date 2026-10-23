@@ -234,7 +234,7 @@ const Sound = {
       noise().connect(f); f.connect(g); g.connect(market);
       voices.push({ f, g });
     }
-    return { waves: loop('ambWaves'), crickets: loop('ambCrickets'), hum, wind, market, voices, birdT: 2, gullT: 4, honkT: 5, talkT: 0 };
+    return { waves: loop('ambWaves'), crickets: loop('ambCrickets'), hum, wind, market, voices, birdT: 2, gullT: 4, honkT: 5, talkT: 0, crickT: 8, crickOn: false };
   },
 
   // плавно ведём громкость зацикленного файла; на нуле — пауза
@@ -258,7 +258,11 @@ const Sound = {
     const green = pl.y < 6 * TILE || ['park', 'levinsky', 'sarona', 'north', 'ajami', 'rothschild'].includes(k);
     const market = ['shuk', 'hatikva', 'flea', 'nahalat'].includes(k) && day > 0.5 && !shab;
     this.loopVol(A.waves, on * clamp(sea, 0, 1) * 0.6, dt);
-    this.loopVol(A.crickets, on * Clock.dark * (green ? 0.6 : 0.3) * (1 - hk), dt);
+    // сверчки — только в зелёных районах и не всё время: стрекочут
+    // несколько секунд, потом долго молчат
+    A.crickT -= dt;
+    if (A.crickT <= 0) { A.crickOn = !A.crickOn; A.crickT = A.crickOn ? rand(5, 10) : rand(20, 45); }
+    this.loopVol(A.crickets, A.crickOn && green ? on * Clock.dark * 0.12 * (1 - hk) : 0, dt);
     A.hum.g.gain.setTargetAtTime(on * (0.025 + 0.035 * day) * (shab ? 0.4 : 1) * (1 - 0.6 * clamp(sea, 0, 1)), t, 0.6);
     A.wind.g.gain.setTargetAtTime(on * hk * (0.03 + 0.05 * Math.abs(Math.sin(t * 0.37) * Math.sin(t * 0.13))), t, 0.4);
     A.wind.f.frequency.setTargetAtTime(380 + 420 * Math.abs(Math.sin(t * 0.21)), t, 0.8);
