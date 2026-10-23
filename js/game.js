@@ -115,6 +115,8 @@ const Game = {
       Sound.resume();
       if (e.code === 'Escape') this.togglePause();
       if (e.code === 'KeyM') Sound.toggleMute();
+      if ((e.code === 'F3' || e.code === 'KeyP') && this.gl) { e.preventDefault(); this.showPerf = !this.showPerf; }
+      if (e.code === 'KeyO' && this.gl && this.state !== 'title') this.message('Качество графики: ' + R3.cycleQuality(), 3);
       if (e.code === 'KeyV' && this.gl && this.state === 'play') { this.topDown = !this.topDown; this.message(this.topDown ? 'Камера: строго сверху' : 'Камера: с наклоном — видно фасады', 2); }
     });
     window.addEventListener('keyup', (e) => { this.keys[e.code] = false; });
@@ -521,6 +523,8 @@ const Game = {
 
   // ---------------------------------------------------------------- столкновения
   collide(dt) {
+    // раздвигаем машины, только если не упрёмся в стену
+    const nudge = (c, sx, sy) => { if (!c.hitsWall(c.x + sx, c.y + sy, c.a)) { c.x += sx; c.y += sy; } };
     const cars = World.cars;
     const pl = World.player;
     for (let i = 0; i < cars.length; i++) {
@@ -530,14 +534,15 @@ const Game = {
         if (dist2(a.x, a.y, b.x, b.y) > 110 * 110) continue;
         // все точки касания пары машин — но урон считаем один раз за удар
         let maxRv = 0, hx = 0, hy = 0;
-        for (const ca of a.circles()) for (const cb of b.circles()) {
+        const cA = a.circles(), cB = b.circles();
+        for (let ia = 0; ia < cA.length; ia++) for (let ib = 0; ib < cB.length; ib++) {
+          const ca = cA[ia], cb = cB[ib];
           const dx = cb.x - ca.x, dy = cb.y - ca.y;
           const d = Math.hypot(dx, dy), m = ca.r + cb.r;
           if (d >= m || d === 0) continue;
           const nx = dx / d, ny = dy / d;
           const push = (m - d) / 2;
-          const ok = (c, sx, sy) => { if (!c.hitsWall(c.x + sx, c.y + sy, c.a)) { c.x += sx; c.y += sy; } };
-          ok(a, -nx * push, -ny * push); ok(b, nx * push, ny * push);
+          nudge(a, -nx * push, -ny * push); nudge(b, nx * push, ny * push);
           const rv = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
           if (rv < 0) {
             const imp = -rv * 0.8;
@@ -556,14 +561,17 @@ const Game = {
           spawnSparks(hx, hy, 5);
           if (by) this.shake(clamp(maxRv / 60, 1, 8));
           // водитель трафика злится и сигналит
-          for (const c of [a, b]) if (c.ai === 'traffic' && c.driver && by) c.honk();
+          if (by) { if (a.ai === 'traffic' && a.driver) a.honk(); if (b.ai === 'traffic' && b.driver) b.honk(); }
         }
       }
       // машина и люди
       const sp = a.speed;
       if (sp < 25) continue;
-      for (const p of World.peds) {
+      const peds = World.peds;
+      for (let k = 0; k < peds.length; k++) {
+        const p = peds[k];
         if (p.dead || p.car) continue;
+        if (Math.abs(p.x - a.x) > 120 || Math.abs(p.y - a.y) > 120) continue;
         if (!a.contains(p.x, p.y, p.r)) continue;
         if (sp > 85) {
           p.kill(a.driver === 'player' ? 'player' : 'car');
@@ -597,8 +605,10 @@ const Game = {
 
   // ---------------------------------------------------------------- цикл
   loop(t) {
-    const dt = Math.min(0.05, (t - (this.last || t)) / 1000);
+    const real = (t - (this.last || t)) / 1000;
+    const dt = Math.min(0.05, real);
     this.last = t;
+    if (this.gl) R3.frame(real);
     try {
       this.update(dt);
       this.render(dt);
@@ -829,6 +839,24 @@ const Game = {
       ctx.fillRect(0, 0, this.vw, this.vh);
     }
     if (this.state !== 'title') HUD.draw(ctx, this.vw, this.vh, this.state === 'pause' ? 0 : dt);
+    if (this.showPerf) this.drawPerf(ctx);
+  },
+
+  // F3: частота кадров, время кадра, разрешение 3D, качество и видеокарта
+  drawPerf(ctx) {
+    const P = R3.perf;
+    const q = R3.mode === 'auto' ? `авто → ${QUALITY[R3.autoLevel].name}` : QUALITY[R3.mode].name;
+    const lines = [
+      `FPS ${P.fps || '…'} · кадр ${P.ms ? P.ms.toFixed(1) : '…'} мс (худший ${P.maxMs ? P.maxMs.toFixed(0) : '…'} мс)`,
+      `3D: разрешение ×${R3.ratio.toFixed(2)} · качество: ${q} · тени ${R3.renderer.shadowMap.enabled ? 'вкл' : 'выкл'}`,
+      `вызовов ${R3.renderer.info.render.calls} · треугольников ${R3.renderer.info.render.triangles}`,
+      `GPU: ${R3.gpuName}`,
+    ];
+    ctx.font = '13px monospace';
+    const w = Math.max(...lines.map((l) => ctx.measureText(l).width)) + 20;
+    ctx.fillStyle = 'rgba(0,0,0,0.65)'; ctx.fillRect(this.vw - w - 16, this.vh - 100, w, 84);
+    ctx.fillStyle = P.ms > 19 ? '#ff8a65' : '#9be15d'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    lines.forEach((l, i) => ctx.fillText(l, this.vw - w - 6, this.vh - 80 + i * 19));
   },
 
   drawMarkers(ctx) {

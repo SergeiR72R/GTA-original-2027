@@ -26,7 +26,14 @@ const FACADE_GEN = {
   concrete: 'facade_concrete', hospital: 'facade_concrete', police: 'facade_concrete', busstation: 'facade_concrete', cityhall: 'facade_concrete',
   hotel: 'facade_hotel', tower: 'facade_tower', mall: 'facade_tower', warehouse: 'facade_warehouse', garage: 'facade_warehouse',
 };
-const LIGHT_POOL = 10;
+const LAMP_LIGHTS = 8;   // точечный свет ночных фонарей (днём выключен совсем)
+// Качество графики: разрешение 3D-сцены, тени, число фонарей-источников света
+const QUALITY = {
+  high: { name: 'высокое', ratio: 1.5, shadow: 2048, lamps: 8 },
+  medium: { name: 'среднее', ratio: 1.0, shadow: 1024, lamps: 4 },
+  low: { name: 'низкое', ratio: 0.75, shadow: 0, lamps: 0 },
+};
+const QUALITY_ORDER = ['auto', 'high', 'medium', 'low'];
 
 // Набор треугольников с нормалями, UV и цветами вершин — потом одна сетка
 class Batch {
@@ -118,9 +125,13 @@ const R3 = {
       this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
     } catch (e) { console.warn('WebGL недоступен — 2D-режим', e); return false; }
     const r = this.renderer;
-    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     r.shadowMap.enabled = true;
-    r.shadowMap.type = THREE.PCFSoftShadowMap;
+    r.shadowMap.type = THREE.PCFShadowMap;
+    // какая видеокарта реально рисует (для диагностики, F3)
+    try {
+      const gl = r.getContext(), ext = gl.getExtension('WEBGL_debug_renderer_info');
+      this.gpuName = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+    } catch (e) { this.gpuName = '?'; }
     this.aniso = r.capabilities.getMaxAnisotropy();
     this.scene = new THREE.Scene();
     this.scene.background = COL('#2a6f9f');
@@ -136,12 +147,20 @@ const R3 = {
     const sc = this.sun.shadow.camera;
     sc.left = -1500; sc.right = 1500; sc.top = 1500; sc.bottom = -1500; sc.near = 10; sc.far = 4000;
     this.scene.add(this.sun, this.sun.target);
-    // пул точечных источников: ближайшие фонари, фары игрока, мигалки
-    this.pool = [];
-    for (let i = 0; i < LIGHT_POOL; i++) {
-      const l = new THREE.PointLight(0xffc27a, 0, 320, 1.6);
-      this.scene.add(l); this.pool.push(l);
-    }
+    // точечный свет: 2 всегда в сцене (мигалки погони, фары игрока), фонари — только ночью.
+    // Число источников меняется лишь между «днём» и «ночью», шейдеры для обоих случаев
+    // готовятся заранее (prewarm), чтобы на закате не было подвисания.
+    this.sirenLights = [];
+    for (let i = 0; i < 2; i++) { const l = new THREE.PointLight(0xff2a2a, 0, 260, 1.6); this.scene.add(l); this.sirenLights.push(l); }
+    this.lampLights = [];
+    for (let i = 0; i < LAMP_LIGHTS; i++) { const l = new THREE.PointLight(0xffc27a, 0, 300, 1.6); l.visible = false; this.scene.add(l); this.lampLights.push(l); }
+    this.nearLamps = [];
+    this.frameNo = 0;
+    this.perf = { times: [], evalT: 0, slow: 0, fast: 0, lastDrop: -99, fps: 0, ms: 0, maxMs: 0 };
+    let saved = 'auto';
+    try { saved = localStorage.getItem('hamsin_quality') || 'auto'; } catch (e) { /* без сохранения */ }
+    this.mode = QUALITY_ORDER.includes(saved) ? saved : 'auto';
+    this.autoLevel = 'high';
     this.dropTaintedGen();
     this.ok = true;
     return true;
@@ -165,9 +184,87 @@ const R3 = {
 
   resize(w, h) {
     if (!this.ok) return;
+    this.w = w; this.h = h;
+    this.renderer.setPixelRatio(this.ratio || 1);
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+  },
+
+  // ---------------------------------------------------------------- качество и производительность
+  get q() { return QUALITY[this.mode === 'auto' ? this.autoLevel : this.mode]; },
+
+  applyQuality(first) {
+    const q = this.q;
+    this.maxRatio = Math.min(window.devicePixelRatio || 1, q.ratio);
+    this.ratio = this.maxRatio;
+    const shadows = q.shadow > 0;
+    const changed = !first && this.renderer.shadowMap.enabled !== shadows;
+    this.renderer.shadowMap.enabled = shadows;
+    this.sun.castShadow = shadows;
+    if (shadows && this.sun.shadow.mapSize.x !== q.shadow) {
+      this.sun.shadow.mapSize.set(q.shadow, q.shadow);
+      if (this.sun.shadow.map) { this.sun.shadow.map.dispose(); this.sun.shadow.map = null; }
+    }
+    // тени включили/выключили — материалам нужны другие шейдеры
+    if (changed) this.scene.traverse((o) => { if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => { m.needsUpdate = true; }); });
+    if (this.w) this.resize(this.w, this.h);
+    if (!first) this.prewarm();
+  },
+
+  setMode(mode) {
+    this.mode = mode;
+    try { localStorage.setItem('hamsin_quality', mode); } catch (e) { /* без сохранения */ }
+    if (mode === 'auto') this.autoLevel = 'high';
+    this.applyQuality();
+  },
+
+  cycleQuality() {
+    this.setMode(QUALITY_ORDER[(QUALITY_ORDER.indexOf(this.mode) + 1) % QUALITY_ORDER.length]);
+    return this.mode === 'auto' ? `авто (${QUALITY[this.autoLevel].name})` : QUALITY[this.mode].name;
+  },
+
+  // Заранее компилируем шейдеры для «дня» и «ночи», чтобы переход не давал рывка
+  prewarm() {
+    const lamps = this.lampLights;
+    lamps.forEach((l) => { l.visible = false; });
+    this.renderer.compile(this.scene, this.camera);
+    lamps.forEach((l, i) => { l.visible = i < this.q.lamps; });
+    this.renderer.compile(this.scene, this.camera);
+    lamps.forEach((l) => { l.visible = false; });
+    this.nightLights = false;
+  },
+
+  // Учёт времени кадров; в режиме «авто» плавно меняем разрешение 3D-сцены
+  frame(realDt) {
+    const P = this.perf;
+    // пауза после скрытой вкладки — не показатель скорости
+    if (realDt <= 0 || realDt > 1 || document.hidden) return;
+    P.times.push(realDt * 1000);
+    if (P.times.length > 120) P.times.shift();
+    P.evalT += realDt;
+    if (P.evalT < 1.5) return;
+    P.evalT = 0;
+    const sorted = P.times.slice().sort((a, b) => a - b);
+    const med = sorted[Math.floor(sorted.length / 2)];
+    P.ms = med; P.fps = Math.round(1000 / med); P.maxMs = sorted[sorted.length - 1];
+    if (this.mode !== 'auto' || Game.state === 'pause') return;
+    const now = performance.now() / 1000;
+    if (med > 19.5) {
+      P.slow++; P.fast = 0;
+      if (this.ratio > 0.62) {
+        this.ratio = Math.max(0.6, this.ratio - 0.15); P.lastDrop = now;
+        this.resize(this.w, this.h);
+      } else if (P.slow >= 3 && this.autoLevel !== 'low') {
+        this.autoLevel = this.autoLevel === 'high' ? 'medium' : 'low'; P.slow = 0; P.lastDrop = now;
+        this.applyQuality();
+        this.ratio = Math.min(this.maxRatio, 0.9); this.resize(this.w, this.h);
+      }
+    } else if (med < 17.4) {
+      P.slow = 0; P.fast++;
+      // повышаем осторожно, чтобы разрешение не «прыгало» туда-сюда
+      if (P.fast >= 6 && now - P.lastDrop > 30 && this.ratio < this.maxRatio) { this.ratio = Math.min(this.maxRatio, this.ratio + 0.1); P.fast = 0; this.resize(this.w, this.h); }
+    }
   },
 
   tex(src, repeat) {
@@ -294,6 +391,14 @@ const R3 = {
     }
     // таблички и вывески на крышах — отдельными плоскостями
     for (const b of City.buildings) if (b.sign || b.label) this.roofSign(b);
+    this.applyQuality(true);
+    // заранее рисуем спрайты всех машин всех цветов: первый показ не даст рывка
+    for (const t in VTYPES) {
+      const cols = new Set(CAR_PALETTE.map((c) => c[0]));
+      if (VTYPES[t].color) cols.add(VTYPES[t].color);
+      for (const f in FACTIONS) if (FACTIONS[f].car === t) Vehicles.sprite(t, FACTIONS[f].carColor || VTYPES[t].color || '#141518', f);
+      for (const c of cols) Vehicles.sprite(t, c);
+    }
   },
 
   building(b, B) {
@@ -514,6 +619,7 @@ const R3 = {
     for (const d of City.lgrid[cy * cw + cx]) if (d.k !== 'matkot') City.drawLowItem(g, d, 0);
     g.restore();
     const t = this.tex(c);
+    this.renderer.initTexture(t); // загружаем в видеокарту сразу, а не в момент первого показа
     const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ map: t }));
     m.position.set(cx * size + size / 2, 0, cy * size + size / 2);
     m.receiveShadow = true;
@@ -521,19 +627,32 @@ const R3 = {
     this.chunks.set(key, { mesh: m, used: true });
   },
 
+  // Участки земли: видимые создаём сразу, соседние — заранее, по одному за кадр
   updateGround(view) {
-    const cs = CHUNK * TILE, m = 300;
+    const cs = CHUNK * TILE;
     const cw = Math.ceil(City.W / CHUNK), ch = Math.ceil(City.H / CHUNK);
     for (const o of this.chunks.values()) o.used = false;
-    const cx0 = Math.max(0, Math.floor((view.x0 - m) / cs)), cx1 = Math.min(cw - 1, Math.floor((view.x1 + m) / cs));
-    const cy0 = Math.max(0, Math.floor((view.y0 - m) / cs)), cy1 = Math.min(ch - 1, Math.floor((view.y1 + m) / cs));
-    for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) this.groundChunk(cx, cy);
-    if (this.chunks.size > 70) {
+    const range = (m) => [
+      Math.max(0, Math.floor((view.x0 - m) / cs)), Math.min(cw - 1, Math.floor((view.x1 + m) / cs)),
+      Math.max(0, Math.floor((view.y0 - m) / cs)), Math.min(ch - 1, Math.floor((view.y1 + m) / cs)),
+    ];
+    let budget = 1;
+    const ensure = (m, force) => {
+      const [x0, x1, y0, y1] = range(m);
+      for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) {
+        const o = this.chunks.get(cy * 100 + cx);
+        if (o) { o.used = true; continue; }
+        if (force || budget > 0) { budget--; this.groundChunk(cx, cy); }
+      }
+    };
+    ensure(40, true);  // то, что уже на экране, — обязательно
+    ensure(900, false); // запас вокруг — постепенно
+    if (this.chunks.size > 120) {
       for (const [k, o] of this.chunks) {
         if (o.used) continue;
         this.scene.remove(o.mesh); o.mesh.geometry.dispose(); o.mesh.material.map.dispose(); o.mesh.material.dispose();
         this.chunks.delete(k);
-        if (this.chunks.size <= 50) break;
+        if (this.chunks.size <= 100) break;
       }
     }
   },
@@ -600,14 +719,24 @@ const R3 = {
   },
 
   syncCars(view, night) {
-    const seen = new Set();
+    const fn = this.frameNo;
+    let budget = 2;
     for (const car of World.cars) {
-      if (car.x < view.x0 - 200 || car.x > view.x1 + 200 || car.y < view.y0 - 200 || car.y > view.y1 + 200) continue;
-      seen.add(car);
+      car._r3 = fn; // машина ещё существует
       let o = this.cars.get(car);
-      if (!o) { o = this.makeCar(car); this.cars.set(car, o); }
-      const key = [car.type, car.color, car.genKey, car.stage, car.dents.length, car.dead, !!car.driver, car.faction].join('|');
-      if (key !== o.key) { o.key = key; this.drawCarTex(o, car); }
+      const inView = !(car.x < view.x0 - 200 || car.x > view.x1 + 200 || car.y < view.y0 - 200 || car.y > view.y1 + 200);
+      if (!inView) { if (o) o.grp.visible = false; continue; }
+      if (!o) {
+        if (budget-- <= 0) continue; // остальные — в следующих кадрах
+        o = this.makeCar(car); this.cars.set(car, o);
+      }
+      o.grp.visible = true;
+      // текстуру перерисовываем только при смене вида/повреждений
+      const st = car.stage * 1000 + car.dents.length * 10 + (car.dead ? 1 : 0) + (car.driver ? 2 : 0);
+      if (st !== o.st || car.color !== o.color || car.genKey !== o.genKey || car.type !== o.type) {
+        o.st = st; o.color = car.color; o.genKey = car.genKey; o.type = car.type;
+        this.drawCarTex(o, car);
+      }
       o.grp.position.set(car.x, 0, car.y);
       o.grp.rotation.y = -car.a;
       o.head.visible = night > 0.05 && !!car.driver && !car.dead;
@@ -620,7 +749,7 @@ const R3 = {
         o.glowR.visible = live && on; o.glowB.visible = live && !on;
       }
     }
-    for (const [car, o] of this.cars) if (!seen.has(car)) this.dropCar(car, o);
+    for (const [car, o] of this.cars) if (car._r3 !== fn) this.dropCar(car, o);
   },
 
   dropCar(car, o) {
@@ -646,6 +775,8 @@ const R3 = {
     const q = moving ? Math.round(p.walkAnim / (Math.PI / 4)) : 0;
     const key = (moving ? q % 8 : 's') + '|' + p.weapon + '|' + p.dead;
     if (key === o.key) return;
+    // шаги можно пропустить, а смену оружия или смерть — нет
+    if (o.key && moving && this.pedBudget-- <= 0) return;
     o.key = key;
     const g = o.cv.getContext('2d');
     g.clearRect(0, 0, 80, 80);
@@ -656,15 +787,25 @@ const R3 = {
   },
 
   syncPeds(view) {
-    const seen = new Set();
-    const list = World.peds.slice();
+    const fn = this.frameNo;
+    this.pedBudget = 16;
+    let budget = 4;
     const pl = World.player;
-    if (pl && !pl.car && Game.state !== 'title') list.push(pl);
-    for (const p of list) {
-      if (p.car || p.x < view.x0 - 60 || p.x > view.x1 + 60 || p.y < view.y0 - 60 || p.y > view.y1 + 60) continue;
-      seen.add(p);
+    const showPl = pl && !pl.car && Game.state !== 'title';
+    const n = World.peds.length + (showPl ? 1 : 0);
+    for (let i = 0; i < n; i++) {
+      const p = i < World.peds.length ? World.peds[i] : pl;
+      p._r3 = fn;
       let o = this.peds.get(p);
-      if (!o) { o = this.makePed(); this.peds.set(p, o); }
+      if (p.car || p.x < view.x0 - 60 || p.x > view.x1 + 60 || p.y < view.y0 - 60 || p.y > view.y1 + 60) {
+        if (o) { o.m.visible = false; if (o.mark) o.mark.visible = false; }
+        continue;
+      }
+      if (!o) {
+        if (budget-- <= 0 && p !== pl) continue;
+        o = this.makePed(); this.peds.set(p, o);
+      }
+      o.m.visible = true;
       this.drawPed(o, p);
       o.m.position.set(p.x, p.dead ? 1.5 : 3.5, p.y);
       o.m.rotation.y = -p.a;
@@ -679,7 +820,7 @@ const R3 = {
       } else if (o.mark) o.mark.visible = false;
     }
     for (const [p, o] of this.peds) {
-      if (seen.has(p)) continue;
+      if (p._r3 === fn && !(p === pl && !showPl)) continue;
       this.scene.remove(o.m); o.m.geometry.dispose(); o.m.material.map.dispose(); o.m.material.dispose();
       if (o.mark) { this.scene.remove(o.mark); o.mark.geometry.dispose(); }
       this.peds.delete(p);
@@ -899,36 +1040,44 @@ const R3 = {
       if (!this.scene.fog) this.scene.fog = new THREE.Fog(0xd9a55e, 1, 2);
       this.scene.fog.near = this.camH * 0.75; this.scene.fog.far = this.camH * 2.2;
     } else this.scene.fog = null;
-    // точечный свет: ближайшие фонари, фары игрока, мигалки погони
-    const pool = this.pool;
-    let used = 0;
-    const use = (x, y, z, color, intensity, distance) => {
-      if (used >= pool.length) return;
-      const l = pool[used++];
-      l.position.set(x, y, z); l.color.setHex(color); l.intensity = intensity; l.distance = distance;
-    };
+    // мигалки погони и фары игрока — 2 постоянных источника
     const pl = World.player;
     const now = World.time;
+    let used = 0;
     for (const c of World.cars) {
-      if (!c.police || !c.siren || c.dead || used >= 2) continue;
-      if (dist2(c.x, c.y, cam.x, cam.y) > 900 * 900) continue;
-      use(c.x, 30, c.y, Math.floor(now * 6) % 2 ? 0x3f6cff : 0xff2a2a, 1.4, 260);
+      if (used >= 2) break;
+      if (!c.police || !c.siren || c.dead || dist2(c.x, c.y, cam.x, cam.y) > 900 * 900) continue;
+      const l = this.sirenLights[used++];
+      l.position.set(c.x, 30, c.y); l.color.setHex(Math.floor(now * 6) % 2 ? 0x3f6cff : 0xff2a2a); l.intensity = 1.4;
     }
-    if (k > 0.05) {
-      if (pl.car && !pl.car.dead) {
-        const f = pl.car.fwd;
-        use(pl.car.x + f.x * (pl.car.l / 2 + 60), 24, pl.car.y + f.y * (pl.car.l / 2 + 60), 0xfff0d0, 1.6 * k, 260);
-      }
-      const lamps = [];
+    if (used < 2 && k > 0.05 && pl.car && !pl.car.dead) {
+      const f = pl.car.fwd, l = this.sirenLights[used++];
+      l.position.set(pl.car.x + f.x * (pl.car.l / 2 + 60), 24, pl.car.y + f.y * (pl.car.l / 2 + 60)); l.color.setHex(0xfff0d0); l.intensity = 1.6 * k;
+    }
+    for (let i = used; i < 2; i++) this.sirenLights[i].intensity = 0;
+    // фонари: днём их нет в расчёте вовсе (каждый источник стоит времени на каждом пикселе)
+    const nightOn = k > 0.12 && this.q.lamps > 0;
+    if (nightOn !== this.nightLights) {
+      this.nightLights = nightOn;
+      this.lampLights.forEach((l, i) => { l.visible = nightOn && i < this.q.lamps; });
+    }
+    if (!nightOn) return;
+    if (this.frameNo % 6 === 0) {
+      // ближайшие фонари: простой отбор без сортировки всего списка
+      const near = this.nearLamps; near.length = 0;
+      const maxN = this.q.lamps;
       for (const l of City.lamps) {
         if (l.hx === undefined) continue;
         const d = dist2(l.hx, l.hz, cam.x, cam.y);
-        if (d < 1000 * 1000) lamps.push([d, l]);
+        if (d > 1000 * 1000) continue;
+        if (near.length < maxN) { near.push([d, l]); near.sort((a, b) => a[0] - b[0]); }
+        else if (d < near[maxN - 1][0]) { near[maxN - 1] = [d, l]; near.sort((a, b) => a[0] - b[0]); }
       }
-      lamps.sort((a, b) => a[0] - b[0]);
-      for (const [, l] of lamps) use(l.hx, 80, l.hz, 0xffc27a, 1.25 * k, 300);
     }
-    for (let i = used; i < pool.length; i++) pool[i].intensity = 0;
+    for (let i = 0; i < this.q.lamps; i++) {
+      const L = this.lampLights[i], n = this.nearLamps[i];
+      if (n) { L.position.set(n[1].hx, 80, n[1].hz); L.intensity = 1.25 * k; } else L.intensity = 0;
+    }
   },
 
   // ---------------------------------------------------------------- кадр
@@ -973,7 +1122,9 @@ const R3 = {
     this.camera.lookAt(tx, 0, tz);
     this.camera.updateMatrixWorld();
     view = this.bounds = this.groundBounds(cam.x, cam.y);
-    const sc = this.sun.shadow.camera, r = Math.max(view.x1 - view.x0, view.y1 - view.y0) * 0.6 + 200;
+    this.frameNo++;
+    // тени — только вокруг видимой части, а не на весь горизонт при наклонной камере
+    const sc = this.sun.shadow.camera, r = Math.min(1400, Math.max(view.x1 - view.x0, view.y1 - view.y0) * 0.55 + 150);
     if (Math.abs(sc.right - r) > 50) { sc.left = -r; sc.right = r; sc.top = r; sc.bottom = -r; sc.updateProjectionMatrix(); }
     if (!this.fxReady) { this.initFx(); this.fxReady = true; }
     this.updateGround(view);

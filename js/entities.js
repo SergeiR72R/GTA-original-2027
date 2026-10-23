@@ -24,6 +24,9 @@ const WEAPONS = {
 // =====================================================================
 //                               МАШИНА
 // =====================================================================
+// точки корпуса: углы, середины носа/кормы и бортов (доли длины и ширины)
+const HULL_F = [1, 1, -1, -1, 1, -1, 0, 0];
+const HULL_R = [1, -1, 1, -1, 0, 0, 1, -1];
 class Car {
   constructor(x, y, a, opts = {}) {
     this.x = x; this.y = y; this.a = a;
@@ -60,7 +63,12 @@ class Car {
   }
 
   get speed() { return Math.hypot(this.vx, this.vy); }
-  get fwd() { return { x: Math.sin(this.a), y: -Math.cos(this.a) }; }
+  // направление «вперёд»: один и тот же объект, пересчитывается при повороте (меньше мусора для GC)
+  get fwd() {
+    const f = this._f || (this._f = { x: 0, y: -1, a: 0 });
+    if (f.a !== this.a) { f.a = this.a; f.x = Math.sin(this.a); f.y = -Math.cos(this.a); }
+    return f;
+  }
   get fspeed() { return this.vx * Math.sin(this.a) - this.vy * Math.cos(this.a); }
 
   // Точки корпуса для проверки столкновений со стенами
@@ -75,8 +83,14 @@ class Car {
     ];
   }
 
+  // те же 8 точек корпуса, что в hullPoints, но без создания массивов — вызывается очень часто
   hitsWall(x, y, a) {
-    for (const p of this.hullPoints(x, y, a)) if (City.solidAt(p[0], p[1])) return true;
+    const fx = Math.sin(a), fy = -Math.cos(a), rx = Math.cos(a), ry = Math.sin(a);
+    const hl = this.l / 2 - 2, hw = this.w / 2 - 2;
+    for (let i = 0; i < 8; i++) {
+      const sf = HULL_F[i] * hl, sr = HULL_R[i] * hw;
+      if (City.solidAt(x + fx * sf + rx * sr, y + fy * sf + ry * sr)) return true;
+    }
     return false;
   }
 
@@ -84,11 +98,12 @@ class Car {
   circles() {
     const f = this.fwd;
     const r = this.w / 2 + 1;
-    if (this.moto) return [{ x: this.x, y: this.y, r: 14 }];
-    const n = Math.max(2, Math.round(this.l / this.w));
+    const n = this.moto ? 1 : Math.max(2, Math.round(this.l / this.w));
+    // массив кругов переиспользуется между кадрами
+    const out = this._circ || (this._circ = Array.from({ length: n }, () => ({ x: 0, y: 0, r: 0 })));
+    if (this.moto) { out[0].x = this.x; out[0].y = this.y; out[0].r = 14; return out; }
     const o = this.l / 2 - this.w / 2;
-    const out = [];
-    for (let i = 0; i < n; i++) { const t = -o + (2 * o) * i / (n - 1); out.push({ x: this.x + f.x * t, y: this.y + f.y * t, r }); }
+    for (let i = 0; i < n; i++) { const t = -o + (2 * o) * i / (n - 1); out[i].x = this.x + f.x * t; out[i].y = this.y + f.y * t; out[i].r = r; }
     return out;
   }
 
