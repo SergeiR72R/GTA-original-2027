@@ -162,11 +162,17 @@ const Game = {
     World.cars.push(taxi);
     // постоянные предметы
     World.pickups.push(new Pickup(P.hospital.x + 40, P.hospital.y + 10, 'health'));
-    World.pickups.push(new Pickup(City.tc(33, 50).x, City.tc(33, 50).y, 'health'));
-    World.pickups.push(new Pickup(City.tc(62, 80).x, City.tc(62, 80).y, 'pistol', { ammo: 24 }));
-    World.pickups.push(new Pickup(City.tc(10, 88).x, City.tc(10, 88).y, 'health'));
-    World.pickups.push(new Pickup(City.tc(86, 24).x, City.tc(86, 24).y, 'uzi', { ammo: 60 }));
-    World.pickups.push(new Pickup(City.tc(24, 12).x, City.tc(24, 12).y, 'money', { amount: 500 }));
+    // тайники по городу: аптечки, оружие, деньги
+    const at = (bx, by, w, kind, opts) => { const p = City.side(bx, by, w); World.pickups.push(new Pickup(p.x, p.y, kind, opts)); };
+    at(2, 3, 'N', 'health');
+    at(5, 6, 'W', 'pistol', { ammo: 24 });
+    at(0, 8, 'N', 'health');
+    at(7, 1, 'W', 'uzi', { ammo: 60 });
+    at(1, 0, 'E', 'money', { amount: 500 });
+    at(7, 8, 'N', 'health');
+    at(3, 9, 'N', 'shotgun', { ammo: 12 });
+    at(6, 6, 'S', 'bat');
+    at(9, 3, 'W', 'money', { amount: 800 });
     this.cam.x = pl.x; this.cam.y = pl.y;
     // заполняем окрестности трафиком сразу
     for (let i = 0; i < 40; i++) this.spawnTraffic(true);
@@ -306,8 +312,11 @@ const Game = {
       if (!s.car && d2 < 1300 * 1300 && d2 > 500 * 500 && !this.inView(s.x, s.y) && s.roll === undefined) {
         s.roll = Math.random() < 0.65;
         if (s.roll) {
-          const t = pickWeighted([['sedan', 35], ['hatch', 25], ['suv', 15], ['moto', 6], ['scooter', 6], ['van', 6], ['pickup', 5], ['taxi', 2]]);
-          s.car = new Car(s.x, s.y, s.a + rand(-0.1, 0.1), { type: t }); s.car.spot = s; World.cars.push(s.car);
+          // на территории банды во дворах стоят её машины
+          const fac = City.factionAt(s.x, s.y);
+          const own = fac && Math.random() < 0.4;
+          const t = own ? FACTIONS[fac].car : pickWeighted([['sedan', 35], ['hatch', 25], ['suv', 15], ['moto', 6], ['scooter', 6], ['van', 6], ['pickup', 5], ['taxi', 2]]);
+          s.car = new Car(s.x, s.y, s.a + rand(-0.1, 0.1), { type: t, faction: own ? fac : null }); s.car.spot = s; World.cars.push(s.car);
         }
       }
       if (d2 > 1700 * 1700) s.roll = undefined;

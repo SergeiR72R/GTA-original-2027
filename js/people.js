@@ -8,9 +8,9 @@ const SHIRTS = ['#e53935', '#1e88e5', '#43a047', '#fdd835', '#8e24aa', '#ff7043'
 
 // Фракции
 const FACTIONS = {
-  russian: { name: 'Бригада «Одесса»', short: 'Бригада', boss: 'Сёма Кац', color: '#c62828', car: 'lux', districts: ['ramatgan'] },
-  arab: { name: 'Клан Аль-Бахар', short: 'Аль-Бахар', boss: 'Абу-Карим', color: '#eeeeee', car: 'pickup', districts: ['jaffa'] },
-  lions: { name: '«Львы Гондэра»', short: 'Львы', boss: 'Абеба', color: '#f2c230', car: 'hatch', carColor: '#f2c230', districts: ['south', 'busstation'] },
+  russian: { name: 'Бригада «Одесса»', short: 'Бригада', boss: 'Сёма Кац', color: '#c62828', turf: '#e53935', car: 'lux', districts: ['ramatgan', 'bursa', 'rgshops'] },
+  arab: { name: 'Клан Аль-Бахар', short: 'Аль-Бахар', boss: 'Абу-Карим', color: '#eeeeee', turf: '#26a69a', car: 'pickup', districts: ['jaffa', 'jaffaclock', 'flea', 'ajami', 'jaffaport'] },
+  lions: { name: '«Львы Гондэра»', short: 'Львы', boss: 'Абеба', color: '#f2c230', turf: '#fbc02d', car: 'hatch', carColor: '#f2c230', districts: ['south', 'busstation', 'levinsky', 'hatikva'] },
   iran: { name: 'Иранская сеть', short: 'Агенты', boss: '«Али»', color: '#78909c', car: 'van', carColor: '#3d4249', districts: [] },
 };
 

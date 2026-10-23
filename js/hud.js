@@ -70,11 +70,13 @@ const HUD = {
 
     // ---- район / улица (по центру сверху)
     const d = City.districtAt(pl.x, pl.y);
-    if (d !== this.district) { this.district = d; this.districtT = 3.5; }
+    if (d !== this.district) { this.district = d; this.districtT = 3.5; this.turf = City.factionAt(pl.x, pl.y); }
     if (this.districtT > 0) {
       this.districtT -= dt;
       ctx.globalAlpha = clamp(this.districtT, 0, 1);
       this.text(ctx, this.district, vw / 2, 52, 30, '#fff3c4', 'center');
+      // чья это земля
+      if (this.turf) this.text(ctx, 'территория: ' + FACTIONS[this.turf].name, vw / 2, 78, 17, FACTIONS[this.turf].turf, 'center');
       ctx.globalAlpha = 1;
     }
     const st = pl.car ? City.streetAt(pl.x, pl.y) : null;
