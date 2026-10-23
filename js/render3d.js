@@ -26,12 +26,12 @@ const FACADE_GEN = {
   concrete: 'facade_concrete', hospital: 'facade_concrete', police: 'facade_concrete', busstation: 'facade_concrete', cityhall: 'facade_concrete',
   hotel: 'facade_hotel', tower: 'facade_tower', mall: 'facade_tower', warehouse: 'facade_warehouse', garage: 'facade_warehouse',
 };
-const LAMP_LIGHTS = 8;   // точечный свет ночных фонарей (днём выключен совсем)
+const LAMP_LIGHTS = 24;  // точечный свет ночных фонарей (днём выключен совсем)
 // Качество графики: разрешение 3D-сцены, тени, число фонарей-источников света
 const QUALITY = {
-  high: { name: 'высокое', ratio: 1.5, shadow: 2048, lamps: 8 },
-  medium: { name: 'среднее', ratio: 1.0, shadow: 1024, lamps: 4 },
-  low: { name: 'низкое', ratio: 0.75, shadow: 0, lamps: 0 },
+  high: { name: 'высокое', ratio: 1.5, shadow: 2048, lamps: 24 },
+  medium: { name: 'среднее', ratio: 1.0, shadow: 1024, lamps: 12 },
+  low: { name: 'низкое', ratio: 0.75, shadow: 0, lamps: 6 },
 };
 const QUALITY_ORDER = ['auto', 'high', 'medium', 'low'];
 
@@ -1099,7 +1099,7 @@ const R3 = {
     for (const m of this.signMats || []) m.emissiveIntensity = k * 0.6;
     this.mats.lampHead.color.setHex(k > 0.35 ? 0xfff3c4 : 0x9aa0a6);
     // световое пятно под каждым фонарём — дешёвая замена источника света
-    this.mats.glow.opacity = k * 0.58;
+    this.mats.glow.opacity = k * 0.5;
     this.mats.headlights.opacity = k * 0.55;
     // хамсин — жёлтая пыльная мгла, наползает и уходит плавно
     // граница тумана сдвигается равномерно: при слабом хамсине — за край
@@ -1156,14 +1156,18 @@ const R3 = {
       for (const n of near) want.add(n[1]);
     }
     const slots = this.lampSlots || (this.lampSlots = this.lampLights.map(() => ({ lamp: null, k: 0 })));
+    const lit = this.litLamps || (this.litLamps = new Set());
+    lit.clear();
+    for (let i = 0; i < this.q.lamps; i++) if (slots[i].lamp) lit.add(slots[i].lamp);
     for (let i = 0; i < this.q.lamps; i++) {
       const sl = slots[i], L = this.lampLights[i];
       const on = sl.lamp && want.has(sl.lamp);
       sl.k = on ? Math.min(1, sl.k + 0.04) : Math.max(0, sl.k - 0.06);
       if (!sl.k && !on) {
         // свободный слот — берём фонарь, которому свет нужен, а его ещё нет
+        if (sl.lamp) lit.delete(sl.lamp);
         sl.lamp = null;
-        for (const l of want) if (!slots.some((o) => o.lamp === l)) { sl.lamp = l; break; }
+        for (const l of want) if (!lit.has(l)) { sl.lamp = l; lit.add(l); break; }
       }
       if (sl.lamp) { L.position.set(sl.lamp.hx, 80, sl.lamp.hz); L.intensity = 1.1 * k * sl.k; } else L.intensity = 0;
     }
