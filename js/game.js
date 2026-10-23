@@ -28,7 +28,14 @@ const Clock = {
     if (hm !== this.wasHamsin) { this.wasHamsin = hm; if (hm) Game.message('ХАМСИН! Жара +40°, пыль из пустыни.', 4); }
   },
   get shabbat() { const d = this.day, h = this.hour; return (d === 5 && h >= 18) || (d === 6 && h < 19); },
-  get hamsin() { const h = this.hour; return Math.floor(this.min / 1440) === this.hamsinDay && h > 10 && h < 18; },
+  // сила хамсина 0..1: мгла наползает с 9:30 до 11:30 и уходит с 16:30 до 18:30
+  get hamsinK() {
+    if (Math.floor(this.min / 1440) !== this.hamsinDay) return 0;
+    const h = this.hour;
+    const s = (x) => x * x * (3 - 2 * x);
+    return s(clamp((h - 9.5) / 2, 0, 1)) * s(clamp((18.5 - h) / 2, 0, 1));
+  },
+  get hamsin() { return this.hamsinK > 0.25; },
   // 0 — день, 1 — глубокая ночь
   get dark() {
     const h = this.hour;
@@ -41,7 +48,7 @@ const Clock = {
   get temp() {
     const h = this.hour;
     const base = 24 + 7 * Math.sin((h - 9) / 24 * TAU);
-    return Math.round(this.hamsin ? base + 12 : base);
+    return Math.round(base + 12 * this.hamsinK);
   },
   text() {
     const h = Math.floor(this.hour), m = Math.floor(this.min % 60);
@@ -733,7 +740,7 @@ const Game = {
     this.drawLighting(ctx, view, sx, sy);
 
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    if (Clock.hamsin) this.drawHamsin(ctx);
+    if (Clock.hamsinK > 0) this.drawHamsin(ctx, Clock.hamsinK);
     if (this.state === 'down') {
       ctx.fillStyle = this.downKind === 'dead' ? 'rgba(120,0,0,0.25)' : 'rgba(0,30,120,0.25)';
       ctx.fillRect(0, 0, this.vw, this.vh);
@@ -812,11 +819,11 @@ const Game = {
   },
 
   // Хамсин: жёлтая пыльная мгла
-  drawHamsin(ctx) {
-    ctx.fillStyle = 'rgba(214,150,60,0.22)';
+  drawHamsin(ctx, k) {
+    ctx.fillStyle = `rgba(214,150,60,${(0.22 * k).toFixed(3)})`;
     ctx.fillRect(0, 0, this.vw, this.vh);
     if (!this.dust) this.dust = Array.from({ length: 120 }, () => ({ x: rand(0, 1), y: rand(0, 1), s: rand(0.5, 2) }));
-    ctx.fillStyle = 'rgba(240,200,140,0.45)';
+    ctx.fillStyle = `rgba(240,200,140,${(0.45 * k).toFixed(3)})`;
     const t = World.time;
     for (const d of this.dust) {
       const x = ((d.x + t * 0.05 * d.s) % 1) * this.vw, y = ((d.y + Math.sin(t + d.x * 10) * 0.01) % 1) * this.vh;
@@ -833,7 +840,7 @@ const Game = {
       const [x, y] = R3.worldToScreen(p.x, p.y, 20);
       ctx.fillStyle = `rgba(80,220,90,${k})`; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(p.text || '₪', x, y);
     }
-    if (Clock.hamsin) this.drawHamsin(ctx);
+    if (Clock.hamsinK > 0) this.drawHamsin(ctx, Clock.hamsinK);
     if (this.state === 'down') {
       ctx.fillStyle = this.downKind === 'dead' ? 'rgba(120,0,0,0.25)' : 'rgba(0,30,120,0.25)';
       ctx.fillRect(0, 0, this.vw, this.vh);

@@ -135,6 +135,9 @@ const R3 = {
     this.aniso = r.capabilities.getMaxAnisotropy();
     this.scene = new THREE.Scene();
     this.scene.background = COL('#2a6f9f');
+    // туман есть всегда (иначе его появление пересобирает шейдеры);
+    // без хамсина он отодвинут далеко за край экрана
+    this.scene.fog = new THREE.Fog(0xd9a55e, 1e7, 2e7);
     this.camera = new THREE.PerspectiveCamera(FOV, 1, 50, 8000);
     this.camera.up.set(0, 0, -1);
     this.hemi = new THREE.HemisphereLight(0xfff6e8, 0x5d5a50, 0.6);
@@ -1035,11 +1038,14 @@ const R3 = {
     this.mats.lampHead.color.setHex(k > 0.35 ? 0xfff3c4 : 0x9aa0a6);
     this.mats.glow.opacity = k * 0.42;
     this.mats.headlights.opacity = k * 0.55;
-    // хамсин — жёлтая пыльная мгла
-    if (Clock.hamsin) {
-      if (!this.scene.fog) this.scene.fog = new THREE.Fog(0xd9a55e, 1, 2);
-      this.scene.fog.near = this.camH * 0.75; this.scene.fog.far = this.camH * 2.2;
-    } else this.scene.fog = null;
+    // хамсин — жёлтая пыльная мгла, наползает и уходит плавно
+    const hk = Clock.hamsinK, fog = this.scene.fog;
+    if (hk > 0.001) {
+      fog.near = this.camH * 0.75 / hk; fog.far = this.camH * 2.2 / hk;
+      const bg = this.scene.background;
+      bg.setRGB(lerp(bg.r, 0.85, hk), lerp(bg.g, 0.65, hk), lerp(bg.b, 0.37, hk));
+      this.sun.color.setRGB(this.sun.color.r, this.sun.color.g * (1 - 0.1 * hk), this.sun.color.b * (1 - 0.25 * hk));
+    } else { fog.near = 1e7; fog.far = 2e7; }
     // мигалки погони и фары игрока — 2 постоянных источника
     const pl = World.player;
     const now = World.time;
