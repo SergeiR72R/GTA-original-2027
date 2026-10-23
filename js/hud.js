@@ -47,7 +47,8 @@ const HUD = {
     ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(18, 18, hpw + 4, 16);
     ctx.fillStyle = pl.hp > 35 ? '#e53935' : (Math.floor(World.time * 4) % 2 ? '#ff7b7b' : '#a01010');
     ctx.fillRect(20, 20, hpw * clamp(pl.hp / 100, 0, 1), 12);
-    this.text(ctx, '❤ ' + Math.ceil(Math.max(0, pl.hp)), 22, 54, 18, '#fff');
+    if (pl.armor > 0) { ctx.fillStyle = '#90a4ae'; ctx.fillRect(20, 33, hpw * clamp(pl.armor / 100, 0, 1), 4); }
+    this.text(ctx, '❤ ' + Math.ceil(Math.max(0, pl.hp)) + (pl.armor > 0 ? '  🛡 ' + Math.ceil(pl.armor) : ''), 22, 54, 18, '#fff');
     const w = pl.weapon || 'fists';
     const ammo = w === 'fists' ? '' : ' × ' + (pl.ammo[w] || 0);
     this.text(ctx, WEAPONS[w].name + ammo, 22, 78, 18, '#ffe082');
@@ -75,6 +76,9 @@ const HUD = {
     this.drawObjective(ctx, vw, vh);
     this.drawMessages(ctx, vw, vh, dt);
     this.drawBig(ctx, vw, vh, dt);
+    this.drawClock(ctx, vw, vh);
+    this.drawRep(ctx, vw, vh);
+    this.drawWord(ctx, vw, vh, dt);
     if (Missions.dialog) this.drawDialog(ctx, vw, vh);
   },
 
@@ -127,6 +131,8 @@ const HUD = {
     } else if (Missions.phonePlace()) {
       this.text(ctx, '☎ Звонит телефон-автомат', vw / 2, vh - 28, 18, '#ffe082', 'center');
     }
+    const jt = Jobs.text();
+    if (jt) this.text(ctx, jt, vw / 2, vh - (m ? 54 : 28) - (Missions.phonePlace() && !m ? 26 : 0), 17, '#ffb380', 'center');
     const obj = Missions.objective();
     if (!obj || pl.dead) return;
     const z = Game.zoomTotal;
@@ -144,6 +150,48 @@ const HUD = {
     ctx.beginPath(); ctx.moveTo(18, 0); ctx.lineTo(-8, -13); ctx.lineTo(-3, 0); ctx.lineTo(-8, 13); ctx.closePath();
     ctx.stroke(); ctx.fill();
     ctx.restore();
+  },
+
+  // Часы, день недели, температура
+  drawClock(ctx, vw) {
+    const s = Clock.text() + '  ' + Clock.temp + '°C' + (Clock.shabbat ? '  🕯 Шаббат' : '') + (Clock.hamsin ? '  🌪 Хамсин' : '');
+    this.text(ctx, s, vw - 20, 108, 16, Clock.hamsin ? '#ffcc80' : '#e3f2fd', 'right', 'normal');
+  },
+
+  // Репутация фракций
+  drawRep(ctx, vw) {
+    let y = 124;
+    for (const f of ['russian', 'arab', 'lions']) {
+      const r = Factions.rep[f];
+      const x = vw - 20 - 120;
+      ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(x, y, 120, 8);
+      ctx.fillStyle = r >= 0 ? '#66bb6a' : '#ef5350';
+      if (r >= 0) ctx.fillRect(x + 60, y + 1, 60 * r / 100, 6); else ctx.fillRect(x + 60 + 60 * r / 100, y + 1, -60 * r / 100, 6);
+      ctx.fillStyle = '#fff'; ctx.fillRect(x + 59.5, y, 1, 8);
+      ctx.fillStyle = FACTIONS[f].color; ctx.fillRect(x - 12, y, 8, 8);
+      this.text(ctx, FACTIONS[f].short, x - 18, y + 8, 11, '#ddd', 'right', 'normal');
+      y += 14;
+    }
+  },
+
+  wordOfDay(w) { this.word = { w, t: 9 }; },
+
+  drawWord(ctx, vw, vh, dt) {
+    const W = this.word;
+    if (!W) return;
+    W.t -= dt;
+    if (W.t <= 0) { this.word = null; return; }
+    ctx.globalAlpha = clamp(Math.min(W.t, 9 - W.t) * 2, 0, 1);
+    const x = vw - 260, y = vh - 130;
+    ctx.fillStyle = 'rgba(0,60,50,0.88)'; ctx.fillRect(x, y, 244, 112);
+    ctx.strokeStyle = '#4db6ac'; ctx.lineWidth = 2; ctx.strokeRect(x, y, 244, 112);
+    this.text(ctx, '📖 Слово дня из ульпана', x + 10, y + 20, 13, '#b2dfdb', 'left', 'normal');
+    ctx.save(); ctx.direction = 'rtl';
+    this.text(ctx, W.w[0], x + 234, y + 50, 24, '#fff', 'right');
+    ctx.restore();
+    this.text(ctx, W.w[1], x + 10, y + 76, 18, '#ffe082');
+    this.text(ctx, '— ' + W.w[2], x + 10, y + 100, 12, '#e0f2f1', 'left', 'normal');
+    ctx.globalAlpha = 1;
   },
 
   message(text, dur = 4) {

@@ -129,9 +129,14 @@ const City = {
 
     // Пальмы вдоль набережной и зонтики на пляже
     for (let y = 8; y < 86; y += 3) {
-      this.decor.push({ k: 'palm', x: 7 * TILE + 44, y: y * TILE + rng.range(0, 40), h: rng.range(70, 95), r: rng() * TAU });
+      this.decor.push({ k: 'palm', x: 7 * TILE + 44, y: y * TILE + rng.range(0, 40), h: rng.range(70, 95), r: rng() * TAU, dates: rng() < 0.3 });
       if (rng() < 0.7) this.decor.push({ k: 'umbrella', x: 5 * TILE + rng.range(20, 150), y: y * TILE + rng.range(0, 150), h: 22, c: rng.pick(['#e94f37', '#f6c90e', '#3fa7d6', '#ffffff', '#59cd90']) });
+      if (rng() < 0.25) this.decor.push({ k: 'towel', x: 5 * TILE + rng.range(30, 160), y: y * TILE + rng.range(0, 150), h: 0, low: true, c: rng.pick(['#e91e63', '#03a9f4', '#ffeb3b', '#4caf50']), r: rng.range(-0.4, 0.4) });
     }
+    // Вышки спасателей и игроки в маткот — главный пляжный вид спорта
+    for (const y of [14, 34, 56, 76]) this.decor.push({ k: 'lifeguard', x: 6 * TILE + 10, y: y * TILE, h: 34 });
+    for (const y of [10, 24, 30, 46, 62, 70]) this.decor.push({ k: 'matkot', x: 5.9 * TILE, y: y * TILE + rng.range(0, 60), h: 0, low: true, ph: rng() * TAU, a: rng.range(-0.4, 0.4) + Math.PI / 2 });
+    this.decorateStreets(rng);
     // Деревья в парке Яркон
     for (let i = 0; i < 70; i++) {
       const x = rng.range(9, 95) * TILE, y = rng.pick([rng.range(0.2, 1.8), rng.range(4.2, 5.6)]) * TILE;
@@ -193,6 +198,20 @@ const City = {
     for (let i = 0; i < ac; i++) b.items.push({ t: 'ac', u: rng.range(0.1, 0.85), v: rng.range(0.1, 0.85) });
     if (style.pool && rng() < 0.6) b.items.push({ t: 'pool', u: 0.2, v: 0.2, w: 0.45, h: 0.35 });
     if (style.tiles) b.items.push({ t: 'tiles' });
+    else {
+      // выход на крышу, баки, антенны, тарелки, бельё, растения
+      if (!style.noStairs && rng() < 0.7) b.items.push({ t: 'stairs', u: rng.range(0.55, 0.75), v: rng.range(0.1, 0.6) });
+      if (style.solar && rng() < 0.35) b.items.push({ t: 'tank', u: rng.range(0.1, 0.7), v: rng.range(0.1, 0.7) });
+      if (rng() < 0.4) b.items.push({ t: 'antenna', u: rng.range(0.1, 0.9), v: rng.range(0.1, 0.9) });
+      if (rng() < 0.3) b.items.push({ t: 'dish', u: rng.range(0.1, 0.8), v: rng.range(0.1, 0.8) });
+      if (style.solar && rng() < 0.25) b.items.push({ t: 'laundry', u: rng.range(0.1, 0.5), v: rng.range(0.55, 0.8), c: [rng.pick(SHIRTS), rng.pick(SHIRTS), rng.pick(SHIRTS)] });
+      if (style.solar && rng() < 0.2) b.items.push({ t: 'plants', u: rng.range(0.1, 0.8), v: rng.range(0.1, 0.8) });
+      if (rng() < 0.06) b.items.push({ t: 'flag', u: rng.range(0.15, 0.8), v: rng.range(0.15, 0.8) });
+    }
+    b.parapet = !style.tiles && !style.noParapet;
+    b.texture = style.tiles ? 'roofTiles' : style.metal ? 'roofMetal' : 'roofGravel';
+    b.balconies = !!style.balconies;
+    b.stone = !!style.stone;
     Object.assign(b, opts.extra || {});
     this.addBuilding(b);
     this.markSolid(l.x, l.y, l.w, l.h, b.id);
@@ -373,10 +392,11 @@ const City = {
       this.bgrid[cy * cw + cx].push(b);
     }
     this.dgrid = [];
-    for (let i = 0; i < cw * ch; i++) this.dgrid.push([]);
+    this.lgrid = [];
+    for (let i = 0; i < cw * ch; i++) { this.dgrid.push([]); this.lgrid.push([]); }
     for (const d of this.decor) {
       const cx = clamp(Math.floor(d.x / TILE / CHUNK), 0, cw - 1), cy = clamp(Math.floor(d.y / TILE / CHUNK), 0, ch - 1);
-      this.dgrid[cy * cw + cx].push(d);
+      (d.low ? this.lgrid : this.dgrid)[cy * cw + cx].push(d);
     }
   },
 
@@ -406,9 +426,122 @@ const City = {
     P.paint = this.tc(this.blockRect(4, 5).x0 + 5, this.blockRect(4, 5).y0 + 4);
     P.uzi = { x: 6.5 * TILE, y: 22 * TILE };
     P.pistol = side(2, 5, 'N', 2);
+    // Жизнь репатрианта
+    P.flat = side(3, 5, 'W');
+    P.klita = side(2, 1, 'S');
+    P.ulpan = side(3, 3, 'N');
+    P.bank = side(1, 3, 'E');
+    // Рестораны для доставки «Шмоне-Бис»
+    P.restaurants = [
+      { name: 'Фалафель «Ицик»', dish: 'фалафель в пите', p: side(1, 4, 'S') },
+      { name: 'Шаварма «Мизрахи»', dish: 'шаварму в лафе', p: side(2, 5, 'E') },
+      { name: 'Хумусия «Абу-Сами»', dish: 'хумус с фулем', p: side(0, 6, 'E') },
+      { name: 'Пицца «Наполи»', dish: 'пиццу с цфатской брынзой', p: side(1, 2, 'S') },
+      { name: 'Суши «Сакура-Тель-Авив»', dish: 'суши с бататом', p: side(3, 0, 'S') },
+      { name: 'Бургер «Сарона»', dish: 'бургер с шакшукой', p: side(4, 2, 'N') },
+      { name: 'Гастроном «Берёзка»', dish: 'пельмени и селёдку', p: side(5, 1, 'S') },
+      { name: 'Сабих «Ирак»', dish: 'сабих с амбой', p: side(2, 4, 'W') },
+    ];
+    // Фракции
+    P.ruHQ = side(6, 4, 'W');
+    P.arHQ = side(0, 6, 'N');
+    P.lionsHQ = side(5, 3, 'S');
+    P.luxCar = side(2, 6, 'N', -2);
+    P.iranMeet = side(4, 2, 'E');
+    P.iranSafe = side(1, 0, 'S');
+    P.shabak = side(3, 1, 'S');
     // Телефоны-автоматы — у каждого свой «заказчик»
     P.phone1 = side(1, 4, 'E');
     P.phone2 = side(2, 3, 'S');
+    P.phoneFlat = side(3, 5, 'W', 2);
+    P.phoneRu = side(6, 4, 'W', 2);
+    P.phoneAr = side(0, 6, 'N', 2);
+    P.phoneLions = side(5, 3, 'S', 2);
+
+    // Вывески на крышах
+    this.labelNear(P.flat, { text: 'ФЛОРЕНТИН 12', sub: 'дира', bg: '#5d4037', fg: '#ffe0b2' });
+    this.labelNear(P.klita, { text: 'משרד הקליטה', sub: 'Мисрад а-Клита', bg: '#1565c0', fg: '#fff' });
+    this.labelNear(P.ulpan, { text: 'אולפן', sub: 'Ульпан «Алеф»', bg: '#00897b', fg: '#fff' });
+    this.labelNear(P.bank, { text: 'בנק', sub: 'Банк', bg: '#283593', fg: '#fff' });
+    this.labelNear(P.ruHQ, { text: 'РЕСТОРАН «ОДЕССА»', sub: '', bg: '#b71c1c', fg: '#ffd54f' });
+    this.labelNear(P.arHQ, { text: 'מוסך אל-בחר', sub: 'гараж Аль-Бахар', bg: '#eeeeee', fg: '#212121' });
+    this.labelNear(P.lionsHQ, { text: 'GONDAR GARAGE', sub: 'студия и мастерская', bg: '#1b7f3a', fg: '#f2c230' });
+    for (const r of P.restaurants) this.labelNear(r.p, { text: r.name, sub: '', bg: '#ff6a1a', fg: '#fff' });
+    const SIGNS = [
+      ['פלאפל', '#2e7d32'], ['שווארמה', '#c62828'], ['מכולת', '#1565c0'], ['קיוסק', '#6a1b9a'],
+      ['МАГАЗИН «БЕРЁЗКА»', '#37474f'], ['פיצה', '#e65100'], ['בורקס', '#8d6e63'], ['מספרה', '#ad1457'],
+      ['סלולר', '#0277bd'], ['ГАСТРОНОМ', '#4e342e'], ['חומוס', '#827717'], ['קפה', '#5d4037'],
+    ];
+    const srng = makeRng(42);
+    for (const b of this.buildings) {
+      if (b.kind !== 'rect' || b.sign || b.h1 > 90 || b.w < 90 || b.h < 90 || b.glass) continue;
+      if (srng() < 0.16) { const sg = srng.pick(SIGNS); b.sign = { text: sg[0], bg: sg[1], fg: '#fff' }; }
+    }
+  },
+
+  // Здание рядом с точкой
+  labelNear(p, sign) {
+    const tx = Math.floor(p.x / TILE), ty = Math.floor(p.y / TILE);
+    let best = -1, bd = 99;
+    for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) {
+      if (!this.inside(tx + dx, ty + dy)) continue;
+      const id = this.bid[this.idx(tx + dx, ty + dy)];
+      const d = Math.abs(dx) + Math.abs(dy);
+      if (id >= 0 && d < bd && this.buildings[id].kind === 'rect') { bd = d; best = id; }
+    }
+    if (best >= 0) this.buildings[best].sign = sign;
+  },
+
+  blockKeyAt(px, py) {
+    const x = Math.floor(px / TILE), y = Math.floor(py / TILE);
+    if (x < 8 || y < 6) return null;
+    let bx = 0, by = 0;
+    for (let i = 0; i < 7; i++) if (x >= this.V[i]) bx = i;
+    for (let i = 0; i < 7; i++) if (y >= this.HR[i]) by = i;
+    return this.LAYOUT[Math.min(by, 6)][Math.min(bx, 6)];
+  },
+
+  // Чья это территория
+  factionAt(px, py) {
+    const k = this.blockKeyAt(px, py);
+    for (const f in FACTIONS) if (FACTIONS[f].districts.includes(k)) return f;
+    return null;
+  },
+
+  // Уличные мелочи, по которым узнаётся израильский город
+  decorateStreets(rng) {
+    this.lamps = [];
+    const isX = (x, y) => this.inside(x, y) && this.laneV[this.idx(x, y)] >= 0 && this.laneH[this.idx(x, y)] >= 0;
+    for (let ty = 0; ty < this.H; ty++) for (let tx = 0; tx < this.W; tx++) {
+      if (this.t(tx, ty) !== T_WALK) continue;
+      // с какой стороны дорога
+      let side = -1;
+      for (let d = 0; d < 4; d++) if (this.isRoad(tx + DIRS[d].x, ty + DIRS[d].y)) { side = d; break; }
+      if (side < 0) continue;
+      const D = DIRS[side];
+      const cx = tx * TILE + 32, cy = ty * TILE + 32;
+      const ex = cx + D.x * 26, ey = cy + D.y * 26; // у бордюра
+      // бордюр: красно-белый у перекрёстков, сине-белый — платная парковка
+      const nearX = isX(tx + D.x + D.y, ty + D.y + D.x) || isX(tx + D.x - D.y, ty + D.y - D.x) || isX(tx + D.x, ty + D.y);
+      const i = this.idx(tx, ty);
+      this.curb = this.curb || new Uint8Array(this.W * this.H);
+      this.curb[i] = nearX ? 1 : ((tx * 3 + ty * 5) % 7 < 3 ? 2 : 0);
+      if ((tx + ty) % 4 === 0 && !nearX) {
+        const l = { k: 'lamp', x: ex, y: ey, h: 55, d: side };
+        this.decor.push(l); this.lamps.push(l);
+        continue;
+      }
+      const r = rng();
+      const inX = cx - D.x * 6, inY = cy - D.y * 6;
+      if (r < 0.04) this.decor.push({ k: 'cage', x: inX, y: inY, h: 0, low: true });
+      else if (r < 0.085) this.decor.push({ k: 'bin', x: inX, y: inY, h: 0, low: true, a: side % 2 ? 0 : Math.PI / 2 });
+      else if (r < 0.10 && !nearX) this.decor.push({ k: 'busstop', x: cx + D.x * 8, y: cy + D.y * 8, h: 0, low: true, d: side });
+      else if (r < 0.12) this.decor.push({ k: 'bench', x: inX, y: inY, h: 0, low: true, d: side });
+      else if (r < 0.14) this.decor.push({ k: 'bougainvillea', x: cx - D.x * 18, y: cy - D.y * 18, h: 8, r: rng() * TAU });
+      else if (r < 0.15) this.decor.push({ k: 'flag', x: ex, y: ey, h: 70 });
+      else if (r < 0.16 && !nearX) this.decor.push({ k: 'bikes', x: inX, y: inY, h: 0, low: true, d: side });
+      else if (r < 0.18) this.decor.push({ k: 'scooterE', x: inX + rng.range(-10, 10), y: inY + rng.range(-10, 10), h: 0, low: true, a: rng() * TAU });
+    }
   },
 
   districtAt(px, py) {
@@ -521,60 +654,69 @@ const City = {
     return c;
   },
 
+  // Текстура на клетку: сгенерированная (assets/gen/textures) или процедурная
+  texTile(g, name, tx, ty, px, py) {
+    const img = Tex.get(name);
+    const span = img.span;
+    const sub = img.width / span;
+    g.drawImage(img, (((tx % span) + span) % span) * sub, (((ty % span) + span) % span) * sub, sub, sub, px, py, TILE, TILE);
+  },
+
   drawTile(g, tx, ty) {
     const px = tx * TILE, py = ty * TILE;
     const tt = this.t(tx, ty);
     const r = makeRng(tx * 7919 + ty * 104729);
-    const speck = (cols, n, sz) => { for (let i = 0; i < n; i++) { g.fillStyle = r.pick(cols); g.fillRect(px + r() * TILE, py + r() * TILE, sz, sz); } };
     switch (tt) {
       case T_SEA: {
-        const deep = clamp(tx / 5, 0, 1);
-        g.fillStyle = `rgb(${30 + deep * 20},${100 + deep * 40},${165 + deep * 20})`;
-        g.fillRect(px, py, TILE, TILE);
-        g.strokeStyle = 'rgba(255,255,255,0.18)'; g.lineWidth = 2;
-        for (let i = 0; i < 2; i++) { const yy = py + r() * TILE, xx = px + r() * 40; g.beginPath(); g.moveTo(xx, yy); g.quadraticCurveTo(xx + 10, yy - 4, xx + 20, yy); g.stroke(); }
-        if (this.t(tx + 1, ty) === T_SAND) { g.fillStyle = 'rgba(255,255,255,0.6)'; for (let y = 0; y < TILE; y += 8) g.fillRect(px + TILE - 6 + Math.sin((py + y) * 0.2) * 3, py + y, 6, 8); }
+        this.texTile(g, 'water', tx, ty, px, py);
+        const deep = 1 - clamp(tx / 5, 0, 1);
+        g.fillStyle = `rgba(10,40,90,${deep * 0.35})`; g.fillRect(px, py, TILE, TILE);
+        if (this.t(tx + 1, ty) === T_SAND) { g.fillStyle = 'rgba(120,210,220,0.35)'; g.fillRect(px + 40, py, 24, TILE); }
         break;
       }
-      case T_SAND: g.fillStyle = '#ecd9a4'; g.fillRect(px, py, TILE, TILE); speck(['#e0c98e', '#f5e6bd', '#d9c088'], 14, 2); break;
-      case T_RIVER: g.fillStyle = '#3d86a6'; g.fillRect(px, py, TILE, TILE); g.fillStyle = 'rgba(255,255,255,0.12)'; g.fillRect(px + r() * 50, py + r() * 60, 14, 2); break;
-      case T_GRASS: g.fillStyle = '#7aa84e'; g.fillRect(px, py, TILE, TILE); speck(['#6c9844', '#88b55b', '#5f8a3b'], 18, 3); break;
-      case T_BOUND: g.fillStyle = '#56703e'; g.fillRect(px, py, TILE, TILE); speck(['#46602f', '#64804a'], 20, 6); break;
+      case T_SAND: {
+        this.texTile(g, 'sand', tx, ty, px, py);
+        if (r() < 0.15) { g.fillStyle = 'rgba(0,0,0,0.15)'; g.beginPath(); g.arc(px + r() * 60, py + r() * 60, 2, 0, TAU); g.fill(); }
+        break;
+      }
+      case T_RIVER: this.texTile(g, 'water', tx, ty, px, py); g.fillStyle = 'rgba(40,90,60,0.25)'; g.fillRect(px, py, TILE, TILE); break;
+      case T_GRASS: this.texTile(g, 'grass', tx, ty, px, py); break;
+      case T_BOUND: this.texTile(g, 'scrub', tx, ty, px, py); break;
       case T_ROAD: {
-        g.fillStyle = (tx === 80 || tx === 81) ? '#323236' : '#3b3b40'; g.fillRect(px, py, TILE, TILE);
-        speck(['#444449', '#35353a'], 10, 2);
+        this.texTile(g, (tx === 80 || tx === 81) ? 'asphaltDark' : 'asphalt', tx, ty, px, py);
+        const v = r();
+        if (v < 0.06) {
+          // люк
+          g.fillStyle = '#2a2a2c'; g.beginPath(); g.arc(px + 20 + r() * 24, py + 20 + r() * 24, 9, 0, TAU); g.fill();
+          g.strokeStyle = '#555'; g.lineWidth = 1.5; g.stroke();
+        } else if (v < 0.16) {
+          // трещины
+          g.strokeStyle = 'rgba(15,15,15,0.55)'; g.lineWidth = 1;
+          let x = px + r() * 64, y = py + r() * 64;
+          g.beginPath(); g.moveTo(x, y);
+          for (let i = 0; i < 4; i++) { x += r.range(-12, 12); y += r.range(-12, 12); g.lineTo(x, y); }
+          g.stroke();
+        } else if (v < 0.2) {
+          g.fillStyle = 'rgba(20,20,22,0.35)'; g.fillRect(px + r() * 30, py + r() * 30, 20 + r() * 20, 14 + r() * 16); // заплатка
+        } else if (v < 0.24) {
+          g.fillStyle = 'rgba(0,0,0,0.25)'; g.beginPath(); g.ellipse(px + 32, py + 32, 10, 6, r() * 3, 0, TAU); g.fill(); // масляное пятно
+        }
         break;
       }
-      case T_WALK: {
-        g.fillStyle = '#c9c2b4'; g.fillRect(px, py, TILE, TILE);
-        g.strokeStyle = 'rgba(0,0,0,0.07)'; g.lineWidth = 1;
-        for (let i = 16; i < TILE; i += 16) { g.beginPath(); g.moveTo(px + i, py); g.lineTo(px + i, py + TILE); g.moveTo(px, py + i); g.lineTo(px + TILE, py + i); g.stroke(); }
-        break;
-      }
+      case T_WALK: this.texTile(g, 'sidewalk', tx, ty, px, py); break;
       case T_PLAZA: {
         const jaffa = ty > 78 && tx < 44;
-        g.fillStyle = jaffa ? '#d8bd8c' : '#d9d0bd'; g.fillRect(px, py, TILE, TILE);
-        g.strokeStyle = jaffa ? 'rgba(120,80,30,0.15)' : 'rgba(0,0,0,0.06)';
-        for (let i = 0; i < TILE; i += 32) for (let j = 0; j < TILE; j += 32) g.strokeRect(px + i + 1, py + j + 1, 30, 30);
+        this.texTile(g, jaffa ? 'jstone' : 'plaza', tx, ty, px, py);
         break;
       }
-      case T_DECK: {
-        g.fillStyle = '#a97c52'; g.fillRect(px, py, TILE, TILE);
-        g.fillStyle = 'rgba(0,0,0,0.12)';
-        for (let i = 0; i < TILE; i += 8) g.fillRect(px, py + i, TILE, 1);
-        break;
-      }
+      case T_DECK: this.texTile(g, 'deck', tx, ty, px, py); break;
       case T_PARKING: {
-        g.fillStyle = '#4a4a4f'; g.fillRect(px, py, TILE, TILE);
-        g.fillStyle = 'rgba(255,255,255,0.5)';
+        this.texTile(g, 'asphalt', tx, ty, px, py);
+        g.fillStyle = 'rgba(255,255,255,0.55)';
         for (let i = 0; i < TILE; i += 32) g.fillRect(px + i, py + 4, 2, 24);
         break;
       }
-      case T_BUILD: {
-        // земля под зданием (видна по краям) — тротуар/плитка
-        g.fillStyle = '#bdb6a6'; g.fillRect(px, py, TILE, TILE);
-        break;
-      }
+      case T_BUILD: this.texTile(g, 'sidewalk', tx, ty, px, py); g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(px, py, TILE, TILE); break;
     }
   },
 
@@ -582,12 +724,20 @@ const City = {
     const tt = this.t(tx, ty);
     const px = tx * TILE, py = ty * TILE;
     if (tt === T_WALK) {
-      // бордюр со стороны дороги
-      g.fillStyle = '#8f897c';
-      if (this.isRoad(tx, ty - 1)) g.fillRect(px, py, TILE, 3);
-      if (this.isRoad(tx, ty + 1)) g.fillRect(px, py + TILE - 3, TILE, 3);
-      if (this.isRoad(tx - 1, ty)) g.fillRect(px, py, 3, TILE);
-      if (this.isRoad(tx + 1, ty)) g.fillRect(px + TILE - 3, py, 3, TILE);
+      // бордюр со стороны дороги: красно-белый, сине-белый или серый
+      const kind = this.curb ? this.curb[this.idx(tx, ty)] : 0;
+      const c2 = kind === 1 ? '#d32f2f' : kind === 2 ? '#1e63c4' : '#8f897c';
+      const seg = (x, y, w, h, horiz) => {
+        const n = horiz ? w : h;
+        for (let i = 0; i < n; i += 10) {
+          g.fillStyle = (Math.floor(i / 10) % 2 && kind) ? '#f2f2f2' : c2;
+          if (horiz) g.fillRect(x + i, y, Math.min(10, n - i), h); else g.fillRect(x, y + i, w, Math.min(10, n - i));
+        }
+      };
+      if (this.isRoad(tx, ty - 1)) seg(px, py, TILE, 4, true);
+      if (this.isRoad(tx, ty + 1)) seg(px, py + TILE - 4, TILE, 4, true);
+      if (this.isRoad(tx - 1, ty)) seg(px, py, 4, TILE, false);
+      if (this.isRoad(tx + 1, ty)) seg(px + TILE - 4, py, 4, TILE, false);
       return;
     }
     if (tt !== T_ROAD) return;
@@ -595,7 +745,6 @@ const City = {
     const lv = this.laneV[i], lh = this.laneH[i];
     const hw = tx === 80 || tx === 81;
     if (lv === 2 && lh < 0) {
-      // разделительная линия между полосами (правый край левой полосы)
       g.fillStyle = hw ? '#f2c94c' : '#eeeeee';
       if (hw) g.fillRect(px + TILE - 3, py, 6, TILE);
       else for (let y = 0; y < TILE; y += 32) g.fillRect(px + TILE - 2, py + y + 4, 4, 18);
@@ -609,6 +758,18 @@ const City = {
     }
     if (lv === 0 && lh < 0) this.zebra(g, tx, ty, true);
     if (lh === 1 && lv < 0) this.zebra(g, tx, ty, false);
+    // стрелки полосы за две клетки до перекрёстка
+    const d = lv >= 0 && lh < 0 ? lv : lh >= 0 && lv < 0 ? lh : -1;
+    if (d >= 0) {
+      const nx = tx + DIRS[d].x * 2, ny = ty + DIRS[d].y * 2;
+      if (this.inside(nx, ny) && this.laneV[this.idx(nx, ny)] >= 0 && this.laneH[this.idx(nx, ny)] >= 0) {
+        g.save(); g.translate(px + 32, py + 32); g.rotate(DIR_ANGLE[d]);
+        g.fillStyle = 'rgba(240,240,240,0.8)';
+        g.fillRect(-3, -2, 6, 18);
+        g.beginPath(); g.moveTo(-9, -2); g.lineTo(0, -16); g.lineTo(9, -2); g.fill();
+        g.restore();
+      }
+    }
   },
 
   // «Зебра» перед перекрёстком
@@ -622,6 +783,31 @@ const City = {
     } else {
       if (isX(tx + 1, ty)) for (let y = 4; y < TILE; y += 12) g.fillRect(px + TILE - 26, py + y, 22, 6);
       if (isX(tx - 1, ty)) for (let y = 4; y < TILE; y += 12) g.fillRect(px + 4, py + y, 22, 6);
+    }
+  },
+
+  // Анимированный прибой поверх воды
+  drawSea(ctx, view, time) {
+    const x0 = Math.max(0, Math.floor(view.x0 / TILE)), x1 = Math.min(5, Math.ceil(view.x1 / TILE));
+    if (x0 >= x1) return;
+    const y0 = Math.floor(view.y0 / TILE), y1 = Math.ceil(view.y1 / TILE);
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx < x1; tx++) {
+      const ph = (tx * 13 + ty * 7) % 10;
+      const ox = ((time * 12 + ph * 6) % 64);
+      const y = ty * TILE + ph * 6;
+      ctx.moveTo(tx * TILE + ox, y); ctx.quadraticCurveTo(tx * TILE + ox + 8, y - 3, tx * TILE + ox + 16, y);
+    }
+    ctx.stroke();
+    // пена у берега
+    const fx = 5 * TILE;
+    if (fx > view.x0 - 20 && fx < view.x1 + 20) {
+      ctx.fillStyle = 'rgba(255,255,255,0.75)';
+      for (let y = Math.max(0, y0 * TILE); y < Math.min(86 * TILE, y1 * TILE); y += 6) {
+        const w = 6 + Math.sin(y * 0.05 + time * 1.8) * 5 + Math.sin(y * 0.13 - time) * 3;
+        ctx.fillRect(fx - w, y, w + 1, 6);
+      }
     }
   },
 
@@ -667,74 +853,128 @@ const City = {
     const P0 = b.pts.map((p) => [cam.x + (p[0] - cam.x) * s0, cam.y + (p[1] - cam.y) * s0]);
     const P1 = b.pts.map((p) => [cam.x + (p[0] - cam.x) * s1, cam.y + (p[1] - cam.y) * s1]);
     const n = b.pts.length;
+    const night = Game.night || 0;
     // стены
     for (let i = 0; i < n; i++) {
       const j = (i + 1) % n;
       const a = b.pts[i], c = b.pts[j];
       const ex = c[0] - a[0], ey = c[1] - a[1];
-      // внешняя нормаль (обход по часовой в экранных координатах)
       const nx = ey, ny = -ex;
       const mx = (a[0] + c[0]) / 2, my = (a[1] + c[1]) / 2;
       if ((cam.x - mx) * nx + (cam.y - my) * ny <= 0) continue;
       const len = Math.hypot(nx, ny) || 1;
-      // освещение: солнце с северо-запада
       const light = 0.62 + 0.3 * ((-nx / len) * 0.6 + (-ny / len) * 0.8);
       ctx.fillStyle = shade(b.wall, light);
       ctx.beginPath();
       ctx.moveTo(P0[i][0], P0[i][1]); ctx.lineTo(P0[j][0], P0[j][1]);
       ctx.lineTo(P1[j][0], P1[j][1]); ctx.lineTo(P1[i][0], P1[i][1]);
       ctx.closePath(); ctx.fill();
-      // этажи / окна
-      const fh = b.floors || 24;
-      if (b.h1 - b.h0 > fh * 1.3) {
-        ctx.strokeStyle = b.glass ? 'rgba(200,235,255,0.35)' : 'rgba(40,40,60,0.28)';
-        ctx.lineWidth = b.glass ? 2 : 3;
-        ctx.beginPath();
-        for (let h = b.h0 + fh; h < b.h1 - 6; h += fh) {
+      if (b.stone) {
+        // кладка из иерусалимского камня
+        ctx.strokeStyle = 'rgba(90,60,20,0.18)'; ctx.lineWidth = 1; ctx.beginPath();
+        for (let h = b.h0 + 6; h < b.h1; h += 6) {
           const s = 1 + h * PERSPECTIVE;
           ctx.moveTo(cam.x + (a[0] - cam.x) * s, cam.y + (a[1] - cam.y) * s);
           ctx.lineTo(cam.x + (c[0] - cam.x) * s, cam.y + (c[1] - cam.y) * s);
         }
         ctx.stroke();
       }
+      // этажи: окна пунктиром, балконы, ставни
+      const fh = b.floors || 24;
+      if (b.h1 - b.h0 > fh * 1.3) {
+        const wlen = Math.hypot(ex, ey);
+        for (let h = b.h0 + fh * 0.55; h < b.h1 - 6; h += fh) {
+          const s = 1 + h * PERSPECTIVE;
+          const x1 = cam.x + (a[0] - cam.x) * s, y1 = cam.y + (a[1] - cam.y) * s;
+          const x2 = cam.x + (c[0] - cam.x) * s, y2 = cam.y + (c[1] - cam.y) * s;
+          const thick = Math.max(2, Math.min(9, Math.hypot(x2 - x1, y2 - y1) / wlen * fh * 0.4 * (Math.hypot(P1[i][0] - P0[i][0], P1[i][1] - P0[i][1]) / ((b.h1 - b.h0) || 1))));
+          ctx.lineWidth = thick;
+          ctx.setLineDash(b.glass ? [] : [9, 7]);
+          ctx.strokeStyle = b.glass ? 'rgba(170,215,240,0.45)' : 'rgba(45,60,75,0.65)';
+          ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+          if (night > 0.25 && !b.glass && (b.id + Math.floor(h)) % 3 !== 0) {
+            (this.nightWin || (this.nightWin = [])).push([x1, y1, x2, y2, thick, (b.id * 7 + h) % 16]);
+          }
+          if (b.balconies) {
+            const hb = h - fh * 0.45, sb = 1 + hb * PERSPECTIVE;
+            ctx.setLineDash([]);
+            ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(cam.x + (a[0] - cam.x) * sb, cam.y + (a[1] - cam.y) * sb);
+            ctx.lineTo(cam.x + (c[0] - cam.x) * sb, cam.y + (c[1] - cam.y) * sb);
+            ctx.stroke();
+          }
+        }
+        ctx.setLineDash([]);
+      }
     }
     // крыша
-    ctx.fillStyle = b.roof;
     ctx.beginPath();
     ctx.moveTo(P1[0][0], P1[0][1]);
     for (let i = 1; i < n; i++) ctx.lineTo(P1[i][0], P1[i][1]);
-    ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = shade(b.roof, 0.75); ctx.lineWidth = 3; ctx.stroke();
-    if (b.items.length || b.label) this.drawRoofItems(ctx, b, P1, s1, cam);
+    ctx.closePath();
+    ctx.fillStyle = b.roof; ctx.fill();
+    if (b.texture && !b.glass) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = Tex.pattern(ctx, b.texture);
+      ctx.fill();
+      ctx.restore();
+    }
+    if (b.glass) {
+      const gr = ctx.createLinearGradient(P1[0][0], P1[0][1], P1[2 % n][0], P1[2 % n][1]);
+      gr.addColorStop(0, 'rgba(255,255,255,0.25)'); gr.addColorStop(1, 'rgba(0,30,60,0.15)');
+      ctx.fillStyle = gr; ctx.fill();
+    }
+    ctx.strokeStyle = shade(b.roof, 0.7); ctx.lineWidth = 3; ctx.stroke();
+    if (b.parapet && b.kind === 'rect') {
+      // бортик по краю крыши с тенью внутрь
+      const k = 5 * s1;
+      const x0 = P1[0][0], y0 = P1[0][1], x1 = P1[2][0], y1 = P1[2][1];
+      ctx.strokeStyle = shade(b.roof, 1.08); ctx.lineWidth = k;
+      ctx.strokeRect(x0 + k / 2, y0 + k / 2, x1 - x0 - k, y1 - y0 - k);
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      ctx.fillRect(x0 + k, y0 + k, x1 - x0 - 2 * k, 3 * s1);
+      ctx.fillRect(x0 + k, y0 + k, 3 * s1, y1 - y0 - 2 * k);
+    }
+    if (b.items.length || b.label || b.sign) this.drawRoofItems(ctx, b, P1, s1, cam);
   },
 
   drawRoofItems(ctx, b, P1, s, cam) {
-    // для прямоугольных и круглых — система координат крыши
     const x0 = cam.x + (b.bb.x0 - cam.x) * s, y0 = cam.y + (b.bb.y0 - cam.y) * s;
     const w = (b.bb.x1 - b.bb.x0) * s, h = (b.bb.y1 - b.bb.y0) * s;
     ctx.save();
     ctx.translate(x0, y0);
     for (const it of b.items) {
       const ux = it.u * w, vy = it.v * h;
+      const k = s;
       switch (it.t) {
         case 'solar': {
-          // солнечный бойлер — «дуд шемеш»
-          const k = s;
+          // солнечный бойлер — «дуд шемеш»: бак и панель
+          ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(ux + 3 * k, vy + 3 * k, 22 * k, 16 * k);
           ctx.fillStyle = '#1f3b5c'; ctx.fillRect(ux, vy, 22 * k, 16 * k);
           ctx.strokeStyle = '#9fb7cc'; ctx.lineWidth = 1; ctx.strokeRect(ux, vy, 22 * k, 16 * k);
+          ctx.beginPath(); ctx.moveTo(ux + 11 * k, vy); ctx.lineTo(ux + 11 * k, vy + 16 * k); ctx.stroke();
           ctx.fillStyle = '#f2f2ee'; ctx.fillRect(ux - 1 * k, vy - 9 * k, 24 * k, 8 * k);
-          ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(ux - 1 * k, vy - 2 * k, 24 * k, 2 * k);
+          ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(ux - 1 * k, vy - 3 * k, 24 * k, 2 * k);
           break;
         }
-        case 'ac': ctx.fillStyle = '#d9d9d9'; ctx.fillRect(ux, vy, 12 * s, 10 * s); ctx.fillStyle = '#888'; ctx.beginPath(); ctx.arc(ux + 6 * s, vy + 5 * s, 3.5 * s, 0, TAU); ctx.fill(); break;
-        case 'pool': ctx.fillStyle = '#4fc3e8'; ctx.fillRect(ux, vy, it.w * w, it.h * h); ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.strokeRect(ux, vy, it.w * w, it.h * h); break;
-        case 'tiles': {
-          ctx.strokeStyle = 'rgba(120,40,20,0.35)'; ctx.lineWidth = 2; ctx.beginPath();
-          for (let y = 6; y < h; y += 7 * s) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
-          ctx.moveTo(0, 0); ctx.lineTo(w / 2, h / 2); ctx.lineTo(w, 0); ctx.moveTo(0, h); ctx.lineTo(w / 2, h / 2); ctx.lineTo(w, h);
-          ctx.stroke();
+        case 'tank': ctx.fillStyle = '#222'; ctx.beginPath(); ctx.arc(ux, vy, 7 * k, 0, TAU); ctx.fill(); ctx.fillStyle = '#444'; ctx.beginPath(); ctx.arc(ux - 2, vy - 2, 3 * k, 0, TAU); ctx.fill(); break;
+        case 'ac': ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(ux + 2, vy + 2, 12 * k, 10 * k); ctx.fillStyle = '#e0e0e0'; ctx.fillRect(ux, vy, 12 * k, 10 * k); ctx.fillStyle = '#888'; ctx.beginPath(); ctx.arc(ux + 6 * k, vy + 5 * k, 3.5 * k, 0, TAU); ctx.fill(); break;
+        case 'stairs': ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.fillRect(ux + 4 * k, vy + 4 * k, 22 * k, 18 * k); ctx.fillStyle = shade(b.roof, 0.92); ctx.fillRect(ux, vy, 22 * k, 18 * k); ctx.strokeStyle = shade(b.roof, 0.7); ctx.lineWidth = 1.5; ctx.strokeRect(ux, vy, 22 * k, 18 * k); ctx.fillStyle = '#6d4c41'; ctx.fillRect(ux + 7 * k, vy + 16 * k, 8 * k, 2 * k); break;
+        case 'antenna': ctx.strokeStyle = '#555'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(ux - 8 * k, vy); ctx.lineTo(ux + 8 * k, vy); ctx.moveTo(ux - 5 * k, vy - 4 * k); ctx.lineTo(ux + 5 * k, vy - 4 * k); ctx.moveTo(ux, vy - 6 * k); ctx.lineTo(ux, vy + 6 * k); ctx.stroke(); break;
+        case 'dish': ctx.fillStyle = '#f5f5f5'; ctx.beginPath(); ctx.ellipse(ux, vy, 6 * k, 4.5 * k, 0.5, 0, TAU); ctx.fill(); ctx.strokeStyle = '#999'; ctx.lineWidth = 1; ctx.stroke(); break;
+        case 'laundry': {
+          ctx.strokeStyle = '#777'; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(ux, vy); ctx.lineTo(ux + 40 * k, vy); ctx.moveTo(ux, vy + 8 * k); ctx.lineTo(ux + 40 * k, vy + 8 * k); ctx.stroke();
+          for (let i = 0; i < 6; i++) { ctx.fillStyle = it.c[i % 3]; ctx.fillRect(ux + (3 + i * 6) * k, vy + (i % 2 ? 8 : 0) * k, 5 * k, 6 * k); }
           break;
         }
+        case 'plants': for (let i = 0; i < 4; i++) { ctx.fillStyle = '#8d5a3b'; ctx.fillRect(ux + i * 9 * k, vy, 7 * k, 7 * k); ctx.fillStyle = i % 2 ? '#43a047' : '#e91e63'; ctx.beginPath(); ctx.arc(ux + (i * 9 + 3.5) * k, vy + 3.5 * k, 4 * k, 0, TAU); ctx.fill(); } break;
+        case 'flag': this.drawFlag(ctx, ux, vy, k, Game.time || 0); break;
+        case 'pool': ctx.fillStyle = '#4fc3e8'; ctx.fillRect(ux, vy, it.w * w, it.h * h); ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.strokeRect(ux, vy, it.w * w, it.h * h); ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(ux + 4, vy + 6, it.w * w - 8, 2); break;
+        case 'tiles': break;
         case 'fountain': {
           ctx.fillStyle = '#e6eef2'; ctx.beginPath(); ctx.arc(w / 2, h / 2, w * 0.18, 0, TAU); ctx.fill();
           const tt = performance.now() / 300;
@@ -749,16 +989,155 @@ const City = {
         }
       }
     }
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     if (b.label === 'H') {
       ctx.strokeStyle = '#fff'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(w / 2, h / 2, Math.min(w, h) * 0.3, 0, TAU); ctx.stroke();
-      ctx.fillStyle = '#e53935'; ctx.font = `bold ${Math.min(w, h) * 0.35}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('H', w / 2, h / 2);
+      ctx.fillStyle = '#e53935'; ctx.font = `bold ${Math.min(w, h) * 0.35}px sans-serif`; ctx.fillText('H', w / 2, h / 2);
     } else if (b.label === 'POLICE') {
-      ctx.fillStyle = '#fff'; ctx.font = `bold ${h * 0.22}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('משטרה', w / 2, h / 2);
+      ctx.fillStyle = '#fff'; ctx.font = `bold ${h * 0.22}px sans-serif`; ctx.fillText('משטרה', w / 2, h / 2);
     } else if (b.label === 'PAINT') {
-      ctx.fillStyle = '#ffeb3b'; ctx.font = `bold ${h * 0.28}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('ПОКРАСКА', w / 2, h / 2);
+      ctx.fillStyle = '#ffeb3b'; ctx.font = `bold ${h * 0.28}px sans-serif`; ctx.fillText('ПОКРАСКА', w / 2, h / 2);
       ctx.fillStyle = '#e91e63'; ctx.fillRect(w * 0.1, h * 0.75, w * 0.2, h * 0.1); ctx.fillStyle = '#03a9f4'; ctx.fillRect(w * 0.4, h * 0.75, w * 0.2, h * 0.1); ctx.fillStyle = '#8bc34a'; ctx.fillRect(w * 0.7, h * 0.75, w * 0.2, h * 0.1);
     }
+    if (b.sign) {
+      // вывеска-билборд на крыше
+      const sg = b.sign;
+      const fs = Math.max(9, Math.min(h * 0.16, 22 * s));
+      ctx.font = `bold ${fs}px "Segoe UI", Arial, sans-serif`;
+      const tw = Math.min(w * 0.9, ctx.measureText(sg.text).width + 14 * s);
+      const sh = fs * (sg.sub ? 2.3 : 1.5);
+      const sx = (w - tw) / 2, sy = h * 0.62 - sh / 2;
+      ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(sx + 4 * s, sy + 4 * s, tw, sh);
+      ctx.fillStyle = sg.bg; ctx.fillRect(sx, sy, tw, sh);
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.5; ctx.strokeRect(sx + 2, sy + 2, tw - 4, sh - 4);
+      ctx.fillStyle = sg.fg;
+      ctx.fillText(sg.text, w / 2, sy + fs * 0.8, tw - 8);
+      if (sg.sub) { ctx.font = `${fs * 0.7}px "Segoe UI", Arial, sans-serif`; ctx.fillText(sg.sub, w / 2, sy + fs * 1.75, tw - 8); }
+    }
     ctx.restore();
+  },
+
+  drawFlag(ctx, x, y, k, time) {
+    // флаг Израиля на шесте
+    ctx.fillStyle = '#ddd'; ctx.beginPath(); ctx.arc(x, y, 2 * k, 0, TAU); ctx.fill();
+    const wv = Math.sin(time * 4 + x) * 2;
+    ctx.save(); ctx.translate(x, y); ctx.scale(k, k);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(1, -1, 22, 15 + wv * 0.3);
+    ctx.fillStyle = '#1946b4'; ctx.fillRect(1, 1, 22, 2); ctx.fillRect(1, 10 + wv * 0.3, 22, 2);
+    ctx.strokeStyle = '#1946b4'; ctx.lineWidth = 0.8;
+    const cx = 12, cy = 6.5 + wv * 0.15, r = 3;
+    ctx.beginPath(); for (let i = 0; i < 3; i++) { const a = -Math.PI / 2 + i * TAU / 3; ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); } ctx.closePath(); ctx.stroke();
+    ctx.beginPath(); for (let i = 0; i < 3; i++) { const a = Math.PI / 2 + i * TAU / 3; ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); } ctx.closePath(); ctx.stroke();
+    ctx.restore();
+  },
+
+  // Сгенерированный пропс (assets/gen/props), если есть
+  prop(ctx, name, x, y, w, h, a) {
+    const im = Assets.gen['props/' + name];
+    if (!im) return false;
+    ctx.save(); ctx.translate(x, y); if (a) ctx.rotate(a);
+    ctx.drawImage(im, -w / 2, -h / 2, w, h);
+    ctx.restore();
+    return true;
+  },
+
+  // Низкие объекты на тротуарах — рисуются до машин и людей
+  drawLow(ctx, view, time) {
+    const cw = Math.ceil(this.W / CHUNK), cs = CHUNK * TILE;
+    const cx0 = Math.max(0, Math.floor((view.x0 - 64) / cs)), cy0 = Math.max(0, Math.floor((view.y0 - 64) / cs));
+    const cx1 = Math.min(cw - 1, Math.floor((view.x1 + 64) / cs)), cy1 = Math.min(Math.ceil(this.H / CHUNK) - 1, Math.floor((view.y1 + 64) / cs));
+    for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) {
+      for (const d of this.lgrid[cy * cw + cx]) this.drawLowItem(ctx, d, time);
+    }
+  },
+
+  drawLowItem(ctx, d, time) {
+    const rot = d.d !== undefined ? DIR_ANGLE[d.d] : (d.a || 0);
+    switch (d.k) {
+      case 'cage': {
+        // сетчатая клетка для пластиковых бутылок
+        if (this.prop(ctx, 'bottle_cage', d.x, d.y, 30, 30)) break;
+        ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(d.x - 11, d.y - 11, 26, 26);
+        ctx.fillStyle = '#9ad1e8';
+        for (let i = 0; i < 9; i++) { ctx.beginPath(); ctx.arc(d.x - 8 + (i % 3) * 8, d.y - 8 + Math.floor(i / 3) * 8, 3.5, 0, TAU); ctx.fill(); }
+        ctx.strokeStyle = '#f2c21b'; ctx.lineWidth = 2; ctx.strokeRect(d.x - 13, d.y - 13, 26, 26);
+        ctx.lineWidth = 1; ctx.beginPath();
+        for (let i = -13; i <= 13; i += 5) { ctx.moveTo(d.x + i, d.y - 13); ctx.lineTo(d.x + i, d.y + 13); ctx.moveTo(d.x - 13, d.y + i); ctx.lineTo(d.x + 13, d.y + i); }
+        ctx.stroke();
+        break;
+      }
+      case 'bin': {
+        if (this.prop(ctx, 'trash_bin', d.x, d.y, 30, 22, d.a)) break;
+        ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(d.a);
+        ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(-12, -7, 28, 20);
+        ctx.fillStyle = '#2e6b34'; ctx.fillRect(-14, -10, 28, 20);
+        ctx.fillStyle = '#3c8a44'; ctx.fillRect(-13, -9, 26, 8);
+        ctx.fillStyle = '#1f4a24'; ctx.fillRect(-14, -1, 28, 2);
+        ctx.restore();
+        break;
+      }
+      case 'busstop': {
+        if (this.prop(ctx, 'bus_stop', d.x, d.y, 60, 26, rot)) break;
+        ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(rot);
+        ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(-26, -6, 56, 18);
+        ctx.fillStyle = 'rgba(160,200,220,0.75)'; ctx.fillRect(-28, -10, 56, 16);
+        ctx.strokeStyle = '#4a4a4a'; ctx.lineWidth = 2; ctx.strokeRect(-28, -10, 56, 16);
+        ctx.fillStyle = '#1b5e20'; ctx.fillRect(18, -16, 8, 8);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 6px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🚌', 22, -12);
+        ctx.restore();
+        break;
+      }
+      case 'bench': {
+        ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(rot);
+        ctx.fillStyle = '#8d6e63'; for (let i = 0; i < 3; i++) ctx.fillRect(-16, -6 + i * 4, 32, 3);
+        ctx.fillStyle = '#333'; ctx.fillRect(-14, -7, 2, 12); ctx.fillRect(12, -7, 2, 12);
+        ctx.restore();
+        break;
+      }
+      case 'bikes': {
+        ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(rot + Math.PI / 2);
+        for (let i = 0; i < 4; i++) {
+          ctx.strokeStyle = '#2e7d32'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(-18 + i * 12, -10); ctx.lineTo(-18 + i * 12, 10); ctx.stroke();
+          ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(-18 + i * 12, -9, 3, 0, TAU); ctx.arc(-18 + i * 12, 9, 3, 0, TAU); ctx.fill();
+        }
+        ctx.restore();
+        break;
+      }
+      case 'scooterE': {
+        // брошенный электросамокат — неотъемлемая часть Тель-Авива
+        ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(d.a);
+        ctx.fillStyle = '#111'; ctx.fillRect(-12, -2.5, 24, 5);
+        ctx.fillStyle = '#4caf50'; ctx.fillRect(-9, -2, 16, 4);
+        ctx.fillStyle = '#333'; ctx.fillRect(10, -6, 2, 12);
+        ctx.restore();
+        break;
+      }
+      case 'towel': {
+        ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(d.r);
+        ctx.fillStyle = d.c; ctx.fillRect(-10, -18, 20, 36);
+        ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(-10, -12, 20, 3); ctx.fillRect(-10, 9, 20, 3);
+        ctx.restore();
+        break;
+      }
+      case 'matkot': {
+        // двое с ракетками и мячик туда-сюда
+        const L1 = d.l1 || (d.l1 = Looks.civilian()), L2 = d.l2 || (d.l2 = Looks.civilian());
+        const ca = Math.cos(d.a), sa = Math.sin(d.a);
+        const len = 70;
+        const tt = (Math.sin(time * 3 + d.ph) + 1) / 2;
+        for (const [L, sgn] of [[L1, -1], [L2, 1]]) {
+          ctx.save(); ctx.translate(d.x + ca * len / 2 * sgn, d.y + sa * len / 2 * sgn); ctx.rotate(d.a + (sgn > 0 ? Math.PI : 0));
+          drawPersonLook(ctx, L, time * 6, false, null, false);
+          ctx.fillStyle = '#5d4037'; ctx.beginPath(); ctx.arc(10, -6, 4, 0, TAU); ctx.fill();
+          ctx.restore();
+        }
+        const bx = d.x + ca * len * (tt - 0.5), by = d.y + sa * len * (tt - 0.5);
+        ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.arc(bx + 3, by + 3, 2.5, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#ffeb3b'; ctx.beginPath(); ctx.arc(bx, by - Math.sin(tt * Math.PI) * 6, 2.8, 0, TAU); ctx.fill();
+        break;
+      }
+    }
   },
 
   drawDecor(ctx, d, cam, time) {
@@ -769,23 +1148,61 @@ const City = {
         ctx.strokeStyle = '#8a6a3f'; ctx.lineWidth = 6;
         ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(tx, ty); ctx.stroke();
         const sway = Math.sin(time * 1.3 + d.r) * 0.08;
+        if (this.prop(ctx, 'palm', tx, ty, 90 * s, 90 * s, d.r + sway)) break;
         ctx.save(); ctx.translate(tx, ty); ctx.rotate(d.r + sway); ctx.scale(s, s);
-        for (let i = 0; i < 7; i++) {
-          ctx.rotate(TAU / 7);
+        for (let i = 0; i < 9; i++) {
+          ctx.rotate(TAU / 9);
           ctx.fillStyle = i % 2 ? '#2e8b3e' : '#3aa24a';
-          ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(18, -12, 40, -2); ctx.quadraticCurveTo(18, 4, 0, 0); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(18, -12, 42, -2); ctx.quadraticCurveTo(18, 4, 0, 0); ctx.fill();
+          ctx.strokeStyle = 'rgba(20,70,25,0.6)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(18, -5, 40, -2); ctx.stroke();
         }
+        if (d.dates) { ctx.fillStyle = '#e07b1a'; for (let i = 0; i < 6; i++) { ctx.beginPath(); ctx.arc(Math.cos(i) * 6, Math.sin(i) * 6, 2.5, 0, TAU); ctx.fill(); } }
         ctx.fillStyle = '#6b4f2a'; ctx.beginPath(); ctx.arc(0, 0, 5, 0, TAU); ctx.fill();
         ctx.restore();
         break;
       }
       case 'tree': case 'treeS': {
-        const im = Assets.img[d.k === 'tree' ? 'tree_large' : 'tree_small'];
         const sc = (d.s || (d.k === 'tree' ? 0.55 : 0.6)) * s;
+        if (this.prop(ctx, 'ficus', tx, ty, 140 * sc, 140 * sc, d.x % 6)) break;
+        const im = Assets.img[d.k === 'tree' ? 'tree_large' : 'tree_small'];
         if (im && im.width) ctx.drawImage(im, tx - im.width * sc / 2, ty - im.height * sc / 2, im.width * sc, im.height * sc);
         break;
       }
+      case 'bougainvillea': {
+        if (this.prop(ctx, 'bougainvillea', tx, ty, 44 * s, 44 * s, d.r)) break;
+        ctx.save(); ctx.translate(tx, ty); ctx.rotate(d.r);
+        ctx.fillStyle = '#3f7d3a'; ctx.beginPath(); ctx.arc(0, 0, 16 * s, 0, TAU); ctx.fill();
+        for (let i = 0; i < 14; i++) {
+          ctx.fillStyle = i % 3 ? '#d81b8c' : '#f06292';
+          ctx.beginPath(); ctx.arc(Math.cos(i * 2.4) * (4 + i % 4 * 3.5) * s, Math.sin(i * 2.4) * (4 + i % 4 * 3.5) * s, 4 * s, 0, TAU); ctx.fill();
+        }
+        ctx.restore();
+        break;
+      }
+      case 'lamp': {
+        ctx.strokeStyle = '#4a4f55'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(tx, ty); ctx.stroke();
+        ctx.fillStyle = (Game.night || 0) > 0.3 ? '#fff3c4' : '#9aa0a6';
+        ctx.beginPath(); ctx.ellipse(tx, ty, 6 * s, 4 * s, 0, 0, TAU); ctx.fill();
+        break;
+      }
+      case 'flag': {
+        ctx.strokeStyle = '#ccc'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(tx, ty); ctx.stroke();
+        this.drawFlag(ctx, tx, ty, s, time);
+        break;
+      }
+      case 'lifeguard': {
+        if (this.prop(ctx, 'lifeguard_tower', tx, ty, 70 * s, 70 * s)) break;
+        ctx.strokeStyle = '#8d6e63'; ctx.lineWidth = 3;
+        for (const [ox, oy] of [[-16, -16], [16, -16], [-16, 16], [16, 16]]) { ctx.beginPath(); ctx.moveTo(d.x + ox, d.y + oy); ctx.lineTo(tx + ox * s, ty + oy * s); ctx.stroke(); }
+        ctx.fillStyle = '#f5f5f5'; ctx.fillRect(tx - 22 * s, ty - 22 * s, 44 * s, 44 * s);
+        ctx.fillStyle = '#e53935'; ctx.fillRect(tx - 22 * s, ty - 22 * s, 44 * s, 8 * s);
+        ctx.fillStyle = '#1565c0'; ctx.font = `bold ${8 * s}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('מציל', tx, ty + 4 * s);
+        break;
+      }
       case 'umbrella': {
+        if (this.prop(ctx, 'umbrella', tx, ty, 50 * s, 50 * s, d.x)) break;
         ctx.save(); ctx.translate(tx, ty);
         for (let i = 0; i < 8; i++) {
           ctx.fillStyle = i % 2 ? d.c : '#ffffff';
@@ -795,9 +1212,10 @@ const City = {
         break;
       }
       case 'stall': {
-        // фрукты на прилавке, сверху — навес
-        ctx.fillStyle = d.fr;
-        for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.arc(d.x - 22 + i * 11, d.y + 26, 5, 0, TAU); ctx.fill(); }
+        // ящики с фруктами и специями, сверху — навес
+        ctx.fillStyle = '#8d6e63'; ctx.fillRect(d.x - 28, d.y + 18, 56, 14);
+        for (let i = 0; i < 5; i++) { ctx.fillStyle = i % 2 ? d.fr : shade(d.fr, 0.8); ctx.beginPath(); ctx.arc(d.x - 22 + i * 11, d.y + 25, 5, 0, TAU); ctx.fill(); }
+        if (this.prop(ctx, 'market_stall', tx, ty, 62 * s, 56 * s)) break;
         const im = Assets.img[d.c];
         if (im && im.width) ctx.drawImage(im, tx - 30 * s, ty - 30 * s, 60 * s, 52 * s);
         break;
@@ -827,9 +1245,9 @@ const City = {
 
 // Палитры районов
 const STYLES = {
-  bauhaus: { hmin: 34, hmax: 80, roofs: ['#f4f1ea', '#ece6d8', '#f7f4ef', '#e8e2d2', '#ded7c6'], solar: 3, ac: 3, floor: 22 },
+  bauhaus: { hmin: 34, hmax: 80, roofs: ['#f4f1ea', '#ece6d8', '#f7f4ef', '#e8e2d2', '#ded7c6'], solar: 3, ac: 3, floor: 22, balconies: true },
   hotel: { hmin: 110, hmax: 210, roofs: ['#f2f2f2', '#e6edf2', '#efe9df'], wall: '#cfd8de', pool: true, ac: 4, floor: 20 },
-  warehouse: { hmin: 26, hmax: 44, roofs: ['#9a9a96', '#a65d3c', '#7d8a94', '#8e7f6a'], ac: 2, floor: 99 },
+  warehouse: { hmin: 26, hmax: 44, roofs: ['#9a9a96', '#a65d3c', '#7d8a94', '#8e7f6a'], ac: 2, floor: 99, metal: true, noParapet: true, noStairs: true },
   cityhall: { hmin: 150, hmax: 160, roofs: ['#d8d4cc'], wall: '#b9b2a6', ac: 6, floor: 18 },
   templer: { hmin: 20, hmax: 28, roofs: ['#c0583a', '#b84f33'], wall: '#e9dcc0', tiles: true, floor: 99 },
   mall: { hmin: 36, hmax: 36, roofs: ['#c6c6c6'], ac: 8, floor: 99 },
@@ -838,9 +1256,9 @@ const STYLES = {
   garage: { hmin: 26, hmax: 30, roofs: ['#5b4a6d'], wall: '#cfc8d8', floor: 99 },
   busstation: { hmin: 80, hmax: 90, roofs: ['#8d8d8a'], wall: '#77776f', ac: 10, floor: 20 },
   concrete: { hmin: 30, hmax: 70, roofs: ['#c9c4b8', '#b8b2a5', '#d2ccbf'], solar: 2, ac: 3, floor: 22 },
-  florentin: { hmin: 28, hmax: 60, roofs: ['#b9a88d', '#a39b8a', '#c7b79a', '#9d968a'], solar: 2, ac: 4, floor: 20 },
+  florentin: { hmin: 28, hmax: 60, roofs: ['#b9a88d', '#a39b8a', '#c7b79a', '#9d968a'], solar: 2, ac: 4, floor: 20, balconies: true },
   nevetzedek: { hmin: 18, hmax: 30, roofs: ['#c96a43', '#b65a3a', '#d27b4f'], wall: '#efe2c9', tiles: true, floor: 99 },
-  jaffa: { hmin: 22, hmax: 55, roofs: ['#d9b47a', '#cfa86b', '#e0bf87'], wall: '#c49a5c', solar: 1, floor: 22 },
+  jaffa: { hmin: 22, hmax: 55, roofs: ['#d9b47a', '#cfa86b', '#e0bf87'], wall: '#c49a5c', solar: 1, floor: 22, stone: true },
   tower: { hmin: 140, hmax: 280, roofs: ['#9fb8c8', '#8fa9ba', '#b6c4cc', '#7f98a8'], wall: '#5f7a8c', ac: 5, floor: 16 },
 };
 

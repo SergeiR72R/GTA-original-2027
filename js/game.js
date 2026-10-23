@@ -1,7 +1,59 @@
 // Главный цикл: ввод, камера, спавн трафика и прохожих, столкновения, отрисовка.
 'use strict';
 
-const SAVE_KEY = 'hamsin_tlv_save_v1';
+const SAVE_KEY = 'hamsin_tlv_save_v2';
+
+// Израильская неделя начинается с воскресенья
+const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+
+// Игровые часы: 1 секунда = 2 минуты. Ночь, шаббат и хамсин.
+const Clock = {
+  min: 8 * 60, // минуты с начала воскресенья
+  hamsinDay: -1,
+  lastDay: -1,
+  reset(m) { this.min = m || 8 * 60; this.lastDay = -1; },
+  get day() { return Math.floor(this.min / 1440) % 7; },
+  get hour() { return (this.min % 1440) / 60; },
+  update(dt) {
+    this.min += dt * 2;
+    const dayN = Math.floor(this.min / 1440);
+    if (dayN !== this.lastDay) {
+      this.lastDay = dayN;
+      if (Math.random() < 0.35) this.hamsinDay = dayN;
+      if (this.day === 5) Game.message('Пятница: всё закрывается к шаббату. Автобусы встанут вечером — шеруты ходят.', 5);
+    }
+    const sh = this.shabbat;
+    if (sh !== this.wasShabbat) { this.wasShabbat = sh; if (sh) Game.message('Шаббат шалом! Автобусы не ходят, на улицах тише.', 5); else if (this.wasShabbat === false) Game.message('Шаббат закончился — шавуа тов!', 4); }
+    const hm = this.hamsin;
+    if (hm !== this.wasHamsin) { this.wasHamsin = hm; if (hm) Game.message('ХАМСИН! Жара +40°, пыль из пустыни.', 4); }
+  },
+  get shabbat() { const d = this.day, h = this.hour; return (d === 5 && h >= 18) || (d === 6 && h < 19); },
+  get hamsin() { const h = this.hour; return Math.floor(this.min / 1440) === this.hamsinDay && h > 10 && h < 18; },
+  // 0 — день, 1 — глубокая ночь
+  get dark() {
+    const h = this.hour;
+    if (h < 5) return 1;
+    if (h < 7) return 1 - (h - 5) / 2;
+    if (h < 17.5) return 0;
+    if (h < 19.5) return (h - 17.5) / 2;
+    return 1;
+  },
+  get temp() {
+    const h = this.hour;
+    const base = 24 + 7 * Math.sin((h - 9) / 24 * TAU);
+    return Math.round(this.hamsin ? base + 12 : base);
+  },
+  text() {
+    const h = Math.floor(this.hour), m = Math.floor(this.min % 60);
+    return `${DAYS[this.day]} ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  },
+};
+
+// Какие машины ездят по городу (вес)
+const TRAFFIC_MIX = [
+  ['sedan', 30], ['hatch', 20], ['suv', 12], ['taxi', 8], ['van', 5], ['pickup', 4], ['moto', 4],
+  ['scooter', 5], ['sherut', 4], ['bus', 4], ['garbage', 1], ['ambulance', 1], ['lux', 2],
+];
 
 const Game = {
   canvas: null,
@@ -29,7 +81,8 @@ const Game = {
     this.resize();
     this.bindInput();
     const bar = document.getElementById('loadbar');
-    Assets.load((p) => { bar.style.width = Math.round(p * 100) + '%'; }).then(() => {
+    Assets.load((p) => { bar.style.width = Math.min(100, Math.round(p * 100)) + '%'; }).then(() => {
+      Tex.init();
       City.generate();
       this.setupWorld();
       document.getElementById('loading').classList.add('hidden');
@@ -82,9 +135,15 @@ const Game = {
   // ---------------------------------------------------------------- мир
   setupWorld() {
     const P = City.places;
-    World.player = new Ped(P.start.x, P.start.y, { skin: 'survivor1', ai: 'player', a: 0 });
+    World.player = new Ped(P.flat.x, P.flat.y, { look: Looks.player(), ai: 'player', a: 0 });
     const pl = World.player;
-    pl.hp = 100; pl.money = 500; pl.ammo = { pistol: 0, uzi: 0 }; pl.weapon = null; pl.bust = 0;
+    pl.hp = 100; pl.armor = 0; pl.money = 500; pl.ammo = { pistol: 0, uzi: 0 }; pl.weapon = null; pl.bust = 0;
+    this.placeHomeScooter();
+    // такси у Шука — для подработки
+    const tx = City.tc(31, 54);
+    const taxi = new Car(tx.x, tx.y, Math.PI, { type: 'taxi' });
+    taxi.keep = true;
+    World.cars.push(taxi);
     // постоянные предметы
     World.pickups.push(new Pickup(P.hospital.x + 40, P.hospital.y + 10, 'health'));
     World.pickups.push(new Pickup(City.tc(33, 50).x, City.tc(33, 50).y, 'health'));
@@ -105,11 +164,16 @@ const Game = {
     const pl = World.player;
     const P = City.places;
     if (pl.car) this.exitCar(true);
-    pl.x = P.start.x; pl.y = P.start.y; pl.hp = 100; pl.dead = false;
+    pl.x = P.flat.x; pl.y = P.flat.y; pl.hp = 100; pl.armor = 0; pl.dead = false;
     pl.ammo = { pistol: 0, uzi: 0 }; pl.weapon = null;
     Wanted.reset();
-    if (!fresh && save) { pl.money = save.money; Missions.reset(save.index); if (save.index > 0) { pl.x = P.shuk.x; pl.y = P.shuk.y + 40; } }
-    else { pl.money = 500; Missions.reset(0); this.bigText('ХАМСИН', 'Часть 1: Тель-Авив', '#ffd23f'); }
+    const sv = !fresh && save ? save : null;
+    Factions.reset(sv && sv.rep);
+    Jobs.reset(sv);
+    Clock.reset(sv && sv.clock);
+    if (sv) { pl.money = sv.money; Missions.reset(sv.index); Missions.word = sv.word || 0; }
+    else { pl.money = 500; Missions.reset(0); Missions.word = 0; this.bigText('ХАМСИН', 'Часть 1: Тель-Авив', '#ffd23f'); }
+    this.placeHomeScooter();
     this.cam.x = pl.x; this.cam.y = pl.y;
     this.state = 'play';
   },
@@ -120,8 +184,23 @@ const Game = {
     document.getElementById('btn-continue').style.display = this.loadSave() ? '' : 'none';
   },
 
+  // Скутер «Шмоне-Бис» соседа у подъезда
+  placeHomeScooter() {
+    const P = City.places;
+    if (this.homeScooter && !this.homeScooter.dead && World.cars.includes(this.homeScooter) && dist(this.homeScooter.x, this.homeScooter.y, P.flat.x, P.flat.y) < 300) return;
+    const sc = new Car(P.flat.x - 22, P.flat.y + 26, 0, { type: 'scooter' });
+    sc.keep = true;
+    World.cars.push(sc);
+    this.homeScooter = sc;
+  },
+
   save() {
-    try { localStorage.setItem(SAVE_KEY, JSON.stringify({ index: Missions.index, money: World.player.money })); } catch (e) { /* без сохранений */ }
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        index: Missions.index, money: World.player.money, rep: Factions.rep, word: Missions.word,
+        deliveries: Jobs.deliveries, rides: Jobs.rides, clock: Clock.min,
+      }));
+    } catch (e) { /* без сохранений */ }
   },
   loadSave() {
     try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); return s && typeof s.index === 'number' ? s : null; } catch (e) { return null; }
@@ -162,13 +241,19 @@ const Game = {
     const pl = World.player;
     const p = this.findRoadSpawn(pl.x, pl.y, initial ? 200 : 900, 1500, initial);
     if (!p) return;
-    const moto = chance(0.14);
-    const c = new Car(p.x, p.y, DIR_ANGLE[p.dir], { moto, ai: 'traffic' });
+    // на территории фракции — её машины
+    const fac = City.factionAt(p.x, p.y);
+    let type = pickWeighted(TRAFFIC_MIX);
+    if (Clock.shabbat && type === 'bus') type = 'sherut';
+    if (Clock.shabbat && chance(0.5)) return; // в шаббат улицы пустеют
+    const police = chance(0.05);
+    const isFac = fac && chance(0.35);
+    if (isFac) type = FACTIONS[fac].car;
+    const c = new Car(p.x, p.y, DIR_ANGLE[p.dir], { type: police ? 'police' : type, ai: 'traffic', faction: isFac ? fac : null });
     c.dir = p.dir;
-    c.driver = new Ped(p.x, p.y, { skin: pick(PED_SKINS) });
+    c.driver = new Ped(p.x, p.y, isFac ? { faction: fac, ai: 'gang', weapon: 'pistol' } : police ? { look: Looks.police(), ai: 'cop', weapon: 'pistol' } : {});
     c.driver.car = c;
-    // иногда патрульная машина без погони
-    if (!moto && chance(0.06)) { c.police = true; c.color = 'blue'; c.sprite = 'car_blue_' + c.variant; c.siren = false; c.driver.skin = 'manBlue'; c.driver.ai = 'cop'; c.driver.weapon = 'pistol'; c.maxHp = c.hp = 160; }
+    c.siren = false;
     const v = DIRS[p.dir];
     c.vx = v.x * 120; c.vy = v.y * 120;
     World.cars.push(c);
@@ -182,7 +267,9 @@ const Game = {
       if (!City.isWalkway(tx, ty)) continue;
       const c = City.tc(tx, ty);
       if (!initial && this.inView(c.x, c.y)) continue;
-      const p = new Ped(c.x + rand(-16, 16), c.y + rand(-16, 16), {});
+      const cat = chance(0.08);
+      const p = new Ped(c.x + rand(-16, 16), c.y + rand(-16, 16), cat ? { look: Looks.cat(), ai: 'cat', hp: 10 } : {});
+      if (cat) p.r = 6;
       p.target = { x: tx, y: ty };
       World.peds.push(p);
       return;
@@ -200,14 +287,17 @@ const Game = {
       const d2 = dist2(s.x, s.y, pl.x, pl.y);
       if (!s.car && d2 < 1300 * 1300 && d2 > 500 * 500 && !this.inView(s.x, s.y) && s.roll === undefined) {
         s.roll = Math.random() < 0.65;
-        if (s.roll) { s.car = new Car(s.x, s.y, s.a + rand(-0.1, 0.1), { moto: chance(0.15) }); s.car.spot = s; World.cars.push(s.car); }
+        if (s.roll) {
+          const t = pickWeighted([['sedan', 35], ['hatch', 25], ['suv', 15], ['moto', 6], ['scooter', 6], ['van', 6], ['pickup', 5], ['taxi', 2]]);
+          s.car = new Car(s.x, s.y, s.a + rand(-0.1, 0.1), { type: t }); s.car.spot = s; World.cars.push(s.car);
+        }
       }
       if (d2 > 1700 * 1700) s.roll = undefined;
     }
     // убираем далёкое
     for (let i = World.cars.length - 1; i >= 0; i--) {
       const c = World.cars[i];
-      if (c === pl.car || c.mission) continue;
+      if (c === pl.car || c.mission || c.keep) continue;
       const lim = c.police && c.ai === 'police' ? 2400 : 1900;
       if (dist2(c.x, c.y, pl.x, pl.y) > lim * lim) {
         if (c.spot) c.spot.car = null;
@@ -273,6 +363,7 @@ const Game = {
   playerHurt(n, why) {
     const pl = World.player;
     if (pl.dead || this.state !== 'play') return;
+    if (pl.armor > 0) { const a = Math.min(pl.armor, n * 0.7); pl.armor -= a; n -= a; }
     pl.hp -= n;
     this.shake(4);
     if (pl.hp <= 0) this.wasted(why);
@@ -340,7 +431,8 @@ const Game = {
     const pl = World.player;
     if (pl.dead) return;
     pl.cool -= dt;
-    if (this.hit('KeyF', 'Enter', 'NumpadEnter')) { if (pl.car) { if (pl.car.speed < 140) this.exitCar(); } else this.enterCar(); }
+    this.dialogCool = Math.max(0, (this.dialogCool || 0) - dt);
+    if (this.hit('KeyF', 'Enter', 'NumpadEnter') && !this.dialogCool) { if (pl.car) { if (pl.car.speed < 140) this.exitCar(); } else this.enterCar(); }
 
     if (pl.car) {
       const c = pl.car;
@@ -358,9 +450,9 @@ const Game = {
         if (pl.money >= 500) {
           this.addMoney(-500);
           Wanted.reset();
-          const nc = pick(CAR_COLORS.filter((x) => x !== c.color && x !== 'blue'));
-          c.color = nc; c.police = false;
-          c.sprite = c.moto ? 'moto_' + nc : c.big ? 'car_' + nc + '_big' : `car_${nc}_${c.variant}`;
+          c.color = pickWeighted(CAR_PALETTE.filter((x) => x[0] !== c.color));
+          c.genImg = null;
+          if (c.police) { c.police = false; c.type = 'suv'; c.T = VTYPES.suv; }
           c.hp = c.maxHp;
           Sound.play('mission', 0.8);
           this.message('Машина перекрашена, розыск снят (−₪500)', 4);
@@ -470,14 +562,20 @@ const Game = {
         }
       }
       if (!pl.car && !pl.dead && a.contains(pl.x, pl.y, 9)) {
-        if (sp > 85) {
+        // один удар от одной машины — не чаще раза в секунду
+        if (sp > 85 && World.time - (a.hitPl || -9) > 1) {
+          a.hitPl = World.time;
           this.playerHurt(sp * 0.09, 'car');
           spawnBlood(pl.x, pl.y, 4);
           Sound.play('punch', 0.7);
           a.vx *= 0.8; a.vy *= 0.8;
         }
-        const dx = pl.x - a.x, dy = pl.y - a.y, d = Math.hypot(dx, dy) || 1;
-        pl.step(dx / d * 10, dy / d * 10);
+        // выталкиваем вбок, за пределы корпуса
+        const f = a.fwd;
+        const lr = (pl.x - a.x) * -f.y + (pl.y - a.y) * f.x;
+        const side = lr >= 0 ? 1 : -1;
+        const need = a.w / 2 + 10 - Math.abs(lr);
+        if (need > 0) pl.step(-f.y * side * Math.min(need, 14), f.x * side * Math.min(need, 14));
       }
     }
   },
@@ -501,7 +599,7 @@ const Game = {
     const pl = World.player;
     if (Missions.dialog && this.state === 'play') {
       // во время звонка мир на паузе
-      if (this.hit('Enter', 'NumpadEnter', 'Space', 'KeyF')) Missions.advanceDialog();
+      if (this.hit('Enter', 'NumpadEnter', 'Space', 'KeyF')) { Missions.advanceDialog(); this.dialogCool = 0.35; }
       Sound.setEngine(false, 0);
       return;
     }
@@ -523,7 +621,12 @@ const Game = {
       Wanted.update(dt);
       Police.update(dt);
       Missions.update(dt);
+      Factions.update(dt);
+      Jobs.update(dt);
     }
+    if (this.state !== 'title') Clock.update(dt);
+    else Clock.min += dt * 30; // заставка: сутки пролетают быстро
+    this.night = Clock.dark * 0.74;
     this.manageSpawns();
     // взорванные машины со временем убираем
     for (let i = World.cars.length - 1; i >= 0; i--) {
@@ -577,7 +680,9 @@ const Game = {
     ctx.fillRect(view.x0 - 50, view.y0 - 50, view.x1 - view.x0 + 100, view.y1 - view.y0 + 100);
     if (view.x0 < 5 * TILE) { ctx.fillStyle = '#2a6f9f'; ctx.fillRect(view.x0 - 50, view.y0 - 50, 5 * TILE - view.x0 + 50, view.y1 - view.y0 + 100); }
     City.drawGround(ctx, view);
+    City.drawSea(ctx, view, World.time);
     drawDecals(ctx, view);
+    City.drawLow(ctx, view, World.time);
     this.drawMarkers(ctx);
     for (const p of World.pickups) if (this.inView(p.x, p.y)) p.draw(ctx);
     for (const p of World.peds) if (p.dead && this.inView(p.x, p.y)) p.draw(ctx);
@@ -591,9 +696,12 @@ const Game = {
     }
     drawBullets(ctx);
     drawParticles(ctx);
+    City.nightWin = [];
     City.drawTall(ctx, view, this.cam, World.time);
+    this.drawLighting(ctx, view, sx, sy);
 
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    if (Clock.hamsin) this.drawHamsin(ctx);
     if (this.state === 'down') {
       ctx.fillStyle = this.downKind === 'dead' ? 'rgba(120,0,0,0.25)' : 'rgba(0,30,120,0.25)';
       ctx.fillRect(0, 0, this.vw, this.vh);
@@ -601,9 +709,92 @@ const Game = {
     if (this.state !== 'title') HUD.draw(ctx, this.vw, this.vh, this.state === 'pause' ? 0 : dt);
   },
 
+  // Ночь: затемнение с «дырами» от фонарей, фар и огня; светящиеся окна
+  // Готовые круглые «пятна» света: рисовать картинку дешевле, чем градиент
+  lightSprite(color) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const g = c.getContext('2d');
+    const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, color); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+    return c;
+  },
+
+  drawLighting(ctx, view, sx, sy) {
+    const night = this.night;
+    if (night < 0.02) return;
+    if (!this.holeSpr) { this.holeSpr = this.lightSprite('rgba(0,0,0,1)'); this.warmSpr = this.lightSprite('rgba(255,190,110,1)'); }
+    // маска в пониженном разрешении — свет всё равно мягкий
+    const W = Math.ceil(this.canvas.width / 3), H = Math.ceil(this.canvas.height / 3);
+    if (!this.lightCv) this.lightCv = document.createElement('canvas');
+    const lc = this.lightCv;
+    if (lc.width !== W || lc.height !== H) { lc.width = W; lc.height = H; }
+    const g = lc.getContext('2d');
+    const z = this.zoomTotal;
+    const k = this.dpr / 3;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.globalCompositeOperation = 'source-over';
+    g.globalAlpha = 1;
+    g.clearRect(0, 0, W, H);
+    g.fillStyle = `rgba(6,10,38,${night})`;
+    g.fillRect(0, 0, W, H);
+    g.setTransform(k * z, 0, 0, k * z, k * (this.vw / 2 - this.cam.x * z + sx), k * (this.vh / 2 - this.cam.y * z + sy));
+    g.globalCompositeOperation = 'destination-out';
+    const spr = this.holeSpr;
+    const hole = (x, y, r, a) => { g.globalAlpha = a; g.drawImage(spr, x - r, y - r, r * 2, r * 2); };
+    const glows = [];
+    for (const l of City.lamps) {
+      if (l.x < view.x0 - 150 || l.x > view.x1 + 150 || l.y < view.y0 - 150 || l.y > view.y1 + 150) continue;
+      hole(l.x, l.y, 130, 0.9); glows.push(l);
+    }
+    for (const c of World.cars) {
+      if (c.dead || !c.driver || !this.inView(c.x, c.y, 200)) continue;
+      const f = c.fwd;
+      hole(c.x + f.x * (c.l / 2 + 90), c.y + f.y * (c.l / 2 + 90), 105, 0.85);
+      if (c.siren) hole(c.x, c.y, 90, 0.6);
+    }
+    for (const p of World.particles) if (p.k === 'fire' || p.k === 'flash') hole(p.x, p.y, 50, 0.5);
+    const pl = World.player;
+    hole(pl.x, pl.y, 70, 0.5);
+    // тёплое свечение фонарей — прямо в маске
+    g.globalCompositeOperation = 'source-over';
+    g.globalAlpha = 0.16 * night;
+    for (const l of glows) g.drawImage(this.warmSpr, l.x - 100, l.y - 100, 200, 200);
+    g.globalAlpha = 1;
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(lc, 0, 0, this.canvas.width, this.canvas.height);
+    ctx.restore();
+    // окна
+    if (City.nightWin.length) {
+      ctx.setLineDash([9, 7]);
+      for (const w of City.nightWin) {
+        ctx.strokeStyle = w[5] < 8 ? `rgba(255,214,130,${0.85 * night})` : `rgba(190,220,255,${0.6 * night})`;
+        ctx.lineWidth = w[4];
+        ctx.lineDashOffset = w[5];
+        ctx.beginPath(); ctx.moveTo(w[0], w[1]); ctx.lineTo(w[2], w[3]); ctx.stroke();
+      }
+      ctx.setLineDash([]); ctx.lineDashOffset = 0;
+    }
+  },
+
+  // Хамсин: жёлтая пыльная мгла
+  drawHamsin(ctx) {
+    ctx.fillStyle = 'rgba(214,150,60,0.22)';
+    ctx.fillRect(0, 0, this.vw, this.vh);
+    if (!this.dust) this.dust = Array.from({ length: 120 }, () => ({ x: rand(0, 1), y: rand(0, 1), s: rand(0.5, 2) }));
+    ctx.fillStyle = 'rgba(240,200,140,0.45)';
+    const t = World.time;
+    for (const d of this.dust) {
+      const x = ((d.x + t * 0.05 * d.s) % 1) * this.vw, y = ((d.y + Math.sin(t + d.x * 10) * 0.01) % 1) * this.vh;
+      ctx.fillRect(x, y, 2 * d.s + 1, 1);
+    }
+  },
+
   drawMarkers(ctx) {
     // телефоны-автоматы
-    for (const key of ['phone1', 'phone2']) {
+    for (const key of ['phone1', 'phone2', 'phoneFlat', 'phoneRu', 'phoneAr', 'phoneLions']) {
       const p = City.places[key];
       if (!this.inView(p.x, p.y)) continue;
       const ringing = Missions.phonePlace() === p;

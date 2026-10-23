@@ -1,0 +1,255 @@
+// Процедурные машины: типы, характеристики и отрисовка спрайтов.
+// Спрайт рисуется один раз в 2× разрешении и кешируется.
+'use strict';
+
+// Израильская улица: в основном белые и серебристые машины
+const CAR_PALETTE = [
+  ['#f4f4f2', 30], ['#c9ccd0', 20], ['#8d9298', 14], ['#1f2124', 10], ['#24365c', 6],
+  ['#b3262d', 6], ['#d8cbb0', 4], ['#2f5a3c', 3], ['#6fa3c8', 3], ['#e0b52a', 2], ['#7b1f2e', 2],
+];
+
+function pickWeighted(list) {
+  let sum = 0;
+  for (const it of list) sum += it[1];
+  let r = Math.random() * sum;
+  for (const it of list) { r -= it[1]; if (r <= 0) return it[0]; }
+  return list[0][0];
+}
+
+const VTYPES = {
+  sedan: { name: 'Седан', w: 34, l: 66, hp: 100, max: 360, acc: 260, grip: 9, turn: 2.6 },
+  hatch: { name: 'Хэтчбек', w: 32, l: 56, hp: 85, max: 340, acc: 270, grip: 9.5, turn: 2.8 },
+  suv: { name: 'Джип', w: 37, l: 70, hp: 130, max: 350, acc: 250, grip: 8.5, turn: 2.4 },
+  lux: { name: 'Чёрный лимузин', w: 37, l: 76, hp: 140, max: 400, acc: 290, grip: 9, turn: 2.4, color: '#141518' },
+  taxi: { name: 'Такси', w: 34, l: 66, hp: 100, max: 350, acc: 260, grip: 9, turn: 2.6, color: '#f4f4f2' },
+  police: { name: 'Полиция', w: 37, l: 70, hp: 170, max: 410, acc: 300, grip: 9, turn: 2.6, color: '#f6f6f6' },
+  ambulance: { name: 'Скорая', w: 40, l: 86, hp: 160, max: 330, acc: 220, grip: 8, turn: 2.2, color: '#fafafa' },
+  van: { name: 'Фургон', w: 38, l: 80, hp: 140, max: 300, acc: 210, grip: 8, turn: 2.2 },
+  pickup: { name: 'Пикап', w: 37, l: 78, hp: 140, max: 340, acc: 250, grip: 8.5, turn: 2.3 },
+  sherut: { name: 'Маршрутка-шерут', w: 40, l: 92, hp: 160, max: 300, acc: 200, grip: 8, turn: 2.1, color: '#f2c21b' },
+  bus: { name: 'Автобус', w: 46, l: 150, hp: 320, max: 230, acc: 130, grip: 7, turn: 1.6, color: '#2e8b57' },
+  garbage: { name: 'Мусоровоз', w: 44, l: 104, hp: 300, max: 220, acc: 130, grip: 7, turn: 1.7, color: '#4f7f3a' },
+  scooter: { name: 'Скутер «Шмоне-Бис»', w: 16, l: 40, hp: 50, max: 330, acc: 320, grip: 14, turn: 3.4, moto: true, color: '#ff6a1a' },
+  moto: { name: 'Мотоцикл', w: 18, l: 46, hp: 55, max: 440, acc: 350, grip: 14, turn: 3.2, moto: true },
+};
+
+const GEN_VEH = {
+  sedan: ['sedan_1', 'sedan_2', 'sedan_3', 'sedan_4'], hatch: ['hatch_1', 'hatch_2', 'hatch_3'], suv: ['suv_1', 'suv_2'],
+  lux: ['lux'], taxi: ['taxi'], police: ['police'], ambulance: ['ambulance'], van: ['van'], pickup: ['pickup'],
+  sherut: ['sherut'], bus: ['bus'], garbage: ['garbage'], scooter: ['scooter'], moto: ['moto'],
+};
+
+const Vehicles = {
+  cache: new Map(),
+
+  // Сгенерированный спрайт (assets/gen/vehicles) для типа, если есть
+  gen(type, faction) {
+    if (faction === 'lions' && type === 'hatch' && Assets.gen['vehicles/hatch_lions']) return Assets.gen['vehicles/hatch_lions'];
+    if (faction === 'iran' && type === 'van' && Assets.gen['vehicles/van_iran']) return Assets.gen['vehicles/van_iran'];
+    const all = GEN_VEH[type] || [];
+    const list = all.filter((k) => Assets.gen['vehicles/' + k]);
+    // если сгенерирована только часть вариантов — остальные машины рисуем сами
+    if (!list.length || Math.random() > list.length / all.length) return null;
+    return Assets.gen['vehicles/' + pick(list)];
+  },
+
+  sprite(type, color, faction) {
+    const key = type + color + (faction || '');
+    let c = this.cache.get(key);
+    if (c) return c;
+    const T = VTYPES[type];
+    const S = 2, pad = 8;
+    c = document.createElement('canvas');
+    c.width = (T.w + pad * 2) * S; c.height = (T.l + pad * 2) * S;
+    const g = c.getContext('2d');
+    g.scale(S, S);
+    g.translate(pad + T.w / 2, pad + T.l / 2);
+    this.draw(g, type, T.w, T.l, color, faction);
+    c.pad = pad;
+    this.cache.set(key, c);
+    return c;
+  },
+
+  rr(g, x, y, w, h, r) {
+    g.beginPath();
+    g.moveTo(x + r, y); g.lineTo(x + w - r, y); g.quadraticCurveTo(x + w, y, x + w, y + r);
+    g.lineTo(x + w, y + h - r); g.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    g.lineTo(x + r, y + h); g.quadraticCurveTo(x, y + h, x, y + h - r);
+    g.lineTo(x, y + r); g.quadraticCurveTo(x, y, x + r, y);
+    g.closePath();
+  },
+
+  // Корпус легковушки: капот спереди (вверху), багажник сзади
+  body(g, w, l, color, opt = {}) {
+    const hw = w / 2, hl = l / 2;
+    // колёса
+    g.fillStyle = '#121212';
+    const wy = [-hl * 0.62, hl * 0.62];
+    for (const y of wy) { g.fillRect(-hw - 1.5, y - 6, 4, 12); g.fillRect(hw - 2.5, y - 6, 4, 12); }
+    // корпус с градиентом (свет слева-сверху)
+    const gr = g.createLinearGradient(-hw, 0, hw, 0);
+    gr.addColorStop(0, shade(color, 1.08));
+    gr.addColorStop(0.5, color);
+    gr.addColorStop(1, shade(color, 0.82));
+    this.rr(g, -hw, -hl, w, l, opt.round || 8);
+    g.fillStyle = gr; g.fill();
+    g.lineWidth = 1.5; g.strokeStyle = shade(color, 0.45); g.stroke();
+    // зеркала
+    g.fillStyle = shade(color, 0.7);
+    g.fillRect(-hw - 3, -hl * 0.28, 3, 4); g.fillRect(hw, -hl * 0.28, 3, 4);
+    // фары и стопы
+    g.fillStyle = '#fff6c8';
+    g.fillRect(-hw + 3, -hl + 1, 7, 3); g.fillRect(hw - 10, -hl + 1, 7, 3);
+    g.fillStyle = '#c62828';
+    g.fillRect(-hw + 3, hl - 3, 6, 2.5); g.fillRect(hw - 9, hl - 3, 6, 2.5);
+  },
+
+  glass(g, x, y, w, h, r = 4) {
+    const gr = g.createLinearGradient(x, y, x + w, y + h);
+    gr.addColorStop(0, '#a9cde0'); gr.addColorStop(0.5, '#6f97ad'); gr.addColorStop(1, '#3e5d70');
+    this.rr(g, x, y, w, h, r);
+    g.fillStyle = gr; g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.35)';
+    g.fillRect(x + 2, y + 1.5, w * 0.35, 1.5);
+  },
+
+  // Обычная легковушка с кабиной
+  car(g, w, l, color, cabin = 0.42, cabinOff = 0.02) {
+    this.body(g, w, l, color);
+    const hw = w / 2, hl = l / 2;
+    // линии капота
+    g.strokeStyle = shade(color, 0.7); g.lineWidth = 1;
+    g.beginPath(); g.moveTo(-hw * 0.5, -hl + 5); g.lineTo(-hw * 0.45, -hl * 0.45); g.moveTo(hw * 0.5, -hl + 5); g.lineTo(hw * 0.45, -hl * 0.45); g.stroke();
+    const cl = l * cabin, cy = -cl / 2 + l * cabinOff;
+    // лобовое и заднее стекло, крыша
+    this.glass(g, -hw + 4, cy - 2, w - 8, cl * 0.32, 5);
+    this.glass(g, -hw + 5, cy + cl * 0.78, w - 10, cl * 0.24, 4);
+    const rg = g.createLinearGradient(-hw, 0, hw, 0);
+    rg.addColorStop(0, shade(color, 1.12)); rg.addColorStop(1, shade(color, 0.86));
+    this.rr(g, -hw + 4, cy + cl * 0.3, w - 8, cl * 0.5, 3);
+    g.fillStyle = rg; g.fill();
+    // боковые стёкла
+    g.fillStyle = '#4c6a7b';
+    g.fillRect(-hw + 1.5, cy + 2, 2.5, cl * 0.75); g.fillRect(hw - 4, cy + 2, 2.5, cl * 0.75);
+    return { cy, cl };
+  },
+
+  draw(g, type, w, l, color, faction) {
+    const hw = w / 2, hl = l / 2;
+    switch (type) {
+      case 'sedan': this.car(g, w, l, color, 0.44, 0.02); break;
+      case 'hatch': this.car(g, w, l, color, 0.5, 0.1); break;
+      case 'suv': {
+        const r = this.car(g, w, l, color, 0.52, 0.06);
+        g.strokeStyle = '#222'; g.lineWidth = 1.5;
+        g.beginPath(); g.moveTo(-hw + 6, r.cy + r.cl * 0.32); g.lineTo(-hw + 6, r.cy + r.cl * 0.78); g.moveTo(hw - 6, r.cy + r.cl * 0.32); g.lineTo(hw - 6, r.cy + r.cl * 0.78); g.stroke();
+        break;
+      }
+      case 'lux': {
+        this.car(g, w, l, color, 0.4, 0.04);
+        g.fillStyle = '#c0c0c0'; g.fillRect(-6, -hl + 0.5, 12, 2.5); // хромированная решётка
+        g.fillStyle = 'rgba(255,255,255,0.18)'; g.fillRect(-hw + 3, -hl + 6, 2, l - 12);
+        break;
+      }
+      case 'taxi': {
+        this.car(g, w, l, color, 0.44, 0.02);
+        // жёлтая «шашка» на крыше с надписью
+        g.fillStyle = '#ffd400'; this.rr(g, -9, -4, 18, 8, 2); g.fill();
+        g.strokeStyle = '#8a6d00'; g.lineWidth = 1; g.stroke();
+        g.fillStyle = '#222'; g.font = 'bold 5px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('מונית', 0, 0.3);
+        break;
+      }
+      case 'police': {
+        const r = this.car(g, w, l, color, 0.52, 0.06);
+        // синие полосы по бортам, капот с надписью
+        g.fillStyle = '#1d4fa3'; g.fillRect(-hw, -hl * 0.55, 3, l * 0.95); g.fillRect(hw - 3, -hl * 0.55, 3, l * 0.95);
+        g.fillStyle = '#1d4fa3'; g.font = 'bold 6px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('משטרה', 0, -hl * 0.65);
+        // мигалка (цвет переключается при отрисовке)
+        g.fillStyle = '#333'; g.fillRect(-12, r.cy + r.cl * 0.42, 24, 6);
+        break;
+      }
+      case 'ambulance': {
+        this.body(g, w, l, color, { round: 6 });
+        this.glass(g, -hw + 4, -hl + 6, w - 8, 9, 3);
+        g.fillStyle = '#e8e8e8'; g.fillRect(-hw + 3, -hl + 18, w - 6, l - 22);
+        g.fillStyle = '#d32f2f'; g.fillRect(-hw, -hl + 22, w, 4); g.fillRect(-hw, hl - 14, w, 4);
+        g.fillStyle = '#d32f2f'; g.fillRect(-3, -2, 6, 18); g.fillRect(-9, 4, 18, 6);
+        g.fillStyle = '#ff8f00'; g.fillRect(-hw + 4, -hl + 15, 8, 3); g.fillRect(hw - 12, -hl + 15, 8, 3);
+        break;
+      }
+      case 'van': {
+        this.body(g, w, l, color, { round: 6 });
+        this.glass(g, -hw + 4, -hl + 6, w - 8, 10, 3);
+        g.fillStyle = shade(color, 1.05); g.fillRect(-hw + 3, -hl + 19, w - 6, l - 23);
+        g.strokeStyle = shade(color, 0.7); g.lineWidth = 1;
+        for (let y = -hl + 26; y < hl - 6; y += 12) { g.beginPath(); g.moveTo(-hw + 5, y); g.lineTo(hw - 5, y); g.stroke(); }
+        break;
+      }
+      case 'pickup': {
+        this.body(g, w, l, color, { round: 6 });
+        this.glass(g, -hw + 4, -hl + 13, w - 8, 9, 3);
+        g.fillStyle = shade(color, 1.08); g.fillRect(-hw + 4, -hl + 22, w - 8, 12);
+        this.glass(g, -hw + 6, -hl + 33, w - 12, 4, 2);
+        // открытый кузов
+        g.fillStyle = shade(color, 0.6); g.fillRect(-hw + 3, -hl + 40, w - 6, l - 44);
+        g.fillStyle = shade(color, 0.45); g.fillRect(-hw + 6, -hl + 43, w - 12, l - 50);
+        g.fillStyle = '#7a5a3a'; g.fillRect(-hw + 8, -hl + 46, 10, 9); g.fillStyle = '#5b6b7a'; g.fillRect(hw - 16, hl - 18, 9, 10);
+        break;
+      }
+      case 'sherut': {
+        this.body(g, w, l, color, { round: 7 });
+        this.glass(g, -hw + 4, -hl + 7, w - 8, 11, 4);
+        g.fillStyle = shade(color, 1.06); g.fillRect(-hw + 3, -hl + 20, w - 6, l - 24);
+        // ряды окон
+        g.fillStyle = '#4c6a7b';
+        for (let y = -hl + 24; y < hl - 10; y += 13) { g.fillRect(-hw + 1, y, 3, 10); g.fillRect(hw - 4, y, 3, 10); }
+        g.fillStyle = '#222'; g.font = 'bold 8px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('4', 0, -hl + 30);
+        break;
+      }
+      case 'bus': {
+        this.body(g, w, l, '#f2f2f2', { round: 6 });
+        g.fillStyle = color; g.fillRect(-hw, -hl + 10, w, 8); g.fillRect(-hw, hl - 18, w, 8);
+        this.glass(g, -hw + 3, -hl + 2, w - 6, 9, 3);
+        // крыша: кондиционеры и люки
+        g.fillStyle = '#d6d6d6'; g.fillRect(-hw + 8, -hl + 30, w - 16, 26);
+        g.fillStyle = '#bdbdbd'; g.fillRect(-hw + 12, -hl + 34, w - 24, 18);
+        g.fillStyle = '#cfcfcf'; g.fillRect(-8, 10, 16, 14); g.fillRect(-8, 40, 16, 14);
+        g.fillStyle = '#4c6a7b';
+        for (let y = -hl + 22; y < hl - 22; y += 14) { g.fillRect(-hw + 0.5, y, 2.5, 11); g.fillRect(hw - 3, y, 2.5, 11); }
+        g.fillStyle = '#ffb300'; g.font = 'bold 7px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('5 מרכז', 0, -hl + 6.5);
+        break;
+      }
+      case 'garbage': {
+        this.body(g, w, l, color, { round: 5 });
+        this.glass(g, -hw + 4, -hl + 4, w - 8, 9, 3);
+        g.fillStyle = shade(color, 1.1); g.fillRect(-hw + 3, -hl + 16, w - 6, 8);
+        g.fillStyle = shade(color, 0.9); g.fillRect(-hw + 3, -hl + 27, w - 6, l - 31);
+        g.strokeStyle = shade(color, 0.6); g.lineWidth = 1.5;
+        for (let y = -hl + 34; y < hl - 6; y += 9) { g.beginPath(); g.moveTo(-hw + 5, y); g.lineTo(hw - 5, y); g.stroke(); }
+        g.fillStyle = '#ffeb3b'; g.fillRect(-hw + 3, hl - 6, w - 6, 3);
+        break;
+      }
+      case 'scooter': case 'moto': {
+        // колёса
+        g.fillStyle = '#111'; g.fillRect(-2.5, -hl, 5, 10); g.fillRect(-2.5, hl - 10, 5, 10);
+        g.fillStyle = color; this.rr(g, -hw * 0.55, -hl + 6, w * 0.55, l - 14, 4); g.fill();
+        g.strokeStyle = shade(color, 0.5); g.lineWidth = 1; g.stroke();
+        g.fillStyle = '#333'; g.fillRect(-hw, -hl + 9, w, 2.5); // руль
+        g.fillStyle = '#fff6c8'; g.fillRect(-2, -hl + 1, 4, 2);
+        if (type === 'scooter') {
+          // термокороб доставки
+          g.fillStyle = '#ff6a1a'; this.rr(g, -hw - 1, hl - 18, w + 2, 14, 2); g.fill();
+          g.strokeStyle = '#a03c00'; g.stroke();
+          g.fillStyle = '#fff'; g.font = 'bold 5.5px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('8bis', 0, hl - 11);
+        } else {
+          g.fillStyle = '#222'; this.rr(g, -4, -2, 8, 16, 3); g.fill();
+        }
+        break;
+      }
+    }
+    // метки фракций
+    if (faction === 'russian') { g.fillStyle = 'rgba(200,200,200,0.5)'; g.fillRect(-hw + 4, hl - 6, w - 8, 1.5); }
+    if (faction === 'lions') { g.fillStyle = '#1b7f3a'; g.fillRect(-1.5, -hl + 2, 3, l - 4); }
+    if (faction === 'arab') { g.fillStyle = 'rgba(0,0,0,0.5)'; g.fillRect(-hw + 2, -hl + 30, 2, 20); g.fillRect(hw - 4, -hl + 30, 2, 20); }
+  },
+};

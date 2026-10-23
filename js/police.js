@@ -68,8 +68,8 @@ const Police = {
       this.spawnT = 2.5;
       const p = Game.findRoadSpawn(pl.x, pl.y, 800, 1200);
       if (p) {
-        const c = new Car(p.x, p.y, DIR_ANGLE[p.dir], { police: true, color: 'blue', variant: randi(1, 5), ai: 'police' });
-        c.driver = new Ped(p.x, p.y, { skin: 'manBlue', ai: 'cop', weapon: 'pistol', hp: 70 });
+        const c = new Car(p.x, p.y, DIR_ANGLE[p.dir], { police: true, ai: 'police' });
+        c.driver = new Ped(p.x, p.y, { look: Looks.police(), ai: 'cop', weapon: 'pistol', hp: 70 });
         c.driver.car = c;
         c.partner = chance(0.5);
         World.cars.push(c);
@@ -148,7 +148,7 @@ const Police = {
     }
     if (c.partner) {
       const p = out(-1);
-      World.peds.push(new Ped(p.x, p.y, { skin: 'manBlue', ai: 'cop', weapon: 'pistol', hp: 70 }));
+      World.peds.push(new Ped(p.x, p.y, { look: Looks.police(), ai: 'cop', weapon: 'pistol', hp: 70 }));
       c.partner = false;
     }
     c.ai = null;

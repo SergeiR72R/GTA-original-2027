@@ -14,8 +14,6 @@ const World = {
   time: 0,
 };
 
-const PED_SKINS = ['manOld', 'manBrown', 'womanGreen', 'soldier1', 'manOld', 'womanGreen'];
-const CAR_COLORS = ['black', 'blue', 'green', 'red', 'yellow'];
 
 const WEAPONS = {
   fists: { name: 'Кулаки', cd: 0.4, dmg: 25, sprite: 'stand' },
@@ -30,22 +28,19 @@ class Car {
   constructor(x, y, a, opts = {}) {
     this.x = x; this.y = y; this.a = a;
     this.vx = 0; this.vy = 0; this.av = 0;
-    this.moto = !!opts.moto;
-    this.big = !!opts.big;
-    this.color = opts.color || pick(CAR_COLORS);
-    this.variant = opts.variant || randi(1, 5);
-    if (this.moto) { this.sprite = 'moto_' + this.color; this.sc = 0.5; }
-    else if (this.big) { this.sprite = 'car_' + this.color + '_big'; this.sc = 0.6; }
-    else { this.sprite = `car_${this.color}_${this.variant}`; this.sc = 1; }
-    const im = Assets.img[this.sprite];
-    this.w = (im && im.width ? im.width : 40) * this.sc;
-    this.l = (im && im.height ? im.height : 70) * this.sc;
-    if (this.moto) this.w = 18;
-    this.police = !!opts.police;
-    this.maxHp = this.moto ? 50 : (this.police ? 160 : 100);
+    this.type = opts.police ? 'police' : (opts.type || 'sedan');
+    const T = VTYPES[this.type];
+    this.T = T;
+    this.faction = opts.faction || null;
+    this.moto = !!T.moto;
+    this.color = opts.color || T.color || (this.faction && FACTIONS[this.faction].carColor) || pickWeighted(CAR_PALETTE);
+    this.w = T.w; this.l = T.l;
+    this.police = this.type === 'police';
+    this.maxHp = T.hp;
     this.hp = this.maxHp;
-    this.maxSpeed = opts.maxSpeed || (this.moto ? 420 : this.police ? 400 : 360);
-    this.accel = this.moto ? 330 : 260;
+    this.maxSpeed = opts.maxSpeed || T.max;
+    this.accel = T.acc;
+    this.genImg = Vehicles.gen(this.type, this.faction);
     this.driver = null; // 'player' | Ped
     this.ai = opts.ai || null; // 'traffic' | 'police' | null
     this.dead = false;
@@ -85,10 +80,14 @@ class Car {
 
   // Два круга вдоль корпуса — для столкновений машина-машина
   circles() {
-    const f = this.fwd, o = this.l / 2 - this.w / 2;
+    const f = this.fwd;
     const r = this.w / 2 + 1;
     if (this.moto) return [{ x: this.x, y: this.y, r: 14 }];
-    return [{ x: this.x + f.x * o, y: this.y + f.y * o, r }, { x: this.x - f.x * o, y: this.y - f.y * o, r }];
+    const n = Math.max(2, Math.round(this.l / this.w));
+    const o = this.l / 2 - this.w / 2;
+    const out = [];
+    for (let i = 0; i < n; i++) { const t = -o + (2 * o) * i / (n - 1); out.push({ x: this.x + f.x * t, y: this.y + f.y * t, r }); }
+    return out;
   }
 
   // Точка внутри корпуса (с запасом m)?
@@ -118,12 +117,12 @@ class Car {
     }
     if (handbrake) vf -= Math.sign(vf) * Math.min(Math.abs(vf), 260 * dt);
     vf = clamp(vf, -max * 0.35, max);
-    const grip = handbrake ? 1.6 : (this.moto ? 14 : 9);
+    const grip = handbrake ? 1.6 : this.T.grip;
     const lost = vr * Math.min(1, grip * dt);
     vr -= lost;
     this.skid = Math.abs(vr) > 70 ? 1 : 0;
     // руление зависит от скорости
-    const turn = (this.moto ? 3.2 : 2.6) * clamp(vf / 140, -1, 1) * (handbrake ? 1.35 : 1);
+    const turn = this.T.turn * clamp(vf / 140, -1, 1) * (handbrake ? 1.35 : 1);
     this.av = steer * turn;
     const na = this.a + this.av * dt;
     if (!this.hitsWall(this.x, this.y, na)) this.a = na;
@@ -203,6 +202,7 @@ class Car {
     if (this.driver === 'player') return; // управляется в Game
     if (this.ai === 'traffic' && this.driver) this.trafficAI(dt);
     else if (this.ai === 'police' && this.driver) Police.carAI(this, dt);
+    else if (this.ai === 'scripted') { /* управляется миссией */ }
     else this.drive(dt, 0, 0, true);
     if (this.skid && this.speed > 120 && Math.random() < 0.3) addSkid(this);
   }
@@ -288,31 +288,45 @@ class Car {
   }
 
   draw(ctx) {
-    const im = Assets.img[this.sprite];
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.a);
     // тень
-    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
     ctx.fillRect(-this.w / 2 + 4, -this.l / 2 + 5, this.w, this.l);
-    if (im && im.width) ctx.drawImage(im, -im.width * this.sc / 2, -im.height * this.sc / 2, im.width * this.sc, im.height * this.sc);
-    if (this.police) {
-      // белые полосы и мигалка
-      ctx.fillStyle = 'rgba(255,255,255,0.85)';
-      ctx.fillRect(-this.w / 2 + 2, -6, this.w - 4, 4);
+    if (this.genImg) {
+      ctx.drawImage(this.genImg, -this.w / 2, -this.l / 2, this.w, this.l);
+    } else {
+      const spr = Vehicles.sprite(this.type, this.color, this.faction);
+      const sw = spr.width / 2, sh = spr.height / 2;
+      ctx.drawImage(spr, -sw / 2, -sh / 2, sw, sh);
+    }
+    // седок на мотоцикле/скутере
+    if (this.moto && this.driver) {
+      const L = this.driver === 'player' ? World.player.look : this.driver.look;
+      if (L) { ctx.save(); ctx.translate(0, 4); ctx.rotate(-Math.PI / 2); drawPersonLook(ctx, L, 0, false, null, false); ctx.restore(); }
+    }
+    if (this.police || this.type === 'ambulance') {
       const on = Math.floor(World.time * 6) % 2 === 0;
-      ctx.fillStyle = on ? '#ff2a2a' : '#7a1010'; ctx.fillRect(-12, 2, 12, 6);
-      ctx.fillStyle = on ? '#1f3d7a' : '#3f8cff'; ctx.fillRect(0, 2, 12, 6);
+      const by = this.police ? -this.l * 0.06 : -this.l / 2 + 15;
+      if (this.police) {
+        ctx.fillStyle = on ? '#ff2a2a' : '#5a0a0a'; ctx.fillRect(-12, by, 12, 6);
+        ctx.fillStyle = on ? '#0d2a66' : '#3f8cff'; ctx.fillRect(0, by, 12, 6);
+      }
       if (this.siren) {
-        ctx.globalAlpha = 0.25;
-        ctx.fillStyle = on ? '#ff3030' : '#3080ff';
-        ctx.beginPath(); ctx.arc(on ? -6 : 6, 5, 34, 0, TAU); ctx.fill();
+        ctx.globalAlpha = 0.28;
+        ctx.fillStyle = this.police ? (on ? '#ff3030' : '#3080ff') : (on ? '#ff9800' : '#ff3030');
+        ctx.beginPath(); ctx.arc(on ? -6 : 6, by + 3, 34, 0, TAU); ctx.fill();
         ctx.globalAlpha = 1;
       }
     }
     if (this.mission && !this.dead) {
       ctx.strokeStyle = '#ff3b3b'; ctx.lineWidth = 3;
       ctx.strokeRect(-this.w / 2 - 4, -this.l / 2 - 4, this.w + 8, this.l + 8);
+    }
+    if (this.jobBox && !this.dead) {
+      ctx.strokeStyle = '#ff6a1a'; ctx.lineWidth = 2; ctx.setLineDash([4, 3]);
+      ctx.strokeRect(-this.w / 2 - 4, -this.l / 2 - 4, this.w + 8, this.l + 8); ctx.setLineDash([]);
     }
     if (this.dead) {
       ctx.fillStyle = 'rgba(25,20,18,0.82)';
@@ -331,8 +345,10 @@ class Ped {
   constructor(x, y, opts = {}) {
     this.x = x; this.y = y;
     this.a = opts.a !== undefined ? opts.a : rand(-Math.PI, Math.PI);
-    this.skin = opts.skin || pick(PED_SKINS);
+    this.faction = opts.faction || null;
+    this.look = opts.look || (this.faction ? (opts.boss ? Looks.boss(this.faction) : Looks[this.faction]()) : Looks.civilian());
     this.ai = opts.ai || 'walk';
+    this.name = opts.name || null;
     this.hp = opts.hp || 50;
     this.dead = false;
     this.r = 9;
@@ -360,7 +376,7 @@ class Ped {
     spawnBlood(this.x, this.y, 3);
     if (this.hp <= 0) this.kill(by, fx, fy);
     else if (this.ai === 'walk' || this.ai === 'flee') this.scare(fx !== undefined ? fx : this.x, fy !== undefined ? fy : this.y);
-    else if (this.ai === 'gang' || this.ai === 'cop') this.alert = 10;
+    else if (this.ai === 'gang' || this.ai === 'cop') { this.alert = 10; if (by === 'player' && this.faction) Factions.onHurt(this.faction); }
   }
 
   kill(by) {
@@ -371,7 +387,9 @@ class Ped {
     World.decals.push({ k: 'blood', x: this.x, y: this.y, a: rand(0, TAU), s: rand(0.8, 1.3) });
     if (dist2(this.x, this.y, World.player.x, World.player.y) < 700 * 700) Sound.play('splat', 0.6);
     if (by === 'player') {
-      Game.addMoney(this.ai === 'cop' ? 100 : 50);
+      if (this.look.cat) { Game.message('Кошку-то за что?! 😿'); return; }
+      Game.addMoney(this.ai === 'cop' ? 100 : this.faction ? 150 : 50);
+      if (this.faction) Factions.onKill(this.faction);
       if (this.ai === 'cop') Wanted.crime('killcop', this.x, this.y);
       else if (this.ai !== 'gang') Wanted.crime('kill', this.x, this.y);
       // все вокруг в панике
@@ -412,6 +430,8 @@ class Ped {
       case 'gang': this.gangAI(dt); break;
       case 'idle': break;
       case 'board': this.boardAI(dt); break;
+      case 'cat': this.catAI(dt); break;
+      case 'follow': this.followAI(dt); break;
     }
     if (this.moving) this.walkAnim += dt * 10;
   }
@@ -493,8 +513,14 @@ class Ped {
     if (pl.dead) return;
     const d = dist(this.x, this.y, pl.x, pl.y);
     const sees = d < 420 && City.lineOfSight(this.x, this.y, pl.x, pl.y);
-    if (sees && this.alert <= 0) this.cool = Math.max(this.cool, 0.8); // время на реакцию
-    if (sees) this.alert = 6;
+    // нападают сами, только если игрок им враг (или это цель миссии)
+    const hostile = this.mission === 'target' || !this.faction || Factions.hostile(this.faction);
+    if (sees && hostile && this.alert <= 0) this.cool = Math.max(this.cool, 0.8); // время на реакцию
+    if (sees && hostile) this.alert = 6;
+    if (this.alert <= 0 && !hostile && d < 110 && this.faction && Factions.rep[this.faction] >= 25 && World.time - (this.greetT || -99) > 30) {
+      this.greetT = World.time;
+      Game.message(FACTIONS[this.faction].short + ': ' + pick(GREETINGS[this.faction]), 2.5);
+    }
     if (this.alert > 0) {
       this.alert -= dt;
       this.faceTo(pl.x, pl.y);
@@ -512,6 +538,44 @@ class Ped {
     }
   }
 
+  // Уличные кошки: бродят, убегают от людей и машин
+  catAI(dt) {
+    const pl = World.player;
+    const d = dist(this.x, this.y, pl.x, pl.y);
+    if (d < 90) {
+      const a = Math.atan2(this.y - pl.y, this.x - pl.x);
+      this.a = a;
+      if (!this.step(Math.cos(a) * 180 * dt, Math.sin(a) * 180 * dt)) this.step(Math.cos(a + 1.5) * 180 * dt, Math.sin(a + 1.5) * 180 * dt);
+      this.moving = true;
+      return;
+    }
+    this.wander = (this.wander || 0) - dt;
+    if (this.wander <= 0) { this.wander = rand(1, 4); this.wa = Math.random() < 0.4 ? null : rand(-Math.PI, Math.PI); }
+    if (this.wa !== null && this.wa !== undefined) {
+      this.a = this.wa;
+      if (!this.step(Math.cos(this.wa) * 30 * dt, Math.sin(this.wa) * 30 * dt)) this.wa = null;
+      this.moving = true;
+    }
+  }
+
+  // Союзник идёт за игроком и стреляет по врагам миссии
+  followAI(dt) {
+    const pl = World.player;
+    let foe = null, fd = 380;
+    for (const p of World.peds) {
+      if (p.dead || p === this || p.ai !== 'gang' || p.mission !== 'target') continue;
+      const d = dist(this.x, this.y, p.x, p.y);
+      if (d < fd && City.lineOfSight(this.x, this.y, p.x, p.y)) { fd = d; foe = p; }
+    }
+    if (foe) {
+      this.faceTo(foe.x, foe.y);
+      if (this.cool <= 0 && this.weapon) { this.cool = rand(0.5, 0.9); fireBullet(this, this.weapon, this.a); }
+      return;
+    }
+    const tx = pl.car ? pl.car.x : pl.x, ty = pl.car ? pl.car.y : pl.y;
+    if (dist(this.x, this.y, tx, ty) > 70) this.moveTo(tx, ty, 150, dt);
+  }
+
   // Пассажир идёт к машине игрока
   boardAI(dt) {
     const car = World.player.car;
@@ -527,30 +591,21 @@ class Ped {
 
   draw(ctx) {
     if (this.car) return;
-    if (this.dead) {
-      ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.a);
-      const im = Assets.img[this.skin + '_stand'];
-      if (im && im.width) { ctx.globalAlpha = 0.9; ctx.drawImage(im, -16 * 0.62, -21.5 * 0.62, im.width * 0.62, im.height * 0.62); }
-      ctx.restore();
-      return;
-    }
-    const wp = this.weapon ? WEAPONS[this.weapon].sprite : 'stand';
-    const im = Assets.img[this.skin + '_' + wp];
-    const bob = this.moving ? Math.sin(this.walkAnim) * 1.2 : 0;
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.a);
-    ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    ctx.beginPath(); ctx.ellipse(3, 3, 11, 9, 0, 0, TAU); ctx.fill();
-    if (im && im.width) ctx.drawImage(im, -16 * 0.62 + bob, -21.5 * 0.62, im.width * 0.62, im.height * 0.62);
+    drawPersonLook(ctx, this.look, this.walkAnim, this.moving, this.weapon, this.dead);
     ctx.restore();
+    if (this.dead) return;
     if (this.mission === 'target') drawTargetMark(ctx, this.x, this.y - 22);
+    else if (this.mission === 'ally') drawTargetMark(ctx, this.x, this.y - 22, '#4caf50');
+    else if (this.fare) drawTargetMark(ctx, this.x, this.y - 22, '#ffd400');
   }
 }
 
-function drawTargetMark(ctx, x, y) {
+function drawTargetMark(ctx, x, y, col = '#ff3b3b') {
   const b = Math.sin(World.time * 6) * 3;
-  ctx.fillStyle = '#ff3b3b';
+  ctx.fillStyle = col;
   ctx.beginPath(); ctx.moveTo(x - 7, y - 10 + b); ctx.lineTo(x + 7, y - 10 + b); ctx.lineTo(x, y + b); ctx.fill();
 }
 
@@ -713,7 +768,10 @@ class Pickup {
     const pl = World.player;
     if (pl.dead || pl.car) return;
     if (dist2(pl.x, pl.y, this.x, this.y) < 24 * 24) {
-      if (this.kind === 'health') {
+      if (this.kind === 'armor') {
+        pl.armor = 100;
+        Game.message('Бронежилет');
+      } else if (this.kind === 'health') {
         if (pl.hp >= 100) return;
         pl.hp = 100;
         Game.message('Здоровье восстановлено');
@@ -738,7 +796,10 @@ class Pickup {
     ctx.translate(this.x, this.y + b);
     ctx.fillStyle = 'rgba(255,255,140,0.25)';
     ctx.beginPath(); ctx.arc(0, 0, 16 + Math.sin(World.time * 6) * 2, 0, TAU); ctx.fill();
-    if (this.kind === 'health') {
+    if (this.kind === 'armor') {
+      ctx.fillStyle = '#455a64'; ctx.beginPath(); ctx.moveTo(-9, -9); ctx.lineTo(9, -9); ctx.lineTo(8, 9); ctx.lineTo(-8, 9); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#90a4ae'; ctx.fillRect(-6, -6, 12, 4);
+    } else if (this.kind === 'health') {
       ctx.fillStyle = '#e53935';
       ctx.beginPath(); ctx.moveTo(0, 8); ctx.bezierCurveTo(-14, -2, -8, -14, 0, -6); ctx.bezierCurveTo(8, -14, 14, -2, 0, 8); ctx.fill();
     } else if (this.kind === 'money') {
