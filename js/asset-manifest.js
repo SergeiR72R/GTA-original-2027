@@ -241,9 +241,16 @@ const PRO_PEOPLE = [
 ];
 
 // Банды: узнаваемые машины, таксофон, персонажи с каждым оружием
+// Машины банд — карикатурные, суть банды видна с первого взгляда, на крыше
+// крупная яркая эмблема банды (вымышленная, без текста)
+const GANG_CAR_STYLE = 'CARICATURED cartoon design with exaggerated proportions, like a custom toy car in a satirical crime game: the gang identity must be obvious instantly even at a small size. A LARGE, BRIGHT, bold and simple fictional gang emblem is painted across the whole roof, centered, high contrast, readable from directly above. The emblem is fictional: no real brands, no real flags, no religious or political symbols, no text, no letters.';
 const GANG_VEHICLES = [
-  ['lux_odessa', 'Машина бригады «Одесса»', 'Big black 1990s German-style luxury sedan, long and boxy, heavily tinted windows, lots of chrome trim, a thin blood-red pinstripe running along the hood, roof and trunk centerline, chrome wheels, no badges. Instantly recognizable as a gangster car.'],
-  ['pickup_bahar', 'Пикап клана Аль-Бахар', 'White double-cab pickup truck on raised suspension, a wide teal-green stripe along the hood and roof, black roll bar behind the cab with four round spotlights, open cargo bed with a spare tyre and a few wooden crates, no badges. Instantly recognizable.'],
+  ['lux_odessa', 'Машина бригады «Одесса»', 'Odessa Brigade, a Russian-speaking 1990s-style mafia: an absurdly long black luxury limousine-sedan with a huge chrome grille, gold-plated rims, gold trim along the sides, heavily tinted windows, fluffy dice visible through the windshield. ROOF EMBLEM: a big golden anchor with a small crown on top, inside a blood-red circle with a thick gold ring.'],
+  ['pickup_bahar', 'Пикап клана Аль-Бахар', 'Al-Bahar clan from old Jaffa port ("bahar" means sea): a white monster pickup truck on huge off-road tyres and raised suspension, teal-green racing stripes, black roll bar with a row of big round spotlights, the open cargo bed overflowing with crates of bright Jaffa oranges and a fishing net. ROOF EMBLEM: a big teal-green circle with a white stylized curling sea wave and a jumping fish.'],
+];
+const GANG_VEHICLES2 = [
+  ['lions_car', 'Машина «Львов Гондэра»', 'Lions of Gondar, a crew of young Ethiopian-Israeli rappers with their own music studio: a bright yellow tuned street-racer hatchback with a gigantic rear spoiler, wide flared fenders, neon-green underglow, green and red racing stripes, two huge subwoofer speakers visible through the open rear hatch. ROOF EMBLEM: a big roaring lion head wearing a crown, yellow and black, inside a green circle.'],
+  ['iran_car', 'Фургон иранской сети', 'The Iranian spy network pretending to be a carpet delivery company: a dark charcoal-grey boxy van, comically suspicious, bristling with antennas and a satellite dish on the roof edge, blacked-out windows, rolled-up Persian-style carpets strapped to the roof rack along the sides. ROOF EMBLEM: a fake carpet-shop logo — a big rolled red carpet with a single watchful eye in the middle, inside an orange diamond.'],
 ];
 const GANG_PROPS = [
   ['payphone', 'Таксофон', 'An Israeli street payphone on a single pole, seen from directly above: a grey metal box under a small curved grey hood with a blue stripe along its edge, a black handset on a coiled cord at one side, slightly worn and scratched, rectangular footprint.'],
@@ -327,11 +334,12 @@ const ASSET_MANIFEST = (() => {
   for (const [file, title, , clothes] of PRO_PEOPLE) pro({ cat: 'chars', file, title, kind: 'new', size: '1024x1024', ref: true, prompt: `${ASSET_STYLE.common} ${ASSET_STYLE.person} A man wearing ${clothes}. ${REF_PHOTO.replace('face, ', '')} ${ASSET_STYLE.isolated}` });
   // банды — в самом конце
   const gang = (o) => out.push(Object.assign({ batch: 'gangs' }, o));
-  for (const [file, title, desc] of GANG_VEHICLES) {
-    const base = `${ASSET_STYLE.common} ${ASSET_STYLE.vehicle} ${desc} ${ASSET_STYLE.isolated}`;
+  const gangCar = (file, title, desc) => {
+    const base = `${ASSET_STYLE.common.replace('no text, no logos', 'no text')} ${ASSET_STYLE.vehicle.replace('generic design without any real brand badges or logos', 'no real brand badges')} ${GANG_CAR_STYLE} ${desc} ${ASSET_STYLE.isolated}`;
     gang({ cat: 'vehicles', file, title, kind: 'new', size: '768x1024', prompt: base });
     for (const st of DAMAGE_STAGES) gang({ cat: 'vehicles', file: file + st.suffix, title: `${title} — ${st.title}`, kind: 'edit', base: file, size: '768x1024', prompt: st.prompt, full: `${base} ${st.prompt.replace(/^Edit the previous image of this exact vehicle\. Keep EXACTLY the same [^.]*\. /, '')}` });
-  }
+  };
+  for (const [file, title, desc] of GANG_VEHICLES) gangCar(file, title, desc);
   for (const [file, title, desc] of GANG_PROPS) gang({ cat: 'props', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.common} ${desc} ${ASSET_STYLE.isolated}` });
   for (const [file, title, list] of WEAPON_CHARS) {
     const desc = CHAR_ASSETS.find((c) => c[0] === file)[2];
@@ -340,6 +348,8 @@ const ASSET_MANIFEST = (() => {
         full: `${ASSET_STYLE.common} ${ASSET_STYLE.person.replace(', arms relaxed', ', ' + WEAPON_POSE[w])} ${desc} ${ASSET_STYLE.isolated}` });
     }
   }
+  // машины «Львов» и иранцев в карикатурном виде — после всего остального
+  for (const [file, title, desc] of GANG_VEHICLES2) gangCar(file, title, desc);
   return out;
 })();
 

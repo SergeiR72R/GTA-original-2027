@@ -53,7 +53,8 @@ const GEN_VEH = {
   truck: ['truck'], barrel: ['barrel'],
 };
 
-const FACTION_CAR_SPRITE = { russian: 'lux_odessa', arab: 'pickup_bahar', lions: 'hatch_lions', iran: 'van_iran' };
+// карикатурная машина банды; если её ещё нет — прежняя картинка
+const FACTION_CAR_SPRITE = { russian: ['lux_odessa'], arab: ['pickup_bahar'], lions: ['lions_car', 'hatch_lions'], iran: ['iran_car', 'van_iran'] };
 
 const Vehicles = {
   cache: new Map(),
@@ -61,8 +62,8 @@ const Vehicles = {
   // Какой сгенерированный спрайт (assets/gen/vehicles) взять для типа, если есть
   genKey(type, faction) {
     // у каждой банды своя узнаваемая машина
-    const own = faction && FACTION_CAR_SPRITE[faction];
-    if (own && FACTIONS[faction].car === type && Assets.gen['vehicles/' + own]) return own;
+    const own = faction && FACTIONS[faction].car === type && (FACTION_CAR_SPRITE[faction] || []).find((k) => Assets.gen['vehicles/' + k]);
+    if (own) return own;
     // есть хоть одна картинка этого типа — берём из готовых; нет — машину рисует код
     const list = (GEN_VEH[type] || []).filter((k) => Assets.gen['vehicles/' + k]);
     return list.length ? pick(list) : null;

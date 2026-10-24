@@ -7,8 +7,8 @@
 
 ## Цель
 
-Сгенерировать в **Gemini** (https://gemini.google.com) 267 картинок для
-браузерной игры с видом сверху: 110 спрайтов машин (каждая — целая и
+Сгенерировать в **Gemini** (https://gemini.google.com) 275 картинок для
+браузерной игры с видом сверху: 118 спрайтов машин (каждая — целая и
 три стадии повреждений), 70 персонажей, 30 фасадов и витрин,
 25 объектов улиц, 12 текстур и 20 портретов героев для окна звонка. Скачать каждую картинку **ровно один раз и строго по порядку
 номеров** из списка ниже.
@@ -94,9 +94,9 @@ only add the damage» и повтори.
 
 ---
 
-# Список ассетов (267)
+# Список ассетов (275)
 
-## Машины (110)
+## Машины (118)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -1653,7 +1653,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Машины (110)
+## Машины (118)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -1993,7 +1993,7 @@ Edit the previous image of this exact character. Keep EXACTLY the same person, f
 ```
 
 
-## Машины (110)
+## Машины (118)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -2141,7 +2141,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Машины (110)
+## Машины (118)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -2150,7 +2150,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 - [ ] Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Big black 1990s German-style luxury sedan, long and boxy, heavily tinted windows, lots of chrome trim, a thin blood-red pinstripe running along the hood, roof and trunk centerline, chrome wheels, no badges. Instantly recognizable as a gangster car. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, no real brand badges. Vehicle fills about 85% of the image height. CARICATURED cartoon design with exaggerated proportions, like a custom toy car in a satirical crime game: the gang identity must be obvious instantly even at a small size. A LARGE, BRIGHT, bold and simple fictional gang emblem is painted across the whole roof, centered, high contrast, readable from directly above. The emblem is fictional: no real brands, no real flags, no religious or political symbols, no text, no letters. Odessa Brigade, a Russian-speaking 1990s-style mafia: an absurdly long black luxury limousine-sedan with a huge chrome grille, gold-plated rims, gold trim along the sides, heavily tinted windows, fluffy dice visible through the windshield. ROOF EMBLEM: a big golden anchor with a small crown on top, inside a blood-red circle with a thick gold ring. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 247. `vehicles/lux_odessa_d1.png` — Машина бригады «Одесса» — лёгкие повреждения
@@ -2182,7 +2182,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 - [ ] Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White double-cab pickup truck on raised suspension, a wide teal-green stripe along the hood and roof, black roll bar behind the cab with four round spotlights, open cargo bed with a spare tyre and a few wooden crates, no badges. Instantly recognizable. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, no real brand badges. Vehicle fills about 85% of the image height. CARICATURED cartoon design with exaggerated proportions, like a custom toy car in a satirical crime game: the gang identity must be obvious instantly even at a small size. A LARGE, BRIGHT, bold and simple fictional gang emblem is painted across the whole roof, centered, high contrast, readable from directly above. The emblem is fictional: no real brands, no real flags, no religious or political symbols, no text, no letters. Al-Bahar clan from old Jaffa port ("bahar" means sea): a white monster pickup truck on huge off-road tyres and raised suspension, teal-green racing stripes, black roll bar with a row of big round spotlights, the open cargo bed overflowing with crates of bright Jaffa oranges and a fishing net. ROOF EMBLEM: a big teal-green circle with a white stylized curling sea wave and a jumping fish. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 251. `vehicles/pickup_bahar_d1.png` — Пикап клана Аль-Бахар — лёгкие повреждения
@@ -2329,5 +2329,74 @@ Edit the previous image of this exact character. Keep EXACTLY the same person, f
 
 ```
 Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding an assault rifle with a wooden stock and a curved magazine. Same art style, same lighting.
+```
+
+
+## Машины (118)
+
+Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
+
+### 268. `vehicles/lions_car.png` — Машина «Львов Гондэра»
+
+- [ ] Новая картинка, формат вертикальный 3:4.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, no real brand badges. Vehicle fills about 85% of the image height. CARICATURED cartoon design with exaggerated proportions, like a custom toy car in a satirical crime game: the gang identity must be obvious instantly even at a small size. A LARGE, BRIGHT, bold and simple fictional gang emblem is painted across the whole roof, centered, high contrast, readable from directly above. The emblem is fictional: no real brands, no real flags, no religious or political symbols, no text, no letters. Lions of Gondar, a crew of young Ethiopian-Israeli rappers with their own music studio: a bright yellow tuned street-racer hatchback with a gigantic rear spoiler, wide flared fenders, neon-green underglow, green and red racing stripes, two huge subwoofer speakers visible through the open rear hatch. ROOF EMBLEM: a big roaring lion head wearing a crown, yellow and black, inside a green circle. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 269. `vehicles/lions_car_d1.png` — Машина «Львов Гондэра» — лёгкие повреждения
+
+- [ ] Правка картинки `lions_car` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
+```
+
+### 270. `vehicles/lions_car_d2.png` — Машина «Львов Гондэра» — тяжёлые повреждения
+
+- [ ] Правка картинки `lions_car` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
+```
+
+### 271. `vehicles/lions_car_d3.png` — Машина «Львов Гондэра» — сгоревший остов
+
+- [ ] Правка картинки `lions_car` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
+```
+
+### 272. `vehicles/iran_car.png` — Фургон иранской сети
+
+- [ ] Новая картинка, формат вертикальный 3:4.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, no real brand badges. Vehicle fills about 85% of the image height. CARICATURED cartoon design with exaggerated proportions, like a custom toy car in a satirical crime game: the gang identity must be obvious instantly even at a small size. A LARGE, BRIGHT, bold and simple fictional gang emblem is painted across the whole roof, centered, high contrast, readable from directly above. The emblem is fictional: no real brands, no real flags, no religious or political symbols, no text, no letters. The Iranian spy network pretending to be a carpet delivery company: a dark charcoal-grey boxy van, comically suspicious, bristling with antennas and a satellite dish on the roof edge, blacked-out windows, rolled-up Persian-style carpets strapped to the roof rack along the sides. ROOF EMBLEM: a fake carpet-shop logo — a big rolled red carpet with a single watchful eye in the middle, inside an orange diamond. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 273. `vehicles/iran_car_d1.png` — Фургон иранской сети — лёгкие повреждения
+
+- [ ] Правка картинки `iran_car` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
+```
+
+### 274. `vehicles/iran_car_d2.png` — Фургон иранской сети — тяжёлые повреждения
+
+- [ ] Правка картинки `iran_car` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
+```
+
+### 275. `vehicles/iran_car_d3.png` — Фургон иранской сети — сгоревший остов
+
+- [ ] Правка картинки `iran_car` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
 ```
 
