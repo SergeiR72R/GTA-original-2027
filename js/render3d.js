@@ -94,7 +94,18 @@ class Batch {
     g.translate(cx, y0 + (rotX || rotZ ? 0 : h / 2), cz);
     this.geo(g, col);
   }
-  // плоскость, лежащая горизонтально (для крон, навесов, флагов, свечения)
+  // флаг на древке: полотнище висит от верхушки древка под углом (камера
+  // сверху видит его, но оно не лежит плашмя), развевается по ветру yaw
+  banner(px, top, pz, w, h, yaw, col) {
+    const g = new THREE.PlaneGeometry(w, h);
+    g.translate(w / 2, -h / 2, 0);   // верхний левый угол — у древка
+    g.rotateX(-0.9);                 // наклон ≈50° от вертикали: виден сверху
+    g.rotateZ(-0.12);                // чуть провисает
+    g.rotateY(yaw);
+    g.translate(px, top, pz);
+    this.geo(g, col);
+  }
+  // плоскость, лежащая горизонтально (для крон, навесов, свечения)
   flat(cx, y, cz, w, d, rot, col) {
     const g = new THREE.PlaneGeometry(w, d);
     g.rotateX(-Math.PI / 2);
@@ -538,7 +549,7 @@ const R3 = {
           break;
         }
         case 'plants': for (let i = 0; i < 4; i++) { P.box(x + i * 9, y, z, 7, 6, 7, COL('#8d5a3b')); P.box(x + i * 9, y + 6, z, 8, 6, 8, COL(i % 2 ? '#43a047' : '#e91e63')); } break;
-        case 'flag': P.box(x, y, z, 1.5, 40, 1.5, COL('#dddddd')); B('flag').flat(x + 13, y + 40, z + 6, 26, 17, 0, WHITE); break;
+        case 'flag': P.box(x, y, z, 1.5, 40, 1.5, COL('#dddddd')); B('flag').banner(x, y + 40, z, 26, 17, 0.5, WHITE); break;
         case 'pool': {
           const pw = it.w * W, pd = it.h * D;
           P.box(x + pw / 2, y, z + pd / 2, pw + 6, 1.2, pd + 6, COL('#ffffff'));
@@ -616,7 +627,7 @@ const R3 = {
         d.hx = hx; d.hz = hz;
         break;
       }
-      case 'flag': P.cyl(d.x, 0, d.y, 1.2, 1.5, d.h * 1.6, 6, COL('#cccccc')); B('flag').flat(d.x + 14, d.h * 1.6, d.y + 8, 28, 19, 0, WHITE); break;
+      case 'flag': P.cyl(d.x, 0, d.y, 1.2, 1.5, d.h * 1.6, 6, COL('#cccccc')); B('flag').banner(d.x, d.h * 1.6, d.y, 28, 19, 0.5, WHITE); break;
       case 'lifeguard': {
         const h = 40;
         for (const [ox, oz] of [[-16, -16], [16, -16], [-16, 16], [16, 16]]) P.box(d.x + ox, 0, d.y + oz, 2.5, h, 2.5, COL('#8d6e63'));
@@ -1099,31 +1110,64 @@ const R3 = {
   syncLights(view) {
     const M = this.lightObjs || (this.lightObjs = new Map());
     if (!this.lightKit) {
+      // луч: светлое пятно у лампы, вперёд расширяется и гаснет
+      const beamTex = (rgb) => {
+        const c = document.createElement('canvas'); c.width = 64; c.height = 128;
+        const g = c.getContext('2d');
+        const gr = g.createLinearGradient(0, 0, 0, 128);
+        gr.addColorStop(0, `rgba(${rgb},0.95)`); gr.addColorStop(0.35, `rgba(${rgb},0.45)`); gr.addColorStop(1, `rgba(${rgb},0)`);
+        g.fillStyle = gr;
+        g.beginPath(); g.moveTo(26, 0); g.lineTo(38, 0); g.lineTo(64, 128); g.lineTo(0, 128); g.closePath(); g.fill();
+        return c;
+      };
+      const beam = (rgb) => new THREE.MeshBasicMaterial({ map: this.tex(beamTex(rgb)), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, opacity: 0.55 });
+      const lamp = (c) => new THREE.MeshBasicMaterial({ color: c });
       this.lightKit = {
         pole: new THREE.BoxGeometry(5, 64, 5).translate(0, 32, 0),
         band: new THREE.BoxGeometry(6, 8, 6).translate(0, 20, 0),
-        head: new THREE.BoxGeometry(12, 10, 26).translate(0, 66, 0),
-        bulb: new THREE.SphereGeometry(5, 8, 6).translate(0, 73, 0),
+        // корпус стоит вертикально, лицом к подъезжающим машинам (+Z до поворота)
+        head: new THREE.BoxGeometry(12, 30, 9).translate(0, 74, 2),
+        visor: new THREE.BoxGeometry(12, 1.5, 6).translate(0, 89, 8),
+        lampG: new THREE.BoxGeometry(7, 7, 1).translate(0, 0, 7),
+        // луч: от лампы вперёд и вниз на полосу
+        beamG: (() => { const g = new THREE.PlaneGeometry(40, 110); g.translate(0, -55, 0); g.rotateX(-(Math.PI / 2 - 0.55)); return g; })(),
         mPole: new THREE.MeshLambertMaterial({ color: 0x2b2b2b }), mBand: new THREE.MeshLambertMaterial({ color: 0xf2c230 }),
-        r: new THREE.MeshBasicMaterial({ color: 0xff2a20 }), y: new THREE.MeshBasicMaterial({ color: 0xffcc22 }), g: new THREE.MeshBasicMaterial({ color: 0x3dff5a }),
+        on: { r: lamp(0xff2a20), y: lamp(0xffcc22), g: lamp(0x3dff5a) },
+        off: { r: lamp(0x4a1210), y: lamp(0x4a3d10), g: lamp(0x123f19) },
+        beam: { r: beam('255,50,40'), y: beam('255,200,40'), g: beam('70,255,100') },
       };
     }
     const K = this.lightKit, live = new Set();
+    // куда смотрит светофор на углу: навстречу машинам, для которых он стоит
+    // справа перед перекрёстком (СЗ — на север, СВ — на восток, ЮВ — на юг, ЮЗ — на запад)
+    const FACE = [[0, -1], [1, 0], [0, 1], [-1, 0]];
     for (const L of City.lights) {
       if ((L.x1 + 2) * TILE < view.x0 || (L.x0 - 2) * TILE > view.x1 || (L.y1 + 2) * TILE < view.y0 || (L.y0 - 2) * TILE > view.y1) continue;
       live.add(L);
       let o = M.get(L);
       if (!o) {
         o = new THREE.Group(); o.bulbs = [];
-        for (const [x, z, vert] of City.lightCorners(L)) {
-          const p = new THREE.Mesh(K.pole, K.mPole), b = new THREE.Mesh(K.band, K.mBand), h = new THREE.Mesh(K.head, K.mPole), u = new THREE.Mesh(K.bulb, K.r);
-          for (const m of [p, b, h, u]) m.position.set(x, 0, z);
+        City.lightCorners(L).forEach(([x, z, vert], i) => {
+          const [fx, fz] = FACE[i], yaw = Math.atan2(fx, fz);
+          const grp = new THREE.Group(); grp.position.set(x, 0, z); grp.rotation.y = yaw;
+          const p = new THREE.Mesh(K.pole, K.mPole), b = new THREE.Mesh(K.band, K.mBand);
+          const h = new THREE.Mesh(K.head, K.mPole), v = new THREE.Mesh(K.visor, K.mPole);
           p.castShadow = true;
-          o.add(p, b, h, u); o.bulbs.push({ u, vert });
-        }
+          const lamps = {};
+          for (const [k, y] of [['r', 83], ['y', 74], ['g', 65]]) { const m = new THREE.Mesh(K.lampG, K.off[k]); m.position.y = y; lamps[k] = m; grp.add(m); }
+          const beam = new THREE.Mesh(K.beamG, K.beam.r); beam.position.set(0, 74, 8); beam.renderOrder = 3;
+          grp.add(p, b, h, v, beam);
+          o.add(grp); o.bulbs.push({ lamps, beam, vert, st: '' });
+        });
         this.scene.add(o); M.set(L, o);
       }
-      for (const b of o.bulbs) b.u.material = K[City.lightState(L.id, b.vert)];
+      for (const b of o.bulbs) {
+        const st = City.lightState(L.id, b.vert);
+        if (st === b.st) continue;
+        b.st = st;
+        for (const k of ['r', 'y', 'g']) b.lamps[k].material = k === st ? K.on[k] : K.off[k];
+        b.beam.material = K.beam[st];
+      }
     }
     for (const [L, o] of M) if (!live.has(L)) { this.scene.remove(o); M.delete(L); }
   },

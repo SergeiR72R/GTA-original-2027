@@ -53,28 +53,93 @@ const GEN_VEH = {
   truck: ['truck'], barrel: ['barrel'],
 };
 
+// Типы без своих картинок берут похожую готовую и переделывают её кодом:
+// 'картинка#как' (см. Vehicles.variant)
+const GEN_ALT = {
+  suv: ['sedan_2', 'sedan_4', 'sedan_1'], lux: ['sedan_4#lux'], taxi: ['sedan_1#taxi'],
+  van: ['van_iran#van'], pickup: ['sedan_1#pickup', 'sedan_2#pickup'],
+};
+
 const Vehicles = {
   cache: new Map(),
+  variants: new Map(),
 
   // Какой сгенерированный спрайт (assets/gen/vehicles) взять для типа, если есть
   genKey(type, faction) {
     if (faction === 'lions' && type === 'hatch' && Assets.gen['vehicles/hatch_lions']) return 'hatch_lions';
     if (faction === 'iran' && type === 'van' && Assets.gen['vehicles/van_iran']) return 'van_iran';
-    const all = GEN_VEH[type] || [];
-    const list = all.filter((k) => Assets.gen['vehicles/' + k]);
-    // если сгенерирована только часть вариантов — остальные машины рисуем сами
-    if (!list.length || Math.random() > list.length / all.length) return null;
-    return pick(list);
+    const list = (GEN_VEH[type] || []).filter((k) => Assets.gen['vehicles/' + k]);
+    if (list.length) return pick(list);
+    const alt = (GEN_ALT[type] || []).filter((k) => Assets.gen['vehicles/' + k.split('#')[0]]);
+    return alt.length ? pick(alt) : null;
   },
 
   // Самая подходящая картинка для стадии урона: ищем _dN, потом стадии ниже.
   // Возвращает { img, stage } — stage показывает, какую стадию картинка уже изображает.
   genForStage(key, stage) {
+    const [base, how] = key.split('#');
+    let r = { img: Assets.gen['vehicles/' + base], stage: 0 };
     for (let s = stage; s >= 1; s--) {
-      const im = Assets.gen['vehicles/' + key + '_d' + s];
-      if (im) return { img: im, stage: s };
+      const im = Assets.gen['vehicles/' + base + '_d' + s];
+      if (im) { r = { img: im, stage: s }; break; }
     }
-    return { img: Assets.gen['vehicles/' + key], stage: 0 };
+    if (how) r.img = this.variant(r.img, how, r.stage);
+    return r;
+  },
+
+  // Переделка готовой картинки под другой тип (кешируется)
+  variant(img, how, stage) {
+    const id = how + ':' + (img.src || img.width + 'x' + img.height) + ':' + stage;
+    let c = this.variants.get(id);
+    if (c) return c;
+    const w = img.width, h = img.height;
+    c = document.createElement('canvas'); c.width = w; c.height = h;
+    const g = c.getContext('2d');
+    if (how === 'van') {
+      // белый развозной фургон из тёмного
+      g.filter = 'grayscale(1) brightness(2.4) contrast(0.85)';
+      g.drawImage(img, 0, 0);
+      g.filter = 'none';
+    } else {
+      g.drawImage(img, 0, 0);
+    }
+    if (how === 'lux') {
+      // чёрный лимузин: затемняем, блики остаются
+      g.globalCompositeOperation = 'multiply'; g.fillStyle = '#3c3c40'; g.fillRect(0, 0, w, h);
+      g.globalCompositeOperation = 'destination-in'; g.drawImage(img, 0, 0);
+      g.globalCompositeOperation = 'source-over';
+    }
+    if (how === 'taxi' && stage < 3) {
+      // жёлтый знак «מונית» на крыше
+      const sw = w * 0.34, sh = h * 0.07, x = (w - sw) / 2, y = h * 0.5 - sh / 2;
+      g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(x + 2, y + 3, sw, sh);
+      g.fillStyle = '#ffd21f'; g.fillRect(x, y, sw, sh);
+      g.strokeStyle = '#6b5400'; g.lineWidth = Math.max(1, w / 120); g.strokeRect(x, y, sw, sh);
+      g.fillStyle = '#222'; g.font = `bold ${Math.round(sh * 0.7)}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText('מונית', w / 2, y + sh / 2 + 1);
+    }
+    if (how === 'pickup') {
+      // открытый кузов вместо задней половины: борта, пол, ящики
+      const y0 = h * 0.5, mx = w * 0.1;
+      // борта — цвета кабины (средний цвет крыши)
+      let side = '#d9d9d6';
+      try {
+        const d = g.getImageData(Math.round(w * 0.35), Math.round(h * 0.42), Math.max(1, Math.round(w * 0.3)), Math.max(1, Math.round(h * 0.06))).data;
+        let r = 0, gg = 0, bb = 0, n = 0;
+        for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200) { r += d[i]; gg += d[i + 1]; bb += d[i + 2]; n++; }
+        if (n) side = `rgb(${Math.round(r / n)},${Math.round(gg / n)},${Math.round(bb / n)})`;
+      } catch (e) { /* без доступа к пикселям — светлые борта */ }
+      g.clearRect(0, y0, w, h - y0);
+      g.fillStyle = stage >= 3 ? '#2a2420' : side; g.fillRect(mx, y0, w - mx * 2, h * 0.47);
+      g.fillStyle = stage >= 3 ? '#1c1714' : '#4a4a4a'; g.fillRect(mx + w * 0.05, y0 + h * 0.02, w - mx * 2 - w * 0.1, h * 0.42);
+      if (stage < 3) for (const [cx, cy] of [[0.35, 0.62], [0.62, 0.6], [0.45, 0.78]]) {
+        g.fillStyle = '#a1774a'; g.fillRect(w * cx - w * 0.12, h * cy - h * 0.05, w * 0.24, h * 0.1);
+        g.strokeStyle = '#6d4c2b'; g.lineWidth = Math.max(1, w / 90); g.strokeRect(w * cx - w * 0.12, h * cy - h * 0.05, w * 0.24, h * 0.1);
+      }
+      g.fillStyle = '#c62828'; g.fillRect(mx + w * 0.02, h * 0.965, w * 0.12, h * 0.02); g.fillRect(w - mx - w * 0.14, h * 0.965, w * 0.12, h * 0.02);
+    }
+    this.variants.set(id, c);
+    return c;
   },
 
   // Процедурные повреждения поверх любой машины (в координатах машины, нос вверх).
