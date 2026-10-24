@@ -43,6 +43,17 @@ const Sound = {
     return buf;
   },
 
+  // Глухой удар кузова: низкий шумовой «бум» (под звук аварии)
+  thud(vol = 0.6) {
+    if (!this.ctx || this.muted) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    const src = ctx.createBufferSource(); src.buffer = this.noiseBuf;
+    const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.setValueAtTime(420, t); f.frequency.exponentialRampToValueAtTime(90, t + 0.18);
+    const g = ctx.createGain(); g.gain.setValueAtTime(clamp(vol, 0, 1) * 1.4, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+    src.connect(f); f.connect(g); g.connect(this.master);
+    src.start(t, Math.random() * 0.5, 0.25);
+  },
+
   // Сэмпл из файла; vol 0..1. Если такого ключа нет — случайный из вариантов name0, name1, …
   play(name, vol = 1) {
     if (this.muted) return;

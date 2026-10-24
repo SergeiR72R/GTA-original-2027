@@ -189,6 +189,7 @@ const City = {
   tc(tx, ty) { return { x: tx * TILE + TILE / 2, y: ty * TILE + TILE / 2 }; },
 
   generate() {
+    this.signs = [];
     this.layout();
     const W = this.W, H = this.H;
     this.type = new Uint8Array(W * H);
@@ -355,7 +356,8 @@ const City = {
   // Достопримечательности районов — из простых объёмов, поэтому одинаково
   // видны в 2D и 3D. Квадраты в клетках внутри кварталов (см. LAYOUT).
   landmarks() {
-    const sign = (b, text, sub, bg, fg) => { b.sign = { text, sub, bg, fg }; };
+    // вывеска знакового здания — на стойке у тротуара под его южной стеной
+    const sign = (b, text, sub, bg, fg) => this.labelNear({ x: b.x + b.w / 2, y: b.y + b.h + 30 }, { text, sub, bg, fg });
     // начало внутренней части квартала (после тротуара)
     const I = (bx, by) => { const r = this.blockRect(bx, by); return { x: r.x0 + 1, y: r.y0 + 1, w: r.x1 - r.x0 - 1, h: r.y1 - r.y0 - 1 }; };
     let o;
@@ -896,7 +898,8 @@ const City = {
     P.phoneAr = side(2, 8, 'N', 2);
     P.phoneLions = side(7, 6, 'N', 2);
 
-    // Вывески на крышах
+    // Вывески — не на крышах, а на стойке у тротуара, и только у знаковых мест
+    // (решение пользователя: «не со всеми»). Магазинные надписи — на витринах.
     this.labelNear(P.flat, { text: 'ФЛОРЕНТИН 12', sub: 'дира', bg: '#5d4037', fg: '#ffe0b2' });
     this.labelNear(P.klita, { text: 'משרד הקליטה', sub: 'Мисрад а-Клита', bg: '#1565c0', fg: '#fff' });
     this.labelNear(P.ulpan, { text: 'אולפן', sub: 'Ульпан «Алеф»', bg: '#00897b', fg: '#fff' });
@@ -905,53 +908,40 @@ const City = {
     this.labelNear(P.arHQ, { text: 'מוסך אל-בחר', sub: 'гараж Аль-Бахар', bg: '#eeeeee', fg: '#212121' });
     this.labelNear(P.lionsHQ, { text: 'GONDAR GARAGE', sub: 'студия и мастерская', bg: '#1b7f3a', fg: '#f2c230' });
     this.labelNear(P.gunShop, { text: 'חנות נשק', sub: 'Оружие «Шломо и сыновья»', bg: '#263238', fg: '#ffca28' });
-    this.labelNear(P.blackMarket, { text: 'מחסן', sub: 'склад Рафи', bg: '#4e342e', fg: '#d7ccc8' });
-    // приметы районов: Рамат-Ган «по-русски», Яффо, юг
+    this.labelNear(P.police, { text: 'משטרה', sub: 'Полиция', bg: '#1d4fa3', fg: '#fff' });
+    this.labelNear(P.hospital, { text: 'בית חולים', sub: 'Больница', bg: '#c62828', fg: '#fff' });
+    this.labelNear(P.paint, { text: 'ПОКРАСКА', sub: 'сменить цвет — сбросить розыск', bg: '#5b4a6d', fg: '#ffeb3b' });
     const sign = (bx, by, where, off, text, sub, bg, fg) => this.labelNear(side(bx, by, where, off), { text, sub, bg, fg });
-    sign(8, 1, 'S', 0, 'ГАСТРОНОМ «БЕРЁЗКА»', 'пельмени · селёдка · квас', '#2e7d32', '#fff');
-    sign(9, 2, 'W', 0, 'БАНЯ НА БЯЛИКА', 'с веником', '#6d4c41', '#ffe0b2');
-    sign(7, 4, 'N', 0, 'КЛУБ «МАТРЁШКА»', 'живая музыка', '#880e4f', '#ffd54f');
-    sign(9, 4, 'W', 0, 'КНИГИ · DVD · SIM', 'всё по-русски', '#1565c0', '#fff');
     sign(7, 0, 'S', 0, 'הבורסה', 'Биржа алмазов', '#37474f', '#b3e5fc');
     sign(6, 1, 'S', 0, 'הקריה', 'Кирья — штаб', '#33691e', '#fff');
-    sign(1, 8, 'S', 0, 'מאפיית יפו', 'пекарня · бейгале', '#bf6c2f', '#fff3e0');
-    sign(0, 8, 'E', 0, 'מסגד', 'мечеть Аджами', '#00695c', '#fff');
     sign(2, 7, 'S', 0, 'שוק הפשפשים', 'блошиный рынок', '#5d4037', '#ffd54f');
-    sign(0, 7, 'E', 0, 'נמל יפו', 'рыбный рынок', '#0277bd', '#fff');
-    sign(5, 6, 'E', 0, 'LALIBELA', 'эфиопская кухня', '#2e7d32', '#fdd835');
+    sign(0, 7, 'E', 0, 'נמל יפו', 'Яффский порт', '#0277bd', '#fff');
     sign(6, 5, 'S', 0, 'התחנה המרכזית', 'Центральная автостанция', '#424242', '#fff');
     sign(8, 7, 'N', 0, 'שוק התקווה', 'Шук а-Тиква', '#c62828', '#fff');
     sign(2, 4, 'N', 0, 'נחלת בנימין', 'ярмарка мастеров', '#6a1b9a', '#fff');
-    for (const r of P.restaurants) this.labelNear(r.p, { text: r.name, sub: '', bg: '#ff6a1a', fg: '#fff' });
-    const SIGNS = [
-      ['פלאפל', '#2e7d32'], ['שווארמה', '#c62828'], ['מכולת', '#1565c0'], ['קיוסק', '#6a1b9a'],
-      ['МАГАЗИН «БЕРЁЗКА»', '#37474f'], ['פיצה', '#e65100'], ['בורקס', '#8d6e63'], ['מספרה', '#ad1457'],
-      ['סלולר', '#0277bd'], ['ГАСТРОНОМ', '#4e342e'], ['חומוס', '#827717'], ['קפה', '#5d4037'],
-    ];
-    const srng = makeRng(42);
-    for (const b of this.buildings) {
-      if (b.kind !== 'rect' || b.sign || b.removed || b.landmark || b.h1 > 90 || b.w < 90 || b.h < 90 || b.glass) continue;
-      if (srng() < 0.16) { const sg = srng.pick(SIGNS); b.sign = { text: sg[0], bg: sg[1], fg: '#fff' }; }
-    }
-    // рекламные щиты на крышах — как в GTA2, их видно сверху
-    let ad = 0;
-    for (const b of this.buildings) {
-      if (b.kind !== 'rect' || b.sign || b.removed || b.landmark || b.label || b.h1 > 260 || b.w < 110 || b.h < 90 || b.glass) continue;
-      if (srng() < 0.09) { const a = ADS[ad++ % ADS.length]; b.sign = { text: a.he, sub: a.ru, bg: a.bg, fg: a.fg }; }
-    }
   },
 
-  // Здание рядом с точкой
+  // Вывеска на стойке у тротуара рядом с точкой (у входа в здание)
   labelNear(p, sign) {
+    this.signs = this.signs || [];
     const tx = Math.floor(p.x / TILE), ty = Math.floor(p.y / TILE);
-    let best = -1, bd = 99;
-    for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) {
-      if (!this.inside(tx + dx, ty + dy)) continue;
-      const id = this.bid[this.idx(tx + dx, ty + dy)];
-      const d = Math.abs(dx) + Math.abs(dy);
-      if (id >= 0 && d < bd && this.buildings[id].kind === 'rect') { bd = d; best = id; }
+    let at = { x: p.x, y: p.y };
+    if (!this.isWalkway(tx, ty)) {
+      for (let r = 1; r < 4 && at === p; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (this.isWalkway(tx + dx, ty + dy)) { at = this.tc(tx + dx, ty + dy); dy = dx = r + 1; }
     }
-    if (best >= 0) this.buildings[best].sign = sign;
+    this.signs.push(Object.assign({ x: at.x + 18, y: at.y - 6 }, sign));
+  },
+
+  // Вывески на стойках (2D): табличка с надписью, сверху её видно целиком
+  drawSigns(ctx, view) {
+    for (const s of this.signs || []) {
+      if (s.x < view.x0 - 80 || s.x > view.x1 + 80 || s.y < view.y0 - 60 || s.y > view.y1 + 60) continue;
+      const c = s.cv || (s.cv = Facades.signBoard(s));
+      const w = 74, h = w * c.height / c.width;
+      ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(s.x - w / 2 + 4, s.y - h / 2 + 5, w, h);
+      ctx.fillStyle = '#555'; ctx.fillRect(s.x - w * 0.36, s.y + h / 2 - 2, 3, 6); ctx.fillRect(s.x + w * 0.36 - 3, s.y + h / 2 - 2, 3, 6);
+      ctx.drawImage(c, s.x - w / 2, s.y - h / 2, w, h);
+    }
   },
 
   // Квартал под точкой (дороги относятся к кварталу справа/снизу)
@@ -1593,26 +1583,6 @@ const City = {
     if (b.label === 'H') {
       ctx.strokeStyle = '#fff'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(w / 2, h / 2, Math.min(w, h) * 0.3, 0, TAU); ctx.stroke();
       ctx.fillStyle = '#e53935'; ctx.font = `bold ${Math.min(w, h) * 0.35}px sans-serif`; ctx.fillText('H', w / 2, h / 2);
-    } else if (b.label === 'POLICE') {
-      ctx.fillStyle = '#fff'; ctx.font = `bold ${h * 0.22}px sans-serif`; ctx.fillText('משטרה', w / 2, h / 2);
-    } else if (b.label === 'PAINT') {
-      ctx.fillStyle = '#ffeb3b'; ctx.font = `bold ${h * 0.28}px sans-serif`; ctx.fillText('ПОКРАСКА', w / 2, h / 2);
-      ctx.fillStyle = '#e91e63'; ctx.fillRect(w * 0.1, h * 0.75, w * 0.2, h * 0.1); ctx.fillStyle = '#03a9f4'; ctx.fillRect(w * 0.4, h * 0.75, w * 0.2, h * 0.1); ctx.fillStyle = '#8bc34a'; ctx.fillRect(w * 0.7, h * 0.75, w * 0.2, h * 0.1);
-    }
-    if (b.sign) {
-      // вывеска-билборд на крыше
-      const sg = b.sign;
-      const fs = Math.max(9, Math.min(h * 0.16, 22 * s));
-      ctx.font = `bold ${fs}px "Segoe UI", Arial, sans-serif`;
-      const tw = Math.min(w * 0.9, ctx.measureText(sg.text).width + 14 * s);
-      const sh = fs * (sg.sub ? 2.3 : 1.5);
-      const sx = (w - tw) / 2, sy = h * 0.62 - sh / 2;
-      ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(sx + 4 * s, sy + 4 * s, tw, sh);
-      ctx.fillStyle = sg.bg; ctx.fillRect(sx, sy, tw, sh);
-      ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.5; ctx.strokeRect(sx + 2, sy + 2, tw - 4, sh - 4);
-      ctx.fillStyle = sg.fg;
-      ctx.fillText(sg.text, w / 2, sy + fs * 0.8, tw - 8);
-      if (sg.sub) { ctx.font = `${fs * 0.7}px "Segoe UI", Arial, sans-serif`; ctx.fillText(sg.sub, w / 2, sy + fs * 1.75, tw - 8); }
     }
     ctx.restore();
   },
@@ -1651,6 +1621,7 @@ const City = {
     for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) {
       for (const d of this.lgrid[cy * cw + cx]) this.drawLowItem(ctx, d, time);
     }
+    this.drawSigns(ctx, view);
   },
 
   drawLowItem(ctx, d, time) {

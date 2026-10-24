@@ -27,6 +27,19 @@ const Facades = {
   cache: {},
 
   // Плакат для щита и тумбы (256 × 128)
+  // Табличка вывески (для стоек у тротуара)
+  signBoard(sg) {
+    const c = document.createElement('canvas');
+    c.width = 512; c.height = sg.sub ? 168 : 116;
+    const g = c.getContext('2d');
+    g.fillStyle = sg.bg; g.fillRect(0, 0, c.width, c.height);
+    g.strokeStyle = 'rgba(255,255,255,0.65)'; g.lineWidth = 7; g.strokeRect(7, 7, c.width - 14, c.height - 14);
+    g.fillStyle = sg.fg; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = 'bold 62px Arial, sans-serif'; g.fillText(sg.text, 256, 60, 480);
+    if (sg.sub) { g.font = '36px Arial, sans-serif'; g.fillText(sg.sub, 256, 126, 480); }
+    return c;
+  },
+
   adPoster(i) {
     const key = 'ad' + i;
     if (this.cache[key]) return this.cache[key];

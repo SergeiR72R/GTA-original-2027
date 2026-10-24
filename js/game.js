@@ -530,7 +530,7 @@ const Game = {
       pl.step(mx * sp * dt, my * sp * dt);
       pl.walkAnim += dt * 12;
       pl.stepT = (pl.stepT || 0) - dt;
-      if (pl.stepT <= 0) { pl.stepT = sp > 100 ? 0.3 : 0.42; Sound.play(City.t(Math.floor(pl.x / TILE), Math.floor(pl.y / TILE)) === T_GRASS ? 'grass' : 'step', sp > 100 ? 0.18 : 0.1); }
+      if (pl.stepT <= 0) { pl.stepT = sp > 100 ? 0.3 : 0.42; Sound.play(City.t(Math.floor(pl.x / TILE), Math.floor(pl.y / TILE)) === T_GRASS ? 'grass' : 'step', sp > 100 ? 0.5 : 0.35); }
     }
     const mouseAim = this.mouse.active && World.time - this.mouse.moved < 3;
     if (mouseAim) {
@@ -613,6 +613,11 @@ const Game = {
             Sound.play('crash', 0.8);
           }
         }
+        // лёгкий удар машины игрока о другую — металлический стук
+        if (maxRv > 35 && maxRv <= 130 && (a.driver === 'player' || b.driver === 'player') && World.time - (a.lastBump || -9) > 0.35) {
+          a.lastBump = World.time;
+          Sound.play('crash', clamp(0.12 + maxRv / 400, 0.15, 0.45)); Sound.thud(clamp(0.3 + maxRv / 250, 0.35, 0.85));
+        }
         if (maxRv > 130 && World.time - (a.lastCrash || -9) > 0.5 && World.time - (b.lastCrash || -9) > 0.5) {
           a.lastCrash = b.lastCrash = World.time;
           const by = a.driver === 'player' ? 'player' : b.driver === 'player' ? 'player' : null;
@@ -621,6 +626,7 @@ const Game = {
           a.damage(dmg, b.driver === 'player' ? 'player' : null, hx, hy);
           b.damage(dmg, a.driver === 'player' ? 'player' : null, hx, hy);
           if (by || dist2(a.x, a.y, pl.x, pl.y) < 500 * 500) Sound.play('crash', clamp(maxRv / 300, 0.2, 1));
+          if (by) Sound.thud(clamp(maxRv / 300, 0.5, 1));
           spawnSparks(hx, hy, 5);
           if (by) this.shake(clamp(maxRv / 60, 1, 8));
           // водитель трафика злится и сигналит

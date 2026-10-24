@@ -442,7 +442,9 @@ const R3 = {
       }
     }
     // таблички и вывески на крышах — отдельными плоскостями
-    for (const b of City.buildings) if (!b.removed && (b.sign || b.label)) this.roofSign(b);
+    // на крышах — только вертолётная площадка; вывески стоят у тротуара
+    for (const b of City.buildings) if (!b.removed && b.label === 'H') this.roofSign(b);
+    for (const sg of City.signs || []) this.groundSign(sg);
     this.applyQuality(true);
     // заранее рисуем спрайты всех машин всех цветов: первый показ не даст рывка
     for (const t in VTYPES) {
@@ -594,6 +596,22 @@ const R3 = {
       this.scene.add(legs.mesh(this.mats.props));
       (this.signMats || (this.signMats = [])).push(m.material);
     }
+  },
+
+  // Вывеска на двух стойках у тротуара: табличка наклонена, сверху читается
+  groundSign(s) {
+    const c = s.cv || (s.cv = Facades.signBoard(s));
+    const w = 78, h = w * c.height / c.width;
+    const g = new THREE.PlaneGeometry(w, h);
+    g.rotateX(-0.95);
+    g.translate(s.x, 30, s.y);
+    const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ map: this.tex(c), emissive: WHITE, emissiveMap: this.tex(c), emissiveIntensity: 0, side: THREE.DoubleSide }));
+    this.scene.add(m);
+    (this.signMats || (this.signMats = [])).push(m.material);
+    const legs = new Batch();
+    legs.box(s.x - w * 0.36, 0, s.y, 2.5, 26, 2.5, COL('#555555'));
+    legs.box(s.x + w * 0.36, 0, s.y, 2.5, 26, 2.5, COL('#555555'));
+    this.scene.add(legs.mesh(this.mats.props));
   },
 
   decor(d, B) {
@@ -751,7 +769,8 @@ const R3 = {
     // чтобы вокруг картинки не было тёмной рамки
     const top = new THREE.MeshLambertMaterial({ map: this.tex(cv), alphaTest: 0.5 });
     const side = new THREE.MeshLambertMaterial({ color: COL(car.color).multiplyScalar(0.7) });
-    const bw = car.w * 0.82, bl = car.l * 0.9, base = car.moto ? 1 : 3;
+    // у мотоцикла под картинкой только узкая тёмная рама, а не коробка во всю ширину
+    const bw = car.w * (car.moto ? 0.22 : 0.82), bl = car.l * (car.moto ? 0.7 : 0.9), base = car.moto ? 1 : 3;
     const body = new THREE.Mesh(new THREE.BoxGeometry(bw, h, bl), side);
     body.position.y = h / 2 + base;
     body.castShadow = true; body.receiveShadow = true;
@@ -808,7 +827,7 @@ const R3 = {
     o.top.map.needsUpdate = true;
     // бока — под цвет картинки (у сгенерированных машин свой цвет, не car.color)
     const avg = car.genKey && !(car.dead && shown < 3) ? this.carColor(o.cv, car.genKey + ':' + shown) : null;
-    o.side.color.copy(avg || COL(car.dead && shown < 3 ? '#2a2420' : car.color)).multiplyScalar(0.7);
+    o.side.color.copy(car.moto ? COL('#262626') : avg || COL(car.dead && shown < 3 ? '#2a2420' : car.color)).multiplyScalar(0.7);
   },
 
   // средний цвет непрозрачной части картинки машины (кешируется)

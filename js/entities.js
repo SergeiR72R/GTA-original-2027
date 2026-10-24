@@ -179,12 +179,17 @@ class Car {
     if (!this.hitsWall(nx, this.y, this.a)) this.x = nx; else { hit = true; this.vx *= -0.3; }
     const ny = this.y + this.vy * dt;
     if (!this.hitsWall(this.x, ny, this.a)) this.y = ny; else { hit = true; this.vy *= -0.3; }
+    // удар игрока о стену на небольшой скорости — глухой стук
+    if (hit && sp > 30 && sp <= 110 && this.driver === 'player' && World.time - this.lastHit > 0.35) {
+      this.lastHit = World.time;
+      Sound.play('crash', clamp(0.12 + sp / 400, 0.15, 0.4)); Sound.thud(clamp(0.3 + sp / 250, 0.35, 0.8));
+    }
     if (hit && sp > 110 && World.time - this.lastHit > 0.4) {
       this.lastHit = World.time;
       // удар о стену на полной скорости — примерно 15% «здоровья» обычной машины
       const sg = this.fspeed >= 0 ? 1 : -1;
       if (sp > 150) this.damage((sp - 150) * 0.07, null, this.x + this.fwd.x * this.l / 2 * sg, this.y + this.fwd.y * this.l / 2 * sg);
-      if (this.driver === 'player' || dist2(this.x, this.y, World.player.x, World.player.y) < 600 * 600) Sound.play('crash', clamp(sp / 400, 0.2, 1));
+      if (this.driver === 'player' || dist2(this.x, this.y, World.player.x, World.player.y) < 600 * 600) { Sound.play('crash', clamp(sp / 400, 0.2, 1)); if (this.driver === 'player') Sound.thud(clamp(sp / 300, 0.5, 1)); }
       spawnSparks(this.x + this.fwd.x * this.l / 2, this.y + this.fwd.y * this.l / 2, 6);
     }
   }
