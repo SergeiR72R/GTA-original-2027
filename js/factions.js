@@ -137,17 +137,21 @@ const GangCars = {
     c.ai = null;
   },
 
-  // патрульная машина банды замечает врага (или того, кто её задел) — в погоню
-  engage(c) {
+  // патрульная машина банды замечает врага (или того, кто её задел): в погоню
+  // не бросается — тормозит, бойцы выходят и стреляют
+  engage(c, dt) {
     const pl = World.player;
     if (pl.dead || !c.driver || c.driver === 'player' || !c.gang) return false;
-    if (!c.provoked && !Factions.hostile(c.faction)) return false;
-    if (!c.provoked) {
-      const tx = pl.car ? pl.car.x : pl.x, ty = pl.car ? pl.car.y : pl.y;
-      if (dist2(c.x, c.y, tx, ty) > 380 * 380 || !City.lineOfSight(c.x, c.y, tx, ty)) return false;
-    } else this.angry(c);
-    c.ai = 'gang'; c.lostT = 0; c.shootT = rand(1, 1.8);
-    c.maxSpeed = c.T.max; // в погоне — не быстрее машины игрока, иначе не уйти
+    if (!c.stopping) {
+      if (!c.provoked && !Factions.hostile(c.faction)) return false;
+      if (!c.provoked) {
+        const tx = pl.car ? pl.car.x : pl.x, ty = pl.car ? pl.car.y : pl.y;
+        if (dist2(c.x, c.y, tx, ty) > 380 * 380 || !City.lineOfSight(c.x, c.y, tx, ty)) return false;
+      }
+      c.stopping = true;
+    }
+    c.drive(dt, c.fspeed > 5 ? -1 : 0, 0, true);
+    if (c.speed < 40) { if (c.provoked) this.angry(c); this.exit(c); }
     return true;
   },
 

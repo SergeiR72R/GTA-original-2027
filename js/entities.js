@@ -315,7 +315,7 @@ class Car {
 
   trafficAI(dt) {
     const tx = Math.floor(this.x / TILE), ty = Math.floor(this.y / TILE);
-    if (this.turf && GangCars.engage(this)) return;
+    if (this.turf && GangCars.engage(this, dt)) return;
     if (!this.target || this.recover > 0) {
       if (this.recover > 0) {
         // сдаём назад медленно (под 85 уже сбивает) и не на людей
