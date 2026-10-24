@@ -487,6 +487,7 @@ class Car {
     }
     if (stage >= 1 && stage <= 2 && shown < stage) Vehicles.drawDamage(ctx, this, stage);
     else if (stage === 0 && this.dents.length) Vehicles.drawDamage(ctx, this, 0);
+    Vehicles.drawRoof(ctx, this);
     this.wreckShown = shown === 3;
     // седок на мотоцикле/скутере
     if (this.moto && this.driver) {

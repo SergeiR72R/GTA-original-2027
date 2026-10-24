@@ -193,7 +193,7 @@ const Strikes = {
 };
 
 // длина пролога: после него начинаются главы (js/chapter1.js)
-const PROLOGUE_LEN = 6;
+const PROLOGUE_LEN = 9; // с миссиями друзей (js/prologue.js)
 const MISSIONS = [
   // ===================== Акт 1: Алия =====================
   {

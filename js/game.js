@@ -24,6 +24,9 @@ const Clock = {
     }
     const sh = this.shabbat;
     if (sh !== this.wasShabbat) { this.wasShabbat = sh; if (sh) Game.message('Шаббат шалом! Автобусы не ходят, на улицах тише.', 5); else if (this.wasShabbat === false) Game.message('Шаббат закончился — шавуа тов!', 4); }
+    // сюжетный хамсин плавно наползает и оседает
+    const ft = this.forceTarget || 0;
+    this.forced = (this.forced || 0) + clamp(ft - (this.forced || 0), -dt * 0.15, dt * 0.25);
     const hm = this.hamsin;
     if (hm !== this.wasHamsin) { this.wasHamsin = hm; if (hm) Game.message('ХАМСИН! Жара +40°, пыль из пустыни.', 4); }
   },
@@ -31,10 +34,11 @@ const Clock = {
   // сила хамсина 0..1: мгла наползает с 9:30 до 11:30 и медленно оседает
   // с 16:30 до 20:00 — уже в сумерках, вместе с темнотой
   get hamsinK() {
-    if (Math.floor(this.min / 1440) !== this.hamsinDay) return 0;
+    const forced = this.forced || 0; // хамсин по сюжету миссии
+    if (Math.floor(this.min / 1440) !== this.hamsinDay) return forced;
     const h = this.hour;
     const s = (x) => x * x * (3 - 2 * x);
-    return s(clamp((h - 9.5) / 2, 0, 1)) * s(clamp((20 - h) / 3.5, 0, 1));
+    return Math.max(forced, s(clamp((h - 9.5) / 2, 0, 1)) * s(clamp((20 - h) / 3.5, 0, 1)));
   },
   get hamsin() { return this.hamsinK > 0.25; },
   // 0 — день, 1 — глубокая ночь
@@ -197,7 +201,13 @@ const Game = {
     Wanted.reset();
     const sv = !fresh && save ? save : null;
     // сохранения до глав: после пролога сюжет переписан — продолжаем с первой перебивки
-    if (sv && !sv.v && sv.index > PROLOGUE_LEN) { sv.index = PROLOGUE_LEN; sv.rep = null; }
+    if (sv && !sv.v && sv.index > 6) { sv.index = 6; sv.rep = null; }
+    // v3: в пролог вставлены «Матрас» (5-я) и «Солярис уходит», «Подрезал» (7-я и 8-я)
+    if (sv && (sv.v || 1) < 3) {
+      const mapOld = (i) => (i <= 3 ? i : i === 4 ? 5 : i === 5 ? 8 : i + 3);
+      sv.index = mapOld(sv.index);
+      if (sv.cp) sv.cp.index = mapOld(sv.cp.index);
+    }
     Story.reset(sv && sv.flags);
     Factions.reset(sv && sv.rep);
     Jobs.reset(sv);
@@ -228,7 +238,7 @@ const Game = {
   save() {
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify({
-        v: 2, index: Missions.index, cp: Missions.cp, flags: Story.flags,
+        v: 3, index: Missions.index, cp: Missions.cp, flags: Story.flags,
         money: World.player.money, rep: Factions.rep, word: Missions.word,
         deliveries: Jobs.deliveries, rides: Jobs.rides, clock: Clock.min,
         ammo: World.player.ammo, armor: Math.round(World.player.armor),

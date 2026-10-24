@@ -285,18 +285,10 @@ const order = [...new Set(ALL.map(grp))];
 const missing = ALL.filter((a) => !have(a)).sort((a, b) => order.indexOf(grp(a)) - order.indexOf(grp(b)) || a.n - b.n);
 if (fs.existsSync(path.join(root, 'assets/gen'))) {
   fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_MISSING.md'), flowDoc(missing, `Задание для Claude в Chrome: недостающие ассеты (${missing.length})`,
-    `> Это всё, чего пока нет в игре: старые картинки, которые не получились или\n> пропущены, и новые для пролога. Файл собирается автоматически.`));
+    `> Единое задание: всё, чего пока нет в игре, — недостающие машины (со\n> стадиями повреждений) и новое для пролога: белый «Цивик» Даниса, серый\n> «Солярис» Димы, китайский электрокар, матрас, портреты и спрайты Димы,\n> Даниса и Семёна. Файл собирается автоматически.\n>\n> **Фото.** Для портретов и спрайтов Димы, Даниса и Семёна пользователь\n> прикладывает фото — прикладывай нужное к каждому такому запросу.`, missing.find((a) => a.ref && a.cat === 'portraits')));
   console.log(`Недостающих: ${missing.length} → CLAUDE_CHROME_ASSETS_MISSING.md`);
 }
 fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_CH1.md'), flow);
-// пролог: друзья Лёвы — отдельное задание, портреты и спрайты по фото
-const PRO = ALL.filter((a) => a.batch === 'prologue');
-if (PRO.length) {
-  const firstPortrait = PRO.find((a) => a.cat === 'portraits');
-  fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_PROLOGUE.md'), flowDoc(PRO, 'Задание для Claude в Chrome: пролог — друзья Лёвы',
-    `> Новые картинки для миссий пролога (номера ${PRO[0].n}–${PRO[PRO.length - 1].n}): белый «Цивик» Даниса,\n> серый «Солярис» Димы, новый китайский электрокар, матрас на крышу,\n> портреты и спрайты Димы, Даниса и Семёна.\n>\n> **Фото.** Для портретов и спрайтов Димы, Даниса и Семёна пользователь\n> прикладывает фото. Прикладывай нужное фото к каждому такому запросу.`, firstPortrait));
-  console.log(`пролог: ${PRO.length} → CLAUDE_CHROME_ASSETS_PROLOGUE.md`);
-}
 fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS.md'), agent);
 fs.writeFileSync(path.join(root, 'PROMPTS.md'), human);
 console.log(`Готово: ${total} ассетов → CLAUDE_CHROME_ASSETS.md, PROMPTS.md; глава 1: ${CH1.length} → CLAUDE_CHROME_ASSETS_CH1.md`);

@@ -75,6 +75,23 @@ const Vehicles = {
     return { img: Assets.gen['vehicles/' + key], stage: 0 };
   },
 
+  // Груз на крыше (car.roof): матрас Семёна. roofTilt — насколько он съехал
+  drawRoof(g, car) {
+    if (car.roof !== 'mattress' || car.dead) return;
+    const w = car.w * 0.92, l = car.l * 0.56, t = car.roofTilt || 0;
+    g.save(); g.translate(t * car.w * 0.25, -car.l * 0.02); g.rotate(t);
+    const im = Assets.gen['props/mattress'];
+    if (im) g.drawImage(im, -w / 2, -l / 2, w, l);
+    else {
+      g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(-w / 2 + 2, -l / 2 + 3, w, l);
+      g.fillStyle = '#f4f6f8'; g.fillRect(-w / 2, -l / 2, w, l);
+      g.strokeStyle = '#90caf9'; g.lineWidth = 1;
+      for (let i = 1; i < 5; i++) { g.beginPath(); g.moveTo(-w / 2, -l / 2 + l * i / 5); g.lineTo(w / 2, -l / 2 + l * i / 5); g.stroke(); }
+      g.fillStyle = '#ff8f00'; g.fillRect(-w / 2 - 2, -l * 0.28, w + 4, 3); g.fillRect(-w / 2 - 2, l * 0.22, w + 4, 3);
+    }
+    g.restore();
+  },
+
   // Процедурные повреждения поверх любой машины (в координатах машины, нос вверх).
   // dents — места реальных ударов: u поперёк (-1 левый борт … 1 правый), v вдоль (-1 нос … 1 корма).
   drawDamage(g, car, stage) {

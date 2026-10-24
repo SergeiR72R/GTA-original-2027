@@ -798,6 +798,7 @@ const R3 = {
     }
     if (stage >= 1 && stage <= 2 && shown < stage) Vehicles.drawDamage(g, car, stage);
     else if (stage === 0 && car.dents.length) Vehicles.drawDamage(g, car, 0);
+    Vehicles.drawRoof(g, car);
     if (car.moto && car.driver) {
       const L = car.driver === 'player' ? World.player.look : car.driver.look;
       if (L) { g.save(); g.translate(0, 4); g.rotate(-Math.PI / 2); drawPersonLook(g, L, 0, false, null, false); g.restore(); }
@@ -838,7 +839,7 @@ const R3 = {
       }
       o.grp.visible = true;
       // текстуру перерисовываем только при смене вида/повреждений
-      const st = car.stage * 1000 + car.dents.length * 10 + (car.dead ? 1 : 0) + (car.driver ? 2 : 0);
+      const st = car.stage * 1000 + car.dents.length * 10 + (car.dead ? 1 : 0) + (car.driver ? 2 : 0) + (car.roof ? 1e5 + Math.round((car.roofTilt || 0) * 20) * 1e6 : 0);
       if (st !== o.st || car.color !== o.color || car.genKey !== o.genKey || car.type !== o.type) {
         o.st = st; o.color = car.color; o.genKey = car.genKey; o.type = car.type;
         this.drawCarTex(o, car);
