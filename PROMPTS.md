@@ -34,9 +34,9 @@ Claude в Chrome).
 | Текстуры | без фона, бесшовная | вид сверху | квадрат 1024×1024 |
 | Портреты | свой цветной фон | по плечи, лицом к зрителю | квадрат |
 
-# Список (229)
+# Список (245)
 
-## Машины (93)
+## Машины (102)
 
 ### 1. `vehicles/sedan_1.png` — Седан белый
 
@@ -743,7 +743,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 ```
 
 
-## Персонажи (54)
+## Персонажи (57)
 
 ### 89. `chars/player.png` — Лёва Гольдман (герой)
 
@@ -1141,7 +1141,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Объекты улиц (23)
+## Объекты улиц (24)
 
 ### 138. `props/palm.png` — Финиковая пальма
 
@@ -1315,7 +1315,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Портреты для звонков (17)
+## Портреты для звонков (20)
 
 ### 159. `portraits/portrait_leva.png` — Портрет: Лёва Гольдман
 
@@ -1441,7 +1441,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Портреты для звонков (17)
+## Портреты для звонков (20)
 
 ### 174. `portraits/portrait_garik.png` — Портрет: Гарик, племянник Сёмы
 
@@ -1500,7 +1500,7 @@ Head-and-shoulders caricature portrait for the phone-call dialog box of a satiri
 ```
 
 
-## Персонажи (54)
+## Персонажи (57)
 
 ### 181. `chars/garik.png` — Гарик
 
@@ -1575,7 +1575,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Машины (93)
+## Машины (102)
 
 ### 190. `vehicles/truck.png` — Тягач с контейнером
 
@@ -1618,7 +1618,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Объекты улиц (23)
+## Объекты улиц (24)
 
 ### 195. `props/planter.png` — Кадка с цветами
 
@@ -1808,7 +1808,7 @@ Flat bold billboard advertisement illustration, vivid colors, simple readable sh
 ```
 
 
-## Персонажи (54)
+## Персонажи (57)
 
 ### 218. `chars/player_walk1.png` — Лёва — шаг левой
 
@@ -1904,5 +1904,145 @@ Edit the previous image of this exact character. Keep EXACTLY the same person, f
 
 ```
 Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: his RIGHT foot steps forward: the right shoe is clearly visible in front of the body (to the right of the torso), the left shoe is visible behind the body (to the left of the torso), the left arm swings slightly forward and the right arm back. Same art style, same lighting.
+```
+
+
+## Машины (102)
+
+### 230. `vehicles/civic.png` — Белый «Цивик» Даниса
+
+Новая картинка, формат вертикальный 3:4.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White sporty Japanese compact sedan from the late 2000s, slightly lowered, dark tinted windows, black aftermarket alloy wheels, small rear spoiler on the trunk, a few stickers on the rear window (no readable text), no badges. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 231. `vehicles/civic_d1.png` — Белый «Цивик» Даниса — лёгкие повреждения
+
+Правка картинки `civic` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
+```
+
+### 232. `vehicles/civic_d2.png` — Белый «Цивик» Даниса — тяжёлые повреждения
+
+Правка картинки `civic` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
+```
+
+### 233. `vehicles/civic_d3.png` — Белый «Цивик» Даниса — сгоревший остов
+
+Правка картинки `civic` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
+```
+
+### 234. `vehicles/solaris.png` — Серый «Солярис» Димы
+
+Новая картинка, формат вертикальный 3:4.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Grey budget Korean-style compact sedan from the mid-2010s, plain and practical, a bit dusty, a small dent on the rear bumper, no badges. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 235. `vehicles/solaris_d1.png` — Серый «Солярис» Димы — лёгкие повреждения
+
+Правка картинки `solaris` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
+```
+
+### 236. `vehicles/solaris_d2.png` — Серый «Солярис» Димы — тяжёлые повреждения
+
+Правка картинки `solaris` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
+```
+
+### 237. `vehicles/solaris_d3.png` — Серый «Солярис» Димы — сгоревший остов
+
+Правка картинки `solaris` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
+```
+
+### 238. `vehicles/china_ev.png` — Новый китайский электрокар
+
+Новая картинка, формат вертикальный 3:4.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Brand-new compact electric crossover in pearl-white with a black panoramic glass roof, hidden door handles, a thin full-width light bar at the front and back, clean futuristic Chinese design, no badges. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+
+## Объекты улиц (24)
+
+### 239. `props/mattress.png` — Матрас на крышу
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A double bed mattress, white with a light-blue quilted pattern, tied with two orange cargo straps across it, seen from directly above, rectangular, longer than wide. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+
+## Портреты для звонков (20)
+
+### 240. `portraits/portrait_dima.png` — Портрет: Дима
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Head-and-shoulders caricature portrait for the phone-call dialog box of a satirical crime video game set in Tel Aviv: bold comic-book style, thick black ink outlines, flat cel shading, exaggerated proportions (big head, small shoulders, oversized nose and expressive eyebrows), the character looks toward the viewer at a slight three-quarter angle, flat solid single-color background with a subtle halftone dot pattern, square format, head and shoulders fill the frame. Funny and good-natured, never mean; exaggerate expression and props, not ethnic features. No text, no letters, no speech bubbles, no frame, no logos, no watermark. Dima, Leva's flatmate and fellow immigrant, early 30s, practical and a bit stingy, holding a phone with a car sale ad. Base the face, hairstyle, facial hair, glasses (if any) and build on the attached reference photo of this real person, caricatured in exactly the same style as the other characters; keep him clearly recognizable. Background: light grey-blue.
+```
+
+### 241. `portraits/portrait_danis.png` — Портрет: Данис
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Head-and-shoulders caricature portrait for the phone-call dialog box of a satirical crime video game set in Tel Aviv: bold comic-book style, thick black ink outlines, flat cel shading, exaggerated proportions (big head, small shoulders, oversized nose and expressive eyebrows), the character looks toward the viewer at a slight three-quarter angle, flat solid single-color background with a subtle halftone dot pattern, square format, head and shoulders fill the frame. Funny and good-natured, never mean; exaggerate expression and props, not ethnic features. No text, no letters, no speech bubbles, no frame, no logos, no watermark. Danis, Leva's friend from the ulpan, late 20s, hot-headed street racer, proud of his car, holding his car keys. Base the face, hairstyle, facial hair, glasses (if any) and build on the attached reference photo of this real person, caricatured in exactly the same style as the other characters; keep him clearly recognizable. Background: hot orange.
+```
+
+### 242. `portraits/portrait_semyon.png` — Портрет: Семён
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Head-and-shoulders caricature portrait for the phone-call dialog box of a satirical crime video game set in Tel Aviv: bold comic-book style, thick black ink outlines, flat cel shading, exaggerated proportions (big head, small shoulders, oversized nose and expressive eyebrows), the character looks toward the viewer at a slight three-quarter angle, flat solid single-color background with a subtle halftone dot pattern, square format, head and shoulders fill the frame. Funny and good-natured, never mean; exaggerate expression and props, not ethnic features. No text, no letters, no speech bubbles, no frame, no logos, no watermark. Semyon, Leva's second flatmate, early 30s, calm and easy-going, always moving to a new apartment, hugging a rolled-up pillow. Base the face, hairstyle, facial hair, glasses (if any) and build on the attached reference photo of this real person, caricatured in exactly the same style as the other characters; keep him clearly recognizable. Background: mint green.
+```
+
+
+## Персонажи (57)
+
+### 243. `chars/dima.png` — Дима
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), arms relaxed. Character fills about 70% of the image. A man wearing grey t-shirt, dark jeans, sneakers, phone in hand. Base the hairstyle, facial hair, glasses (if any) and build on the attached reference photo of this real person, caricatured in exactly the same style as the other characters; keep him clearly recognizable. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 244. `chars/danis.png` — Данис
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), arms relaxed. Character fills about 70% of the image. A man wearing black t-shirt, light jeans, white sneakers, car keys in hand. Base the hairstyle, facial hair, glasses (if any) and build on the attached reference photo of this real person, caricatured in exactly the same style as the other characters; keep him clearly recognizable. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 245. `chars/semyon.png` — Семён
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), arms relaxed. Character fills about 70% of the image. A man wearing white t-shirt, shorts, flip-flops. Base the hairstyle, facial hair, glasses (if any) and build on the attached reference photo of this real person, caricatured in exactly the same style as the other characters; keep him clearly recognizable. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 

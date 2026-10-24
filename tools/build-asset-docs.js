@@ -191,7 +191,8 @@ function flowList(list) {
     const how = a.kind === 'edit'
       ? `Правка картинки \`${a.base}\`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую \`${a.base}\`). Если нельзя — генерируй по полному промпту. Формат ${FLOW_SIZE[a.size]}.`
       : `Новая картинка, формат ${FLOW_SIZE[a.size]}.`;
-    out += `### ${a.n}. \`${a.cat}/${a.file}.png\` — ${a.title}\n\n- [ ] ${how}\n\n`;
+    const ref = a.ref ? ' **Приложи к запросу фото этого человека** (его даст пользователь) — внешность берётся с фото, стиль — как у остальных героев игры. Без фото не генерируй — спроси пользователя.' : '';
+    out += `### ${a.n}. \`${a.cat}/${a.file}.png\` — ${a.title}\n\n- [ ] ${how}${ref}\n\n`;
     if (a.kind === 'edit') out += `Правка:\n\n\`\`\`\n${a.prompt}\n\`\`\`\n\nПолный промпт:\n\n\`\`\`\n${full}\n\`\`\`\n\n`;
     else out += `\`\`\`\n${a.prompt}\n\`\`\`\n\n`;
   }
@@ -206,9 +207,8 @@ function flowDoc(list, title, intro, first) {
 1. Сгенерируй **только № ${first.n}** (\`${first.cat}/${first.file}.png\`).
 2. Покажи её пользователю и спроси: «Так подходит? Продолжать?»
 3. **Дальше не иди, пока пользователь не ответит «да».** Если просит
-   поправить (реалистичнее, другой ракурс, цвет) — допиши его уточнение в
-   конец промпта, сгенерируй заново и снова спроси. Потом добавляй это же
-   уточнение ко всем остальным машинам.
+   поправить — допиши его уточнение в конец промпта, сгенерируй заново и
+   снова спроси. Потом добавляй это же уточнение к похожим пунктам списка.
 4. После «да» — весь список по порядку.
 ` : '';
   return `# ${title}
@@ -282,16 +282,21 @@ const have = (a) => bundleKeys.has(a.cat + '/' + a.file) || fs.existsSync(path.j
 // по категориям, чтобы машины шли одним блоком
 const grp = (a) => (a.cat === 'facades' && a.file.startsWith('poster') ? 'posters' : a.file === 'barrel' ? 'props' : a.cat);
 const order = [...new Set(ALL.map(grp))];
-// машины не генерируем (решение пользователя): в игре остаются готовые и процедурные;
-// бочка с топливом — не машина, её оставляем
-const isCar = (a) => a.cat === 'vehicles' && !(a.base || a.file).startsWith('barrel');
-const missing = ALL.filter((a) => !have(a) && !isCar(a)).sort((a, b) => order.indexOf(grp(a)) - order.indexOf(grp(b)) || a.n - b.n);
+const missing = ALL.filter((a) => !have(a)).sort((a, b) => order.indexOf(grp(a)) - order.indexOf(grp(b)) || a.n - b.n);
 if (fs.existsSync(path.join(root, 'assets/gen'))) {
   fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_MISSING.md'), flowDoc(missing, `Задание для Claude в Chrome: недостающие ассеты (${missing.length})`,
-    `> Это всё, чего пока нет в игре: старые картинки, которые не получились или\n> пропущены, новые для главы 1 и кадры ходьбы героев. Машины не генерируем.\n> Файл собирается автоматически.`));
+    `> Это всё, чего пока нет в игре: старые картинки, которые не получились или\n> пропущены, и новые для пролога. Файл собирается автоматически.`));
   console.log(`Недостающих: ${missing.length} → CLAUDE_CHROME_ASSETS_MISSING.md`);
 }
 fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_CH1.md'), flow);
+// пролог: друзья Лёвы — отдельное задание, портреты и спрайты по фото
+const PRO = ALL.filter((a) => a.batch === 'prologue');
+if (PRO.length) {
+  const firstPortrait = PRO.find((a) => a.cat === 'portraits');
+  fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_PROLOGUE.md'), flowDoc(PRO, 'Задание для Claude в Chrome: пролог — друзья Лёвы',
+    `> Новые картинки для миссий пролога (номера ${PRO[0].n}–${PRO[PRO.length - 1].n}): белый «Цивик» Даниса,\n> серый «Солярис» Димы, новый китайский электрокар, матрас на крышу,\n> портреты и спрайты Димы, Даниса и Семёна.\n>\n> **Фото.** Для портретов и спрайтов Димы, Даниса и Семёна пользователь\n> прикладывает фото. Прикладывай нужное фото к каждому такому запросу.`, firstPortrait));
+  console.log(`пролог: ${PRO.length} → CLAUDE_CHROME_ASSETS_PROLOGUE.md`);
+}
 fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS.md'), agent);
 fs.writeFileSync(path.join(root, 'PROMPTS.md'), human);
 console.log(`Готово: ${total} ассетов → CLAUDE_CHROME_ASSETS.md, PROMPTS.md; глава 1: ${CH1.length} → CLAUDE_CHROME_ASSETS_CH1.md`);

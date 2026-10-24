@@ -223,6 +223,23 @@ const WALK_FRAMES = [
 ];
 const WALK_EDIT = (pose) => `Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: ${pose}. Same art style, same lighting.`;
 
+// Пролог: друзья Лёвы — Дима, Данис, Семён. Внешность — по фото, которые
+// пользователь прикладывает в Google Flow (ref: true)
+const REF_PHOTO = 'Base the face, hairstyle, facial hair, glasses (if any) and build on the attached reference photo of this real person, caricatured in exactly the same style as the other characters; keep him clearly recognizable.';
+const PRO_VEHICLES = [
+  ['civic', 'Белый «Цивик» Даниса', 'White sporty Japanese compact sedan from the late 2000s, slightly lowered, dark tinted windows, black aftermarket alloy wheels, small rear spoiler on the trunk, a few stickers on the rear window (no readable text), no badges.', true],
+  ['solaris', 'Серый «Солярис» Димы', 'Grey budget Korean-style compact sedan from the mid-2010s, plain and practical, a bit dusty, a small dent on the rear bumper, no badges.', true],
+  ['china_ev', 'Новый китайский электрокар', 'Brand-new compact electric crossover in pearl-white with a black panoramic glass roof, hidden door handles, a thin full-width light bar at the front and back, clean futuristic Chinese design, no badges.', false],
+];
+const PRO_PROPS = [
+  ['mattress', 'Матрас на крышу', 'A double bed mattress, white with a light-blue quilted pattern, tied with two orange cargo straps across it, seen from directly above, rectangular, longer than wide.'],
+];
+const PRO_PEOPLE = [
+  ['dima', 'Дима', 'Dima, Leva\'s flatmate and fellow immigrant, early 30s, practical and a bit stingy, holding a phone with a car sale ad.', 'grey t-shirt, dark jeans, sneakers, phone in hand', 'Background: light grey-blue.'],
+  ['danis', 'Данис', 'Danis, Leva\'s friend from the ulpan, late 20s, hot-headed street racer, proud of his car, holding his car keys.', 'black t-shirt, light jeans, white sneakers, car keys in hand', 'Background: hot orange.'],
+  ['semyon', 'Семён', 'Semyon, Leva\'s second flatmate, early 30s, calm and easy-going, always moving to a new apartment, hugging a rolled-up pillow.', 'white t-shirt, shorts, flip-flops', 'Background: mint green.'],
+];
+
 // Полный упорядоченный список: машины (с уроном), персонажи, фасады, объекты, текстуры, портреты
 const ASSET_MANIFEST = (() => {
   const out = [];
@@ -272,6 +289,16 @@ const ASSET_MANIFEST = (() => {
         prompt: WALK_EDIT(f.pose), full: `${charPrompt(file)} Walking pose: ${f.pose}.` });
     }
   }
+  // пролог: друзья Лёвы и их машины — после кадров ходьбы
+  const pro = (o) => out.push(Object.assign({ batch: 'prologue' }, o));
+  for (const [file, title, desc, damage] of PRO_VEHICLES) {
+    const base = `${ASSET_STYLE.common} ${ASSET_STYLE.vehicle} ${desc} ${ASSET_STYLE.isolated}`;
+    pro({ cat: 'vehicles', file, title, kind: 'new', size: '768x1024', prompt: base });
+    if (damage) for (const st of DAMAGE_STAGES) pro({ cat: 'vehicles', file: file + st.suffix, title: `${title} — ${st.title}`, kind: 'edit', base: file, size: '768x1024', prompt: st.prompt, full: `${base} ${st.prompt.replace(/^Edit the previous image of this exact vehicle\. Keep EXACTLY the same [^.]*\. /, '')}` });
+  }
+  for (const [file, title, desc] of PRO_PROPS) pro({ cat: 'props', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.common} ${desc} ${ASSET_STYLE.isolated}` });
+  for (const [file, title, who, , bg] of PRO_PEOPLE) pro({ cat: 'portraits', file: 'portrait_' + file, title: `Портрет: ${title}`, kind: 'new', size: '1024x1024', ref: true, prompt: `${ASSET_STYLE.portrait} ${who} ${REF_PHOTO} ${bg}` });
+  for (const [file, title, , clothes] of PRO_PEOPLE) pro({ cat: 'chars', file, title, kind: 'new', size: '1024x1024', ref: true, prompt: `${ASSET_STYLE.common} ${ASSET_STYLE.person} A man wearing ${clothes}. ${REF_PHOTO.replace('face, ', '')} ${ASSET_STYLE.isolated}` });
   return out;
 })();
 
