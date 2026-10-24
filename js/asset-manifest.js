@@ -252,6 +252,10 @@ const GANG_VEHICLES2 = [
   ['lions_car', 'Машина «Львов Гондэра»', 'Lions of Gondar, a crew of young Ethiopian-Israeli rappers with their own music studio: a bright yellow tuned street-racer hatchback with a gigantic rear spoiler, wide flared fenders, neon-green underglow, green and red racing stripes, two huge subwoofer speakers visible through the open rear hatch. ROOF EMBLEM: a big roaring lion head wearing a crown, yellow and black, inside a green circle.'],
   ['iran_car', 'Фургон иранской сети', 'The Iranian spy network pretending to be a carpet delivery company: a dark charcoal-grey boxy van, comically suspicious, bristling with antennas and a satellite dish on the roof edge, blacked-out windows, rolled-up Persian-style carpets strapped to the roof rack along the sides. ROOF EMBLEM: a fake carpet-shop logo — a big rolled red carpet with a single watchful eye in the middle, inside an orange diamond.'],
 ];
+// Тарантайка Лёвы: на ней он везёт Семёна с матрасом
+const LEVA_CAR = [
+  ['leva_vw', '«Фолькс» Лёвы', 'A tired old 1990s German compact hatchback (classic boxy two-box shape), faded pale grey-blue paint with sun-bleached roof, the front left door in a different color (matte primer grey), small dents and rust spots, plain steel wheels, two black roof-rack bars, a cracked plastic mirror held with tape, no badges. A lovable clunker.'],
+];
 const GANG_PROPS = [
   ['payphone', 'Таксофон', 'An Israeli street payphone on a single pole, seen from directly above: a grey metal box under a small curved grey hood with a blue stripe along its edge, a black handset on a coiled cord at one side, slightly worn and scratched, rectangular footprint.'],
 ];
@@ -350,6 +354,12 @@ const ASSET_MANIFEST = (() => {
   }
   // машины «Львов» и иранцев в карикатурном виде — после всего остального
   for (const [file, title, desc] of GANG_VEHICLES2) gangCar(file, title, desc);
+  // «Фолькс» Лёвы — после всего остального
+  for (const [file, title, desc] of LEVA_CAR) {
+    const base = `${ASSET_STYLE.common} ${ASSET_STYLE.vehicle} ${desc} ${ASSET_STYLE.isolated}`;
+    out.push({ batch: 'leva', cat: 'vehicles', file, title, kind: 'new', size: '768x1024', prompt: base });
+    for (const st of DAMAGE_STAGES) out.push({ batch: 'leva', cat: 'vehicles', file: file + st.suffix, title: `${title} — ${st.title}`, kind: 'edit', base: file, size: '768x1024', prompt: st.prompt, full: `${base} ${st.prompt.replace(/^Edit the previous image of this exact vehicle\. Keep EXACTLY the same [^.]*\. /, '')}` });
+  }
   return out;
 })();
 

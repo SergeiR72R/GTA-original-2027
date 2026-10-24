@@ -7,8 +7,8 @@
 
 ## Цель
 
-Сгенерировать в **Gemini** (https://gemini.google.com) 275 картинок для
-браузерной игры с видом сверху: 118 спрайтов машин (каждая — целая и
+Сгенерировать в **Gemini** (https://gemini.google.com) 279 картинок для
+браузерной игры с видом сверху: 122 спрайтов машин (каждая — целая и
 три стадии повреждений), 70 персонажей, 30 фасадов и витрин,
 25 объектов улиц, 12 текстур и 20 портретов героев для окна звонка. Скачать каждую картинку **ровно один раз и строго по порядку
 номеров** из списка ниже.
@@ -94,9 +94,9 @@ only add the damage» и повтори.
 
 ---
 
-# Список ассетов (275)
+# Список ассетов (279)
 
-## Машины (118)
+## Машины (122)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -1653,7 +1653,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Машины (118)
+## Машины (122)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -1993,7 +1993,7 @@ Edit the previous image of this exact character. Keep EXACTLY the same person, f
 ```
 
 
-## Машины (118)
+## Машины (122)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -2141,7 +2141,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Машины (118)
+## Машины (122)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -2332,7 +2332,7 @@ Edit the previous image of this exact character. Keep EXACTLY the same person, f
 ```
 
 
-## Машины (118)
+## Машины (122)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -2395,6 +2395,38 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, co
 ### 275. `vehicles/iran_car_d3.png` — Фургон иранской сети — сгоревший остов
 
 - [ ] Правка картинки `iran_car` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
+```
+
+### 276. `vehicles/leva_vw.png` — «Фолькс» Лёвы
+
+- [ ] Новая картинка, формат вертикальный 3:4.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. A tired old 1990s German compact hatchback (classic boxy two-box shape), faded pale grey-blue paint with sun-bleached roof, the front left door in a different color (matte primer grey), small dents and rust spots, plain steel wheels, two black roof-rack bars, a cracked plastic mirror held with tape, no badges. A lovable clunker. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 277. `vehicles/leva_vw_d1.png` — «Фолькс» Лёвы — лёгкие повреждения
+
+- [ ] Правка картинки `leva_vw` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
+```
+
+### 278. `vehicles/leva_vw_d2.png` — «Фолькс» Лёвы — тяжёлые повреждения
+
+- [ ] Правка картинки `leva_vw` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
+```
+
+### 279. `vehicles/leva_vw_d3.png` — «Фолькс» Лёвы — сгоревший остов
+
+- [ ] Правка картинки `leva_vw` из этого же чата.
 
 ```
 Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.

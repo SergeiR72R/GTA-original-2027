@@ -20,7 +20,8 @@ const lookDanis = () => Looks.named('danis', Object.assign(Looks.civilian(), { s
 const lookSemyon = () => Looks.named('semyon', Object.assign(Looks.civilian(), { shirt: '#f5f5f5', pants: '#6b5b45', hair: '#6d4c41', style: 'short' }));
 
 // Машина друга: своя картинка (vehicles/<key>), пока её нет — рисует код нужным цветом
-const SOLARIS = ['solaris', '#8d9298'], CIVIC = ['civic', '#f4f4f2'], CHINA_EV = ['china_ev', '#eef0ec'];
+// LEVA_VW — старый «Фолькс» Лёвы, тарантайка (пока нет картинки — рисует код)
+const LEVA_VW = ['leva_vw', '#93a9b5'], SOLARIS = ['solaris', '#8d9298'], CIVIC = ['civic', '#f4f4f2'], CHINA_EV = ['china_ev', '#eef0ec'];
 function friendCar(c, [key, color]) {
   c.color = color;
   c.genKey = Assets.gen['vehicles/' + key] ? key : null;
@@ -81,7 +82,7 @@ const PR_MATTRESS = staged({
   giver: SEMYON,
   intro: [
     [SEMYON, 'Лёва, привет, это Семён. Да, тот, который спит за стенкой. Я переезжаю — нашёл квартиру в Старом Севере, с балконом!'],
-    [SEMYON, 'Вещей у меня немного, а вот матрас... Дима дал свой «Солярис», последний раз перед продажей. Привяжем матрас на крышу — и поехали. Только плавно.'],
+    [SEMYON, 'Вещей у меня немного, а вот матрас... Можешь на своей тарантайке нас с матрацем подкинуть? Привяжем матрас на крышу — и поехали. Только плавно.'],
   ],
   reward: 800,
   outro: 'Семён: Четвёртый переезд за год. Хозяин сказал «без животных и без вечеринок». Про матрасы ничего не говорил!',
@@ -92,7 +93,7 @@ const PR_MATTRESS = staged({
       name: 'Погрузка',
       start(m) {
         const P = prP();
-        m.car = friendCar(Story.carOnRoad(m, P.flat, 30, 220, { type: 'sedan', color: SOLARIS[1] }), SOLARIS);
+        m.car = friendCar(Story.carOnRoad(m, P.flat, 30, 220, { type: 'hatch', color: LEVA_VW[1] }), LEVA_VW);
         m.car.locked = false;
         m.semyon = Story.ped(m, P.flat.x + 20, P.flat.y, { ai: 'idle', look: lookSemyon(), hp: 100, name: SEMYON });
         m.semyon.mission = 'ally';
@@ -100,9 +101,9 @@ const PR_MATTRESS = staged({
       update(m) {
         const pl = pl_(), c = m.car;
         if (m.semyon.dead) return 'fail:Семён пострадал. Переезд отменяется.';
-        if (c.dead) return 'fail:«Солярис» Димы сгорел. Дима этого не переживёт.';
+        if (c.dead) return 'fail:Фолькс сгорел. Туда ему и дорога.';
         if (!m.tied) {
-          m.text = 'Привяжи матрас Семёна к крыше «Соляриса» (держи E у машины)';
+          m.text = 'Привяжи матрас Семёна к крыше Фолькса (держи E у машины)';
           m.target = c;
           if (Story.hold(m, 'tie', c, 2, 'привязать матрас к крыше', { r: 70 })) {
             m.tied = true; c.roof = 'mattress';
@@ -111,7 +112,7 @@ const PR_MATTRESS = staged({
           }
           return;
         }
-        m.text = 'Садись за руль «Соляриса» (F)';
+        m.text = 'Садись за руль Фолькса (F)';
         m.target = c;
         if (pl.car === c) return 'next';
       },
@@ -119,7 +120,7 @@ const PR_MATTRESS = staged({
     {
       name: 'В дорогу',
       resume(m) {
-        const c = m.car = prPut(prP().flat, SOLARIS);
+        const c = m.car = prPut(prP().flat, LEVA_VW, 'hatch');
         c.roof = 'mattress';
         m.semyon = Story.ped(m, c.x, c.y, { ai: 'idle', look: lookSemyon(), hp: 100, name: SEMYON });
         Story.seat(m.semyon, c);
@@ -130,9 +131,9 @@ const PR_MATTRESS = staged({
       },
       update(m, dt) {
         const pl = pl_(), c = m.car, P = prP();
-        if (c.dead) return 'fail:«Солярис» разбит, матрас — в пепел.';
+        if (c.dead) return 'fail:Фолькс разбит, матрас — в пепел.';
         if (pl.car !== c) {
-          if (!m.loose) { m.text = 'Вернись за руль «Соляриса» — Семён и матрас ждут'; m.target = c; return; }
+          if (!m.loose) { m.text = 'Вернись за руль Фолькса — Семён и матрас ждут'; m.target = c; return; }
         }
         const r = mattressStep(m, c, dt);
         if (r && r.startsWith('fail')) return r;
@@ -155,7 +156,7 @@ const PR_MATTRESS = staged({
       name: 'Объезд',
       resume(m) {
         const P = prP();
-        const c = m.car = prPut({ x: P.prNewFlat.x + 900, y: P.prNewFlat.y + 400 }, SOLARIS);
+        const c = m.car = prPut({ x: P.prNewFlat.x + 900, y: P.prNewFlat.y + 400 }, LEVA_VW, 'hatch');
         c.roof = 'mattress';
         m.semyon = Story.ped(m, c.x, c.y, { ai: 'idle', look: lookSemyon(), hp: 100, name: SEMYON });
         Story.seat(m.semyon, c);
@@ -176,9 +177,9 @@ const PR_MATTRESS = staged({
       },
       update(m, dt) {
         const pl = pl_(), c = m.car, P = prP();
-        if (c.dead) return 'fail:«Солярис» разбит, матрас — в пепел.';
+        if (c.dead) return 'fail:Фолькс разбит, матрас — в пепел.';
         if (m.crowd.some((g) => g.dead) && !m.hitCrowd) { m.hitCrowd = true; Wanted.set(Math.max(Wanted.level, 2)); Game.message('Ты сбил демонстранта! Полиция уже едет', 3); }
-        if (pl.car !== c && !m.loose) { m.text = 'Вернись за руль «Соляриса»'; m.target = c; return; }
+        if (pl.car !== c && !m.loose) { m.text = 'Вернись за руль Фолькса'; m.target = c; return; }
         const r = mattressStep(m, c, dt);
         if (r && r.startsWith('fail')) return r;
         if (r === 'loose') return;
@@ -191,7 +192,7 @@ const PR_MATTRESS = staged({
       name: 'Занести',
       resume(m) {
         const P = prP();
-        const c = m.car = prPut(P.prNewFlat, SOLARIS);
+        const c = m.car = prPut(P.prNewFlat, LEVA_VW, 'hatch');
         c.roof = 'mattress';
         m.semyon = Story.ped(m, c.x, c.y, { ai: 'idle', look: lookSemyon(), hp: 100, name: SEMYON });
         Story.seat(m.semyon, c);
@@ -307,7 +308,7 @@ const PR_SOLARIS = staged({
         c.driver = m.buyer; m.buyer.car = c;
         c.ai = 'scripted'; c.mission = 'target'; c.rams = 3; c.locked = true;
         Game.bigText('МОШЕННИК!', 'Перевод — фальшивый скриншот', '#ff5252');
-        Story.say([[BUYER, 'Деньги ушли, смотри скриншот! Ну всё, я поехал, мециаа!'], [DIMA, 'Лёва... это не банк. Это картинка из фотошопа! Он угоняет мою машину! Догони, только не разбей её!']]);
+        Story.say([[BUYER, 'Деньги ушли, мамой клянусь! Ну всё, я поехал, мециаа!'], [DIMA, 'Лёва... это не банк. Это картинка из фотошопа! Он угоняет мою машину! Догони, только не разбей её!']]);
       },
       update(m, dt) {
         const c = m.car, b = m.buyer;
@@ -383,8 +384,8 @@ const PR_SOLARIS = staged({
         if (r && r.startsWith('fail')) return r;
         if (m.pstage === 2) {
           m.text = 'Отвези Диму домой на новой машине';
-          Story.sayOnce(m, 'a', [[RADIO, '你好! שלום! Ассистент: «Поверните направо. 请右转. פנה ימינה».'], [DIMA, 'Он говорит на трёх языках сразу. Как моя тёща.']]);
-          if (m.stageT > 25) Story.sayOnce(m, 'b', [[DIMA, 'Через пять лет я её продам. Только уже не по скриншоту.']]);
+          Story.sayOnce(m, 'a', [[RADIO, '你好! שלום! Ассистент: «Поверните направо. 请右转. פנה ימינה».'], [DIMA, 'Он говорит на трёх языках сразу…']]);
+          if (m.stageT > 25) Story.sayOnce(m, 'b', [[DIMA, 'Через пять лет я её продам. Ну или поменяю... хотя бы на велосипед.']]);
         }
         if (r === 'arrived') {
           if (m.clean) { Game.addMoney(300); Game.message('Бонус: тест-драйв без единой царапины (+₪300)', 4); }

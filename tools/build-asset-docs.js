@@ -284,8 +284,14 @@ const grp = (a) => (a.cat === 'facades' && a.file.startsWith('poster') ? 'poster
 const order = [...new Set(ALL.map(grp))];
 const missing = ALL.filter((a) => !have(a)).sort((a, b) => order.indexOf(grp(a)) - order.indexOf(grp(b)) || a.n - b.n);
 if (fs.existsSync(path.join(root, 'assets/gen'))) {
+  // вступление собирается из того, чего не хватает: новые картинки (без стадий урона)
+  const what = missing.filter((a) => a.kind === 'new').map((a) => a.title);
+  const ref = missing.some((a) => a.ref);
+  const intro = `> Единое задание: всё, чего пока нет в игре (${missing.length}) — ${what.join(', ')}`
+    + `${missing.some((a) => a.kind === 'edit' && a.cat === 'vehicles') ? ', у машин — со стадиями повреждений' : ''}. Файл собирается автоматически.`
+    + (ref ? '\n>\n> **Фото.** Для пунктов с пометкой о фото пользователь прикладывает фото —\n> прикладывай нужное к каждому такому запросу.' : '');
   fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_MISSING.md'), flowDoc(missing, `Задание для Claude в Chrome: недостающие ассеты (${missing.length})`,
-    `> Единое задание: всё, чего пока нет в игре, — недостающие машины (со\n> стадиями повреждений) и новое для пролога: белый «Цивик» Даниса, серый\n> «Солярис» Димы, китайский электрокар, матрас, портреты и спрайты Димы,\n> Даниса и Семёна; карикатурные машины всех четырёх банд с эмблемами\n> на крышах, таксофон, Лёва и бойцы банд с каждым видом оружия. Файл собирается автоматически.\n>\n> **Фото.** Для портретов и спрайтов Димы, Даниса и Семёна пользователь\n> прикладывает фото — прикладывай нужное к каждому такому запросу.`, missing.find((a) => a.ref && a.cat === 'portraits')));
+    intro, missing.find((a) => a.ref && a.cat === 'portraits')));
   console.log(`Недостающих: ${missing.length} → CLAUDE_CHROME_ASSETS_MISSING.md`);
 }
 // машины банд — отдельным дополнением к большому заданию (досылается следом)
