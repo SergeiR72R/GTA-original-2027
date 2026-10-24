@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { ASSET_MANIFEST, REGEN_VEHICLES } = require('../js/asset-manifest.js');
+const { ASSET_MANIFEST } = require('../js/asset-manifest.js');
 
 const root = path.join(__dirname, '..');
 const CAT = { vehicles: 'Машины', chars: 'Персонажи', facades: 'Фасады и витрины', props: 'Объекты улиц', textures: 'Текстуры', portraits: 'Портреты для звонков' };
@@ -181,11 +181,11 @@ const ALL = ASSET_MANIFEST.map((a, i) => Object.assign({ n: i + 1 }, a));
 function flowList(list) {
   let out = '', cat = null;
   for (const a of list) {
-    const c = a.cat === 'facades' && a.file.startsWith('poster') ? 'posters' : a.cat;
+    const c = a.cat === 'facades' && a.file.startsWith('poster') ? 'posters' : a.file === 'barrel' ? 'props' : a.cat;
     if (c !== cat) {
       cat = c;
       const title = c === 'posters' ? 'Иллюстрации для рекламных щитов' : CAT[c];
-      out += `\n## ${title} (${list.filter((x) => (x.cat === 'facades' && x.file.startsWith('poster') ? 'posters' : x.cat) === c).length})\n\n`;
+      out += `\n## ${title} (${list.filter((x) => (x.cat === 'facades' && x.file.startsWith('poster') ? 'posters' : x.file === 'barrel' ? 'props' : x.cat) === c).length})\n\n`;
     }
     const full = a.full || (a.kind === 'edit' ? ALL.find((b) => b.file === a.base).prompt + ' ' + a.prompt.replace(/^Edit the previous image of this exact vehicle\. Keep EXACTLY the same [^.]*\. /, '') : null);
     const how = a.kind === 'edit'
@@ -280,14 +280,15 @@ const bundleKeys = new Set(fs.existsSync(bundleFile)
   ? [...fs.readFileSync(bundleFile, 'utf8').matchAll(/"([a-z]+\/[A-Za-z0-9_]+)":\s*"data:/g)].map((m) => m[1]) : []);
 const have = (a) => bundleKeys.has(a.cat + '/' + a.file) || fs.existsSync(path.join(root, 'assets/gen', a.cat, a.file + '.png'));
 // по категориям, чтобы машины шли одним блоком
-const grp = (a) => (a.cat === 'facades' && a.file.startsWith('poster') ? 'posters' : a.cat);
+const grp = (a) => (a.cat === 'facades' && a.file.startsWith('poster') ? 'posters' : a.file === 'barrel' ? 'props' : a.cat);
 const order = [...new Set(ALL.map(grp))];
-// слишком простые на вид машины перегенерируем в реалистичном стиле (вместе со стадиями)
-const regen = (a) => a.cat === 'vehicles' && REGEN_VEHICLES.includes(a.base || a.file);
-const missing = ALL.filter((a) => !have(a) || regen(a)).sort((a, b) => order.indexOf(grp(a)) - order.indexOf(grp(b)) || a.n - b.n);
+// машины не генерируем (решение пользователя): в игре остаются готовые и процедурные;
+// бочка с топливом — не машина, её оставляем
+const isCar = (a) => a.cat === 'vehicles' && !(a.base || a.file).startsWith('barrel');
+const missing = ALL.filter((a) => !have(a) && !isCar(a)).sort((a, b) => order.indexOf(grp(a)) - order.indexOf(grp(b)) || a.n - b.n);
 if (fs.existsSync(path.join(root, 'assets/gen'))) {
   fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_MISSING.md'), flowDoc(missing, `Задание для Claude в Chrome: недостающие ассеты (${missing.length})`,
-    `> Это всё, чего пока нет в игре: старые картинки, которые не получились или\n> пропущены, новые для главы 1 и кадры ходьбы героев. Машины — в реалистичном\n> стиле${REGEN_VEHICLES.length ? '; ' + REGEN_VEHICLES.map((f) => '`' + f + '`').join(', ') + ' уже были, но их\n> переделываем заново, вместе со стадиями повреждений' : ''}. Файл собирается\n> автоматически.`, missing.find((a) => a.cat === 'vehicles' && a.kind === 'new')));
+    `> Это всё, чего пока нет в игре: старые картинки, которые не получились или\n> пропущены, новые для главы 1 и кадры ходьбы героев. Машины не генерируем.\n> Файл собирается автоматически.`));
   console.log(`Недостающих: ${missing.length} → CLAUDE_CHROME_ASSETS_MISSING.md`);
 }
 fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_CH1.md'), flow);

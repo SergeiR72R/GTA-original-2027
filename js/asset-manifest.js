@@ -13,8 +13,6 @@ const ASSET_STYLE = {
   facade: 'Orthographic straight-on FRONT VIEW of a building facade (elevation drawing, no perspective, no sky, no ground, no street), exactly 2 window bays wide and exactly 2 floors tall, the facade fills the entire image edge to edge, seamless when tiled horizontally and vertically, flat even daylight, no people, no cars.',
   shop: 'Orthographic straight-on FRONT VIEW of ONE ground-floor shopfront of an old Tel Aviv apartment building (elevation drawing, no perspective, no sky, no sidewalk), the shopfront fills the entire image edge to edge: a slightly faded backlit plastic sign box at the top with a phone number, a frayed awning, a slightly dirty shop window with stickers and paper sale ads taped inside, aluminium door, grimy plaster, a few electric cables above, seamless at the left and right edges. Authentic, lived-in, a bit shabby.',
   portrait: 'Head-and-shoulders caricature portrait for the phone-call dialog box of a satirical crime video game set in Tel Aviv: bold comic-book style, thick black ink outlines, flat cel shading, exaggerated proportions (big head, small shoulders, oversized nose and expressive eyebrows), the character looks toward the viewer at a slight three-quarter angle, flat solid single-color background with a subtle halftone dot pattern, square format, head and shoulders fill the frame. Funny and good-natured, never mean; exaggerate expression and props, not ethnic features. No text, no letters, no speech bubbles, no frame, no logos, no watermark.',
-  // машины — реалистичные, как аэрофото с дрона (решение пользователя 24.10.2026)
-  vehicleReal: 'Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark.',
   vehicle: 'A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height.',
 };
 
@@ -214,10 +212,6 @@ const CH1_POSTERS = [
   ['poster_iran', 'Щит: «Протест оплачивает Иран»', 'A dramatic propaganda-style political poster: a crowd of protesters as dark silhouettes with banknotes raining down on them from above, red and black colors, ominous.'],
 ];
 
-// Готовые машины, которые пользователь решит переделать, — перегенерировать в
-// реалистичном стиле вместе со стадиями повреждений. Пока список пуст: ждём выбора
-const REGEN_VEHICLES = [];
-
 // Кадры ходьбы главных героев: правка готового спрайта, только поза ног
 const WALK_HEROES = [
   ['player', 'Лёва'], ['player_gun', 'Лёва с пистолетом'], ['russian_boss', 'Сёма Кац'],
@@ -233,7 +227,7 @@ const WALK_EDIT = (pose) => `Edit the previous image of this exact character. Ke
 const ASSET_MANIFEST = (() => {
   const out = [];
   for (const [file, title, desc] of VEHICLE_ASSETS) {
-    out.push({ cat: 'vehicles', file, title, kind: 'new', size: '768x1024', prompt: `${ASSET_STYLE.vehicleReal} ${ASSET_STYLE.vehicle} ${desc} ${ASSET_STYLE.isolated}` });
+    out.push({ cat: 'vehicles', file, title, kind: 'new', size: '768x1024', prompt: `${ASSET_STYLE.common} ${ASSET_STYLE.vehicle} ${desc} ${ASSET_STYLE.isolated}` });
     for (const st of DAMAGE_STAGES) {
       out.push({ cat: 'vehicles', file: file + st.suffix, title: `${title} — ${st.title}`, kind: 'edit', base: file, size: '768x1024', prompt: st.prompt });
     }
@@ -264,7 +258,7 @@ const ASSET_MANIFEST = (() => {
   for (const [file, title, desc] of CH1_PORTRAITS) ch1({ cat: 'portraits', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.portrait} ${desc}` });
   for (const [file, title, desc] of CH1_CHARS) ch1({ cat: 'chars', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.common} ${ASSET_STYLE.person} ${desc} ${ASSET_STYLE.isolated}` });
   for (const [file, title, desc, damage] of CH1_VEHICLES) {
-    const base = `${ASSET_STYLE.vehicleReal} ${damage ? ASSET_STYLE.vehicle : ''} ${desc} ${ASSET_STYLE.isolated}`;
+    const base = `${ASSET_STYLE.common} ${damage ? ASSET_STYLE.vehicle : ''} ${desc} ${ASSET_STYLE.isolated}`;
     ch1({ cat: 'vehicles', file, title, kind: 'new', size: damage ? '768x1024' : '1024x1024', prompt: base });
     if (damage) for (const st of DAMAGE_STAGES) ch1({ cat: 'vehicles', file: file + st.suffix, title: `${title} — ${st.title}`, kind: 'edit', base: file, size: '768x1024', prompt: st.prompt, full: `${base} ${st.prompt.replace(/^Edit the previous image of this exact vehicle\. Keep EXACTLY the same [^.]*\. /, '')}` });
   }
@@ -285,4 +279,4 @@ const ASSET_MANIFEST = (() => {
 const GEN_FILES = { textures: [], chars: [], vehicles: [], props: [], facades: [], portraits: [] };
 for (const a of ASSET_MANIFEST) GEN_FILES[a.cat].push(a.file);
 
-if (typeof module !== 'undefined') module.exports = { ASSET_MANIFEST, ASSET_STYLE, DAMAGE_STAGES, REGEN_VEHICLES };
+if (typeof module !== 'undefined') module.exports = { ASSET_MANIFEST, ASSET_STYLE, DAMAGE_STAGES };
