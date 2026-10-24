@@ -335,6 +335,8 @@ const R3 = {
       M['shop' + i] = facadeMat(f.map, f.emissive, { fw: FACADE_W, fh: FLOOR_H });
       this.shopMats.push('shop' + i);
     }
+    // дверь подъезда с козырьком
+    M.door = new THREE.MeshLambertMaterial({ map: this.tex(Facades.door()), alphaTest: 0.5, side, vertexColors: true });
     // первый этаж на сваях
     const pil = Facades.pilotis();
     M.pil = facadeMat(pil.map, pil.emissive, { fw: FACADE_W, fh: FLOOR_H, gen: true });
@@ -487,6 +489,7 @@ const R3 = {
         wall(fmat, y0 + FLOOR_H, y1, 0);
       } else wall(fmat, y0, y1, (b.id % 2) * 0.5);
     }
+    if (b.kind === 'rect' && !b.arch && !b.landmark && !pilotis && y0 === 0) this.doors(b, B);
     // крыша
     const rc = COL(b.roof);
     const roofMat = b.glass ? 'roofGlass' : (b.texture || 'roofGravel');
@@ -503,6 +506,27 @@ const R3 = {
       P.box(x1 - t / 2, y1, (z0 + z1) / 2, t, ph, z1 - z0 - 2 * t, pc);
     }
     if (b.items.length) this.roofItems(b, y1, B);
+  },
+
+  // Двери подъездов: на улицу и во двор — видно, как в дом заходят
+  doors(b, B) {
+    const pts = b.pts, D = B('door');
+    let n = 0;
+    for (let k = 0; k < 4 && n < 2; k++) {
+      const i = (k + b.id) % 4, a = pts[i], c = pts[(i + 1) % 4];
+      const len = Math.hypot(c[0] - a[0], c[1] - a[1]);
+      if (len < 44) continue;
+      const nx = (c[1] - a[1]) / len, nz = -(c[0] - a[0]) / len;
+      const tx = Math.floor(((a[0] + c[0]) / 2 + nx * 40) / TILE), ty = Math.floor(((a[1] + c[1]) / 2 + nz * 40) / TILE);
+      const t = City.t(tx, ty);
+      if (!City.isWalkway(tx, ty) && t !== T_PARKING && t !== T_GRASS) continue;
+      // дверь сбоку стены, чтобы не закрывать витрину посередине
+      const hw = 14 / len, u = clamp(0.15 + ((b.id * 7 + i * 3) % 10) / 10 * 0.7, hw + 0.04, 0.96 - hw);
+      const p = (f) => [a[0] + (c[0] - a[0]) * f + nx * 0.8, a[1] + (c[1] - a[1]) * f + nz * 0.8];
+      const q0 = p(u + hw), q1 = p(u - hw), top = FLOOR_H * 0.95;
+      D.quad([q0[0], 0, q0[1]], [q1[0], 0, q1[1]], [q1[0], top, q1[1]], [q0[0], top, q0[1]], [nx, 0, nz], [[0, 0], [1, 0], [1, 1], [0, 1]], WHITE);
+      n++;
+    }
   },
 
   // Двускатная черепичная крыша (Неве-Цедек, Сарона)

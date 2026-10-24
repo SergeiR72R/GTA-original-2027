@@ -200,6 +200,8 @@ const City = {
     this.median = new Uint8Array(W * H);
     this.busLane = new Uint8Array(W * H);
     this.touches = []; // где внутренние улицы упираются в большие
+    this.pass = new Uint8Array(W * H); // проходы во дворы и переулки — их не загромождаем
+    this.arches = [];
     const rng = makeRng(1948);
 
     // Парк Яркон с рекой на севере, море и пляж на западе
@@ -302,10 +304,32 @@ const City = {
     }
 
     this.landmarks();
+    this.buildArches();
     this.fillEmpty(makeRng(77));
     this.indexBuildings();
     this.definePlaces();
     this.buildMinimap();
+  },
+
+  // Арки: над проходом во двор — дом на высоте второго этажа, продолжение
+  // соседних. Под аркой можно пройти и проехать
+  buildArches() {
+    for (const a of this.arches) {
+      if (this.t(a.x, a.y) !== T_PLAZA) continue;
+      const vert = a.w === 1; // проход поперёк северной или южной полосы
+      const n1 = vert ? this.bid[this.idx(a.x - 1, a.y)] : this.bid[this.idx(a.x, a.y - 1)];
+      const n2 = vert ? this.bid[this.idx(a.x + 1, a.y)] : this.bid[this.idx(a.x, a.y + 1)];
+      const b1 = this.buildings[n1], b2 = this.buildings[n2];
+      if (!b1 || !b2 || b1.removed || b2.removed || b1.landmark || b2.landmark || b1.glass || b2.glass) continue;
+      const h1 = Math.min(b1.h1, b2.h1);
+      if (h1 < 46) continue; // над одноэтажными лавками арки не бывает
+      const x = a.x * TILE, y = a.y * TILE;
+      this.addBuilding(Object.assign({}, b1, {
+        x: vert ? x - 4 : x + 4, y: vert ? y + 4 : y - 4,
+        w: vert ? TILE + 8 : a.w * TILE - 8, h: vert ? a.h * TILE - 8 : TILE + 8,
+        h0: 24, h1, items: [], shops: false, arch: true,
+      }));
+    }
   },
 
   addBuilding(b) {
@@ -530,6 +554,137 @@ const City = {
         }
       }
     };
+    // Застройка по сетке клеток: 0 — дом, 1 — двор, 2 — проход. Дома режем на
+    // участки так, чтобы каждый выходил на улицу, во двор или в переулок
+    const buildGrid = (area, grid, style, maxS) => {
+      const { x: ax, y: ay, w: aw, h: ah } = area;
+      const G = (x, y) => (x < ax || y < ay || x >= ax + aw || y >= ay + ah ? -1 : grid[(y - ay) * aw + x - ax]);
+      const lots = [];
+      for (let y = ay; y < ay + ah; y++) for (let x = ax; x < ax + aw; x++) {
+        if (G(x, y) !== 0) continue;
+        let runX = 0; while (G(x + runX, y) === 0) runX++;
+        let runY = 0; while (G(x, y + runY) === 0) runY++;
+        // не оставляем полосок в одну клетку
+        const w = runX <= maxS + 1 ? runX : Math.min(rng.int(2, maxS), runX - 2);
+        let h = runY <= maxS + 1 ? runY : 2;
+        for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) if (G(xx, yy) !== 0) { h = yy - y; break; }
+        h = Math.max(1, h);
+        for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) grid[(yy - ay) * aw + xx - ax] = 3;
+        lots.push({ x, y, w, h });
+      }
+      // дом без выхода на улицу, во двор или в переулок — значит, его нет:
+      // на его месте внутренний садик (световой колодец)
+      const open = (x, y) => { const v = G(x, y); return v === -1 || v === 1 || v === 2; };
+      for (const l of lots) {
+        let ok = false;
+        for (let k = 0; k < l.w && !ok; k++) ok = open(l.x + k, l.y - 1) || open(l.x + k, l.y + l.h);
+        for (let k = 0; k < l.h && !ok; k++) ok = open(l.x - 1, l.y + k) || open(l.x + l.w, l.y + k);
+        if (!ok) l.well = true;
+      }
+      for (const l of lots) {
+        if (l.well) {
+          this.fill(l.x, l.y, l.w, l.h, T_GRASS);
+          this.decor.push({ k: 'tree', x: (l.x + l.w / 2) * TILE, y: (l.y + l.h / 2) * TILE, h: 40, s: 0.6 });
+        } else if (l.w * l.h === 1) {
+          // клетка-огрызок — палисадник с деревом
+          this.fill(l.x, l.y, 1, 1, T_GRASS);
+          this.decor.push({ k: 'treeS', x: (l.x + 0.5) * TILE, y: (l.y + 0.5) * TILE, h: 34, s: 0.5 });
+        } else this.lotBuilding(l, pickStyle(style), rng);
+      }
+    };
+    // проход во двор; часть — арка: дом над проходом на высоте второго этажа
+    const passage = (x, y, w, h, arch) => {
+      this.fill(x, y, w, h, T_PLAZA);
+      for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) this.pass[this.idx(xx, yy)] = 1;
+      if (arch) this.arches.push({ x, y, w, h });
+    };
+    // двор: парковка, садик или мощёный двор с баками и великами
+    const yard = (x, y, w, h) => {
+      if (w < 1 || h < 1) return;
+      const narrow = w < 2 || h < 2;
+      const roll = rng();
+      if (w * h >= 30) {
+        // большой двор — сквер: газон, дорожки крестом, деревья и скамейки
+        this.fill(x, y, w, h, T_GRASS);
+        const mx = x + Math.floor(w / 2), my = y + Math.floor(h / 2);
+        this.fill(x, my, w, 1, T_PLAZA); this.fill(mx, y, 1, h, T_PLAZA);
+        for (let i = 0; i < w * h / 5; i++) this.decor.push({ k: rng() < 0.5 ? 'tree' : 'treeS', x: rng.range(x + 0.3, x + w - 0.3) * TILE, y: rng.range(y + 0.3, y + h - 0.3) * TILE, h: 40, s: rng.range(0.5, 0.8) });
+        return;
+      }
+      if (!narrow && roll < 0.4) {
+        this.fill(x, y, w, h, T_PARKING);
+        for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) if (rng() < 0.45) this.parkingSpots.push({ x: (xx + 0.5) * TILE, y: (yy + 0.5) * TILE, a: rng.pick([0, Math.PI]) });
+      } else if (!narrow && roll < 0.7) {
+        this.fill(x, y, w, h, T_GRASS);
+        for (let i = 0; i < Math.max(1, w * h / 3); i++) this.decor.push({ k: rng() < 0.6 ? 'treeS' : 'tree', x: rng.range(x + 0.3, x + w - 0.3) * TILE, y: rng.range(y + 0.3, y + h - 0.3) * TILE, h: 40, s: rng.range(0.45, 0.7) });
+      } else {
+        this.fill(x, y, w, h, T_PLAZA);
+        for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) {
+          const r = rng();
+          const cx = (xx + rng.range(0.25, 0.75)) * TILE, cy = (yy + rng.range(0.25, 0.75)) * TILE;
+          if (r < 0.12) this.decor.push({ k: 'bin', x: cx, y: cy, h: 0, low: true, a: rng.pick([0, Math.PI / 2]) });
+          else if (r < 0.2) this.decor.push({ k: 'bikes', x: cx, y: cy, h: 0, low: true, d: rng.int(0, 3) });
+          else if (r < 0.28) this.decor.push({ k: 'scooterE', x: cx, y: cy, h: 0, low: true, a: rng() * TAU });
+          else if (r < 0.4 && !narrow) this.decor.push({ k: 'treeS', x: cx, y: cy, h: 34, s: 0.5 });
+        }
+      }
+    };
+    // Квартал по периметру: дома полосой в две клетки фасадом на улицу,
+    // внутри двор, во двор ведут проходы и арки
+    const courtyard = (style, maxS, area = inner) => {
+      const { x: ax, y: ay, w: aw, h: ah } = area;
+      const d = 2;
+      if (aw < 2 * d + 1 || ah < 2 * d + 1) { generic(style, maxS, 0.12, area); return; }
+      const grid = new Uint8Array(aw * ah);
+      const set = (x, y, v) => { grid[(y - ay) * aw + x - ax] = v; };
+      for (let y = ay + d; y < ay + ah - d; y++) for (let x = ax + d; x < ax + aw - d; x++) set(x, y, 1);
+      // проходы: по одному-два на сторону, не меньше двух на квартал
+      const doors = [];
+      const sides = [0, 1, 2, 3].filter(() => rng() < 0.75);
+      while (sides.length < 2) { const k = rng.int(0, 3); if (!sides.includes(k)) sides.push(k); }
+      for (const sd of sides) {
+        const along = sd % 2 === 0 ? aw : ah; // 0 — север, 1 — восток, 2 — юг, 3 — запад
+        const n = along - 2 * d >= 9 ? 2 : 1;
+        for (let k = 0; k < n; k++) {
+          const t = d + Math.floor((along - 2 * d) * (k + rng.range(0.25, 0.75)) / n);
+          if (sd === 0) doors.push({ x: ax + t, y: ay, w: 1, h: d });
+          if (sd === 2) doors.push({ x: ax + t, y: ay + ah - d, w: 1, h: d });
+          if (sd === 3) doors.push({ x: ax, y: ay + t, w: d, h: 1 });
+          if (sd === 1) doors.push({ x: ax + aw - d, y: ay + t, w: d, h: 1 });
+        }
+      }
+      for (const p of doors) for (let y = p.y; y < p.y + p.h; y++) for (let x = p.x; x < p.x + p.w; x++) set(x, y, 2);
+      buildGrid(area, grid, style, maxS);
+      yard(ax + d, ay + d, aw - 2 * d, ah - 2 * d);
+      for (const p of doors) passage(p.x, p.y, p.w, p.h, rng() < 0.4);
+    };
+    // Яффо и Неве-Цедек: дома плотно, насквозь — узкие переулки с изломом
+    const alleys = (style, maxS, area = inner) => {
+      const { x: ax, y: ay, w: aw, h: ah } = area;
+      const wide = aw >= ah, L = wide ? aw : ah, S2 = wide ? ah : aw;
+      if (S2 < 5) { generic(style, maxS, 0.12, area); return; }
+      const grid = new Uint8Array(aw * ah);
+      const cell = (u, v) => (wide ? (u - 0) + (v) * aw : (v) + (u) * aw); // u — вдоль, v — поперёк
+      // продольный переулок с изломом посередине
+      let v = rng.int(2, S2 - 3);
+      const bend = rng.int(Math.floor(L / 3), Math.floor(2 * L / 3));
+      const v2 = clamp(v + rng.pick([-1, 1]), 2, S2 - 3);
+      for (let u = 0; u < L; u++) {
+        grid[cell(u, u < bend ? v : v2)] = 2;
+        if (u === bend) grid[cell(u, v)] = 2;
+      }
+      // поперечные переулки
+      const n = L >= 12 ? 2 : 1;
+      for (let k = 0; k < n; k++) {
+        const u = Math.floor(L * (k + rng.range(0.3, 0.7)) / n);
+        if (Math.abs(u - bend) < 2) continue;
+        for (let w2 = 0; w2 < S2; w2++) grid[cell(u, w2)] = 2;
+      }
+      const cells = [];
+      for (let i = 0; i < grid.length; i++) if (grid[i] === 2) cells.push(i);
+      buildGrid(area, grid, style, maxS);
+      for (const i of cells) passage(ax + i % aw, ay + Math.floor(i / aw), 1, 1, false);
+    };
     // Белый город по Геддесу: отдельные дома на своих участках в зелени, между
     // ними промежуток; в середине суперквартала — общественный сад
     const geddes = (style) => {
@@ -587,8 +742,7 @@ const City = {
         break;
       }
       case 'tayelet': {
-        this.splitLots(inner, rng, 4, lots);
-        for (const l of lots) this.lotBuilding(l, S.hotel, rng);
+        courtyard(S.hotel, 4); // отели вокруг двора с бассейнами и садом
         for (let y = r.y0; y <= r.y1; y += 2) this.decor.push({ k: 'palm', x: r.x0 * TILE + 20, y: y * TILE + 32, h: 85, r: rng() * TAU });
         break;
       }
@@ -663,9 +817,8 @@ const City = {
         // бульвар: аллея посередине и дома баухауз
         this.fill(ix, iy + 3, iw, 2, T_PLAZA);
         for (let x = ix; x < ix + iw; x++) this.decor.push({ k: 'treeS', x: x * TILE + 32, y: (iy + 3) * TILE + (x % 2 ? 20 : 108), h: 36, s: 0.55 });
-        this.splitLots({ x: ix, y: iy, w: iw, h: 3 }, rng, 3, lots);
-        this.splitLots({ x: ix, y: iy + 5, w: iw, h: ih - 5 }, rng, 3, lots);
-        for (const l of lots) this.lotBuilding(l, S.bauhaus, rng);
+        generic(S.bauhaus, 3, 0, { x: ix, y: iy, w: iw, h: 3 });
+        courtyard(S.bauhaus, 3, { x: ix, y: iy + 5, w: iw, h: ih - 5 });
         break;
       }
       case 'hospital': {
@@ -676,16 +829,14 @@ const City = {
       case 'police': {
         this.fill(ix, iy, iw, ih, T_PARKING);
         this.lotBuilding({ x: ix + 1, y: iy, w: iw - 2, h: 4 }, S.police, rng, { extra: { label: 'POLICE' } });
-        this.splitLots({ x: ix, y: iy + 6, w: iw, h: ih - 6 }, rng, 3, lots);
-        for (const l of lots) this.lotBuilding(l, S.concrete, rng);
+        courtyard(S.concrete, 3, { x: ix, y: iy + 6, w: iw, h: ih - 6 });
         break;
       }
       case 'paint': {
         this.fill(ix, iy, iw, ih, T_PARKING);
         const b = this.lotBuilding({ x: ix + 2, y: iy, w: iw - 4, h: 3 }, S.garage, rng);
         b.label = 'PAINT';
-        this.splitLots({ x: ix, y: iy + 6, w: iw, h: ih - 6 }, rng, 3, lots);
-        for (const l of lots) this.lotBuilding(l, S.florentin, rng);
+        courtyard(S.florentin, 3, { x: ix, y: iy + 6, w: iw, h: ih - 6 });
         break;
       }
       case 'busstation': {
@@ -697,9 +848,8 @@ const City = {
         this.fill(ix, iy, iw, ih, T_PLAZA);
         this.fill(ix + 3, iy + 4, 2, 2, T_BUILD);
         this.addBuilding({ kind: 'rect', x: (ix + 3) * TILE + 30, y: (iy + 4) * TILE + 30, w: 68, h: 68, h0: 0, h1: 150, roof: '#c9a46a', wall: '#b88f55', items: [{ t: 'clock' }], floors: 30, style: 'jaffa' });
-        this.splitLots({ x: ix, y: iy + 7, w: iw, h: ih - 7 }, rng, 3, lots);
-        this.splitLots({ x: ix, y: iy, w: iw, h: 3 }, rng, 3, lots);
-        for (const l of lots) this.lotBuilding(l, S.jaffa, rng);
+        alleys(S.jaffa, 3, { x: ix, y: iy + 7, w: iw, h: ih - 7 });
+        generic(S.jaffa, 3, 0, { x: ix, y: iy, w: iw, h: 3 });
         break;
       }
       case 'flea': {
@@ -716,8 +866,8 @@ const City = {
           this.lotBuilding({ x: ix + iw - 3, y: iy, w: 3, h: 3 }, S.jaffa, rng, { extra: { mosque: true } });
           this.addBuilding({ kind: 'circle', cx: (ix + iw - 0.5) * TILE, cy: (iy + 0.5) * TILE, r: 15, h0: 0, h1: 170, roof: '#e7cf9c', wall: '#d6bb85', items: [], floors: 99, style: 'jaffa' });
           generic(S.jaffa, 3, 0.3, { x: ix, y: iy, w: iw - 3, h: 3 });
-          generic(S.jaffa, 3, 0.3, { x: ix, y: iy + 3, w: iw, h: ih - 3 });
-        } else generic(S.jaffa, 3, 0.35);
+          courtyard(S.jaffa, 3, { x: ix, y: iy + 3, w: iw, h: ih - 3 });
+        } else courtyard(S.jaffa, 3);
         break;
       }
       case 'jaffaport': {
@@ -745,7 +895,7 @@ const City = {
         this.fill(ix, iy + 3, iw, 3, T_PLAZA);
         for (let x = ix; x < ix + iw; x += 2) stall(x, iy + 4, ['#ffb74d', '#4fc3f7', '#ce93d8', '#aed581', '#f06292', '#fff176']);
         generic(S.bauhaus, 3, 0.05, { x: ix, y: iy, w: iw, h: 3 });
-        generic(S.bauhaus, 3, 0.05, { x: ix, y: iy + 6, w: iw, h: ih - 6 });
+        courtyard(S.bauhaus, 3, { x: ix, y: iy + 6, w: iw, h: ih - 6 });
         break;
       }
       case 'bursa': {
@@ -782,7 +932,7 @@ const City = {
         generic(S.concrete, 3, 0, { x: ix, y: iy + ih - 2, w: iw, h: 2 });
         break;
       }
-      case 'rgshops': generic([[S.concrete, 3], [S.florentin, 1]], 3, 0.1); sidewalkTrees(0.3); break;
+      case 'rgshops': courtyard([[S.concrete, 3], [S.florentin, 1]], 3); sidewalkTrees(0.3); break;
       case 'shikun': {
         // «шикуны»: длинные бетонные дома среди газонов
         this.fill(ix, iy, iw, ih, T_GRASS);
@@ -794,14 +944,14 @@ const City = {
         for (let i = 0; i < iw * ih / 10; i++) this.decor.push({ k: 'treeS', x: rng.range(ix, ix + iw) * TILE, y: rng.range(iy, iy + ih) * TILE, h: 34, s: 0.5 });
         break;
       }
-      case 'south': generic([[S.concrete, 3], [S.florentin, 2]], 3, 0.1); break;
-      case 'jaffa': generic(S.jaffa, 3, 0.1); break;
-      case 'ramatgan': generic([[S.tower, 2], [S.concrete, 3]], 4, 0.15); sidewalkTrees(0.3); break;
+      case 'south': courtyard([[S.concrete, 3], [S.florentin, 2]], 3); break;
+      case 'jaffa': alleys(S.jaffa, 3); break;
+      case 'ramatgan': courtyard([[S.tower, 2], [S.concrete, 3]], 4); sidewalkTrees(0.3); break;
       case 'north': geddes(S.bauhaus); sidewalkTrees(0.6); break;
       case 'center': geddes(S.bauhaus); sidewalkTrees(0.5); break;
-      case 'nevetzedek': generic(S.nevetzedek, 2, 0.15); break;
-      case 'florentin': generic(S.florentin, 3, 0.12); break;
-      default: generic(S.concrete, 3, 0.18); break;
+      case 'nevetzedek': alleys(S.nevetzedek, 2); break;
+      case 'florentin': courtyard(S.florentin, 3); break;
+      default: courtyard(S.concrete, 3); break;
     }
   },
 
@@ -1033,7 +1183,7 @@ const City = {
       const x = i % W, y = Math.floor(i / W);
       if (x % CHUNK < 1 || x % CHUNK > CHUNK - 2 || y % CHUNK < 1 || y % CHUNK > CHUNK - 2 || rng() > 0.4) continue;
       let ok = true;
-      for (let oy = -1; oy <= 1 && ok; oy++) for (let ox = -1; ox <= 1 && ok; ox++) { const j = i + oy * W + ox; if (occ[j] || this.type[j] !== T_PLAZA) ok = false; }
+      for (let oy = -1; oy <= 1 && ok; oy++) for (let ox = -1; ox <= 1 && ok; ox++) { const j = i + oy * W + ox; if (occ[j] || this.pass[j] || this.type[j] !== T_PLAZA) ok = false; }
       if (!ok) continue;
       const cx = (x + 0.5) * TILE, cy = (y + 0.5) * TILE;
       if (rng() < 0.65) {
@@ -1046,7 +1196,7 @@ const City = {
       mark(x, y, 2);
     }
     for (const i of order) {
-      if (occ[i]) continue;
+      if (occ[i] || this.pass[i]) continue;
       const x = i % W, y = Math.floor(i / W), t = this.type[i];
       if (t === T_ROAD || t === T_BUILD || t === T_SEA || t === T_BOUND || t === T_RIVER) continue;
       // дорога рядом: с какой стороны и какая

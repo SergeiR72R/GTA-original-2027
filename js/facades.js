@@ -26,7 +26,21 @@ const ADS = [
 const Facades = {
   cache: {},
 
-  // Плакат для щита и тумбы (256 × 128)
+  // Дверь подъезда: бетонный козырёк, железная дверь со стеклом, синий номер дома
+  door() {
+    const c = this.canvas(48, 84), g = c.getContext('2d');
+    g.fillStyle = '#ece7db'; g.fillRect(0, 0, 48, 10);           // козырёк
+    g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(2, 10, 44, 4);  // тень под ним
+    g.fillStyle = '#d9d2c2'; g.fillRect(4, 14, 40, 70);          // светлая рамка проёма
+    g.fillStyle = '#2f6f8f'; g.fillRect(9, 18, 30, 66);          // синяя железная дверь
+    g.fillStyle = '#a9cbd8'; g.fillRect(13, 24, 22, 24);         // стекло
+    g.fillStyle = 'rgba(255,255,255,0.4)'; g.fillRect(14, 25, 6, 22);
+    g.fillStyle = '#d0d0d0'; g.fillRect(33, 54, 3, 8);           // ручка
+    g.fillStyle = '#1e5aa8'; g.fillRect(16, 2, 16, 6);           // номер дома
+    g.fillStyle = '#fff'; g.fillRect(21, 3, 2, 4); g.fillRect(25, 3, 2, 4);
+    return c;
+  },
+
   // Табличка вывески (для стоек у тротуара)
   signBoard(sg) {
     const c = document.createElement('canvas');
@@ -40,6 +54,7 @@ const Facades = {
     return c;
   },
 
+  // Плакат для щита и тумбы (256 × 128)
   adPoster(i) {
     const key = 'ad' + i;
     if (this.cache[key]) return this.cache[key];
