@@ -658,7 +658,7 @@ const C1_SHESHBESH = staged({
         Story.say([[SEMA, 'Лёва! Этот тип от Абу-Карима сдавал себе из рукава. Схватил фишки и к машине! Догони!']]);
         m.thief = Story.carOnRoad(m, P.c1Odessa, 120, 320, { type: 'sedan', color: '#ffeb3b' });
         m.td = Story.driver(m, m.thief, { faction: 'arab', ai: 'idle', hp: 70 });
-        m.thief.ai = 'scripted'; m.thief.mission = 'target';
+        m.thief.ai = 'scripted'; m.thief.mission = 'target'; m.thief.rams = 3;
       },
       update(m, dt) {
         const c = m.thief, pl = pl_();
@@ -777,7 +777,7 @@ const C1_DIAMONDS = staged({
         const pl = pl_();
         m.thief = Story.carOnRoad(m, pl, 400, 650, { type: 'moto', faction: 'arab' });
         m.td = Story.driver(m, m.thief, { faction: 'arab', ai: 'idle', hp: 60 });
-        m.thief.ai = 'scripted'; m.thief.mission = 'target';
+        m.thief.ai = 'scripted'; m.thief.mission = 'target'; m.thief.rams = 3;
         Story.say([[HERO, 'Мотоцикл с кейсом уходит! Тут где-то был скутер...']]);
       },
       update(m, dt) {
@@ -1130,7 +1130,7 @@ const C1_CAMPAIGN = staged({
           m['pr' + k] = Story.gang(m, null, { x: B[k].x, y: B[k].y + 40 }, 2, { weapon: 'fists', spread: 50, hp: 45 });
           for (const g of m['pr' + k]) { g.look = Looks.named('protester', Object.assign(Looks.civilian(), { shirt: '#1565c0' })); g.alert = 6; }
           Game.message('Протестующие: «Это ложь! Убирайся!»', 3);
-          if (k === 2) { m.van = Story.carOnRoad(m, B[k], 30, 200, { type: 'van', color: '#eceff1' }); m.van.mission = 'target'; m.van.locked = true; }
+          if (k === 2) { m.van = Story.carOnRoad(m, B[k], 30, 200, { type: 'van', color: '#eceff1' }); m.van.mission = 'target'; m.van.locked = true; m.van.rams = 1; } // одного тарана хватит
         }
         if (m.van && !m.vanDone && Story.stalled(m.van, 0.65)) { m.vanDone = true; m.van.mission = null; Game.message('Фургон с плакатами протестующих смят', 3); }
         if (i < 0) { m.text = 'Протарань фургон протестующих с их плакатами'; m.target = m.van; return; }
@@ -1329,7 +1329,7 @@ const C1_RECOUNT = staged({
           m.g = Story.carOnRoad(m, City.places.iranMeet, 200, 400, { type: 'sedan', color: '#c62828', faction: 'russian' });
           m.gd = Story.driver(m, m.g, { faction: 'russian', ai: 'idle', look: lookGarik(), hp: 120, name: GARIK });
         }
-        m.g.ai = 'scripted'; m.g.mission = 'target'; m.g.maxSpeed = m.g.T.max * 0.95;
+        m.g.ai = 'scripted'; m.g.mission = 'target'; m.g.rams = 3; m.g.maxSpeed = m.g.T.max * 0.95;
         m.answer = undefined; m.asked = false;
       },
       update(m, dt) {
@@ -1457,7 +1457,7 @@ const C1_JUBILEE = staged({
         m.kv = Story.carOnRoad(m, P.c1Odessa, 200, 420, { type: 'pickup', faction: 'arab' });
         m.kv.hp = m.kv.maxHp = 220;
         m.kd = Story.driver(m, m.kv, { faction: 'arab', ai: 'idle', hp: 80, weapon: 'uzi' });
-        m.kv.ai = 'scripted'; m.kv.mission = 'target';
+        m.kv.ai = 'scripted'; m.kv.mission = 'target'; m.kv.rams = 3;
         m.roza = new Ped(m.kv.x, m.kv.y, { ai: 'idle', look: lookRoza(), hp: 100, name: ROZA });
         Story.seat(m.roza, m.kv);
         Story.own(m).peds.push(m.roza);
@@ -1718,7 +1718,7 @@ const INTERLUDE_2 = staged({
         const P = chP();
         m.obs = Story.carOnRoad(m, P.c1Yarkon, 250, 500, { type: 'moto', faction: 'iran' });
         m.od = Story.driver(m, m.obs, { faction: 'iran', ai: 'idle', hp: 70 });
-        m.obs.ai = 'scripted'; m.obs.mission = 'target';
+        m.obs.ai = 'scripted'; m.obs.mission = 'target'; m.obs.rams = 1;
         talk(m, [[DANI, 'Мотоциклист у ограды — человек «Али», проверял тебя. Он видел наш фургон! Не дай ему уйти и доложить!']]);
       },
       update(m, dt) {
@@ -1766,7 +1766,7 @@ const INTERLUDE_2 = staged({
         if (!m.van) {
           m.van = Story.carOnRoad(m, P.iranMeet, 200, 450, { type: 'van', faction: 'iran' });
           m.vd = Story.driver(m, m.van, { faction: 'iran', ai: 'idle', hp: 80 });
-          m.van.ai = 'scripted'; m.van.mission = 'target'; m.van.hp = m.van.maxHp = 200;
+          m.van.ai = 'scripted'; m.van.mission = 'target'; m.van.hp = m.van.maxHp = 200; m.van.rams = 4;
           Game.message('Дани: Фургон с ноутбуком уходит! Тарань его!', 3);
         }
         const v = m.van;

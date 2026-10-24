@@ -7,6 +7,7 @@ index.html с диска. Новые картинки кладите в assets/g
 
     python3 tools/pack-assets.py          # добавить/заменить и удалить исходники
     python3 tools/pack-assets.py --keep   # не удалять исходники
+    python3 tools/pack-assets.py --despill  # убрать розовую кайму у упакованных
 
 Нужен Pillow (pip install pillow).
 """
@@ -29,13 +30,31 @@ def load_bundle():
     return json.loads(m.group(1)) if m else {}
 
 
+def despill(im):
+    """Убирает розовую кайму от пурпурного фона по краю спрайта."""
+    import numpy as np
+    from PIL import ImageFilter
+    a = np.asarray(im.convert('RGBA')).astype(np.int16)
+    alpha = Image.fromarray(a[..., 3].astype('uint8'))
+    # край: полупрозрачные пиксели и полоса в 3 px у прозрачного фона
+    edge = (np.asarray(alpha.filter(ImageFilter.MinFilter(7))) < 250) & (a[..., 3] > 0)
+    r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    pink = edge & (r > g + 25) & (b > g + 25)
+    m = np.minimum(np.minimum(r, b), g + 18)
+    a[..., 0] = np.where(pink, m, r)
+    a[..., 2] = np.where(pink, m, b)
+    # совсем «фоновые» полупрозрачные пиксели — прозрачнее
+    a[..., 3] = np.where(pink & (a[..., 3] < 200), a[..., 3] // 3, a[..., 3])
+    return Image.fromarray(a.astype('uint8'), 'RGBA')
+
+
 def encode(im, cat):
     side, q = LIMITS.get(cat, (512, 85))
     k = min(1.0, side / max(im.size))
     if k < 1:
         im = im.resize((round(im.width * k), round(im.height * k)), Image.LANCZOS)
     opaque = cat in ('textures', 'facades', 'portraits')
-    im = im.convert('RGB' if opaque else 'RGBA')
+    im = im.convert('RGB') if opaque else despill(im)
     buf = io.BytesIO()
     im.save(buf, 'WEBP', quality=q, method=6)
     return 'data:image/webp;base64,' + base64.b64encode(buf.getvalue()).decode()
@@ -45,6 +64,12 @@ def main():
     keep = '--keep' in sys.argv
     bundle = load_bundle()
     added = []
+    # --despill: убрать розовую кайму у уже упакованных спрайтов
+    if '--despill' in sys.argv:
+        for k, v in list(bundle.items()):
+            cat = k.split('/')[0]
+            if cat in ('vehicles', 'chars', 'props'):
+                bundle[k] = encode(Image.open(io.BytesIO(base64.b64decode(v.split(',', 1)[1]))), cat)
     for cat in sorted(LIMITS):
         d = os.path.join(GEN, cat)
         if not os.path.isdir(d):

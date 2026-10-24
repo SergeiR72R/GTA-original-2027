@@ -34,7 +34,7 @@ Claude в Chrome).
 | Текстуры | без фона, бесшовная | вид сверху | квадрат 1024×1024 |
 | Портреты | свой цветной фон | по плечи, лицом к зрителю | квадрат |
 
-# Список (217)
+# Список (229)
 
 ## Машины (93)
 
@@ -43,7 +43,7 @@ Claude в Chrome).
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Generic white compact family sedan, slightly dusty. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Generic white compact family sedan, slightly dusty. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 2. `vehicles/sedan_1_d1.png` — Седан белый — лёгкие повреждения
@@ -75,7 +75,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Generic silver sedan. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Generic silver sedan. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 6. `vehicles/sedan_2_d1.png` — Седан серебристый — лёгкие повреждения
@@ -107,7 +107,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Generic dark grey sedan. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Generic dark grey sedan. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 10. `vehicles/sedan_3_d1.png` — Седан тёмно-серый — лёгкие повреждения
@@ -139,7 +139,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Generic dark blue sedan. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Generic dark blue sedan. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 14. `vehicles/sedan_4_d1.png` — Седан тёмно-синий — лёгкие повреждения
@@ -171,7 +171,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Small white city hatchback. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Small white city hatchback. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 18. `vehicles/hatch_1_d1.png` — Хэтчбек белый — лёгкие повреждения
@@ -203,7 +203,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Small red city hatchback. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Small red city hatchback. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 22. `vehicles/hatch_2_d1.png` — Хэтчбек красный — лёгкие повреждения
@@ -235,7 +235,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Old beige hatchback from the 1990s, faded paint. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Old beige hatchback from the 1990s, faded paint. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 26. `vehicles/hatch_3_d1.png` — Хэтчбек старый бежевый — лёгкие повреждения
@@ -267,7 +267,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White mid-size SUV with roof rails. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White mid-size SUV with roof rails. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 30. `vehicles/suv_1_d1.png` — Джип белый — лёгкие повреждения
@@ -299,7 +299,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Black mid-size SUV with tinted windows. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Black mid-size SUV with tinted windows. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 34. `vehicles/suv_2_d1.png` — Джип чёрный — лёгкие повреждения
@@ -331,7 +331,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Long black luxury executive sedan with tinted windows and chrome details. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Long black luxury executive sedan with tinted windows and chrome details. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 38. `vehicles/lux_d1.png` — Чёрный лимузин бригады «Одесса» — лёгкие повреждения
@@ -363,7 +363,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White sedan taxi with a small yellow roof sign that reads «מונית» in Hebrew (the only text allowed). Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White sedan taxi with a small yellow roof sign that reads «מונית» in Hebrew (the only text allowed). Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 42. `vehicles/taxi_d1.png` — Такси — лёгкие повреждения
@@ -395,7 +395,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Israeli police SUV: white body with blue and fluorescent yellow-green checkered side markings, red-and-blue light bar on the roof, the word «משטרה» on the hood (the only text allowed). Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Israeli police SUV: white body with blue and fluorescent yellow-green checkered side markings, red-and-blue light bar on the roof, the word «משטרה» on the hood (the only text allowed). Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 46. `vehicles/police_d1.png` — Полиция — лёгкие повреждения
@@ -427,7 +427,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White emergency ambulance van with red stripes and orange roof lights, generic medical markings without any cross or star symbol. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White emergency ambulance van with red stripes and orange roof lights, generic medical markings without any cross or star symbol. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 50. `vehicles/ambulance_d1.png` — Скорая — лёгкие повреждения
@@ -459,7 +459,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Plain white delivery van. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Plain white delivery van. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 54. `vehicles/van_d1.png` — Фургон — лёгкие повреждения
@@ -491,7 +491,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Dark charcoal-grey windowless van with tinted windows, suspicious, no markings. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Dark charcoal-grey windowless van with tinted windows, suspicious, no markings. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 58. `vehicles/van_iran_d1.png` — Фургон иранских агентов — лёгкие повреждения
@@ -523,7 +523,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White pickup truck with an open cargo bed containing a few wooden crates. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White pickup truck with an open cargo bed containing a few wooden crates. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 62. `vehicles/pickup_d1.png` — Пикап клана Аль-Бахар — лёгкие повреждения
@@ -555,7 +555,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Yellow shared minibus taxi with a big route number «4» painted on the roof (the only text allowed). Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Yellow shared minibus taxi with a big route number «4» painted on the roof (the only text allowed). Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 66. `vehicles/sherut_d1.png` — Шерут (маршрутка) — лёгкие повреждения
@@ -587,7 +587,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Long green-and-white city bus with roof air-conditioning units, generic, no company logo. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Long green-and-white city bus with roof air-conditioning units, generic, no company logo. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 70. `vehicles/bus_d1.png` — Городской автобус — лёгкие повреждения
@@ -619,7 +619,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Green municipal garbage truck with a yellow stripe at the back. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Green municipal garbage truck with a yellow stripe at the back. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 74. `vehicles/garbage_d1.png` — Мусоровоз — лёгкие повреждения
@@ -651,7 +651,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Delivery motor scooter with a big orange insulated food box on the back that reads «8bis» (the only text allowed). Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Delivery motor scooter with a big orange insulated food box on the back that reads «8bis» (the only text allowed). Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 78. `vehicles/scooter_d1.png` — Скутер «Шмоне-Бис» — лёгкие повреждения
@@ -683,7 +683,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Black sport motorcycle. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Black sport motorcycle. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 82. `vehicles/moto_d1.png` — Мотоцикл — лёгкие повреждения
@@ -715,7 +715,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Yellow tuned hatchback with a single green racing stripe along the middle. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Yellow tuned hatchback with a single green racing stripe along the middle. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 86. `vehicles/hatch_lions_d1.png` — Хэтчбек «Львов Гондэра» — лёгкие повреждения
@@ -743,7 +743,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 ```
 
 
-## Персонажи (42)
+## Персонажи (54)
 
 ### 89. `chars/player.png` — Лёва Гольдман (герой)
 
@@ -1500,7 +1500,7 @@ Head-and-shoulders caricature portrait for the phone-call dialog box of a satiri
 ```
 
 
-## Персонажи (42)
+## Персонажи (54)
 
 ### 181. `chars/garik.png` — Гарик
 
@@ -1582,7 +1582,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Новая картинка, формат вертикальный 3:4.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Semi-truck seen from above: a short white cab at the front and a long blue corrugated shipping container on the trailer behind it, the container roof clearly visible with ribs, no writing. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Semi-truck seen from above: a short white cab at the front and a long blue corrugated shipping container on the trailer behind it, the container roof clearly visible with ribs, no writing. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 ### 191. `vehicles/truck_d1.png` — Тягач с контейнером — лёгкие повреждения
@@ -1614,7 +1614,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Новая картинка, формат квадрат 1:1.
 
 ```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark.  A single red steel fuel drum seen from directly above: round lid with two caps and a yellow hazard triangle, metal rings, filling about 70% of the image. Square image. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+Top-down game sprite of a REALISTIC vehicle: photorealistic rendering that looks like a high-resolution aerial drone photo taken straight down at noon, orthographic, accurate real-world proportions (a car is about 2.2 times longer than wide), real car paint with subtle clear-coat reflections, dark tinted glass reflecting the sky, visible panel gaps, door handles, side mirrors, windshield wipers, roof details, slight road dust on the lower edges, soft natural light from the top-left. NOT a cartoon: no outlines, no cel shading, no exaggerated shapes, no toy look. Single vehicle centered, no text, no logos, no watermark.  A single red steel fuel drum seen from directly above: round lid with two caps and a yellow hazard triangle, metal rings, filling about 70% of the image. Square image. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 
@@ -1805,5 +1805,104 @@ Flat bold billboard advertisement illustration, vivid colors, simple readable sh
 
 ```
 Flat bold billboard advertisement illustration, vivid colors, simple readable shapes, fills the whole image edge to edge, leave the lower third calm and uncluttered (text will be added later), NO text, NO letters, NO logos, NO watermark. A dramatic propaganda-style political poster: a crowd of protesters as dark silhouettes with banknotes raining down on them from above, red and black colors, ominous.
+```
+
+
+## Персонажи (54)
+
+### 218. `chars/player_walk1.png` — Лёва — шаг левой
+
+Правка картинки `player` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: his LEFT foot steps forward: the left shoe is clearly visible in front of the body (to the right of the torso), the right shoe is visible behind the body (to the left of the torso), the right arm swings slightly forward and the left arm back. Same art style, same lighting.
+```
+
+### 219. `chars/player_walk2.png` — Лёва — шаг правой
+
+Правка картинки `player` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: his RIGHT foot steps forward: the right shoe is clearly visible in front of the body (to the right of the torso), the left shoe is visible behind the body (to the left of the torso), the left arm swings slightly forward and the right arm back. Same art style, same lighting.
+```
+
+### 220. `chars/player_gun_walk1.png` — Лёва с пистолетом — шаг левой
+
+Правка картинки `player_gun` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: his LEFT foot steps forward: the left shoe is clearly visible in front of the body (to the right of the torso), the right shoe is visible behind the body (to the left of the torso), the right arm swings slightly forward and the left arm back. Same art style, same lighting.
+```
+
+### 221. `chars/player_gun_walk2.png` — Лёва с пистолетом — шаг правой
+
+Правка картинки `player_gun` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: his RIGHT foot steps forward: the right shoe is clearly visible in front of the body (to the right of the torso), the left shoe is visible behind the body (to the left of the torso), the left arm swings slightly forward and the right arm back. Same art style, same lighting.
+```
+
+### 222. `chars/russian_boss_walk1.png` — Сёма Кац — шаг левой
+
+Правка картинки `russian_boss` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: his LEFT foot steps forward: the left shoe is clearly visible in front of the body (to the right of the torso), the right shoe is visible behind the body (to the left of the torso), the right arm swings slightly forward and the left arm back. Same art style, same lighting.
+```
+
+### 223. `chars/russian_boss_walk2.png` — Сёма Кац — шаг правой
+
+Правка картинки `russian_boss` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: his RIGHT foot steps forward: the right shoe is clearly visible in front of the body (to the right of the torso), the left shoe is visible behind the body (to the left of the torso), the left arm swings slightly forward and the right arm back. Same art style, same lighting.
+```
+
+### 224. `chars/garik_walk1.png` — Гарик — шаг левой
+
+Правка картинки `garik` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: his LEFT foot steps forward: the left shoe is clearly visible in front of the body (to the right of the torso), the right shoe is visible behind the body (to the left of the torso), the right arm swings slightly forward and the left arm back. Same art style, same lighting.
+```
+
+### 225. `chars/garik_walk2.png` — Гарик — шаг правой
+
+Правка картинки `garik` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: his RIGHT foot steps forward: the right shoe is clearly visible in front of the body (to the right of the torso), the left shoe is visible behind the body (to the left of the torso), the left arm swings slightly forward and the right arm back. Same art style, same lighting.
+```
+
+### 226. `chars/karim_walk1.png` — Карим — шаг левой
+
+Правка картинки `karim` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: his LEFT foot steps forward: the left shoe is clearly visible in front of the body (to the right of the torso), the right shoe is visible behind the body (to the left of the torso), the right arm swings slightly forward and the left arm back. Same art style, same lighting.
+```
+
+### 227. `chars/karim_walk2.png` — Карим — шаг правой
+
+Правка картинки `karim` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: his RIGHT foot steps forward: the right shoe is clearly visible in front of the body (to the right of the torso), the left shoe is visible behind the body (to the left of the torso), the left arm swings slightly forward and the right arm back. Same art style, same lighting.
+```
+
+### 228. `chars/shabak_walk1.png` — Дани из Шабака — шаг левой
+
+Правка картинки `shabak` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: his LEFT foot steps forward: the left shoe is clearly visible in front of the body (to the right of the torso), the right shoe is visible behind the body (to the left of the torso), the right arm swings slightly forward and the left arm back. Same art style, same lighting.
+```
+
+### 229. `chars/shabak_walk2.png` — Дани из Шабака — шаг правой
+
+Правка картинки `shabak` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, position, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the pose to a natural walking stride seen from directly above: his RIGHT foot steps forward: the right shoe is clearly visible in front of the body (to the right of the torso), the left shoe is visible behind the body (to the left of the torso), the left arm swings slightly forward and the right arm back. Same art style, same lighting.
 ```
 

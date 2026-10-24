@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { ASSET_MANIFEST } = require('../js/asset-manifest.js');
+const { ASSET_MANIFEST, REGEN_VEHICLES } = require('../js/asset-manifest.js');
 
 const root = path.join(__dirname, '..');
 const CAT = { vehicles: 'Машины', chars: 'Персонажи', facades: 'Фасады и витрины', props: 'Объекты улиц', textures: 'Текстуры', portraits: 'Портреты для звонков' };
@@ -198,14 +198,25 @@ function flowList(list) {
   return out;
 }
 
-function flowDoc(list, title, intro) {
+function flowDoc(list, title, intro, first) {
   const nums = list.map((a) => a.n).join(', ');
+  const approve = first ? `
+## Сначала — одна картинка на согласование
+
+1. Сгенерируй **только № ${first.n}** (\`${first.cat}/${first.file}.png\`).
+2. Покажи её пользователю и спроси: «Так подходит? Продолжать?»
+3. **Дальше не иди, пока пользователь не ответит «да».** Если просит
+   поправить (реалистичнее, другой ракурс, цвет) — допиши его уточнение в
+   конец промпта, сгенерируй заново и снова спроси. Потом добавляй это же
+   уточнение ко всем остальным машинам.
+4. После «да» — весь список по порядку.
+` : '';
   return `# ${title}
 
 > Откройте этот файл в боковой панели **Claude в Chrome** и скажите:
 > «Выполни задание из этого файла».
 ${intro}
-
+${approve}
 ## Главное правило: имя файла
 
 После скачивания каждой картинки **дай файлу имя по номеру из списка**,
@@ -271,10 +282,12 @@ const have = (a) => bundleKeys.has(a.cat + '/' + a.file) || fs.existsSync(path.j
 // по категориям, чтобы машины шли одним блоком
 const grp = (a) => (a.cat === 'facades' && a.file.startsWith('poster') ? 'posters' : a.cat);
 const order = [...new Set(ALL.map(grp))];
-const missing = ALL.filter((a) => !have(a)).sort((a, b) => order.indexOf(grp(a)) - order.indexOf(grp(b)) || a.n - b.n);
+// слишком простые на вид машины перегенерируем в реалистичном стиле (вместе со стадиями)
+const regen = (a) => a.cat === 'vehicles' && REGEN_VEHICLES.includes(a.base || a.file);
+const missing = ALL.filter((a) => !have(a) || regen(a)).sort((a, b) => order.indexOf(grp(a)) - order.indexOf(grp(b)) || a.n - b.n);
 if (fs.existsSync(path.join(root, 'assets/gen'))) {
   fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_MISSING.md'), flowDoc(missing, `Задание для Claude в Chrome: недостающие ассеты (${missing.length})`,
-    `> Это всё, чего пока нет в игре: старые картинки, которые не получились или\n> пропущены, и новые для главы 1. Файл собирается автоматически.`));
+    `> Это всё, чего пока нет в игре: старые картинки, которые не получились или\n> пропущены, новые для главы 1 и кадры ходьбы героев. Машины — в реалистичном\n> стиле${REGEN_VEHICLES.length ? '; ' + REGEN_VEHICLES.map((f) => '`' + f + '`').join(', ') + ' уже были, но их\n> переделываем заново, вместе со стадиями повреждений' : ''}. Файл собирается\n> автоматически.`, missing.find((a) => a.cat === 'vehicles' && a.kind === 'new')));
   console.log(`Недостающих: ${missing.length} → CLAUDE_CHROME_ASSETS_MISSING.md`);
 }
 fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_CH1.md'), flow);

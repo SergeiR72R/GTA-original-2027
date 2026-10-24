@@ -610,6 +610,8 @@ class Ped {
     if (this.dead || this.car) return;
     this.cool -= dt;
     this.moving = false;
+    // сбитый с мотоцикла лежит и приходит в себя
+    if (this.stun > 0) { this.stun -= dt; return; }
     switch (this.ai) {
       case 'walk': this.walkAI(dt); break;
       case 'flee': this.fleeAI(dt); break;
@@ -844,7 +846,7 @@ class Ped {
     ctx.translate(this.x, this.y);
     ctx.rotate(this.a);
     ctx.scale(PED_SCALE, PED_SCALE);
-    drawPersonLook(ctx, this.look, this.walkAnim, this.moving, this.weapon, this.dead);
+    drawPersonLook(ctx, this.look, this.walkAnim, this.moving, this.weapon, this.dead || this.stun > 0);
     ctx.restore();
     if (this.dead) return;
     if (this.mission === 'target') drawTargetMark(ctx, this.x, this.y - 22);
@@ -1022,6 +1024,22 @@ function blast(x, y, opts = {}) {
   }
   const pl = World.player;
   if (!pl.car && !pl.dead) { const d = dist(pl.x, pl.y, x, y); if (d < r) Game.playerHurt((opts.plDmg || 80) * (1 - d / r) + 10, 'explosion'); }
+}
+
+// Мотоциклиста таранят — он слетает с мотоцикла и лежит пару секунд
+function throwRider(c, hx, hy, by) {
+  const d = c.driver;
+  if (!d || d === 'player' || !c.moto) return;
+  const scripted = c.ai === 'scripted', gang = c.gang && c.gang.includes(d);
+  if (gang) GangCars.exit(c); else bailOut(c);
+  const dx = d.x - hx, dy = d.y - hy, k = Math.hypot(dx, dy) || 1;
+  for (let i = 0; i < 6; i++) d.step(dx / k * 6, dy / k * 6);
+  d.stun = 1.8;
+  if (scripted) d.ai = 'idle'; // цель миссии: дальше решает миссия
+  d.hurt(20, by, hx, hy);
+  if (!d.dead) Sound.at('fall', d.x, d.y, 0.8);
+  c.ai = null;
+  if (scripted) { c.stalled = true; c.locked = true; c.maxSpeed = 0; }
 }
 
 function bailOut(c) {

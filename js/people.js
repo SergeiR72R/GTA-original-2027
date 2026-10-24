@@ -182,14 +182,30 @@ function drawPersonLook(ctx, L, walk, moving, weapon, dead) {
     key = L.gen;
   }
   if (!key) { People.draw(ctx, L, walk, moving, weapon, dead); return; }
-  const im = (weapon && !dead && Assets.gen['chars/' + key + '_gun']) || Assets.gen['chars/' + key];
+  const base = weapon && !dead && Assets.gen['chars/' + key + '_gun'] ? key + '_gun' : key;
+  let im = Assets.gen['chars/' + base];
+  // шаг: у главных героев — сгенерированные кадры _walk1/_walk2, у остальных
+  // ступни выходят из-под фигуры по очереди (спрайт смотрит вправо, вдоль +x)
+  let s = moving && !dead ? Math.sin(walk) : 0;
+  const w1 = Assets.gen['chars/' + base + '_walk1'], w2 = Assets.gen['chars/' + base + '_walk2'];
+  const frames = !!(w1 && w2);
+  if (frames && s) { if (s > 0.3) im = w1; else if (s < -0.3) im = w2; }
   const size = L.cat ? 22 : 30;
   const k = size / Math.max(im.width, im.height);
-  const bob = moving ? Math.sin(walk) * 0.8 : 0;
   ctx.fillStyle = 'rgba(0,0,0,0.22)';
   ctx.beginPath(); ctx.ellipse(2.5, 2.5, im.width * k * 0.4, im.height * k * 0.4, 0, 0, TAU); ctx.fill();
+  if (frames) s *= 0.4; // ноги уже на картинке — только лёгкое покачивание
+  else if (moving && !dead && !L.cat) {
+    const stride = size * 0.4, side = size * 0.14;
+    ctx.fillStyle = L.shoes || '#2b2724';
+    ctx.beginPath(); ctx.ellipse(s * stride, -side, 4, 2.6, 0, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(-s * stride, side, 4, 2.6, 0, 0, TAU); ctx.fill();
+  }
+  ctx.save();
+  if (s) { ctx.rotate(s * 0.07); ctx.translate(Math.abs(s) * 0.8, 0); }
   if (dead) ctx.globalAlpha = 0.85;
-  ctx.drawImage(im, -im.width * k / 2 + bob, -im.height * k / 2, im.width * k, im.height * k);
+  ctx.drawImage(im, -im.width * k / 2, -im.height * k / 2, im.width * k, im.height * k);
+  ctx.restore();
   ctx.globalAlpha = 1;
   if (L.boss) { ctx.strokeStyle = '#ffd54f'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(0, 0, 15, 0, TAU); ctx.stroke(); }
 }

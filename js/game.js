@@ -589,6 +589,20 @@ const Game = {
             if (-rv > maxRv) { maxRv = -rv; hx = (ca.x + cb.x) / 2; hy = (ca.y + cb.y) / 2; }
           }
         }
+        // таран мотоцикла — седок слетает
+        if (maxRv > 70) {
+          if (a.moto && a.driver && a.driver !== 'player' && (!b.moto || b.driver === 'player')) throwRider(a, hx, hy, b.driver === 'player' ? 'player' : null);
+          if (b.moto && b.driver && b.driver !== 'player' && (!a.moto || a.driver === 'player')) throwRider(b, hx, hy, a.driver === 'player' ? 'player' : null);
+        }
+        // цель миссии ломается за несколько таранов игрока (c.rams), а не только на скорости
+        for (const [t, o] of [[a, b], [b, a]]) {
+          if (t.rams && o.driver === 'player' && maxRv > 60 && !t.dead && World.time - (t.lastRam || -9) > 0.7) {
+            t.lastRam = World.time;
+            t.damage(t.maxHp * 0.5 / t.rams + 1, 'npc', hx, hy);
+            spawnSparks(hx, hy, 8); this.shake(4);
+            Sound.play('crash', 0.8);
+          }
+        }
         if (maxRv > 130 && World.time - (a.lastCrash || -9) > 0.5 && World.time - (b.lastCrash || -9) > 0.5) {
           a.lastCrash = b.lastCrash = World.time;
           const by = a.driver === 'player' ? 'player' : b.driver === 'player' ? 'player' : null;

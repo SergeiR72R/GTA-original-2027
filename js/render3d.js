@@ -9,7 +9,8 @@ const HS = 2.6;           // во сколько раз в 3D дома выше,
 // камера близко, как в GTA2, — небоскрёбы сжимаем сильнее, чтобы не упирались в неё
 function h3(h) { return h <= 100 ? h * HS : 100 * HS + (h - 100) * 0.45; }
 const CAR_H = { sedan: 15, hatch: 15, suv: 19, lux: 15, taxi: 15, police: 19, ambulance: 26, van: 26, pickup: 17, sherut: 26, bus: 32, garbage: 30, scooter: 7, moto: 7, truck: 34, barrel: 16 };
-for (const k in CAR_H) CAR_H[k] = Math.round(CAR_H[k] * 1.35); // машины крупнее — и выше
+// низкие кузова: камера смотрит сверху, высокие бока без текстуры торчат из-под картинки
+for (const k in CAR_H) CAR_H[k] = Math.max(4, Math.round(CAR_H[k] * 0.45));
 const FACADE_OF = {
   bauhaus: 'bauhaus', florentin: 'florentin', hotel: 'hotel', warehouse: 'warehouse', cityhall: 'cityhall', templer: 'templer',
   mall: 'mall', hospital: 'hospital', police: 'police', garage: 'garage', busstation: 'busstation', concrete: 'concrete',
@@ -846,7 +847,8 @@ const R3 = {
   drawPed(o, p) {
     const moving = p.moving && !p.dead;
     const q = moving ? Math.round(p.walkAnim / (Math.PI / 4)) : 0;
-    const key = (moving ? q % 8 : 's') + '|' + p.weapon + '|' + p.dead;
+    const down = p.dead || p.stun > 0;
+    const key = (moving ? q % 8 : 's') + '|' + p.weapon + '|' + down;
     if (key === o.key) return;
     // шаги можно пропустить, а смену оружия или смерть — нет
     if (o.key && moving && this.pedBudget-- <= 0) return;
@@ -854,7 +856,7 @@ const R3 = {
     const g = o.cv.getContext('2d');
     g.clearRect(0, 0, 100, 100);
     g.save(); g.translate(50, 50); g.scale(2 * PED_SCALE, 2 * PED_SCALE);
-    drawPersonLook(g, p.look, q * Math.PI / 4, moving, p.weapon, p.dead);
+    drawPersonLook(g, p.look, q * Math.PI / 4, moving, p.weapon, down);
     g.restore();
     o.m.material.map.needsUpdate = true;
   },
@@ -880,7 +882,7 @@ const R3 = {
       }
       o.m.visible = true;
       this.drawPed(o, p);
-      o.m.position.set(p.x, p.dead ? 1.5 : 3.5, p.y);
+      o.m.position.set(p.x, p.dead || p.stun > 0 ? 1.5 : 3.5, p.y);
       o.m.rotation.y = -p.a;
       // метка над головой: цель, союзник, пассажир такси
       const markMat = p.dead ? null : p.mission === 'target' ? this.mats.markRed : p.mission === 'ally' ? this.mats.markGreen : p.fare ? this.mats.markYellow : null;
