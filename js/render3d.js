@@ -21,7 +21,8 @@ const FACADE_OF = {
 // пока своей картинки нет — процедурный фасад похожего стиля
 const FACADE_FALLBACK = { power: 'warehouse', church: 'jaffa', mosque: 'jaffa', arena: 'concrete', citygate: 'tower' };
 const SHOP_STYLES = { bauhaus: 1, florentin: 1, concrete: 1, jaffa: 1, nevetzedek: 1 };
-const FACADE_VARIANTS = { bauhaus: 3, florentin: 3, concrete: 3 };
+// варианты фасада: у процедурных — разный рисунок, у сгенерированных — разные горящие окна
+const FACADE_VARIANTS = { bauhaus: 3, florentin: 3, concrete: 3, tower: 3, mall: 2, hotel: 2, jaffa: 2, nevetzedek: 2 };
 const PILOTIS_STYLES = { bauhaus: 1, concrete: 1 };
 const SHOP_GEN_MAX = 8;
 const TINTED = { bauhaus: 1, florentin: 1, concrete: 1, nevetzedek: 1, cityhall: 1, hospital: 1, police: 1, busstation: 1, garage: 1 };
@@ -306,7 +307,7 @@ const R3 = {
           for (let i = 0; i < 60; i++) { g.fillStyle = `rgba(0,0,0,${(Math.random() * 0.05).toFixed(3)})`; g.fillRect(Math.random() * 64, Math.random() * 64, 3, 3); }
           const em = Facades.canvas(4, 4), eg = em.getContext('2d'); eg.fillStyle = '#000'; eg.fillRect(0, 0, 4, 4);
           M[`f_${st}_${v}`] = facadeMat(c, em, { fw: FACADE_W, fh: FACADE_H });
-        } else if (gen) M[`f_${st}_${v}`] = facadeMat(gen, this.windowGlow(gen), { fw: FACADE_H * gen.width / gen.height, fh: FACADE_H, gen: true });
+        } else if (gen) M[`f_${st}_${v}`] = facadeMat(gen, this.windowGlow(gen, FACADE_GEN[st] === 'facade_tower' ? 'glass' : false, v), { fw: FACADE_H * gen.width / gen.height, fh: FACADE_H, gen: true });
         else { const f = Facades.facade(FACADE_FALLBACK[st] || st, v); M[`f_${st}_${v}`] = facadeMat(f.map, f.emissive, { fw: FACADE_W, fh: FACADE_H }); }
       }
     }
@@ -315,7 +316,7 @@ const R3 = {
     for (let i = 0; i < SHOP_GEN_MAX; i++) {
       const gen = Assets.gen['facades/shop_' + (i + 1)];
       if (!gen) continue;
-      M['shopg' + i] = facadeMat(gen, this.windowGlow(gen), { fw: FLOOR_H * gen.width / gen.height, fh: FLOOR_H, gen: true });
+      M['shopg' + i] = facadeMat(gen, this.windowGlow(gen, true), { fw: FLOOR_H * gen.width / gen.height, fh: FLOOR_H, gen: true });
       this.shopMats.push('shopg' + i);
     }
     for (let i = 0; i < 6; i++) {
@@ -353,27 +354,47 @@ const R3 = {
     this.facadeMats = Object.keys(M).filter((k) => k.startsWith('f_') || k.startsWith('shop')).map((k) => M[k]);
   },
 
-  // Карта ночного свечения для сгенерированного фасада: тёмные стёкла окон
-  // загораются тёплым светом (примерно половина окон)
-  windowGlow(img) {
+  // Карта ночного свечения для сгенерированного фасада. Фасад по заданию —
+  // 2 окна в ширину и 2 этажа: в каждой из четырёх ячеек окно зажигается
+  // целиком (примерно половина), светится то, что темнее стены, — форма окна.
+  // У витрины (shop = true) горит нижняя часть с витриной, у стеклянной башни
+  // (shop = 'glass') — стекло целиком.
+  windowGlow(img, shop, seed = 0) {
     const c = document.createElement('canvas');
     c.width = img.width; c.height = img.height;
     const g = c.getContext('2d');
-    g.drawImage(img, 0, 0);
-    let data;
-    try { data = g.getImageData(0, 0, c.width, c.height); } catch (e) { g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height); return c; }
-    const d = data.data, W = c.width, cell = Math.max(8, Math.round(W / 24));
-    const rng = makeRng(W * 7 + c.height);
-    const lit = new Map();
-    for (let i = 0; i < d.length; i += 4) {
-      const p = i / 4, x = p % W, y = (p / W) | 0;
-      const lum = 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2];
-      const glass = lum < 105 && d[i + 2] >= d[i] - 12;
-      const key = ((y / cell) | 0) * 1000 + ((x / cell) | 0);
-      if (!lit.has(key)) lit.set(key, rng() < 0.45);
-      if (glass && lit.get(key)) { d[i] = 255; d[i + 1] = 205; d[i + 2] = 130; } else { d[i] = d[i + 1] = d[i + 2] = 0; }
+    g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height);
+    const w = Math.max(8, Math.min(240, img.width)), h = Math.max(8, Math.round(img.height * w / img.width));
+    const s = document.createElement('canvas'); s.width = w; s.height = h;
+    const sg = s.getContext('2d');
+    sg.drawImage(img, 0, 0, w, h);
+    let d;
+    try { d = sg.getImageData(0, 0, w, h).data; } catch (e) { return c; }
+    const lum = (x, y) => { const i = (y * w + x) * 4; return 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2]; };
+    const rng = makeRng(img.width * 7 + img.height + seed * 131);
+    const rects = shop === true ? [[0.08, 0.42, 0.92, 0.9, true]]
+      : [[0, 0], [1, 0], [0, 1], [1, 1]].map(([cx, cy]) => [cx / 2 + 0.08, cy / 2 + 0.08, cx / 2 + 0.42, cy / 2 + 0.4, rng() < (shop === 'glass' ? 0.35 : 0.5)]);
+    const m = sg.createImageData(w, h);
+    for (const [ax, ay, bx, by, lit] of rects) {
+      if (!lit) continue;
+      const x0 = Math.floor(ax * w), x1 = Math.ceil(bx * w), y0 = Math.floor(ay * h), y1 = Math.ceil(by * h);
+      // яркость стены — по всей ячейке, окно темнее её
+      const vals = [];
+      for (let y = y0; y < y1; y += 2) for (let x = x0; x < x1; x += 2) vals.push(lum(x, y));
+      vals.sort((p, q) => p - q);
+      const wall = vals[Math.floor(vals.length * 0.7)] || 128;
+      for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+        // стеклянная башня: светится всё стекло, кроме тёмных рам
+        if (shop === 'glass' ? lum(x, y) < 45 : lum(x, y) > wall * 0.78) continue;
+        const i = (y * w + x) * 4;
+        if (shop === 'glass') { m.data[i] = 200; m.data[i + 1] = 150; m.data[i + 2] = 95; } else { m.data[i] = 255; m.data[i + 1] = 200; m.data[i + 2] = 125; }
+        m.data[i + 3] = 255;
+      }
     }
-    g.putImageData(data, 0, 0);
+    sg.putImageData(m, 0, 0);
+    g.filter = 'blur(' + Math.max(1, Math.round(img.width / w)) + 'px)';
+    g.drawImage(s, 0, 0, c.width, c.height);
+    g.filter = 'none';
     return c;
   },
 
