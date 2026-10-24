@@ -1636,7 +1636,9 @@ const City = {
     const im = Assets.gen['props/' + name];
     if (!im) return false;
     ctx.save(); ctx.translate(x, y); if (a) ctx.rotate(a);
-    ctx.drawImage(im, -w / 2, -h / 2, w, h);
+    // вписываем с сохранением пропорций картинки — без растяжения
+    const k = Math.min(w / im.width, h / im.height), dw = im.width * k, dh = im.height * k;
+    ctx.drawImage(im, -dw / 2, -dh / 2, dw, dh);
     ctx.restore();
     return true;
   },

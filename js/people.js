@@ -189,9 +189,11 @@ function drawPersonLook(ctx, L, walk, moving, weapon, dead) {
   let s = moving && !dead ? Math.sin(walk) : 0;
   const w1 = Assets.gen['chars/' + base + '_walk1'], w2 = Assets.gen['chars/' + base + '_walk2'];
   const frames = !!(w1 && w2);
-  if (frames && s) { if (s > 0.3) im = w1; else if (s < -0.3) im = w2; }
   const size = L.cat ? 22 : 30;
+  // масштаб — по стоящему спрайту: кадр шага шире (ноги, руки), фигура не должна прыгать
   const k = size / Math.max(im.width, im.height);
+  // при ходьбе чередуем только два кадра шага: стоящий спрайт рисовался отдельно и чуть отличается
+  if (frames && s) im = s > 0 ? w1 : w2;
   ctx.fillStyle = 'rgba(0,0,0,0.22)';
   ctx.beginPath(); ctx.ellipse(2.5, 2.5, im.width * k * 0.4, im.height * k * 0.4, 0, 0, TAU); ctx.fill();
   if (frames) s *= 0.4; // ноги уже на картинке — только лёгкое покачивание
