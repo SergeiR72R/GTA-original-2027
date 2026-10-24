@@ -188,7 +188,9 @@ function flowList(list) {
       out += `\n## ${title} (${list.filter((x) => (x.cat === 'facades' && x.file.startsWith('poster') ? 'posters' : x.file === 'barrel' ? 'props' : x.cat) === c).length})\n\n`;
     }
     const full = a.full || (a.kind === 'edit' ? ALL.find((b) => b.file === a.base).prompt + ' ' + a.prompt.replace(/^Edit the previous image of this exact vehicle\. Keep EXACTLY the same [^.]*\. /, '') : null);
-    const how = a.kind === 'edit'
+    const how = a.refFile
+      ? `Приложи к запросу референс **\`${a.refFile}\`** из архива \`hamsin-refs-dead.zip\` (живой персонаж) и используй короткий промпт «Правка». Если приложить картинку нельзя — генерируй по полному промпту. Формат ${FLOW_SIZE[a.size]}.`
+      : a.kind === 'edit'
       ? `Правка картинки \`${a.base}\`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую \`${a.base}\`). Если нельзя — генерируй по полному промпту. Формат ${FLOW_SIZE[a.size]}.`
       : `Новая картинка, формат ${FLOW_SIZE[a.size]}.`;
     const ref = a.ref ? ' **Приложи к запросу фото этого человека** (его даст пользователь) — внешность берётся с фото, стиль — как у остальных героев игры. Без фото не генерируй — спроси пользователя.' : '';
@@ -294,6 +296,11 @@ if (fs.existsSync(path.join(root, 'assets/gen'))) {
     intro, missing.find((a) => a.ref && a.cat === 'portraits')));
   console.log(`Недостающих: ${missing.length} → CLAUDE_CHROME_ASSETS_MISSING.md`);
 }
+// убитые — отдельное задание с архивом референсов (живые персонажи)
+const DEAD = ALL.filter((a) => a.batch === 'dead' && !have(a));
+if (DEAD.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_DEAD.md'), flowDoc(DEAD, `Задание для Claude в Chrome: убитые персонажи (${DEAD.length})`,
+  `> Каждый вид людей в игре — в виде трупа: лежит на спине, вид сверху,\n> голова вправо, небольшая лужа крови (комикс, без жести).\n>\n> **Референсы.** Пользователь даёт архив \`hamsin-refs-dead.zip\` с живыми\n> персонажами: файл \`ref_<имя>.png\` — образец для пункта \`chars/<имя>_dead.png\`.\n> К каждому запросу прикладывай свой референс — его имя указано в пункте и в\n> самом промпте. Убитый должен быть тем же персонажем, что на референсе.`,
+  DEAD[0]));
 // машины банд — отдельным дополнением к большому заданию (досылается следом)
 const GANG_CARS = ALL.filter((a) => /^(lux_odessa|pickup_bahar|lions_car|iran_car)(_d\d)?$/.test(a.file));
 fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_GANGCARS.md'), flowDoc(GANG_CARS, `Дополнение для Claude в Chrome: карикатурные машины банд (${GANG_CARS.length})`,

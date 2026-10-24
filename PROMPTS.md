@@ -34,7 +34,7 @@ Claude в Chrome).
 | Текстуры | без фона, бесшовная | вид сверху | квадрат 1024×1024 |
 | Портреты | свой цветной фон | по плечи, лицом к зрителю | квадрат |
 
-# Список (279)
+# Список (317)
 
 ## Машины (122)
 
@@ -743,7 +743,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 ```
 
 
-## Персонажи (70)
+## Персонажи (108)
 
 ### 89. `chars/player.png` — Лёва Гольдман (герой)
 
@@ -1500,7 +1500,7 @@ Head-and-shoulders caricature portrait for the phone-call dialog box of a satiri
 ```
 
 
-## Персонажи (70)
+## Персонажи (108)
 
 ### 181. `chars/garik.png` — Гарик
 
@@ -1808,7 +1808,7 @@ Flat bold billboard advertisement illustration, vivid colors, simple readable sh
 ```
 
 
-## Персонажи (70)
+## Персонажи (108)
 
 ### 218. `chars/player_walk1.png` — Лёва — шаг левой
 
@@ -2020,7 +2020,7 @@ Head-and-shoulders caricature portrait for the phone-call dialog box of a satiri
 ```
 
 
-## Персонажи (70)
+## Персонажи (108)
 
 ### 243. `chars/dima.png` — Дима
 
@@ -2125,7 +2125,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Персонажи (70)
+## Персонажи (108)
 
 ### 255. `chars/player_bat.png` — Лёва с битой
 
@@ -2328,5 +2328,312 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, co
 
 ```
 Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
+```
+
+
+## Персонажи (108)
+
+### 280. `chars/player_dead.png` — Лёва Гольдман (герой) — убитый
+
+Правка картинки `player` из этого же чата.
+
+```
+Use the attached reference image ref_player.png (Лёва Гольдман (герой)). Draw EXACTLY this character from ref_player.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 281. `chars/police_dead.png` — Полицейский — убитый
+
+Правка картинки `police` из этого же чата.
+
+```
+Use the attached reference image ref_police.png (Полицейский). Draw EXACTLY this character from ref_police.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 282. `chars/russian_dead.png` — Боец бригады «Одесса» — убитый
+
+Правка картинки `russian` из этого же чата.
+
+```
+Use the attached reference image ref_russian.png (Боец бригады «Одесса»). Draw EXACTLY this character from ref_russian.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 283. `chars/russian_boss_dead.png` — Сёма Кац, глава «Одессы» — убитый
+
+Правка картинки `russian_boss` из этого же чата.
+
+```
+Use the attached reference image ref_russian_boss.png (Сёма Кац, глава «Одессы»). Draw EXACTLY this character from ref_russian_boss.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 284. `chars/arab_dead.png` — Боец клана Аль-Бахар — убитый
+
+Правка картинки `arab` из этого же чата.
+
+```
+Use the attached reference image ref_arab.png (Боец клана Аль-Бахар). Draw EXACTLY this character from ref_arab.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 285. `chars/arab_boss_dead.png` — Абу-Карим, глава клана — убитый
+
+Правка картинки `arab_boss` из этого же чата.
+
+```
+Use the attached reference image ref_arab_boss.png (Абу-Карим, глава клана). Draw EXACTLY this character from ref_arab_boss.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 286. `chars/lions_dead.png` — Боец «Львов Гондэра» — убитый
+
+Правка картинки `lions` из этого же чата.
+
+```
+Use the attached reference image ref_lions.png (Боец «Львов Гондэра»). Draw EXACTLY this character from ref_lions.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 287. `chars/lions_boss_dead.png` — Абеба, лидер «Львов» — убитый
+
+Правка картинки `lions_boss` из этого же чата.
+
+```
+Use the attached reference image ref_lions_boss.png (Абеба, лидер «Львов»). Draw EXACTLY this character from ref_lions_boss.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 288. `chars/iran_dead.png` — Иранский агент — убитый
+
+Правка картинки `iran` из этого же чата.
+
+```
+Use the attached reference image ref_iran.png (Иранский агент). Draw EXACTLY this character from ref_iran.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 289. `chars/shabak_dead.png` — Дани из Шабака — убитый
+
+Правка картинки `shabak` из этого же чата.
+
+```
+Use the attached reference image ref_shabak.png (Дани из Шабака). Draw EXACTLY this character from ref_shabak.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 290. `chars/itzik_dead.png` — Ицик «Фалафель» — убитый
+
+Правка картинки `itzik` из этого же чата.
+
+```
+Use the attached reference image ref_itzik.png (Ицик «Фалафель»). Draw EXACTLY this character from ref_itzik.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 291. `chars/moshe_dead.png` — Моше, бухгалтер — убитый
+
+Правка картинки `moshe` из этого же чата.
+
+```
+Use the attached reference image ref_moshe.png (Моше, бухгалтер). Draw EXACTLY this character from ref_moshe.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 292. `chars/shmulik_dead.png` — Шмулик, хозяин квартиры — убитый
+
+Правка картинки `shmulik` из этого же чата.
+
+```
+Use the attached reference image ref_shmulik.png (Шмулик, хозяин квартиры). Draw EXACTLY this character from ref_shmulik.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 293. `chars/dvora_dead.png` — Двора, учительница ульпана — убитый
+
+Правка картинки `dvora` из этого же чата.
+
+```
+Use the attached reference image ref_dvora.png (Двора, учительница ульпана). Draw EXACTLY this character from ref_dvora.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 294. `chars/civ_1_dead.png` — Прохожая — убитый
+
+Правка картинки `civ_1` из этого же чата.
+
+```
+Use the attached reference image ref_civ_1.png (Прохожая). Draw EXACTLY this character from ref_civ_1.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 295. `chars/civ_2_dead.png` — Харедим — убитый
+
+Правка картинки `civ_2` из этого же чата.
+
+```
+Use the attached reference image ref_civ_2.png (Харедим). Draw EXACTLY this character from ref_civ_2.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 296. `chars/civ_3_dead.png` — Солдат — убитый
+
+Правка картинки `civ_3` из этого же чата.
+
+```
+Use the attached reference image ref_civ_3.png (Солдат). Draw EXACTLY this character from ref_civ_3.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 297. `chars/civ_4_dead.png` — Пожилой в кипе — убитый
+
+Правка картинки `civ_4` из этого же чата.
+
+```
+Use the attached reference image ref_civ_4.png (Пожилой в кипе). Draw EXACTLY this character from ref_civ_4.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 298. `chars/civ_5_dead.png` — Хипстер — убитый
+
+Правка картинки `civ_5` из этого же чата.
+
+```
+Use the attached reference image ref_civ_5.png (Хипстер). Draw EXACTLY this character from ref_civ_5.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 299. `chars/civ_6_dead.png` — Бабушка с тележкой — убитый
+
+Правка картинки `civ_6` из этого же чата.
+
+```
+Use the attached reference image ref_civ_6.png (Бабушка с тележкой). Draw EXACTLY this character from ref_civ_6.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 300. `chars/civ_7_dead.png` — Подросток — убитый
+
+Правка картинки `civ_7` из этого же чата.
+
+```
+Use the attached reference image ref_civ_7.png (Подросток). Draw EXACTLY this character from ref_civ_7.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 301. `chars/civ_8_dead.png` — Женщина в тихеле — убитый
+
+Правка картинки `civ_8` из этого же чата.
+
+```
+Use the attached reference image ref_civ_8.png (Женщина в тихеле). Draw EXACTLY this character from ref_civ_8.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 302. `chars/civ_9_dead.png` — Офисный работник — убитый
+
+Правка картинки `civ_9` из этого же чата.
+
+```
+Use the attached reference image ref_civ_9.png (Офисный работник). Draw EXACTLY this character from ref_civ_9.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 303. `chars/civ_10_dead.png` — Пляжник с маткот — убитый
+
+Правка картинки `civ_10` из этого же чата.
+
+```
+Use the attached reference image ref_civ_10.png (Пляжник с маткот). Draw EXACTLY this character from ref_civ_10.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 304. `chars/civ_11_dead.png` — Женщина в хиджабе — убитый
+
+Правка картинки `civ_11` из этого же чата.
+
+```
+Use the attached reference image ref_civ_11.png (Женщина в хиджабе). Draw EXACTLY this character from ref_civ_11.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 305. `chars/civ_12_dead.png` — Турист — убитый
+
+Правка картинки `civ_12` из этого же чата.
+
+```
+Use the attached reference image ref_civ_12.png (Турист). Draw EXACTLY this character from ref_civ_12.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 306. `chars/garik_dead.png` — Гарик — убитый
+
+Правка картинки `garik` из этого же чата.
+
+```
+Use the attached reference image ref_garik.png (Гарик). Draw EXACTLY this character from ref_garik.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 307. `chars/karim_dead.png` — Карим — убитый
+
+Правка картинки `karim` из этого же чата.
+
+```
+Use the attached reference image ref_karim.png (Карим). Draw EXACTLY this character from ref_karim.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 308. `chars/roza_dead.png` — Роза Львовна — убитый
+
+Правка картинки `roza` из этого же чата.
+
+```
+Use the attached reference image ref_roza.png (Роза Львовна). Draw EXACTLY this character from ref_roza.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 309. `chars/yoav_dead.png` — Журналист Йоав — убитый
+
+Правка картинки `yoav` из этого же чата.
+
+```
+Use the attached reference image ref_yoav.png (Журналист Йоав). Draw EXACTLY this character from ref_yoav.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 310. `chars/baba_dead.png` — Бабушка Хая — убитый
+
+Правка картинки `baba` из этого же чата.
+
+```
+Use the attached reference image ref_baba.png (Бабушка Хая). Draw EXACTLY this character from ref_baba.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 311. `chars/protester_dead.png` — Протестующий — убитый
+
+Правка картинки `protester` из этого же чата.
+
+```
+Use the attached reference image ref_protester.png (Протестующий). Draw EXACTLY this character from ref_protester.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 312. `chars/supporter_dead.png` — Сторонник правительства — убитый
+
+Правка картинки `supporter` из этого же чата.
+
+```
+Use the attached reference image ref_supporter.png (Сторонник правительства). Draw EXACTLY this character from ref_supporter.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 313. `chars/mechanic_dead.png` — Механик — убитый
+
+Правка картинки `mechanic` из этого же чата.
+
+```
+Use the attached reference image ref_mechanic.png (Механик). Draw EXACTLY this character from ref_mechanic.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 314. `chars/runner_dead.png` — Беглец-киоскёр — убитый
+
+Правка картинки `runner` из этого же чата.
+
+```
+Use the attached reference image ref_runner.png (Беглец-киоскёр). Draw EXACTLY this character from ref_runner.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 315. `chars/dima_dead.png` — Дима — убитый
+
+Правка картинки `dima` из этого же чата.
+
+```
+Use the attached reference image ref_dima.png (Дима). Draw EXACTLY this character from ref_dima.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 316. `chars/danis_dead.png` — Данис — убитый
+
+Правка картинки `danis` из этого же чата.
+
+```
+Use the attached reference image ref_danis.png (Данис). Draw EXACTLY this character from ref_danis.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
+```
+
+### 317. `chars/semyon_dead.png` — Семён — убитый
+
+Правка картинки `semyon` из этого же чата.
+
+```
+Use the attached reference image ref_semyon.png (Семён). Draw EXACTLY this character from ref_semyon.png: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: A single person lying dead flat on the back on the ground, seen from directly above (bird's-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.
 ```
 

@@ -252,6 +252,11 @@ const GANG_VEHICLES2 = [
   ['lions_car', 'Машина «Львов Гондэра»', 'Lions of Gondar, a crew of young Ethiopian-Israeli rappers with their own music studio: a bright yellow tuned street-racer hatchback with a gigantic rear spoiler, wide flared fenders, neon-green underglow, green and red racing stripes, two huge subwoofer speakers visible through the open rear hatch. ROOF EMBLEM: a big roaring lion head wearing a crown, yellow and black, inside a green circle.'],
   ['iran_car', 'Фургон иранской сети', 'The Iranian spy network pretending to be a carpet delivery company: a dark charcoal-grey boxy van, comically suspicious, bristling with antennas and a satellite dish on the roof edge, blacked-out windows, rolled-up Persian-style carpets strapped to the roof rack along the sides. ROOF EMBLEM: a fake carpet-shop logo — a big rolled red carpet with a single watchful eye in the middle, inside an orange diamond.'],
 ];
+// Убитые: тот же персонаж лежит на спине, вид сверху, голова — вправо
+const DEAD_POSE = 'A single person lying dead flat on the back on the ground, seen from directly above (bird\'s-eye view), the whole body visible from head to feet, the HEAD toward the RIGHT edge of the image and the feet toward the LEFT, arms spread loosely to the sides, eyes closed, a small dark-red blood pool under the torso, comic-book style, not gory. The body fills about 85% of the image width.';
+// ref — файл живого персонажа из архива референсов (hamsin-refs-dead.zip)
+const DEAD_EDIT = (ref, who) => `Use the attached reference image ${ref} (${who}). Draw EXACTLY this character from ${ref}: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: ${DEAD_POSE}`;
+
 // Тарантайка Лёвы: на ней он везёт Семёна с матрасом
 const LEVA_CAR = [
   ['leva_vw', '«Фолькс» Лёвы', 'A tired old 1990s German compact hatchback (classic boxy two-box shape), faded pale grey-blue paint with sun-bleached roof, the front left door in a different color (matte primer grey), small dents and rust spots, plain steel wheels, two black roof-rack bars, a cracked plastic mirror held with tape, no badges. A lovable clunker.'],
@@ -354,12 +359,17 @@ const ASSET_MANIFEST = (() => {
   }
   // машины «Львов» и иранцев в карикатурном виде — после всего остального
   for (const [file, title, desc] of GANG_VEHICLES2) gangCar(file, title, desc);
+  // убитые: правка готового спрайта каждого вида людей (кроме кошки) — в самом конце, после «Фолькса»
+  const deadList = out.filter((a) => a.cat === 'chars' && a.kind === 'new' && a.file !== 'cat' && !/_(gun|bat|uzi|ak|rpg|shotgun)$/.test(a.file));
+  const deadLater = deadList.map((a) => ({ batch: 'dead', cat: 'chars', file: a.file + '_dead', title: `${a.title} — убитый`, kind: 'edit', base: a.file, size: '1024x1024', refFile: `ref_${a.file}.png`,
+    prompt: DEAD_EDIT(`ref_${a.file}.png`, a.title), full: `${a.prompt.replace(ASSET_STYLE.person, DEAD_POSE).replace(/ ?Base the [^.]*recognizable\./, ' Same face and build as the existing sprite of this character.')}` }));
   // «Фолькс» Лёвы — после всего остального
   for (const [file, title, desc] of LEVA_CAR) {
     const base = `${ASSET_STYLE.common} ${ASSET_STYLE.vehicle} ${desc} ${ASSET_STYLE.isolated}`;
     out.push({ batch: 'leva', cat: 'vehicles', file, title, kind: 'new', size: '768x1024', prompt: base });
     for (const st of DAMAGE_STAGES) out.push({ batch: 'leva', cat: 'vehicles', file: file + st.suffix, title: `${title} — ${st.title}`, kind: 'edit', base: file, size: '768x1024', prompt: st.prompt, full: `${base} ${st.prompt.replace(/^Edit the previous image of this exact vehicle\. Keep EXACTLY the same [^.]*\. /, '')}` });
   }
+  out.push(...deadLater);
   return out;
 })();
 

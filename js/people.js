@@ -182,6 +182,13 @@ function drawPersonLook(ctx, L, walk, moving, weapon, dead) {
     key = L.gen;
   }
   if (!key) { People.draw(ctx, L, walk, moving, weapon, dead); return; }
+  // убитый (и сбитый с мотоцикла): лежит на спине, голова — по направлению взгляда
+  const deadIm = dead && Assets.gen['chars/' + key + '_dead'];
+  if (deadIm) {
+    const kd = 38 / Math.max(deadIm.width, deadIm.height);
+    ctx.drawImage(deadIm, -deadIm.width * kd / 2, -deadIm.height * kd / 2, deadIm.width * kd, deadIm.height * kd);
+    return;
+  }
   // своя картинка для каждого оружия (player_uzi, lions_bat…); пока её нет —
   // огнестрел рисуем общим спрайтом «с пистолетом», биту и гранату — стоящим
   const has = (k) => !!Assets.gen['chars/' + k];
