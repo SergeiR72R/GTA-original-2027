@@ -33,13 +33,13 @@ const VEHICLE_ASSETS = [
   ['hatch_3', 'Хэтчбек старый бежевый', 'Old beige hatchback from the 1990s, faded paint.'],
   ['suv_1', 'Джип белый', 'White mid-size SUV with roof rails.'],
   ['suv_2', 'Джип чёрный', 'Black mid-size SUV with tinted windows.'],
-  ['lux', 'Чёрный лимузин бригады «Одесса»', 'Long black luxury executive sedan with tinted windows and chrome details.'],
+  ['lux', 'Чёрный представительский седан', 'Long black luxury executive sedan with tinted windows and chrome details.'],
   ['taxi', 'Такси', 'White sedan taxi with a small yellow roof sign that reads «מונית» in Hebrew (the only text allowed).'],
   ['police', 'Полиция', 'Israeli police SUV: white body with blue and fluorescent yellow-green checkered side markings, red-and-blue light bar on the roof, the word «משטרה» on the hood (the only text allowed).'],
   ['ambulance', 'Скорая', 'White emergency ambulance van with red stripes and orange roof lights, generic medical markings without any cross or star symbol.'],
   ['van', 'Фургон', 'Plain white delivery van.'],
   ['van_iran', 'Фургон иранских агентов', 'Dark charcoal-grey windowless van with tinted windows, suspicious, no markings.'],
-  ['pickup', 'Пикап клана Аль-Бахар', 'White pickup truck with an open cargo bed containing a few wooden crates.'],
+  ['pickup', 'Пикап', 'White pickup truck with an open cargo bed containing a few wooden crates.'],
   ['sherut', 'Шерут (маршрутка)', 'Yellow shared minibus taxi with a big route number «4» painted on the roof (the only text allowed).'],
   ['bus', 'Городской автобус', 'Long green-and-white city bus with roof air-conditioning units, generic, no company logo.'],
   ['garbage', 'Мусоровоз', 'Green municipal garbage truck with a yellow stripe at the back.'],
@@ -240,6 +240,32 @@ const PRO_PEOPLE = [
   ['semyon', 'Семён', 'Semyon, Leva\'s second flatmate, early 30s, calm and easy-going, always moving to a new apartment, hugging a rolled-up pillow.', 'white t-shirt, shorts, flip-flops', 'Background: mint green.'],
 ];
 
+// Банды: узнаваемые машины, таксофон, персонажи с каждым оружием
+const GANG_VEHICLES = [
+  ['lux_odessa', 'Машина бригады «Одесса»', 'Big black 1990s German-style luxury sedan, long and boxy, heavily tinted windows, lots of chrome trim, a thin blood-red pinstripe running along the hood, roof and trunk centerline, chrome wheels, no badges. Instantly recognizable as a gangster car.'],
+  ['pickup_bahar', 'Пикап клана Аль-Бахар', 'White double-cab pickup truck on raised suspension, a wide teal-green stripe along the hood and roof, black roll bar behind the cab with four round spotlights, open cargo bed with a spare tyre and a few wooden crates, no badges. Instantly recognizable.'],
+];
+const GANG_PROPS = [
+  ['payphone', 'Таксофон', 'An Israeli street payphone on a single pole, seen from directly above: a grey metal box under a small curved grey hood with a blue stripe along its edge, a black handset on a coiled cord at one side, slightly worn and scratched, rectangular footprint.'],
+];
+const WEAPON_POSE = {
+  bat: 'holding a wooden baseball bat in both hands, raised over his right shoulder, ready to swing',
+  shotgun: 'both arms extended forward to the right holding a pump-action shotgun with a wooden stock',
+  uzi: 'both arms extended forward to the right holding a compact black submachine gun with a short magazine',
+  ak: 'both arms extended forward to the right holding an assault rifle with a wooden stock and a curved magazine',
+  rpg: 'an olive-green rocket launcher tube resting on his right shoulder and pointing to the right, both hands on its grips',
+};
+// у героя — всё оружие, у бойцов банд — то, чем банда вооружена (пистолет уже есть: *_gun)
+const WEAPON_CHARS = [
+  ['player', 'Лёва', ['bat', 'shotgun', 'uzi', 'ak', 'rpg']],
+  ['russian', 'Боец «Одессы»', ['ak', 'shotgun']],
+  ['arab', 'Боец Аль-Бахар', ['uzi', 'shotgun']],
+  ['lions', 'Боец «Львов»', ['bat', 'uzi']],
+  ['iran', 'Иранский агент', ['uzi', 'ak']],
+];
+const WEAPON_NAME = { bat: 'с битой', shotgun: 'с дробовиком', uzi: 'с узи', ak: 'с автоматом', rpg: 'с РПГ' };
+const WEAPON_EDIT = (pose) => `Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: ${pose}. Same art style, same lighting.`;
+
 // Полный упорядоченный список: машины (с уроном), персонажи, фасады, объекты, текстуры, портреты
 const ASSET_MANIFEST = (() => {
   const out = [];
@@ -299,6 +325,21 @@ const ASSET_MANIFEST = (() => {
   for (const [file, title, desc] of PRO_PROPS) pro({ cat: 'props', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.common} ${desc} ${ASSET_STYLE.isolated}` });
   for (const [file, title, who, , bg] of PRO_PEOPLE) pro({ cat: 'portraits', file: 'portrait_' + file, title: `Портрет: ${title}`, kind: 'new', size: '1024x1024', ref: true, prompt: `${ASSET_STYLE.portrait} ${who} ${REF_PHOTO} ${bg}` });
   for (const [file, title, , clothes] of PRO_PEOPLE) pro({ cat: 'chars', file, title, kind: 'new', size: '1024x1024', ref: true, prompt: `${ASSET_STYLE.common} ${ASSET_STYLE.person} A man wearing ${clothes}. ${REF_PHOTO.replace('face, ', '')} ${ASSET_STYLE.isolated}` });
+  // банды — в самом конце
+  const gang = (o) => out.push(Object.assign({ batch: 'gangs' }, o));
+  for (const [file, title, desc] of GANG_VEHICLES) {
+    const base = `${ASSET_STYLE.common} ${ASSET_STYLE.vehicle} ${desc} ${ASSET_STYLE.isolated}`;
+    gang({ cat: 'vehicles', file, title, kind: 'new', size: '768x1024', prompt: base });
+    for (const st of DAMAGE_STAGES) gang({ cat: 'vehicles', file: file + st.suffix, title: `${title} — ${st.title}`, kind: 'edit', base: file, size: '768x1024', prompt: st.prompt, full: `${base} ${st.prompt.replace(/^Edit the previous image of this exact vehicle\. Keep EXACTLY the same [^.]*\. /, '')}` });
+  }
+  for (const [file, title, desc] of GANG_PROPS) gang({ cat: 'props', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.common} ${desc} ${ASSET_STYLE.isolated}` });
+  for (const [file, title, list] of WEAPON_CHARS) {
+    const desc = CHAR_ASSETS.find((c) => c[0] === file)[2];
+    for (const w of list) {
+      gang({ cat: 'chars', file: file + '_' + w, title: `${title} ${WEAPON_NAME[w]}`, kind: 'edit', base: file, size: '1024x1024', prompt: WEAPON_EDIT(WEAPON_POSE[w]),
+        full: `${ASSET_STYLE.common} ${ASSET_STYLE.person.replace(', arms relaxed', ', ' + WEAPON_POSE[w])} ${desc} ${ASSET_STYLE.isolated}` });
+    }
+  }
   return out;
 })();
 

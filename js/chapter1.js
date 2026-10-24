@@ -1604,13 +1604,14 @@ const C1_LASTRUN = staged({
           m.target = P.c1JaffaEdge;
           if (stopAt(P.c1JaffaEdge, 140)) {
             const c = pl.car; c.passenger = null; k.car = null; k.x = c.x + 30; k.y = c.y; World.peds.push(k);
-            k.ai = 'idle'; k.mission = 'ally';
+            k.ai = 'idle'; k.mission = 'ally'; k.faction = 'arab'; // свои его не подстрелят
             m.out = true;
             m.chase = Story.chasers(m, 'russian', 2, { min: 400, max: 700 });
             Story.say([[KARIM, 'Дальше я сам. Ты... прикрой. Я скажу дяде, кто меня вытащил.'], [HERO, 'Беги, Карим. Не оглядывайся.']]);
           }
           return;
         }
+        Factions.calm('arab'); // при племяннике Абу-Карима клан не стреляет
         const d = Story.walkTo(k, City.places.arHQ, 105, dt);
         m.text = 'Прикрой Карима, пока он идёт к дяде';
         m.target = k;

@@ -9,7 +9,7 @@ const SHIRTS = ['#e53935', '#1e88e5', '#43a047', '#fdd835', '#8e24aa', '#ff7043'
 // Фракции
 const FACTIONS = {
   russian: { name: 'Бригада «Одесса»', short: 'Бригада', boss: 'Сёма Кац', color: '#c62828', turf: '#e53935', car: 'lux', districts: ['ramatgan', 'bursa', 'rgshops'] },
-  arab: { name: 'Клан Аль-Бахар', short: 'Аль-Бахар', boss: 'Абу-Карим', color: '#eeeeee', turf: '#26a69a', car: 'pickup', districts: ['jaffa', 'jaffaclock', 'flea', 'ajami', 'jaffaport'] },
+  arab: { name: 'Клан Аль-Бахар', short: 'Аль-Бахар', boss: 'Абу-Карим', color: '#eeeeee', turf: '#26a69a', car: 'pickup', carColor: '#f2f2ee', districts: ['jaffa', 'jaffaclock', 'flea', 'ajami', 'jaffaport'] },
   lions: { name: '«Львы Гондэра»', short: 'Львы', boss: 'Абеба', color: '#f2c230', turf: '#fbc02d', car: 'hatch', carColor: '#f2c230', districts: ['south', 'busstation', 'levinsky', 'hatikva'] },
   iran: { name: 'Иранская сеть', short: 'Агенты', boss: '«Али»', color: '#78909c', car: 'van', carColor: '#3d4249', districts: [] },
 };
@@ -182,7 +182,11 @@ function drawPersonLook(ctx, L, walk, moving, weapon, dead) {
     key = L.gen;
   }
   if (!key) { People.draw(ctx, L, walk, moving, weapon, dead); return; }
-  const base = weapon && !dead && Assets.gen['chars/' + key + '_gun'] ? key + '_gun' : key;
+  // своя картинка для каждого оружия (player_uzi, lions_bat…); пока её нет —
+  // огнестрел рисуем общим спрайтом «с пистолетом», биту и гранату — стоящим
+  const has = (k) => !!Assets.gen['chars/' + k];
+  const base = !weapon || dead ? key : has(key + '_' + weapon) ? key + '_' + weapon
+    : weapon !== 'bat' && weapon !== 'grenade' && has(key + '_gun') ? key + '_gun' : key;
   let im = Assets.gen['chars/' + base];
   // шаг: у главных героев — сгенерированные кадры _walk1/_walk2, у остальных
   // ступни выходят из-под фигуры по очереди (спрайт смотрит вправо, вдоль +x)

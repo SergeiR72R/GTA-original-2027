@@ -291,12 +291,13 @@ const Game = {
     if (Clock.shabbat && type === 'bus') type = 'sherut';
     if (Clock.shabbat && chance(0.5)) return; // в шаббат улицы пустеют
     const police = chance(0.05);
-    const isFac = fac && chance(0.35);
+    // машины банды: на её территории, но не больше трёх рядом — иначе банда на каждом углу
+    const isFac = !police && fac && chance(0.35) && World.cars.filter((o) => o.turf && o.driver && !o.dead).length < 3;
     if (isFac) type = FACTIONS[fac].car;
     const c = new Car(p.x, p.y, DIR_ANGLE[p.dir], { type: police ? 'police' : type, ai: 'traffic', faction: isFac ? fac : null });
     c.dir = p.dir;
-    c.driver = new Ped(p.x, p.y, isFac ? { faction: fac, ai: 'gang', weapon: factionGun(fac) } : police ? { look: Looks.police(), ai: 'cop', weapon: 'pistol' } : {});
-    c.driver.car = c;
+    if (isFac) GangCars.patrol(c, fac);
+    else { c.driver = new Ped(p.x, p.y, police ? { look: Looks.police(), ai: 'cop', weapon: 'pistol' } : {}); c.driver.car = c; }
     c.siren = false;
     const v = DIRS[p.dir];
     c.vx = v.x * 120; c.vy = v.y * 120;
@@ -372,8 +373,11 @@ const Game = {
       if (d < bd) { bd = d; best = c; }
     }
     if (!best) return;
-    // бандиты не отдают машину — выходят драться
-    if (best.gang && best.driver && best.driver !== 'player') GangCars.exit(best);
+    // бандиты не отдают машину — выходят и стреляют
+    if (best.gang && best.driver && best.driver !== 'player') {
+      if (best.turf) { GangCars.angry(best); Factions.change(best.turf, -8, true); Wanted.crime('carjack', pl.x, pl.y); Game.message(FACTIONS[best.turf].short + ': «Это наша тачка!»', 2.5); }
+      GangCars.exit(best);
+    }
     if (best.driver && best.driver !== 'player') {
       // выкидываем водителя
       const drv = best.driver;
@@ -1005,8 +1009,7 @@ const Game = {
         ctx.strokeStyle = `rgba(255,210,63,${1 - k})`; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.arc(p.x, p.y, 14 + k * 30, 0, TAU); ctx.stroke();
       }
-      ctx.fillStyle = '#1565c0'; ctx.fillRect(p.x - 9, p.y - 9, 18, 18);
-      ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('☎', p.x, p.y + 1);
+      if (!City.prop(ctx, 'payphone', p.x, p.y, 34, 34)) drawPayphone(ctx, p.x, p.y);
     }
     // цель миссии на земле
     const obj = Missions.active && Missions.active.target;

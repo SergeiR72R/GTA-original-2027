@@ -53,13 +53,16 @@ const GEN_VEH = {
   truck: ['truck'], barrel: ['barrel'],
 };
 
+const FACTION_CAR_SPRITE = { russian: 'lux_odessa', arab: 'pickup_bahar', lions: 'hatch_lions', iran: 'van_iran' };
+
 const Vehicles = {
   cache: new Map(),
 
   // Какой сгенерированный спрайт (assets/gen/vehicles) взять для типа, если есть
   genKey(type, faction) {
-    if (faction === 'lions' && type === 'hatch' && Assets.gen['vehicles/hatch_lions']) return 'hatch_lions';
-    if (faction === 'iran' && type === 'van' && Assets.gen['vehicles/van_iran']) return 'van_iran';
+    // у каждой банды своя узнаваемая машина
+    const own = faction && FACTION_CAR_SPRITE[faction];
+    if (own && FACTIONS[faction].car === type && Assets.gen['vehicles/' + own]) return own;
     // есть хоть одна картинка этого типа — берём из готовых; нет — машину рисует код
     const list = (GEN_VEH[type] || []).filter((k) => Assets.gen['vehicles/' + k]);
     return list.length ? pick(list) : null;
@@ -361,7 +364,9 @@ const Vehicles = {
       }
     }
     // метки фракций
-    if (faction === 'russian') { g.fillStyle = 'rgba(200,200,200,0.5)'; g.fillRect(-hw + 4, hl - 6, w - 8, 1.5); }
+    // приметы банд — как на будущих спрайтах: красная нитка у «Одессы», бирюзовая полоса у Аль-Бахара
+    if (faction === 'russian') { g.fillStyle = 'rgba(200,200,200,0.5)'; g.fillRect(-hw + 4, hl - 6, w - 8, 1.5); g.fillStyle = '#b71c1c'; g.fillRect(-1, -hl + 2, 2, l - 4); }
+    if (faction === 'arab') { g.fillStyle = '#1aa093'; g.fillRect(-4, -hl + 2, 8, l * 0.55); }
     if (faction === 'lions') { g.fillStyle = '#1b7f3a'; g.fillRect(-1.5, -hl + 2, 3, l - 4); }
     if (faction === 'arab') { g.fillStyle = 'rgba(0,0,0,0.5)'; g.fillRect(-hw + 2, -hl + 30, 2, 20); g.fillRect(hw - 4, -hl + 30, 2, 20); }
   },

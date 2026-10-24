@@ -34,9 +34,9 @@ Claude в Chrome).
 | Текстуры | без фона, бесшовная | вид сверху | квадрат 1024×1024 |
 | Портреты | свой цветной фон | по плечи, лицом к зрителю | квадрат |
 
-# Список (245)
+# Список (267)
 
-## Машины (102)
+## Машины (110)
 
 ### 1. `vehicles/sedan_1.png` — Седан белый
 
@@ -326,7 +326,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, co
 Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
 ```
 
-### 37. `vehicles/lux.png` — Чёрный лимузин бригады «Одесса»
+### 37. `vehicles/lux.png` — Чёрный представительский седан
 
 Новая картинка, формат вертикальный 3:4.
 
@@ -334,7 +334,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Long black luxury executive sedan with tinted windows and chrome details. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 38. `vehicles/lux_d1.png` — Чёрный лимузин бригады «Одесса» — лёгкие повреждения
+### 38. `vehicles/lux_d1.png` — Чёрный представительский седан — лёгкие повреждения
 
 Правка картинки `lux` из этого же чата.
 
@@ -342,7 +342,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
 ```
 
-### 39. `vehicles/lux_d2.png` — Чёрный лимузин бригады «Одесса» — тяжёлые повреждения
+### 39. `vehicles/lux_d2.png` — Чёрный представительский седан — тяжёлые повреждения
 
 Правка картинки `lux` из этого же чата.
 
@@ -350,7 +350,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, co
 Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
 ```
 
-### 40. `vehicles/lux_d3.png` — Чёрный лимузин бригады «Одесса» — сгоревший остов
+### 40. `vehicles/lux_d3.png` — Чёрный представительский седан — сгоревший остов
 
 Правка картинки `lux` из этого же чата.
 
@@ -518,7 +518,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, co
 Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
 ```
 
-### 61. `vehicles/pickup.png` — Пикап клана Аль-Бахар
+### 61. `vehicles/pickup.png` — Пикап
 
 Новая картинка, формат вертикальный 3:4.
 
@@ -526,7 +526,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White pickup truck with an open cargo bed containing a few wooden crates. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 62. `vehicles/pickup_d1.png` — Пикап клана Аль-Бахар — лёгкие повреждения
+### 62. `vehicles/pickup_d1.png` — Пикап — лёгкие повреждения
 
 Правка картинки `pickup` из этого же чата.
 
@@ -534,7 +534,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
 ```
 
-### 63. `vehicles/pickup_d2.png` — Пикап клана Аль-Бахар — тяжёлые повреждения
+### 63. `vehicles/pickup_d2.png` — Пикап — тяжёлые повреждения
 
 Правка картинки `pickup` из этого же чата.
 
@@ -542,7 +542,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, co
 Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
 ```
 
-### 64. `vehicles/pickup_d3.png` — Пикап клана Аль-Бахар — сгоревший остов
+### 64. `vehicles/pickup_d3.png` — Пикап — сгоревший остов
 
 Правка картинки `pickup` из этого же чата.
 
@@ -743,7 +743,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 ```
 
 
-## Персонажи (57)
+## Персонажи (70)
 
 ### 89. `chars/player.png` — Лёва Гольдман (герой)
 
@@ -1141,7 +1141,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Объекты улиц (24)
+## Объекты улиц (25)
 
 ### 138. `props/palm.png` — Финиковая пальма
 
@@ -1500,7 +1500,7 @@ Head-and-shoulders caricature portrait for the phone-call dialog box of a satiri
 ```
 
 
-## Персонажи (57)
+## Персонажи (70)
 
 ### 181. `chars/garik.png` — Гарик
 
@@ -1575,7 +1575,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Машины (102)
+## Машины (110)
 
 ### 190. `vehicles/truck.png` — Тягач с контейнером
 
@@ -1618,7 +1618,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Объекты улиц (24)
+## Объекты улиц (25)
 
 ### 195. `props/planter.png` — Кадка с цветами
 
@@ -1808,7 +1808,7 @@ Flat bold billboard advertisement illustration, vivid colors, simple readable sh
 ```
 
 
-## Персонажи (57)
+## Персонажи (70)
 
 ### 218. `chars/player_walk1.png` — Лёва — шаг левой
 
@@ -1907,7 +1907,7 @@ Edit the previous image of this exact character. Keep EXACTLY the same person, f
 ```
 
 
-## Машины (102)
+## Машины (110)
 
 ### 230. `vehicles/civic.png` — Белый «Цивик» Даниса
 
@@ -1982,7 +1982,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Объекты улиц (24)
+## Объекты улиц (25)
 
 ### 239. `props/mattress.png` — Матрас на крышу
 
@@ -2020,7 +2020,7 @@ Head-and-shoulders caricature portrait for the phone-call dialog box of a satiri
 ```
 
 
-## Персонажи (57)
+## Персонажи (70)
 
 ### 243. `chars/dima.png` — Дима
 
@@ -2044,5 +2044,190 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 
 ```
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), arms relaxed. Character fills about 70% of the image. A man wearing white t-shirt, shorts, flip-flops. Base the hairstyle, facial hair, glasses (if any) and build on the attached reference photo of this real person, caricatured in exactly the same style as the other characters; keep him clearly recognizable. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+
+## Машины (110)
+
+### 246. `vehicles/lux_odessa.png` — Машина бригады «Одесса»
+
+Новая картинка, формат вертикальный 3:4.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Big black 1990s German-style luxury sedan, long and boxy, heavily tinted windows, lots of chrome trim, a thin blood-red pinstripe running along the hood, roof and trunk centerline, chrome wheels, no badges. Instantly recognizable as a gangster car. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 247. `vehicles/lux_odessa_d1.png` — Машина бригады «Одесса» — лёгкие повреждения
+
+Правка картинки `lux_odessa` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
+```
+
+### 248. `vehicles/lux_odessa_d2.png` — Машина бригады «Одесса» — тяжёлые повреждения
+
+Правка картинки `lux_odessa` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
+```
+
+### 249. `vehicles/lux_odessa_d3.png` — Машина бригады «Одесса» — сгоревший остов
+
+Правка картинки `lux_odessa` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
+```
+
+### 250. `vehicles/pickup_bahar.png` — Пикап клана Аль-Бахар
+
+Новая картинка, формат вертикальный 3:4.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White double-cab pickup truck on raised suspension, a wide teal-green stripe along the hood and roof, black roll bar behind the cab with four round spotlights, open cargo bed with a spare tyre and a few wooden crates, no badges. Instantly recognizable. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 251. `vehicles/pickup_bahar_d1.png` — Пикап клана Аль-Бахар — лёгкие повреждения
+
+Правка картинки `pickup_bahar` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
+```
+
+### 252. `vehicles/pickup_bahar_d2.png` — Пикап клана Аль-Бахар — тяжёлые повреждения
+
+Правка картинки `pickup_bahar` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
+```
+
+### 253. `vehicles/pickup_bahar_d3.png` — Пикап клана Аль-Бахар — сгоревший остов
+
+Правка картинки `pickup_bahar` из этого же чата.
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
+```
+
+
+## Объекты улиц (25)
+
+### 254. `props/payphone.png` — Таксофон
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. An Israeli street payphone on a single pole, seen from directly above: a grey metal box under a small curved grey hood with a blue stripe along its edge, a black handset on a coiled cord at one side, slightly worn and scratched, rectangular footprint. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+
+## Персонажи (70)
+
+### 255. `chars/player_bat.png` — Лёва с битой
+
+Правка картинки `player` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: holding a wooden baseball bat in both hands, raised over his right shoulder, ready to swing. Same art style, same lighting.
+```
+
+### 256. `chars/player_shotgun.png` — Лёва с дробовиком
+
+Правка картинки `player` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a pump-action shotgun with a wooden stock. Same art style, same lighting.
+```
+
+### 257. `chars/player_uzi.png` — Лёва с узи
+
+Правка картинки `player` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a compact black submachine gun with a short magazine. Same art style, same lighting.
+```
+
+### 258. `chars/player_ak.png` — Лёва с автоматом
+
+Правка картинки `player` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding an assault rifle with a wooden stock and a curved magazine. Same art style, same lighting.
+```
+
+### 259. `chars/player_rpg.png` — Лёва с РПГ
+
+Правка картинки `player` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: an olive-green rocket launcher tube resting on his right shoulder and pointing to the right, both hands on its grips. Same art style, same lighting.
+```
+
+### 260. `chars/russian_ak.png` — Боец «Одессы» с автоматом
+
+Правка картинки `russian` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding an assault rifle with a wooden stock and a curved magazine. Same art style, same lighting.
+```
+
+### 261. `chars/russian_shotgun.png` — Боец «Одессы» с дробовиком
+
+Правка картинки `russian` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a pump-action shotgun with a wooden stock. Same art style, same lighting.
+```
+
+### 262. `chars/arab_uzi.png` — Боец Аль-Бахар с узи
+
+Правка картинки `arab` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a compact black submachine gun with a short magazine. Same art style, same lighting.
+```
+
+### 263. `chars/arab_shotgun.png` — Боец Аль-Бахар с дробовиком
+
+Правка картинки `arab` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a pump-action shotgun with a wooden stock. Same art style, same lighting.
+```
+
+### 264. `chars/lions_bat.png` — Боец «Львов» с битой
+
+Правка картинки `lions` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: holding a wooden baseball bat in both hands, raised over his right shoulder, ready to swing. Same art style, same lighting.
+```
+
+### 265. `chars/lions_uzi.png` — Боец «Львов» с узи
+
+Правка картинки `lions` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a compact black submachine gun with a short magazine. Same art style, same lighting.
+```
+
+### 266. `chars/iran_uzi.png` — Иранский агент с узи
+
+Правка картинки `iran` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a compact black submachine gun with a short magazine. Same art style, same lighting.
+```
+
+### 267. `chars/iran_ak.png` — Иранский агент с автоматом
+
+Правка картинки `iran` из этого же чата.
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding an assault rifle with a wooden stock and a curved magazine. Same art style, same lighting.
 ```
 

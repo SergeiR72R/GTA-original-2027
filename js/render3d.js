@@ -361,7 +361,8 @@ const R3 = {
     M.markGreen = new THREE.MeshBasicMaterial({ color: 0x4caf50 });
     M.markYellow = new THREE.MeshBasicMaterial({ color: 0xffd400 });
     M.ring = new THREE.MeshBasicMaterial({ color: 0xffd23f, transparent: true, opacity: 0.8, side, depthWrite: false });
-    M.phone = new THREE.MeshLambertMaterial({ color: 0x1565c0 });
+    M.phone = new THREE.MeshLambertMaterial({ color: 0x9ea7ad });
+    M.phonePole = new THREE.MeshLambertMaterial({ color: 0x546e7a });
     this.facadeMats = Object.keys(M).filter((k) => k.startsWith('f_') || k.startsWith('shop')).map((k) => M[k]);
   },
 
@@ -1020,11 +1021,18 @@ const R3 = {
     for (const key of ['phone1', 'phone2', 'phoneFlat', 'phoneRu', 'phoneAr', 'phoneLions']) {
       const p = City.places[key];
       const o = get(key, () => {
+        // таксофон: столб, корпус с синей полосой и козырёк (сверху — картинка, если есть)
         const grp = new THREE.Group();
-        const box = new THREE.Mesh(new THREE.BoxGeometry(14, 22, 10), this.mats.phone); box.position.y = 11; box.castShadow = true;
+        const pole = new THREE.Mesh(new THREE.BoxGeometry(4, 30, 4), this.mats.phonePole); pole.position.y = 15;
+        const box = new THREE.Mesh(new THREE.BoxGeometry(16, 18, 9), this.mats.phone); box.position.y = 24; box.castShadow = true;
+        const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+        const g = cv.getContext('2d'); g.translate(32, 32); g.scale(2.2, 2.2);
+        if (!City.prop(g, 'payphone', 0, 0, 28, 28)) drawPayphone(g, 0, 0);
+        const hood = new THREE.Mesh(new THREE.PlaneGeometry(30, 30).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ map: this.tex(cv), transparent: true, depthWrite: false }));
+        hood.position.y = 34;
         const ring = new THREE.Mesh(new THREE.RingGeometry(16, 20, 32).rotateX(-Math.PI / 2), this.mats.ring.clone());
         ring.position.y = 1.5;
-        grp.add(box, ring); grp.ring = ring;
+        grp.add(pole, box, hood, ring); grp.ring = ring;
         return grp;
       });
       o.position.set(p.x, 0, p.y);

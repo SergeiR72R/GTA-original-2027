@@ -80,7 +80,7 @@ const HUD = {
       ctx.globalAlpha = 1;
     }
     const st = pl.car ? City.streetAt(pl.x, pl.y) : null;
-    if (st) this.text(ctx, 'ул. ' + st, vw / 2, this.districtT > 0 ? 80 : 40, 16, '#e0e0e0', 'center', 'normal');
+    if (st) this.text(ctx, 'ул. ' + st, vw / 2, this.districtT > 0 ? (this.turf ? 102 : 80) : 40, 16, '#e0e0e0', 'center', 'normal');
 
     this.drawMinimap(ctx, vw, vh);
     this.drawObjective(ctx, vw, vh);

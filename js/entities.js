@@ -221,6 +221,7 @@ class Car {
     // треснуло стекло, когда машина переходит в следующую стадию урона
     if (this.hp > 0 && this.stage > st0) Sound.at(this.stage === 1 ? 'glassL' : 'glassM', this.x, this.y, 0.7, 600);
     if (by === 'player' && this.police) Wanted.crime('hitcop', this.x, this.y);
+    if (by === 'player' && this.turf && this.ai === 'traffic') this.provoked = true; // задел машину банды — погонятся
     if (this.hp <= 0) {
       // машина загорается и взрывается не сразу — есть время выскочить
       this.hp = 0;
@@ -288,6 +289,11 @@ class Car {
     if (!opts.length) opts = all.filter((d) => d !== (this.dir + 2) % 4);
     if (!opts.length) opts = all;
     if (!opts.length) return null;
+    // машина банды патрулирует свой район: выбираем повороты, что ведут вглубь территории
+    if (this.turf && opts.length > 1) {
+      const own = opts.filter((d) => City.factionAt((tx + DIRS[d].x * 8 + 0.5) * TILE, (ty + DIRS[d].y * 8 + 0.5) * TILE) === this.turf);
+      if (own.length) opts = own;
+    }
     // автобус и мусоровоз длиной в три-четыре клетки на перекрёстках едут прямо:
     // поворачивая, они задевают углы домов
     const straight = this.l > 150 ? 1 : 0.7;
@@ -309,6 +315,7 @@ class Car {
 
   trafficAI(dt) {
     const tx = Math.floor(this.x / TILE), ty = Math.floor(this.y / TILE);
+    if (this.turf && GangCars.engage(this)) return;
     if (!this.target || this.recover > 0) {
       if (this.recover > 0) {
         // сдаём назад медленно (под 85 уже сбивает) и не на людей
@@ -367,7 +374,7 @@ class Car {
     const steer = clamp(diff * 2.5, -1, 1);
     // скорость по виду улицы: шоссе, проспект, обычная, переулок, кольцо
     const kind = City.inside(tx, ty) ? City.roadKind[City.idx(tx, ty)] : 0;
-    let cruise = CRUISE[kind] || 140;
+    let cruise = (CRUISE[kind] || 140) * (this.turf ? 1.3 : 1); // банды гоняют быстрее
     if (yld === 2) cruise = Math.min(cruise, 70); // навстречу по нашей полосе — притормаживаем
     if (Math.abs(diff) > 0.35) cruise = 80;
     // впереди поворот — сбрасываем скорость заранее, а не в самом повороте
@@ -644,6 +651,12 @@ class Ped {
     const gy = this.target.y * TILE + TILE / 2 + (d.x !== 0 ? this.off : 0);
     if (dist2(this.x, this.y, gx, gy) < 8 * 8) {
       this.target = this.nextWalk(this.target.x, this.target.y);
+      // патруль банды не уходит со своей территории — разворачивается
+      if (this.patrol && City.factionAt((this.target.x + 0.5) * TILE, (this.target.y + 0.5) * TILE) !== this.faction) {
+        const back = { x: this.target.x - DIRS[this.dir].x, y: this.target.y - DIRS[this.dir].y };
+        this.dir = (this.dir + 2) % 4; this.crossing = false;
+        this.target = { x: back.x + DIRS[this.dir].x, y: back.y + DIRS[this.dir].y };
+      }
       return;
     }
     // на проезжей части, а машина близко: её полоса ещё впереди — ждём,
@@ -733,7 +746,7 @@ class Ped {
     const d = dist(this.x, this.y, pl.x, pl.y);
     const sees = d < 420 && City.lineOfSight(this.x, this.y, pl.x, pl.y);
     // нападают сами, только если игрок им враг (или это цель миссии)
-    const hostile = this.mission === 'target' || !this.faction || Factions.hostile(this.faction);
+    const hostile = this.mission === 'target' || this.grudge || !this.faction || Factions.hostile(this.faction);
     if (sees && hostile && this.alert <= 0) this.cool = Math.max(this.cool, 0.8); // время на реакцию
     if (sees && hostile) this.alert = 6;
     if (this.alert <= 0 && !hostile && d < 110 && this.faction && Factions.rep[this.faction] >= 25 && World.time - (this.greetT || -99) > 30) {
@@ -761,6 +774,12 @@ class Ped {
           fireBullet(this, this.weapon, this.a);
         }
       }
+    } else if (this.patrol) {
+      // патруль: ведущий ходит по тротуарам своего района, остальные — за ним
+      const L = this.lead;
+      if (L && !L.dead && !L.car && L.alert <= 0 && World.peds.includes(L)) {
+        if (dist2(this.x, this.y, L.x, L.y) > 36 * 36) this.moveTo(L.x - Math.cos(L.a) * 26, L.y - Math.sin(L.a) * 26, 52, dt);
+      } else { this.lead = null; this.walkAI(dt); }
     } else if (this.home) {
       if (dist2(this.x, this.y, this.home.x, this.home.y) > 40 * 40) this.moveTo(this.home.x, this.home.y, 40, dt);
       else this.a += dt * 0.3;
@@ -861,6 +880,20 @@ class Ped {
   }
 }
 
+// Уличный таксофон сверху: козырёк на столбе, синяя полоса, трубка сбоку —
+// пока нет сгенерированной картинки props/payphone
+function drawPayphone(ctx, x, y) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(1.3, 1.3);
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(-9, -6, 22, 18);
+  ctx.fillStyle = '#9ea7ad'; ctx.fillRect(-11, -9, 22, 17);
+  ctx.fillStyle = '#c9d1d6'; ctx.fillRect(-11, -9, 22, 4);
+  ctx.fillStyle = '#1565c0'; ctx.fillRect(-11, 5, 22, 3);
+  ctx.fillStyle = '#263238'; ctx.fillRect(-7, -3, 9, 5); ctx.fillRect(-9, -4, 3, 7); ctx.fillRect(1, -4, 3, 7);
+  ctx.strokeStyle = '#263238'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(4, 0); ctx.quadraticCurveTo(9, 2, 7, 6); ctx.stroke();
+  ctx.fillStyle = '#ffd54f'; ctx.fillRect(5, -6, 4, 3);
+  ctx.restore();
+}
+
 function drawTargetMark(ctx, x, y, col = '#ff3b3b') {
   const b = Math.sin(World.time * 6) * 3;
   ctx.fillStyle = col;
@@ -897,6 +930,7 @@ function updateBullets(dt) {
     // люди
     for (const p of World.peds) {
       if (p.dead || p === b.owner || p.car) continue;
+      if (b.owner.faction && p.faction === b.owner.faction) continue; // бойцы банды своих не задевают
       if (segCircle(b.x, b.y, nx, ny, p.x, p.y, p.r + 2) >= 0) {
         p.hurt(WEAPONS[b.weapon].dmg, byPlayer ? 'player' : 'npc', b.x, b.y);
         if (Sound.can('hitPed', 0.08)) Sound.at('punch', p.x, p.y, 0.35, 500);
@@ -1051,6 +1085,8 @@ function throwRider(c, hx, hy, by) {
 function bailOut(c) {
   const d = c.driver;
   if (!d || d === 'player') return;
+  // бандиты из машины не убегают — выходят и стреляют
+  if (c.turf && c.gang) { GangCars.angry(c); GangCars.exit(c); return; }
   c.driver = null;
   const f = c.fwd;
   d.car = null;

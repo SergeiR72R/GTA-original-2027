@@ -37,7 +37,13 @@ const Factions = {
     if (was < 25 && this.rep[f] >= 25) Game.message(`${FACTIONS[f].name} считают тебя своим.`, 4);
   },
 
-  hostile(f) { return f === 'iran' || (f in this.rep && this.rep[f] <= -25); },
+  hostile(f) {
+    if (this.truce === f && World.time < this.truceT) return false;
+    return f === 'iran' || (f in this.rep && this.rep[f] <= -25);
+  },
+
+  // короткое перемирие на время этапа миссии: продлевается каждый кадр, само кончается
+  calm(f) { this.truce = f; this.truceT = World.time + 1; },
 
   onKill(f) { this.change(f, -6, true); },
   onHurt(f) { if (this.rep[f] > -25) this.change(f, -2, true); },
@@ -59,9 +65,14 @@ const Factions = {
       if (!City.isWalkway(tx, ty) || City.factionAt(x, y) !== f || Game.inView(x, y)) continue;
       const c = City.tc(tx, ty);
       const n = randi(2, 3);
+      // половина групп стоит на углу, половина обходит район по тротуарам
+      const patrol = chance(0.5);
+      let lead = null;
       for (let k = 0; k < n; k++) {
         const home = { x: c.x + rand(-20, 20), y: c.y + rand(-20, 20) };
-        World.peds.push(new Ped(home.x, home.y, { faction: f, ai: 'gang', weapon: factionWeapon(f), hp: 70, home }));
+        const g = new Ped(home.x, home.y, { faction: f, ai: 'gang', weapon: factionWeapon(f), hp: 70, home });
+        if (patrol) { g.patrol = true; g.lead = lead; g.target = { x: tx, y: ty }; lead = lead || g; }
+        World.peds.push(g);
       }
       return;
     }
@@ -126,7 +137,35 @@ const GangCars = {
     c.ai = null;
   },
 
+  // патрульная машина банды замечает врага (или того, кто её задел) — в погоню
+  engage(c) {
+    const pl = World.player;
+    if (pl.dead || !c.driver || c.driver === 'player' || !c.gang) return false;
+    if (!c.provoked && !Factions.hostile(c.faction)) return false;
+    if (!c.provoked) {
+      const tx = pl.car ? pl.car.x : pl.x, ty = pl.car ? pl.car.y : pl.y;
+      if (dist2(c.x, c.y, tx, ty) > 380 * 380 || !City.lineOfSight(c.x, c.y, tx, ty)) return false;
+    } else this.angry(c);
+    c.ai = 'gang'; c.lostT = 0; c.shootT = rand(1, 1.8);
+    c.maxSpeed = c.T.max; // в погоне — не быстрее машины игрока, иначе не уйти
+    return true;
+  },
+
+  // обиделись на игрока: стреляют, даже если банда к нему хорошо относится
+  angry(c) { for (const g of c.gang || []) g.grudge = true; },
+
+  // Машина банды патрулирует свой район: быстрее обычной, в салоне двое
+  patrol(c, f) {
+    c.turf = f;
+    c.maxSpeed = c.T.max * 1.2; c.accel *= 1.15;
+    const crew = (w) => { const g = new Ped(c.x, c.y, { faction: f, ai: 'gang', weapon: w, hp: 70 }); g.car = c; return g; };
+    c.driver = crew(factionGun(f));
+    c.gang = [c.driver, crew(factionGun(f))];
+  },
+
   giveUp(c) {
+    // патрульная машина возвращается к объезду района
+    if (c.turf && c.driver && !c.mission) { c.ai = 'traffic'; c.target = null; c.provoked = false; c.maxSpeed = c.T.max * 1.2; return; }
     c.ai = null; c.mission = null;
     for (const g of c.gang || []) g.mission = null;
   },

@@ -1,11 +1,12 @@
-# Задание для Claude в Chrome: недостающие ассеты (63)
+# Задание для Claude в Chrome: недостающие ассеты (85)
 
 > Откройте этот файл в боковой панели **Claude в Chrome** и скажите:
 > «Выполни задание из этого файла».
 > Единое задание: всё, чего пока нет в игре, — недостающие машины (со
 > стадиями повреждений) и новое для пролога: белый «Цивик» Даниса, серый
 > «Солярис» Димы, китайский электрокар, матрас, портреты и спрайты Димы,
-> Даниса и Семёна. Файл собирается автоматически.
+> Даниса и Семёна; машины банд «Одесса» и Аль-Бахар, таксофон, Лёва и
+> бойцы банд с каждым видом оружия. Файл собирается автоматически.
 >
 > **Фото.** Для портретов и спрайтов Димы, Даниса и Семёна пользователь
 > прикладывает фото — прикладывай нужное к каждому такому запросу.
@@ -66,9 +67,9 @@
 
 ---
 
-# Список (63): № 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 14, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 47, 48, 50, 51, 53, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 66, 190, 191, 192, 193, 230, 231, 232, 233, 234, 235, 236, 237, 238, 243, 244, 245, 239, 240, 241, 242
+# Список (85): № 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 14, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 47, 48, 50, 51, 53, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 66, 190, 191, 192, 193, 230, 231, 232, 233, 234, 235, 236, 237, 238, 246, 247, 248, 249, 250, 251, 252, 253, 243, 244, 245, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 239, 254, 240, 241, 242
 
-## Машины (56)
+## Машины (64)
 
 ### 2. `vehicles/sedan_1_d1.png` — Седан белый — лёгкие повреждения
 
@@ -350,7 +351,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Black mid-size SUV with tinted windows. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
 ```
 
-### 37. `vehicles/lux.png` — Чёрный лимузин бригады «Одесса»
+### 37. `vehicles/lux.png` — Чёрный представительский седан
 
 - [ ] Новая картинка, формат портрет 3:4 (если нет — 9:16).
 
@@ -358,7 +359,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Long black luxury executive sedan with tinted windows and chrome details. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 38. `vehicles/lux_d1.png` — Чёрный лимузин бригады «Одесса» — лёгкие повреждения
+### 38. `vehicles/lux_d1.png` — Чёрный представительский седан — лёгкие повреждения
 
 - [ ] Правка картинки `lux`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `lux`). Если нельзя — генерируй по полному промпту. Формат портрет 3:4 (если нет — 9:16).
 
@@ -374,7 +375,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, co
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Long black luxury executive sedan with tinted windows and chrome details. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
 ```
 
-### 39. `vehicles/lux_d2.png` — Чёрный лимузин бригады «Одесса» — тяжёлые повреждения
+### 39. `vehicles/lux_d2.png` — Чёрный представительский седан — тяжёлые повреждения
 
 - [ ] Правка картинки `lux`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `lux`). Если нельзя — генерируй по полному промпту. Формат портрет 3:4 (если нет — 9:16).
 
@@ -390,7 +391,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, co
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Long black luxury executive sedan with tinted windows and chrome details. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
 ```
 
-### 40. `vehicles/lux_d3.png` — Чёрный лимузин бригады «Одесса» — сгоревший остов
+### 40. `vehicles/lux_d3.png` — Чёрный представительский седан — сгоревший остов
 
 - [ ] Правка картинки `lux`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `lux`). Если нельзя — генерируй по полному промпту. Формат портрет 3:4 (если нет — 9:16).
 
@@ -630,7 +631,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Dark charcoal-grey windowless van with tinted windows, suspicious, no markings. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
 ```
 
-### 61. `vehicles/pickup.png` — Пикап клана Аль-Бахар
+### 61. `vehicles/pickup.png` — Пикап
 
 - [ ] Новая картинка, формат портрет 3:4 (если нет — 9:16).
 
@@ -638,7 +639,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White pickup truck with an open cargo bed containing a few wooden crates. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 62. `vehicles/pickup_d1.png` — Пикап клана Аль-Бахар — лёгкие повреждения
+### 62. `vehicles/pickup_d1.png` — Пикап — лёгкие повреждения
 
 - [ ] Правка картинки `pickup`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `pickup`). Если нельзя — генерируй по полному промпту. Формат портрет 3:4 (если нет — 9:16).
 
@@ -654,7 +655,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, co
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White pickup truck with an open cargo bed containing a few wooden crates. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
 ```
 
-### 63. `vehicles/pickup_d2.png` — Пикап клана Аль-Бахар — тяжёлые повреждения
+### 63. `vehicles/pickup_d2.png` — Пикап — тяжёлые повреждения
 
 - [ ] Правка картинки `pickup`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `pickup`). Если нельзя — генерируй по полному промпту. Формат портрет 3:4 (если нет — 9:16).
 
@@ -670,7 +671,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, co
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White pickup truck with an open cargo bed containing a few wooden crates. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
 ```
 
-### 64. `vehicles/pickup_d3.png` — Пикап клана Аль-Бахар — сгоревший остов
+### 64. `vehicles/pickup_d3.png` — Пикап — сгоревший остов
 
 - [ ] Правка картинки `pickup`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `pickup`). Если нельзя — генерируй по полному промпту. Формат портрет 3:4 (если нет — 9:16).
 
@@ -878,8 +879,120 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Brand-new compact electric crossover in pearl-white with a black panoramic glass roof, hidden door handles, a thin full-width light bar at the front and back, clean futuristic Chinese design, no badges. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
+### 246. `vehicles/lux_odessa.png` — Машина бригады «Одесса»
 
-## Персонажи (3)
+- [ ] Новая картинка, формат портрет 3:4 (если нет — 9:16).
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Big black 1990s German-style luxury sedan, long and boxy, heavily tinted windows, lots of chrome trim, a thin blood-red pinstripe running along the hood, roof and trunk centerline, chrome wheels, no badges. Instantly recognizable as a gangster car. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 247. `vehicles/lux_odessa_d1.png` — Машина бригады «Одесса» — лёгкие повреждения
+
+- [ ] Правка картинки `lux_odessa`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `lux_odessa`). Если нельзя — генерируй по полному промпту. Формат портрет 3:4 (если нет — 9:16).
+
+Правка:
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Big black 1990s German-style luxury sedan, long and boxy, heavily tinted windows, lots of chrome trim, a thin blood-red pinstripe running along the hood, roof and trunk centerline, chrome wheels, no badges. Instantly recognizable as a gangster car. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
+```
+
+### 248. `vehicles/lux_odessa_d2.png` — Машина бригады «Одесса» — тяжёлые повреждения
+
+- [ ] Правка картинки `lux_odessa`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `lux_odessa`). Если нельзя — генерируй по полному промпту. Формат портрет 3:4 (если нет — 9:16).
+
+Правка:
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Big black 1990s German-style luxury sedan, long and boxy, heavily tinted windows, lots of chrome trim, a thin blood-red pinstripe running along the hood, roof and trunk centerline, chrome wheels, no badges. Instantly recognizable as a gangster car. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
+```
+
+### 249. `vehicles/lux_odessa_d3.png` — Машина бригады «Одесса» — сгоревший остов
+
+- [ ] Правка картинки `lux_odessa`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `lux_odessa`). Если нельзя — генерируй по полному промпту. Формат портрет 3:4 (если нет — 9:16).
+
+Правка:
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Big black 1990s German-style luxury sedan, long and boxy, heavily tinted windows, lots of chrome trim, a thin blood-red pinstripe running along the hood, roof and trunk centerline, chrome wheels, no badges. Instantly recognizable as a gangster car. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
+```
+
+### 250. `vehicles/pickup_bahar.png` — Пикап клана Аль-Бахар
+
+- [ ] Новая картинка, формат портрет 3:4 (если нет — 9:16).
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White double-cab pickup truck on raised suspension, a wide teal-green stripe along the hood and roof, black roll bar behind the cab with four round spotlights, open cargo bed with a spare tyre and a few wooden crates, no badges. Instantly recognizable. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 251. `vehicles/pickup_bahar_d1.png` — Пикап клана Аль-Бахар — лёгкие повреждения
+
+- [ ] Правка картинки `pickup_bahar`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `pickup_bahar`). Если нельзя — генерируй по полному промпту. Формат портрет 3:4 (если нет — 9:16).
+
+Правка:
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White double-cab pickup truck on raised suspension, a wide teal-green stripe along the hood and roof, black roll bar behind the cab with four round spotlights, open cargo bed with a spare tyre and a few wooden crates, no badges. Instantly recognizable. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
+```
+
+### 252. `vehicles/pickup_bahar_d2.png` — Пикап клана Аль-Бахар — тяжёлые повреждения
+
+- [ ] Правка картинки `pickup_bahar`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `pickup_bahar`). Если нельзя — генерируй по полному промпту. Формат портрет 3:4 (если нет — 9:16).
+
+Правка:
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White double-cab pickup truck on raised suspension, a wide teal-green stripe along the hood and roof, black roll bar behind the cab with four round spotlights, open cargo bed with a spare tyre and a few wooden crates, no badges. Instantly recognizable. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
+```
+
+### 253. `vehicles/pickup_bahar_d3.png` — Пикап клана Аль-Бахар — сгоревший остов
+
+- [ ] Правка картинки `pickup_bahar`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `pickup_bahar`). Если нельзя — генерируй по полному промпту. Формат портрет 3:4 (если нет — 9:16).
+
+Правка:
+
+```
+Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. White double-cab pickup truck on raised suspension, a wide teal-green stripe along the hood and roof, black roll bar behind the cab with four round spotlights, open cargo bed with a spare tyre and a few wooden crates, no badges. Instantly recognizable. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
+```
+
+
+## Персонажи (16)
 
 ### 243. `chars/dima.png` — Дима
 
@@ -905,8 +1018,216 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), arms relaxed. Character fills about 70% of the image. A man wearing white t-shirt, shorts, flip-flops. Base the hairstyle, facial hair, glasses (if any) and build on the attached reference photo of this real person, caricatured in exactly the same style as the other characters; keep him clearly recognizable. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
+### 255. `chars/player_bat.png` — Лёва с битой
 
-## Объекты улиц (1)
+- [ ] Правка картинки `player`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `player`). Если нельзя — генерируй по полному промпту. Формат квадрат 1:1.
+
+Правка:
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: holding a wooden baseball bat in both hands, raised over his right shoulder, ready to swing. Same art style, same lighting.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), holding a wooden baseball bat in both hands, raised over his right shoulder, ready to swing. Character fills about 70% of the image. Young man in his late 20s, short light-brown hair, wearing a white-and-navy horizontally striped sailor shirt, dark blue jeans, white sneakers, a small backpack strap visible. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 256. `chars/player_shotgun.png` — Лёва с дробовиком
+
+- [ ] Правка картинки `player`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `player`). Если нельзя — генерируй по полному промпту. Формат квадрат 1:1.
+
+Правка:
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a pump-action shotgun with a wooden stock. Same art style, same lighting.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), both arms extended forward to the right holding a pump-action shotgun with a wooden stock. Character fills about 70% of the image. Young man in his late 20s, short light-brown hair, wearing a white-and-navy horizontally striped sailor shirt, dark blue jeans, white sneakers, a small backpack strap visible. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 257. `chars/player_uzi.png` — Лёва с узи
+
+- [ ] Правка картинки `player`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `player`). Если нельзя — генерируй по полному промпту. Формат квадрат 1:1.
+
+Правка:
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a compact black submachine gun with a short magazine. Same art style, same lighting.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), both arms extended forward to the right holding a compact black submachine gun with a short magazine. Character fills about 70% of the image. Young man in his late 20s, short light-brown hair, wearing a white-and-navy horizontally striped sailor shirt, dark blue jeans, white sneakers, a small backpack strap visible. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 258. `chars/player_ak.png` — Лёва с автоматом
+
+- [ ] Правка картинки `player`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `player`). Если нельзя — генерируй по полному промпту. Формат квадрат 1:1.
+
+Правка:
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding an assault rifle with a wooden stock and a curved magazine. Same art style, same lighting.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), both arms extended forward to the right holding an assault rifle with a wooden stock and a curved magazine. Character fills about 70% of the image. Young man in his late 20s, short light-brown hair, wearing a white-and-navy horizontally striped sailor shirt, dark blue jeans, white sneakers, a small backpack strap visible. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 259. `chars/player_rpg.png` — Лёва с РПГ
+
+- [ ] Правка картинки `player`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `player`). Если нельзя — генерируй по полному промпту. Формат квадрат 1:1.
+
+Правка:
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: an olive-green rocket launcher tube resting on his right shoulder and pointing to the right, both hands on its grips. Same art style, same lighting.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), an olive-green rocket launcher tube resting on his right shoulder and pointing to the right, both hands on its grips. Character fills about 70% of the image. Young man in his late 20s, short light-brown hair, wearing a white-and-navy horizontally striped sailor shirt, dark blue jeans, white sneakers, a small backpack strap visible. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 260. `chars/russian_ak.png` — Боец «Одессы» с автоматом
+
+- [ ] Правка картинки `russian`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `russian`). Если нельзя — генерируй по полному промпту. Формат квадрат 1:1.
+
+Правка:
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding an assault rifle with a wooden stock and a curved magazine. Same art style, same lighting.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), both arms extended forward to the right holding an assault rifle with a wooden stock and a curved magazine. Character fills about 70% of the image. Tough man with a shaved head, black leather jacket over a black t-shirt, thick gold chain, dark trousers, pale skin, 1990s-gangster vibe. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 261. `chars/russian_shotgun.png` — Боец «Одессы» с дробовиком
+
+- [ ] Правка картинки `russian`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `russian`). Если нельзя — генерируй по полному промпту. Формат квадрат 1:1.
+
+Правка:
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a pump-action shotgun with a wooden stock. Same art style, same lighting.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), both arms extended forward to the right holding a pump-action shotgun with a wooden stock. Character fills about 70% of the image. Tough man with a shaved head, black leather jacket over a black t-shirt, thick gold chain, dark trousers, pale skin, 1990s-gangster vibe. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 262. `chars/arab_uzi.png` — Боец Аль-Бахар с узи
+
+- [ ] Правка картинки `arab`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `arab`). Если нельзя — генерируй по полному промпту. Формат квадрат 1:1.
+
+Правка:
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a compact black submachine gun with a short magazine. Same art style, same lighting.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), both arms extended forward to the right holding a compact black submachine gun with a short magazine. Character fills about 70% of the image. Young man in a white tracksuit with black side stripes, short black hair with a neat fade, dark sunglasses, white sneakers. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 263. `chars/arab_shotgun.png` — Боец Аль-Бахар с дробовиком
+
+- [ ] Правка картинки `arab`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `arab`). Если нельзя — генерируй по полному промпту. Формат квадрат 1:1.
+
+Правка:
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a pump-action shotgun with a wooden stock. Same art style, same lighting.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), both arms extended forward to the right holding a pump-action shotgun with a wooden stock. Character fills about 70% of the image. Young man in a white tracksuit with black side stripes, short black hair with a neat fade, dark sunglasses, white sneakers. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 264. `chars/lions_bat.png` — Боец «Львов» с битой
+
+- [ ] Правка картинки `lions`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `lions`). Если нельзя — генерируй по полному промпту. Формат квадрат 1:1.
+
+Правка:
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: holding a wooden baseball bat in both hands, raised over his right shoulder, ready to swing. Same art style, same lighting.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), holding a wooden baseball bat in both hands, raised over his right shoulder, ready to swing. Character fills about 70% of the image. Young Ethiopian-Israeli man, short black hair, yellow hoodie with green stripes along the sleeves, black joggers, stylish sneakers. Respectful, non-caricatured depiction. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 265. `chars/lions_uzi.png` — Боец «Львов» с узи
+
+- [ ] Правка картинки `lions`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `lions`). Если нельзя — генерируй по полному промпту. Формат квадрат 1:1.
+
+Правка:
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a compact black submachine gun with a short magazine. Same art style, same lighting.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), both arms extended forward to the right holding a compact black submachine gun with a short magazine. Character fills about 70% of the image. Young Ethiopian-Israeli man, short black hair, yellow hoodie with green stripes along the sleeves, black joggers, stylish sneakers. Respectful, non-caricatured depiction. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 266. `chars/iran_uzi.png` — Иранский агент с узи
+
+- [ ] Правка картинки `iran`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `iran`). Если нельзя — генерируй по полному промпту. Формат квадрат 1:1.
+
+Правка:
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding a compact black submachine gun with a short magazine. Same art style, same lighting.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), both arms extended forward to the right holding a compact black submachine gun with a short magazine. Character fills about 70% of the image. Man in a plain grey suit with a dark tie, short black hair, short dark beard, dark sunglasses, anonymous secret-agent look. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 267. `chars/iran_ak.png` — Иранский агент с автоматом
+
+- [ ] Правка картинки `iran`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую `iran`). Если нельзя — генерируй по полному промпту. Формат квадрат 1:1.
+
+Правка:
+
+```
+Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: both arms extended forward to the right holding an assault rifle with a wooden stock and a curved magazine. Same art style, same lighting.
+```
+
+Полный промпт:
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), both arms extended forward to the right holding an assault rifle with a wooden stock and a curved magazine. Character fills about 70% of the image. Man in a plain grey suit with a dark tie, short black hair, short dark beard, dark sunglasses, anonymous secret-agent look. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+
+## Объекты улиц (2)
 
 ### 239. `props/mattress.png` — Матрас на крышу
 
@@ -914,6 +1235,14 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 
 ```
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A double bed mattress, white with a light-blue quilted pattern, tied with two orange cargo straps across it, seen from directly above, rectangular, longer than wide. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 254. `props/payphone.png` — Таксофон
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. An Israeli street payphone on a single pole, seen from directly above: a grey metal box under a small curved grey hood with a blue stripe along its edge, a black handset on a coiled cord at one side, slightly worn and scratched, rectangular footprint. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
 
