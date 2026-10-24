@@ -1,0 +1,4 @@
+# Архивы для раздачи
+*.zip
+.import_tmp/
+hamsin-refs-dead.zip

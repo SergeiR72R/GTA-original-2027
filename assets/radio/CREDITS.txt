@@ -1,0 +1,31 @@
+Песни радио «Хамсин FM» — станция «Старые пластинки»
+
+Все пять записей — общественное достояние (Public Domain Mark 1.0).
+Оцифровка: Library of Congress, National Jukebox (Packard Campus for Audio
+Visual Conservation), копии в Internet Archive. Для игры обрезана тишина,
+снижен шум, выровнена громкость, моно 56 кбит/с.
+
+nes_ziona.mp3          «Нес Циона» (נס ציונה), иврит
+                       Jakov M. Medvedieff, King's Orchestra, дир. Edward T. King
+                       Victor, 1916-08-08
+                       https://archive.org/details/loc-jukebox-19190-nes-ziona
+
+shir_avoda.mp3         «Шир ха-авода» (שיר העבודה), иврит
+                       Jakov M. Medvedieff, King's Orchestra, дир. Edward T. King
+                       Victor, 1916-08-08
+                       https://archive.org/details/loc-jukebox-19191-shir-avoida
+
+ahavat_raya.mp3        «Ахават рая» (אהבת רעיה), иврит, музыка Joel Engel
+                       Mordechai Hershman, дир. Nathaniel Shilkret
+                       Victor, 1923-01-31
+                       https://archive.org/details/loc-jukebox-65971-ahavat-rahya
+
+talmidei_hachamim.mp3  «Талмидей хахамим» (תלמידי חכמים), иврит
+                       David Roitman, дир. Nathaniel Shilkret
+                       Victor, 1925-01-07
+                       https://archive.org/details/loc-jukebox-72311-talmidei-chachomim
+
+hatikva.mp3            «Ха-Тиква» (התקווה), иврит, слова Naphtali Herz Imber
+                       Meyer Kanewsky, дир. Edward T. King
+                       Victor, 1915-10-22
+                       https://archive.org/details/loc-jukebox-15276-hatikvoh

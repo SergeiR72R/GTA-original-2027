@@ -1,0 +1,19 @@
+Звуки игры «ХАМСИН» — все с лицензией CC0 (общественное достояние)
+
+Kenney (kenney.nl), CC0 — лицензии в assets/LICENSE-Kenney-*.txt:
+  Impact Sounds      — удары, аварии, стекло, попадания пуль, шаги
+  Interface Sounds   — подтверждения, ошибки, телефон
+  RPG Audio          — двери, монеты, щелчки затвора, ремень
+  UI Audio           — клики меню и магазина
+  Music Jingles      — джинглы миссий (SAX02, SAX01, STEEL01, STEEL02)
+
+OpenGameArt.org, CC0:
+  amb_crickets.ogg — «Crickets Ambient Noise - loopable», Wolfgang_
+                     https://opengameart.org/content/crickets-ambient-noise-loopable
+  amb_waves.ogg    — «Sea and river wave sounds», RandomMind
+                     https://opengameart.org/content/sea-and-river-wave-sounds
+  (оба фрагмента обрезаны и сведены в бесшовную петлю)
+
+Синтезируются в коде (js/audio.js): выстрелы, взрывы, мотор, сирены,
+гудки, гул улиц, гомон рынка, ветер хамсина, птицы, чайки, станция радио
+«Восточный ритм». Песни станции «Старые пластинки» — assets/radio/CREDITS.txt.

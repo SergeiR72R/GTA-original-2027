@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ХАМСИН — Часть 1: Тель-Авив</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <canvas id="game"></canvas>
+
+  <div id="loading" class="overlay">
+    <div class="logo">ХАМСИН</div>
+    <div class="sub">загрузка города…</div>
+    <div class="bar"><div id="loadbar"></div></div>
+  </div>
+
+  <div id="title" class="overlay hidden">
+    <div class="logo">ХАМСИН</div>
+    <div class="sub">Часть 1 · Тель-Авив</div>
+    <p class="story">
+      Лёва Гольдман три дня назад прилетел из Петербурга по программе репатриации.
+      Съёмная «дира» во Флорентине, ₪&nbsp;500 в кармане, иврит на уровне «беседер»
+      и хозяин квартиры, который хочет залог и двенадцать чеков вперёд.
+      Лёва берётся за любую работу: доставка еды, такси… а потом и работа посерьёзнее.
+    </p>
+    <div class="buttons">
+      <button id="btn-continue">Продолжить</button>
+      <button id="btn-new">Новая игра</button>
+    </div>
+    <div class="controls">
+      <div><b>Пешком:</b> WASD/стрелки — идти · мышь или пробел/Ctrl — стрелять · Q/Tab или 1–8 — оружие · F/Enter — сесть в машину</div>
+      <div><b>За рулём:</b> W/S — газ/тормоз · A/D — руль · пробел — ручник · H — сигнал · R — радио · F — выйти</div>
+      <div><b>Подработка:</b> J — смена «Шмоне-Бис» на скутере или работа в такси · Esc — пауза · M — звук · V — камера</div>
+      <div><b>Графика:</b> O — качество (авто/высокое/среднее/низкое) · F3 — FPS и видеокарта</div>
+    </div>
+  </div>
+
+  <div id="pause" class="overlay hidden">
+    <div class="logo small">ПАУЗА</div>
+    <div class="controls">
+      <div><b>Пешком:</b> WASD/стрелки — идти, Shift — шагом · мышь (ЛКМ) или пробел/Ctrl — стрелять/бить · Q/Tab или 1–8 — оружие · F/Enter — сесть в машину (угнать)</div>
+      <div><b>За рулём:</b> W/S — газ/тормоз/задний ход · A/D — руль · пробел — ручник · H — сигнал · R — радио · F/Enter — выйти</div>
+      <div><b>Оружие:</b> магазин «Шломо и сыновья» у Флорентина и склад Рафи в порту — оранжевые ромбы на миникарте</div>
+      <div><b>Розыск:</b> уйди из поля зрения полиции или перекрась машину в мастерской во Флорентине (₪&nbsp;500)</div>
+      <div><b>Миссии:</b> иди к звонящему телефону-автомату ☎ — жёлтая стрелка покажет дорогу</div>
+      <div><b>Подработка:</b> на скутере «Шмоне-Бис» (оранжевый короб) или в такси нажми J</div>
+      <div><b>Фракции:</b> бригада «Одесса» (Рамат-Ган), клан Аль-Бахар (Яффо), «Львы Гондэра» (юг города). Уважение ниже −25 — стреляют без разговоров, выше +25 — свои</div>
+    </div>
+    <div class="buttons"><button id="btn-resume">Продолжить</button></div>
+  </div>
+
+  <div id="end" class="overlay hidden">
+    <div class="logo small">ГЛАВА 1 ПРОЙДЕНА</div>
+    <p class="story">
+      «Одесса» стала врагом, Карим дома у дяди, а «Али» думает, что Лёва работает на него.
+      Ночь у ворот гаража Ицика: фургон без номеров, мешок на голову…
+      На счету у Лёвы <span id="end-money"></span>. Иврит всё ещё на уровне «беседер».
+    </p>
+    <div class="sub">Глава 2 «Аль-Бахар» — скоро</div>
+    <div class="buttons"><button id="btn-free">Свободная игра</button></div>
+  </div>
+
+  <script src="vendor/three.min.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/asset-manifest.js"></script>
+  <script src="assets/gen/bundle.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/textures.js"></script>
+  <script src="js/vehicles.js"></script>
+  <script src="js/people.js"></script>
+  <script src="js/portraits.js"></script>
+  <script src="js/facades.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/entities.js"></script>
+  <script src="js/factions.js"></script>
+  <script src="js/police.js"></script>
+  <script src="js/jobs.js"></script>
+  <script src="js/shops.js"></script>
+  <script src="js/missions.js"></script>
+  <script src="js/story.js"></script>
+  <script src="js/chapter1.js"></script>
+  <script src="js/prologue.js"></script>
+  <script src="js/hud.js"></script>
+  <script src="js/render3d.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
