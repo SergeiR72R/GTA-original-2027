@@ -909,6 +909,8 @@ const Missions = {
     HUD.wordOfDay(w);
     this.index++;
     Game.save();
+    // следующая миссия без телефона позвонит только после разговора «после миссии»
+    this.retry = 1e9;
     if (m.def.after) {
       setTimeout(() => { this.dialog = { lines: m.def.after, i: 0, done: () => this.afterNext(), title: '' }; Sound.play('phone', 0.6); }, 2500);
       return;

@@ -229,7 +229,7 @@ const REF_PHOTO = 'Base the face, hairstyle, facial hair, glasses (if any) and b
 const PRO_VEHICLES = [
   ['civic', 'Белый «Цивик» Даниса', 'White sporty Japanese compact sedan from the late 2000s, slightly lowered, dark tinted windows, black aftermarket alloy wheels, small rear spoiler on the trunk, a few stickers on the rear window (no readable text), no badges.', true],
   ['solaris', 'Серый «Солярис» Димы', 'Grey budget Korean-style compact sedan from the mid-2010s, plain and practical, a bit dusty, a small dent on the rear bumper, no badges.', true],
-  ['china_ev', 'Новый китайский электрокар', 'Brand-new compact electric crossover in pearl-white with a black panoramic glass roof, hidden door handles, a thin full-width light bar at the front and back, clean futuristic Chinese design, no badges.', false],
+  ['china_ev', 'Новый китайский кроссовер', 'Brand-new compact Chinese crossover in pearl-white with a black panoramic glass roof, hidden door handles, a thin full-width light bar at the front and back, clean futuristic Chinese design, no badges.', false],
 ];
 const PRO_PROPS = [
   ['mattress', 'Матрас на крышу', 'A double bed mattress, white with a light-blue quilted pattern, tied with two orange cargo straps across it, seen from directly above, rectangular, longer than wide.'],
