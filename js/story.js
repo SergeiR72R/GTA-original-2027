@@ -56,7 +56,26 @@ const Story = {
     const p = Game.findRoadSpawn(near.x, near.y, rmin, rmax, true) || { x: near.x, y: near.y, dir: 0 };
     return this.car(m, p.x, p.y, DIR_ANGLE[p.dir], opts);
   },
+  // Точка рядом, где человек не застрянет в доме: если (x, y) внутри стены —
+  // ближайший тротуар
+  freeSpot(x, y) {
+    const tx = Math.floor(x / TILE), ty = Math.floor(y / TILE);
+    if (!City.solidAt(x, y) && this.walkable(tx, ty)) return { x, y };
+    for (let r = 1; r <= 6; r++) {
+      let best = null, bd = Infinity;
+      for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r || !City.isWalkway(tx + dx, ty + dy)) continue;
+        const c = City.tc(tx + dx, ty + dy);
+        if (City.solidAt(c.x, c.y)) continue;
+        const d = dist2(c.x, c.y, x, y);
+        if (d < bd) { bd = d; best = c; }
+      }
+      if (best) return { x: best.x, y: best.y };
+    }
+    return { x, y };
+  },
   ped(m, x, y, opts) {
+    ({ x, y } = this.freeSpot(x, y));
     const p = new Ped(x, y, opts);
     p.mission = 'story'; // не исчезает, когда игрок далеко
     World.peds.push(p);
