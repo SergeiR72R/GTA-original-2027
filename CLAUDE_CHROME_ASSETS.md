@@ -7,9 +7,9 @@
 
 ## Цель
 
-Сгенерировать в **Gemini** (https://gemini.google.com) 218 картинок для
+Сгенерировать в **Gemini** (https://gemini.google.com) 217 картинок для
 браузерной игры с видом сверху: 93 спрайтов машин (каждая — целая и
-три стадии повреждений), 43 персонажей, 30 фасадов и витрин,
+три стадии повреждений), 42 персонажей, 30 фасадов и витрин,
 23 объектов улиц, 12 текстур и 17 портретов героев для окна звонка. Скачать каждую картинку **ровно один раз и строго по порядку
 номеров** из списка ниже.
 
@@ -94,7 +94,7 @@ only add the damage» и повтори.
 
 ---
 
-# Список ассетов (218)
+# Список ассетов (217)
 
 ## Машины (93)
 
@@ -805,7 +805,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 ```
 
 
-## Персонажи (43)
+## Персонажи (42)
 
 Все персонажи — в одном чате (если чат стал медленным, начни новый и продолжай с того же номера).
 
@@ -1576,7 +1576,7 @@ Head-and-shoulders caricature portrait for the phone-call dialog box of a satiri
 ```
 
 
-## Персонажи (43)
+## Персонажи (42)
 
 Все персонажи — в одном чате (если чат стал медленным, начни новый и продолжай с того же номера).
 
@@ -1612,15 +1612,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), arms relaxed. Character fills about 70% of the image. Man in his 30s with tousled brown hair and glasses, grey hoodie, press badge on a lanyard, laptop bag across the body. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 185. `chars/bayanist.png` — Баянист
-
-- [ ] Новая картинка, формат квадрат 1:1.
-
-```
-Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), arms relaxed. Character fills about 70% of the image. Bald older man in a brown vest and white shirt carrying a red button accordion (bayan) on his chest. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
-```
-
-### 186. `chars/baba.png` — Бабушка Хая
+### 185. `chars/baba.png` — Бабушка Хая
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1628,7 +1620,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), arms relaxed. Character fills about 70% of the image. Very old woman with short white curly hair, lilac cardigan, sitting-ready posture, holding a cane. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 187. `chars/protester.png` — Протестующий
+### 186. `chars/protester.png` — Протестующий
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1636,7 +1628,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), arms relaxed. Character fills about 70% of the image. Young protester in a blue t-shirt holding a large blue-and-white flag on a pole over the shoulder. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 188. `chars/supporter.png` — Сторонник правительства
+### 187. `chars/supporter.png` — Сторонник правительства
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1644,7 +1636,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), arms relaxed. Character fills about 70% of the image. Man in a dark-blue cap and white t-shirt, holding a blue-and-white flag, angry posture. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 189. `chars/mechanic.png` — Механик
+### 188. `chars/mechanic.png` — Механик
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1652,7 +1644,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single person seen from directly above (bird's-eye view, top of the head and shoulders visible, feet barely visible), standing, FACING RIGHT (the face and the front of the body point to the right side of the image), arms relaxed. Character fills about 70% of the image. Car mechanic in grey oil-stained overalls holding a large wrench. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 190. `chars/runner.png` — Беглец-киоскёр
+### 189. `chars/runner.png` — Беглец-киоскёр
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1665,7 +1657,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
-### 191. `vehicles/truck.png` — Тягач с контейнером
+### 190. `vehicles/truck.png` — Тягач с контейнером
 
 - [ ] Новая картинка, формат вертикальный 3:4.
 
@@ -1673,7 +1665,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single vehicle seen from directly above (top-down, orthographic), FRONT OF THE VEHICLE POINTING UP, perfectly symmetrical, roof, windshield and hood clearly visible, generic design without any real brand badges or logos. Vehicle fills about 85% of the image height. Semi-truck seen from above: a short white cab at the front and a long blue corrugated shipping container on the trailer behind it, the container roof clearly visible with ribs, no writing. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 192. `vehicles/truck_d1.png` — Тягач с контейнером — лёгкие повреждения
+### 191. `vehicles/truck_d1.png` — Тягач с контейнером — лёгкие повреждения
 
 - [ ] Правка картинки `truck` из этого же чата.
 
@@ -1681,7 +1673,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add LIGHT damage only: a few scratches on the paint, a small dent on the front bumper and one door, one cracked headlight, a thin crack in the windshield. The vehicle must stay clearly recognizable.
 ```
 
-### 193. `vehicles/truck_d2.png` — Тягач с контейнером — тяжёлые повреждения
+### 192. `vehicles/truck_d2.png` — Тягач с контейнером — тяжёлые повреждения
 
 - [ ] Правка картинки `truck` из этого же чата.
 
@@ -1689,7 +1681,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, co
 Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, color, angle, framing, size, position and magenta background. Add HEAVY damage: crumpled hood and front bumper, deep dents on the sides, shattered windshield with spiderweb cracks, broken headlights, missing side mirror, scraped paint showing bare metal, light soot marks. Still the same vehicle shape and outline.
 ```
 
-### 194. `vehicles/truck_d3.png` — Тягач с контейнером — сгоревший остов
+### 193. `vehicles/truck_d3.png` — Тягач с контейнером — сгоревший остов
 
 - [ ] Правка картинки `truck` из этого же чата.
 
@@ -1697,7 +1689,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same vehicle, co
 Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, angle, framing, size, position and magenta background. Turn it into a BURNT-OUT WRECK after a fire: blackened charred body with rust-orange patches, no glass left (dark empty window frames), melted roof, deformed panels, no tires visible as rubber (bare rims), ash residue. No flames, no smoke.
 ```
 
-### 195. `vehicles/barrel.png` — Бочка с топливом
+### 194. `vehicles/barrel.png` — Бочка с топливом
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1710,7 +1702,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 
 Все объекты — в одном новом чате.
 
-### 196. `props/planter.png` — Кадка с цветами
+### 195. `props/planter.png` — Кадка с цветами
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1718,7 +1710,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Round terracotta street planter seen from above, full of green leaves and pink and yellow flowers. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 197. `props/hydrant.png` — Гидрант
+### 196. `props/hydrant.png` — Гидрант
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1726,7 +1718,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Red fire hydrant on a sidewalk seen from directly above, small, with a yellow cap. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 198. `props/elbox.png` — Электрошкаф с граффити
+### 197. `props/elbox.png` — Электрошкаф с граффити
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1734,7 +1726,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Grey metal electrical utility cabinet on a sidewalk seen from above, covered in colorful spray-paint tags. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 199. `props/cafe_set.png` — Столик кафе
+### 198. `props/cafe_set.png` — Столик кафе
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1742,7 +1734,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Small round white cafe table with three dark chairs around it seen from above, a coffee cup on the table. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 200. `props/picnic_table.png` — Стол для пикника
+### 199. `props/picnic_table.png` — Стол для пикника
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1750,7 +1742,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Wooden picnic table with two attached benches seen from above. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 201. `props/playground.png` — Детская площадка
+### 200. `props/playground.png` — Детская площадка
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1758,7 +1750,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Small children's playground seen from above on a sand-colored rubber surface: a red slide, a blue swing frame, a green round spinner, framed by a low wooden border. Square. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 202. `props/lounger.png` — Лежак
+### 201. `props/lounger.png` — Лежак
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1766,7 +1758,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. White plastic beach sun lounger with a blue towel seen from above, longer than wide. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 203. `props/shopping_cart.png` — Тележка из супермаркета
+### 202. `props/shopping_cart.png` — Тележка из супермаркета
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1774,7 +1766,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Abandoned metal supermarket shopping cart seen from above, red handle. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 204. `props/fountain_small.png` — Фонтанчик
+### 203. `props/fountain_small.png` — Фонтанчик
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1782,7 +1774,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Small round stone fountain with clear blue water seen from above, a stone basin in the middle. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 205. `props/flower_bed.png` — Клумба
+### 204. `props/flower_bed.png` — Клумба
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1790,7 +1782,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Square raised flower bed with a low stone border seen from above, green grass and small bright flowers, a young tree in the center. Square, fills the image. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 206. `props/crates.png` — Ящики
+### 205. `props/crates.png` — Ящики
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1798,7 +1790,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A stack of four wooden shipping crates seen from above. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 207. `props/container_top.png` — Морской контейнер
+### 206. `props/container_top.png` — Морской контейнер
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1806,7 +1798,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A single red corrugated steel shipping container seen from directly above, long and narrow, roof ribs visible, no writing. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 208. `props/kiosk.png` — Киоск
+### 207. `props/kiosk.png` — Киоск
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1814,7 +1806,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. Small Tel Aviv street kiosk seen from above: a square booth with a striped green-and-white awning roof and a few crates of drinks beside it. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 
-### 209. `props/ad_column.png` — Афишная тумба
+### 208. `props/ad_column.png` — Афишная тумба
 
 - [ ] Новая картинка, формат квадрат 1:1.
 
@@ -1827,7 +1819,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 
 Все фасады и витрины — в одном новом чате, **формат 16:9**, вид строго спереди (как чертёж), без неба и перспективы.
 
-### 210. `facades/poster_1.png` — Щит: доставка «Шмоне-Бис»
+### 209. `facades/poster_1.png` — Щит: доставка «Шмоне-Бис»
 
 - [ ] Новая картинка, формат горизонтальный 16:9.
 
@@ -1835,7 +1827,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 Flat bold billboard advertisement illustration, vivid colors, simple readable shapes, fills the whole image edge to edge, leave the lower third calm and uncluttered (text will be added later), NO text, NO letters, NO logos, NO watermark. A happy delivery rider on an orange scooter with a big orange delivery box speeding past Tel Aviv palm trees, sunny, dynamic.
 ```
 
-### 211. `facades/poster_2.png` — Щит: хумус «Абу-Сами»
+### 210. `facades/poster_2.png` — Щит: хумус «Абу-Сами»
 
 - [ ] Новая картинка, формат горизонтальный 16:9.
 
@@ -1843,7 +1835,7 @@ Flat bold billboard advertisement illustration, vivid colors, simple readable sh
 Flat bold billboard advertisement illustration, vivid colors, simple readable shapes, fills the whole image edge to edge, leave the lower third calm and uncluttered (text will be added later), NO text, NO letters, NO logos, NO watermark. A big plate of creamy hummus with olive oil, chickpeas and paprika next to warm pita, appetizing close-up, warm earthy colors.
 ```
 
-### 212. `facades/poster_3.png` — Щит: кондиционеры «Коль-Кар»
+### 211. `facades/poster_3.png` — Щит: кондиционеры «Коль-Кар»
 
 - [ ] Новая картинка, формат горизонтальный 16:9.
 
@@ -1851,7 +1843,7 @@ Flat bold billboard advertisement illustration, vivid colors, simple readable sh
 Flat bold billboard advertisement illustration, vivid colors, simple readable shapes, fills the whole image edge to edge, leave the lower third calm and uncluttered (text will be added later), NO text, NO letters, NO logos, NO watermark. A family relaxing in a cool blue living room with an air conditioner blowing snowflakes while a red-hot desert wind blows outside the window, humorous.
 ```
 
-### 213. `facades/poster_4.png` — Щит: ульпан «Алеф»
+### 212. `facades/poster_4.png` — Щит: ульпан «Алеф»
 
 - [ ] Новая картинка, формат горизонтальный 16:9.
 
@@ -1859,7 +1851,7 @@ Flat bold billboard advertisement illustration, vivid colors, simple readable sh
 Flat bold billboard advertisement illustration, vivid colors, simple readable shapes, fills the whole image edge to edge, leave the lower third calm and uncluttered (text will be added later), NO text, NO letters, NO logos, NO watermark. Smiling adult students of different ages in a bright classroom raising their hands, a whiteboard with a big Hebrew letter Alef, friendly.
 ```
 
-### 214. `facades/poster_5.png` — Щит: лотерея «Мазаль»
+### 213. `facades/poster_5.png` — Щит: лотерея «Мазаль»
 
 - [ ] Новая картинка, формат горизонтальный 16:9.
 
@@ -1867,7 +1859,7 @@ Flat bold billboard advertisement illustration, vivid colors, simple readable sh
 Flat bold billboard advertisement illustration, vivid colors, simple readable shapes, fills the whole image edge to edge, leave the lower third calm and uncluttered (text will be added later), NO text, NO letters, NO logos, NO watermark. Golden lottery balls and a shower of gold coins and confetti on a purple background, glamorous.
 ```
 
-### 215. `facades/poster_6.png` — Щит: квартиры в Бат-Яме
+### 214. `facades/poster_6.png` — Щит: квартиры в Бат-Яме
 
 - [ ] Новая картинка, формат горизонтальный 16:9.
 
@@ -1875,7 +1867,7 @@ Flat bold billboard advertisement illustration, vivid colors, simple readable sh
 Flat bold billboard advertisement illustration, vivid colors, simple readable shapes, fills the whole image edge to edge, leave the lower third calm and uncluttered (text will be added later), NO text, NO letters, NO logos, NO watermark. A shiny new residential tower by the sea at sunset with a tiny price tag dangling from it, ironic real-estate ad style.
 ```
 
-### 216. `facades/poster_7.png` — Щит: тариф «Шалом»
+### 215. `facades/poster_7.png` — Щит: тариф «Шалом»
 
 - [ ] Новая картинка, формат горизонтальный 16:9.
 
@@ -1883,7 +1875,7 @@ Flat bold billboard advertisement illustration, vivid colors, simple readable sh
 Flat bold billboard advertisement illustration, vivid colors, simple readable shapes, fills the whole image edge to edge, leave the lower third calm and uncluttered (text will be added later), NO text, NO letters, NO logos, NO watermark. A smartphone with waves of signal bars and stylized data icons flying out of it, turquoise background, energetic.
 ```
 
-### 217. `facades/poster_8.png` — Щит: мороженое «Лимон»
+### 216. `facades/poster_8.png` — Щит: мороженое «Лимон»
 
 - [ ] Новая картинка, формат горизонтальный 16:9.
 
@@ -1891,7 +1883,7 @@ Flat bold billboard advertisement illustration, vivid colors, simple readable sh
 Flat bold billboard advertisement illustration, vivid colors, simple readable shapes, fills the whole image edge to edge, leave the lower third calm and uncluttered (text will be added later), NO text, NO letters, NO logos, NO watermark. A huge pink-and-yellow ice cream cone with a lemon slice dripping in the sun on the beach, playful.
 ```
 
-### 218. `facades/poster_iran.png` — Щит: «Протест оплачивает Иран»
+### 217. `facades/poster_iran.png` — Щит: «Протест оплачивает Иран»
 
 - [ ] Новая картинка, формат горизонтальный 16:9.
 

@@ -243,7 +243,7 @@ const INTERLUDE_1 = staged({
           return;
         }
         if (!m.chase) {
-          m.chase = pursuers(m, 2, 'pickup', '#1565c0', () => Object.assign(Looks.civilian(), { shirt: '#1565c0' }));
+          m.chase = pursuers(m, 2, 'pickup', '#1565c0', () => Looks.named('supporter', Object.assign(Looks.civilian(), { shirt: '#1565c0' })));
           Game.message('Сторонники правительства узнали тебя по видео из соцсетей — погоня!', 4);
           Game.addMoney(-400);
         }
@@ -503,7 +503,7 @@ const C1_KRYSHA = staged({
           m.text = 'Киоск на углу: забери взнос';
           m.target = P.c1Kiosk;
           if (near(P.c1Kiosk, 230)) {
-            m.runner = Story.runner(m, P.c1Kiosk.x + 20, P.c1Kiosk.y, { look: Object.assign(Looks.civilian(), { shirt: '#ff7043' }) });
+            m.runner = Story.runner(m, P.c1Kiosk.x + 20, P.c1Kiosk.y, { look: Looks.named('runner', Object.assign(Looks.civilian(), { shirt: '#ff7043' })) });
             Game.message('Киоскёр: «Только не сегодня!» — и бежит дворами', 3);
           }
           return;
@@ -532,7 +532,7 @@ const C1_KRYSHA = staged({
           m.target = P.c1Garage;
           if (near(P.c1Garage, 200)) {
             m.mech = Story.gang(m, null, P.c1Garage, 3, { weapon: 'bat', spread: 50, hp: 60 });
-            for (const q of m.mech) { q.look = Object.assign(Looks.civilian(), { shirt: '#455a64' }); q.alert = 8; }
+            for (const q of m.mech) { q.look = Looks.named('mechanic', Object.assign(Looks.civilian(), { shirt: '#455a64' })); q.alert = 8; }
             Game.message('Механики: «Мы платим Абу-Кариму! Вали отсюда!» Дерись без стрельбы — иначе полиция', 4);
           }
           return;
@@ -1128,7 +1128,7 @@ const C1_CAMPAIGN = staged({
         // протестующие у второго и третьего щита, их фургон — у третьего
         for (const k of [1, 2]) if (B[k] && !m['pr' + k] && near(B[k], 320)) {
           m['pr' + k] = Story.gang(m, null, { x: B[k].x, y: B[k].y + 40 }, 2, { weapon: 'fists', spread: 50, hp: 45 });
-          for (const g of m['pr' + k]) { g.look = Object.assign(Looks.civilian(), { shirt: '#1565c0' }); g.alert = 6; }
+          for (const g of m['pr' + k]) { g.look = Looks.named('protester', Object.assign(Looks.civilian(), { shirt: '#1565c0' })); g.alert = 6; }
           Game.message('Протестующие: «Это ложь! Убирайся!»', 3);
           if (k === 2) { m.van = Story.carOnRoad(m, B[k], 30, 200, { type: 'van', color: '#eceff1' }); m.van.mission = 'target'; m.van.locked = true; }
         }
@@ -1258,7 +1258,7 @@ const C1_RECOUNT = staged({
       resume() { Story.putPlayer(chP().c1Kiosk); },
       start(m) {
         const e = chP().c1Exchange;
-        m.baba = Story.ped(m, e.x + 90, e.y + 10, { ai: 'idle', look: Object.assign(Looks.civilian(), { style: 'curly', hair: '#e0e0e0', shirt: '#7e57c2' }) });
+        m.baba = Story.ped(m, e.x + 90, e.y + 10, { ai: 'idle', look: Looks.named('baba', Object.assign(Looks.civilian(), { style: 'curly', hair: '#e0e0e0', shirt: '#7e57c2' })) });
         m.answer = undefined;
       },
       update(m) {
@@ -1383,62 +1383,33 @@ const C1_JUBILEE = staged({
         const P = chP();
         m.timer = 330;
         m.items = [
-          { k: 'cake', t: 'торт «Наполеон» в «Берёзке»', p: P.c1Berezka },
-          { k: 'fish', t: 'живой осётр в яффской гавани', p: P.c1Fish },
-          { k: 'acc', t: 'баянист в Неве-Цедеке', p: City.places.nevetzedek },
-          { k: 'fire', t: 'фейерверк на блошином рынке', p: P.c1Flea },
+          { k: 'cake', t: 'торт «Наполеон» в «Берёзке»', p: P.c1Berezka, h: 'забрать торт' },
+          { k: 'fish', t: 'живой осётр в яффской гавани', p: P.c1Fish, h: 'схватить осетра' },
+          { k: 'acc', t: 'баянист в Неве-Цедеке', p: City.places.nevetzedek, h: 'уговорить баяниста' },
+          { k: 'fire', t: 'фейерверк на блошином рынке', p: P.c1Flea, h: 'купить фейерверк' },
         ];
-        m.acc = Story.ped(m, City.places.nevetzedek.x, City.places.nevetzedek.y, { ai: 'idle', look: Object.assign(Looks.civilian(), { shirt: '#5d4037', style: 'bald' }) });
-        m.pstage = 0; m.sick = 0; m.cpv = null;
       },
       update(m, dt) {
         const P = chP(), pl = pl_();
         m.timer -= dt;
         if (m.timer <= 0) return 'fail:Праздник начался без подарков. Сёма не разговаривает с тобой. Пока.';
-        if (m.acc.dead) return 'fail:Баянист пострадал. Праздник без музыки — не праздник.';
-        // баянист ждёт в машине, пока Лёва бегает по поручениям; в дороге его укачивает
-        if (m.pstage === 2) {
-          const ac = m.acc.car;
-          if (!ac || ac.dead) return 'fail:Баянист пострадал вместе с машиной.';
-          const s = pl.car === ac ? Story.comfort(m, ac, dt) : (m.sick || 0);
-          if (s > 60) Story.sayOnce(m, 'acc', [['Баянист', 'Тише, тише! Баян — инструмент нежный. Я тоже.']]);
-          if (s >= 100) return 'fail:Баяниста укачало, он вышел и ушёл пешком в Хайфу.';
-        }
         const left = m.items.filter((i) => !i.done);
         if (!left.length) {
           m.text = 'Всё собрано — вези в «Одессу»!';
           m.target = P.c1Odessa;
-          if (pl.car !== m.acc.car) { m.text = 'Вернись в машину с баянистом и вези всё в «Одессу»'; m.target = m.acc.car; return; }
-          if (stopAt(P.c1Odessa, 140)) {
-            const c = pl.car;
-            if (c && c.passenger === m.acc) { c.passenger = null; m.acc.car = null; m.acc.x = c.x + 30; m.acc.y = c.y; World.peds.push(m.acc); m.acc.ai = 'idle'; }
-            m.timer = null;
-            return 'next';
-          }
+          if (stopAt(P.c1Odessa, 140)) { m.timer = null; return 'next'; }
           return;
         }
         left.sort((a, b) => dist2(a.p.x, a.p.y, pl.x, pl.y) - dist2(b.p.x, b.p.y, pl.x, pl.y));
         const it = left[0];
         m.target = it.p;
         m.text = `Подарки к юбилею: ${it.t} (${4 - left.length} из 4)`;
-        if (it.k === 'acc') {
-          if (needCar(m)) return;
-          const r = passengerStep(m, m.acc, { x: -1e6, y: -1e6 }, dt, { acc: 'баяниста', nom: 'баянист', dead: 'Баянист пострадал.' });
-          if (r && r.startsWith('fail')) return r;
-          if (r === 'boarded') {
-            it.done = true;
-            // машина с баянистом ждёт, пока Лёва бегает по поручениям, — не должна исчезнуть вдали от игрока
-            const c = m.acc.car; c.keep = true; Story.own(m).cars.push(c);
-            Story.say([['Баянист', 'Только не гоните. Я играю «Ой, мороз», а не «Формулу-1».']]);
-          }
-          return;
-        }
-        if (Story.hold(m, it.k, it.p, it.k === 'fish' ? 1.5 : 1, it.k === 'fish' ? 'схватить осетра' : 'забрать')) {
-          it.done = true;
-          if (it.k === 'fish') { Story.chasers(m, 'arab', 2); Game.message('Рыбаки клана: «Русским не продаём!» — погоня', 3); Factions.change('arab', -5); }
-          if (it.k === 'fire') { pl.ammo.grenade = (pl.ammo.grenade || 0) + 4; Game.message('Фейерверк — 4 ракеты (как гранаты, клавиша 7)', 4); }
-          if (it.k === 'cake') Game.message('«Наполеон» на заднем сиденье. Только не тормози резко.', 3);
-        }
+        if (!Story.hold(m, it.k, it.p, it.k === 'fish' || it.k === 'acc' ? 1.5 : 1, it.h)) return;
+        it.done = true;
+        if (it.k === 'fish') { Story.chasers(m, 'arab', 2); Game.message('Рыбаки клана: «Русским не продаём!» — погоня', 3); Factions.change('arab', -5); }
+        if (it.k === 'fire') { pl.ammo.grenade = (pl.ammo.grenade || 0) + 4; Game.message('Фейерверк — 4 ракеты (как гранаты, клавиша 7)', 4); }
+        if (it.k === 'cake') Game.message('«Наполеон» на заднем сиденье. Только не тормози резко.', 3);
+        if (it.k === 'acc') Story.say([['Баянист', 'За юбилей Сёмы? Поеду. Но на такси: с тобой, говорят, укачивает.']]);
       },
     },
     {
@@ -1592,44 +1563,33 @@ const C1_LASTRUN = staged({
       name: 'Блокпост на Аялоне',
       resume(m) {
         const c = Story.putPlayer(chP().c1Block, 'van', '#37474f');
-        m.van = c; Story.own(m).cars.push(c); c.keep = true;
+        m.van = c; Story.own(m).cars.push(c); c.keep = true; c.hp = c.maxHp = 220;
         m.karim = new Ped(c.x, c.y, { ai: 'idle', look: lookKarim(), hp: 120, name: KARIM });
         Story.seat(m.karim, c);
         Story.own(m).peds.push(m.karim);
       },
       start(m) {
-        const P = chP(), b = P.c1Block;
+        const b = chP().c1Block;
         GangCars.release(m.chase || []);
-        for (let i = 0; i < 2; i++) { const s = Story.car(m, b.x + (i ? 70 : -70), b.y + 140, Math.PI / 2, { type: 'suv', faction: 'russian' }); s.locked = true; }
-        m.foes = Story.gang(m, 'russian', { x: b.x, y: b.y + 200 }, 4, { spread: 120, hp: 75 });
+        m.foes = Story.gang(m, 'russian', { x: b.x, y: b.y + 160 }, 4, { spread: 120, hp: 75 });
         for (const g of m.foes) g.alert = 8;
-        m.spare = Story.carOnRoad(m, P.c1Sarona, 0, 300, { type: 'hatch', color: '#43a047' });
-        Story.say([[HERO, 'Блокпост. Бросаем фургон — в Сароне стоит машина Ицика. Карим, за мной, голову ниже!']]);
+        Story.say([[HERO, 'Блокпост «Одессы»! Карим, голову ниже. Прорываемся.']]);
       },
       update(m) {
-        const pl = pl_(), k = m.karim;
-        if (k.dead) return 'fail:Карим погиб.';
-        if (k.car && k.car === m.van && pl.car !== m.van) {
-          // Карим выходит вслед за Лёвой
-          const c = m.van; c.passenger = null; k.car = null; k.x = c.x - 30; k.y = c.y; World.peds.push(k);
-          k.ai = 'follow'; k.mission = 'ally';
-        }
-        if (m.spare.dead) return 'fail:Машина Ицика сгорела.';
-        if (pl.car === m.spare) {
-          if (m.spare.passenger === k) return 'next';
-          if (!k.car && dist(k.x, k.y, m.spare.x, m.spare.y) < 160 && m.spare.speed < 30) k.ai = 'board';
-          m.text = 'Подожди Карима'; m.target = k;
-          return;
-        }
-        m.text = 'Пробейся через Сарону к зелёной машине Ицика — Карим идёт за тобой';
-        m.target = m.spare;
+        const pl = pl_(), v = m.van;
+        if (m.karim.dead) return 'fail:Карим погиб.';
+        if (v.dead) return 'fail:Фургон сгорел вместе с Каримом.';
+        const left = m.foes.filter((g) => !g.dead);
+        if (!left.length) { if (pl.car === v) return 'next'; m.text = 'Блокпост расчищен — садись в фургон'; m.target = v; return; }
+        m.text = `Прорвись через блокпост «Одессы» (осталось: ${left.length}) — дави или стреляй`;
+        m.target = nearestAlive(m.foes);
       },
     },
     {
       name: 'Яффо',
       resume(m) {
-        const c = Story.putPlayer(chP().c1Sarona, 'hatch', '#43a047');
-        m.spare = c; Story.own(m).cars.push(c);
+        const c = Story.putPlayer(chP().c1Block, 'van', '#37474f');
+        m.van = c; Story.own(m).cars.push(c); c.keep = true;
         m.karim = new Ped(c.x, c.y, { ai: 'idle', look: lookKarim(), hp: 120, name: KARIM });
         Story.seat(m.karim, c);
         Story.own(m).peds.push(m.karim);

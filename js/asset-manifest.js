@@ -173,7 +173,6 @@ const CH1_CHARS = [
   ['karim', 'Карим', 'Young man with short black hair, plain white hoodie, grey sweatpants, a bit of rope still around one wrist.'],
   ['roza', 'Роза Львовна', 'Elderly woman with voluminous auburn curls, purple blouse, long dark skirt, a big handbag.'],
   ['yoav', 'Журналист Йоав', 'Man in his 30s with tousled brown hair and glasses, grey hoodie, press badge on a lanyard, laptop bag across the body.'],
-  ['bayanist', 'Баянист', 'Bald older man in a brown vest and white shirt carrying a red button accordion (bayan) on his chest.'],
   ['baba', 'Бабушка Хая', 'Very old woman with short white curly hair, lilac cardigan, sitting-ready posture, holding a cane.'],
   ['protester', 'Протестующий', 'Young protester in a blue t-shirt holding a large blue-and-white flag on a pole over the shoulder.'],
   ['supporter', 'Сторонник правительства', 'Man in a dark-blue cap and white t-shirt, holding a blue-and-white flag, angry posture.'],
