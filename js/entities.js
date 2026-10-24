@@ -23,7 +23,7 @@ const World = {
 const PED_SCALE = 1.25;
 
 const WEAPONS = {
-  fists: { name: 'Кулаки', cd: 0.4, dmg: 25, melee: 34, sprite: 'stand' },
+  fists: { name: 'Кулаки', cd: 0.4, dmg: 25, melee: 34, npcDmg: 6, sprite: 'stand' },
   bat: { name: 'Бита', cd: 0.55, dmg: 50, melee: 44, npcDmg: 14, sprite: 'stand' },
   pistol: { name: 'Пистолет', cd: 0.32, dmg: 34, carDmg: 6, spread: 0.04, plDmg: 9, npcCd: [0.8, 1.3], sprite: 'gun' },
   shotgun: { name: 'Дробовик', cd: 0.85, dmg: 16, carDmg: 4, spread: 0.2, pellets: 6, life: 0.24, plDmg: 6, npcCd: [1.3, 1.9], sprite: 'machine' },
@@ -215,7 +215,7 @@ class Car {
       // машина загорается и взрывается не сразу — есть время выскочить
       this.hp = 0;
       this.dead = true;
-      this.burn = 5;
+      this.burn = this.T.prop ? 0.25 : 5; // бочка взрывается почти сразу
       this.killedBy = by;
       if (this.driver === 'player') Game.message('Машина горит — выпрыгивай (F)!', 3);
     }
@@ -228,7 +228,7 @@ class Car {
     if (this.passenger) { this.passenger.car = null; this.passenger.x = this.x - 30; this.passenger.y = this.y; World.peds.push(this.passenger); this.passenger.kill('explosion'); this.passenger = null; }
     if (this.driver === 'player') Game.playerHurt(200, 'explosion');
     blast(this.x, this.y, { by: this.killedBy, skip: this });
-    if (this.killedBy === 'player') { Game.addMoney(this.police ? 500 : 250); if (this.police) Wanted.crime('killcop', this.x, this.y); else Wanted.crime('explode', this.x, this.y); }
+    if (this.killedBy === 'player' && !this.T.prop) { Game.addMoney(this.police ? 500 : 250); if (this.police) Wanted.crime('killcop', this.x, this.y); else Wanted.crime('explode', this.x, this.y); }
   }
 
   update(dt) {
@@ -569,6 +569,7 @@ class Ped {
       case 'board': this.boardAI(dt); break;
       case 'cat': this.catAI(dt); break;
       case 'follow': this.followAI(dt); break;
+      case 'runner': this.runnerAI(dt); break;
     }
     if (this.moving) this.walkAnim += dt * 10;
   }
@@ -708,19 +709,35 @@ class Ped {
   // Союзник идёт за игроком и стреляет по врагам миссии
   followAI(dt) {
     const pl = World.player;
-    let foe = null, fd = 380;
-    for (const p of World.peds) {
-      if (p.dead || p === this || p.ai !== 'gang' || p.mission !== 'target') continue;
-      const d = dist(this.x, this.y, p.x, p.y);
-      if (d < fd && City.lineOfSight(this.x, this.y, p.x, p.y)) { fd = d; foe = p; }
-    }
-    if (foe) {
-      this.faceTo(foe.x, foe.y);
-      if (this.cool <= 0 && this.weapon && !WEAPONS[this.weapon].melee) { this.cool = rand(0.5, 0.9); fireBullet(this, this.weapon, this.a); }
-      return;
-    }
     const tx = pl.car ? pl.car.x : pl.x, ty = pl.car ? pl.car.y : pl.y;
-    if (dist(this.x, this.y, tx, ty) > 70) this.moveTo(tx, ty, 150, dt);
+    const dp = dist(this.x, this.y, tx, ty);
+    // вооружённый союзник отстреливается, пока игрок рядом; безоружный (Карим) просто не отстаёт
+    const W = this.weapon && WEAPONS[this.weapon];
+    if (W && !W.melee && dp < 600) {
+      let foe = null, fd = 380;
+      for (const p of World.peds) {
+        if (p.dead || p === this || p.ai !== 'gang' || p.mission !== 'target') continue;
+        const d = dist(this.x, this.y, p.x, p.y);
+        if (d < fd && City.lineOfSight(this.x, this.y, p.x, p.y)) { fd = d; foe = p; }
+      }
+      if (foe) {
+        this.faceTo(foe.x, foe.y);
+        if (this.cool <= 0) { this.cool = rand(0.5, 0.9); fireBullet(this, this.weapon, this.a); }
+        return;
+      }
+    }
+    if (dp <= 70) { this.stuckT = 0; return; }
+    // рядом — напрямик; далеко или упёрлись в стену — по проходам, как пешеход (цель обновляем не каждый кадр)
+    if (dp < 260 && !(this.stuckT > 0)) {
+      const x0 = this.x, y0 = this.y;
+      this.moveTo(tx, ty, 150, dt);
+      if (this.x !== x0 || this.y !== y0) return;
+      this.stuckT = 1.5;
+    }
+    this.stuckT = (this.stuckT || 0) - dt;
+    this.fT = (this.fT || 0) - dt;
+    if (this.fT <= 0 || !this.fGoal) { this.fT = 0.6; this.fGoal = { x: tx, y: ty }; }
+    Story.walkTo(this, this.fGoal, 150, dt);
   }
 
   // Пассажир идёт к машине игрока
@@ -728,8 +745,11 @@ class Ped {
     const car = World.player.car;
     if (!car) return;
     const d = this.moveTo(car.x, car.y, 70, dt);
-    if (d < car.w / 2 + 14) {
-      this.car = car;
+    // машины крупные — садимся, подойдя к борту; застряли у бордюра — всё равно садимся
+    this.boardT = (this.boardT || 0) + dt;
+    if (d < car.w / 2 + 30 || (this.boardT > 3 && d < 140)) {
+      this.boardT = 0;
+      this.car = car; this.seat = true;
       car.passenger = this;
       World.peds.splice(World.peds.indexOf(this), 1);
       Sound.play('doorClose', 0.6);
@@ -774,7 +794,7 @@ function fireBullet(shooter, weapon, angle) {
   if (d < 900) Sound.gunshot(weapon === 'uzi' || weapon === 'ak', weapon === 'shotgun');
   // выстрелы пугают прохожих
   for (const p of World.peds) if (!p.dead && dist2(p.x, p.y, shooter.x, shooter.y) < 350 * 350) p.scare(shooter.x, shooter.y);
-  if (shooter === pl) Wanted.crime('shoot', pl.x, pl.y);
+  if (shooter === pl) { Wanted.crime('shoot', pl.x, pl.y); Game.shots = (Game.shots || 0) + 1; }
 }
 
 function updateBullets(dt) {

@@ -1714,6 +1714,7 @@ const City = {
         break;
       }
       case 'planter': {
+        if (this.prop(ctx, 'planter', d.x, d.y, 30, 30)) break;
         // кадка с цветами
         ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.arc(d.x + 3, d.y + 3, 12, 0, TAU); ctx.fill();
         ctx.fillStyle = '#a1887f'; ctx.beginPath(); ctx.arc(d.x, d.y, 12, 0, TAU); ctx.fill();
@@ -1722,12 +1723,14 @@ const City = {
         break;
       }
       case 'hydrant': {
+        if (this.prop(ctx, 'hydrant', d.x, d.y, 16, 16)) break;
         ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.arc(d.x + 2, d.y + 2, 6, 0, TAU); ctx.fill();
         ctx.fillStyle = '#d32f2f'; ctx.beginPath(); ctx.arc(d.x, d.y, 6, 0, TAU); ctx.fill();
         ctx.fillStyle = '#ffeb3b'; ctx.beginPath(); ctx.arc(d.x, d.y, 2.5, 0, TAU); ctx.fill();
         break;
       }
       case 'elbox': {
+        if (this.prop(ctx, 'elbox', d.x, d.y, 30, 20, rot)) break;
         // электрический шкаф, исписанный граффити
         ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(rot);
         ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(-11, -5, 26, 14);
@@ -1737,6 +1740,7 @@ const City = {
         break;
       }
       case 'cafe': {
+        if (this.prop(ctx, 'cafe_set', d.x, d.y, 50, 50, d.a)) break;
         // столик и стулья уличного кафе
         ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.arc(d.x + 3, d.y + 3, 10, 0, TAU); ctx.fill();
         ctx.fillStyle = '#eeeeee'; ctx.beginPath(); ctx.arc(d.x, d.y, 10, 0, TAU); ctx.fill();
@@ -1746,6 +1750,7 @@ const City = {
         break;
       }
       case 'picnic': {
+        if (this.prop(ctx, 'picnic_table', d.x, d.y, 46, 34, d.a)) break;
         ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(d.a);
         ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(-18, -12, 40, 28);
         ctx.fillStyle = '#8d6e63'; ctx.fillRect(-20, -6, 40, 12); ctx.fillStyle = '#6d4c41'; ctx.fillRect(-20, -14, 40, 5); ctx.fillRect(-20, 9, 40, 5);
@@ -1753,6 +1758,7 @@ const City = {
         break;
       }
       case 'playground': {
+        if (this.prop(ctx, 'playground', d.x, d.y, 118, 118)) break;
         // песочница, горка и качели (2 × 2 клетки)
         ctx.save(); ctx.translate(d.x, d.y);
         ctx.fillStyle = '#e8c27a'; ctx.fillRect(-56, -56, 112, 112);
@@ -1766,6 +1772,7 @@ const City = {
         break;
       }
       case 'lounger': {
+        if (this.prop(ctx, 'lounger', d.x, d.y, 20, 40, d.r)) break;
         ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(d.r);
         ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(-7, -14, 18, 34);
         ctx.fillStyle = '#fafafa'; ctx.fillRect(-9, -18, 18, 36); ctx.fillStyle = d.c; ctx.fillRect(-9, -18, 18, 10);
@@ -1773,6 +1780,7 @@ const City = {
         break;
       }
       case 'cart': {
+        if (this.prop(ctx, 'shopping_cart', d.x, d.y, 20, 28, d.a)) break;
         // брошенная тележка из супермаркета
         ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(d.a);
         ctx.strokeStyle = '#90a4ae'; ctx.lineWidth = 1.5; ctx.strokeRect(-8, -12, 16, 22);
@@ -1782,6 +1790,7 @@ const City = {
         break;
       }
       case 'bed': {
+        if (this.prop(ctx, 'flower_bed', d.x, d.y, 182, 182)) break;
         // клумба 3 × 3 клетки в каменном бортике
         ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(d.x - 86, d.y - 86, 176, 176);
         ctx.fillStyle = '#bdb3a0'; ctx.fillRect(d.x - 90, d.y - 90, 180, 180);
@@ -1791,6 +1800,7 @@ const City = {
         break;
       }
       case 'fountainS': {
+        if (this.prop(ctx, 'fountain_small', d.x, d.y, 88, 88)) break;
         ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.arc(d.x + 4, d.y + 4, 42, 0, TAU); ctx.fill();
         ctx.fillStyle = '#cfc6b4'; ctx.beginPath(); ctx.arc(d.x, d.y, 42, 0, TAU); ctx.fill();
         ctx.fillStyle = '#4fb3d9'; ctx.beginPath(); ctx.arc(d.x, d.y, 35, 0, TAU); ctx.fill();
@@ -1909,23 +1919,26 @@ const City = {
         const a = DIR_ANGLE[d.d];
         ctx.save(); ctx.translate(tx, ty); ctx.rotate(a); ctx.scale(s, s);
         ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(-60, 6, 124, 40);
-        ctx.drawImage(Facades.adPoster(d.ad), -62, -20, 124, 44);
+        ctx.drawImage(d.poster || Facades.adPoster(d.ad), -62, -20, 124, 44);
         ctx.restore();
         break;
       }
       case 'adcol': {
+        if (this.prop(ctx, 'ad_column', tx, ty, 34 * s, 34 * s)) break;
         ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.arc(d.x + 5, d.y + 5, 15, 0, TAU); ctx.fill();
         ctx.fillStyle = '#2e5d3a'; ctx.beginPath(); ctx.arc(tx, ty, 16 * s, 0, TAU); ctx.fill();
         ctx.fillStyle = '#ffd54f'; ctx.beginPath(); ctx.arc(tx, ty, 6 * s, 0, TAU); ctx.fill();
         break;
       }
       case 'kiosk': {
+        if (this.prop(ctx, 'kiosk', tx, ty, 56 * s, 50 * s)) break;
         ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(d.x - 22, d.y - 16, 54, 46);
         const im = Facades.awning(d.v);
         ctx.drawImage(im, tx - 27 * s, ty - 23 * s, 54 * s, 46 * s);
         break;
       }
       case 'container': {
+        if (this.prop(ctx, 'container_top', tx, ty, 38 * s, 114 * s, d.a || 0)) break;
         ctx.save(); ctx.translate(tx, ty); ctx.rotate(d.a || 0); ctx.scale(s, s);
         ctx.fillStyle = d.two ? d.c2 : d.c; ctx.fillRect(-18, -56, 36, 112);
         ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 1; for (let i = -50; i < 56; i += 8) { ctx.beginPath(); ctx.moveTo(-18, i); ctx.lineTo(18, i); ctx.stroke(); }
@@ -1933,6 +1946,7 @@ const City = {
         break;
       }
       case 'crates': {
+        if (this.prop(ctx, 'crates', tx, ty, 46, 46)) break;
         for (let i = 0; i < 4; i++) { ctx.fillStyle = i % 2 ? '#a1887f' : '#8d6e63'; ctx.fillRect(tx + (i % 2) * 22 - 21, ty + Math.floor(i / 2) * 22 - 21, 20, 20); ctx.strokeStyle = '#5d4037'; ctx.strokeRect(tx + (i % 2) * 22 - 21, ty + Math.floor(i / 2) * 22 - 21, 20, 20); }
         break;
       }

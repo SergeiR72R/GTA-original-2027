@@ -13,6 +13,8 @@ const root = path.join(__dirname, '..');
 const SOURCES = [
   ['index.html', 'Титульный экран и меню'],
   ['js/missions.js', 'Сюжет: миссии и диалоги'],
+  ['js/chapter1.js', 'Сюжет: перебивки и глава 1 «Одесса»'],
+  ['js/story.js', 'Сюжет: общие подсказки'],
   ['js/jobs.js', 'Подработки: «Шмоне-Бис» и такси'],
   ['js/factions.js', 'Фракции'],
   ['js/police.js', 'Полиция и розыск'],

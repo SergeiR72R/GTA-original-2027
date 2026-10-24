@@ -32,6 +32,18 @@ const Facades = {
     if (this.cache[key]) return this.cache[key];
     const a = ADS[i % ADS.length];
     const c = this.canvas(256, 128), g = c.getContext('2d');
+    // сгенерированная иллюстрация (assets/gen/facades/poster_N) — подложка, надписи — свои
+    const art = Assets.gen['facades/poster_' + (i % ADS.length + 1)];
+    if (art) {
+      this.cover(g, art, 256, 128);
+      g.fillStyle = shade(a.bg, 0.8) + 'dd'; g.fillRect(0, 74, 256, 54);
+      g.fillStyle = a.fg; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = 'bold 26px Arial, sans-serif'; g.fillText(a.he, 128, 90, 240);
+      g.font = '13px Arial, sans-serif'; g.fillText(a.ru, 128, 115, 244);
+      g.strokeStyle = 'rgba(255,255,255,0.5)'; g.lineWidth = 3; g.strokeRect(2, 2, 252, 124);
+      this.cache[key] = c;
+      return c;
+    }
     const gr = g.createLinearGradient(0, 0, 0, 128); gr.addColorStop(0, shade(a.bg, 1.12)); gr.addColorStop(1, shade(a.bg, 0.85));
     g.fillStyle = gr; g.fillRect(0, 0, 256, 128);
     // значок слева
@@ -52,6 +64,46 @@ const Facades = {
     g.font = '15px Arial, sans-serif'; g.fillText(a.ru, 128, 104, 240);
     g.strokeStyle = 'rgba(255,255,255,0.5)'; g.lineWidth = 3; g.strokeRect(2, 2, 252, 124);
     this.cache[key] = c;
+    return c;
+  },
+
+  // картинка «под обрез» на весь холст w × h
+  cover(g, im, w, h) {
+    const k = Math.max(w / im.width, h / im.height);
+    g.drawImage(im, (w - im.width * k) / 2, (h - im.height * k) / 2, im.width * k, im.height * k);
+  },
+
+  // Плакаты миссий поверх рекламных щитов (256 × 128)
+  missionPoster(kind) {
+    const key = 'mp_' + kind;
+    if (this.cache[key]) return this.cache[key];
+    const c = this.canvas(256, 128), g = c.getContext('2d');
+    const P = {
+      iran: { bg: '#b71c1c', fg: '#fff', he: 'המחאה במימון איראן!', ru: 'Протест оплачивает Иран!' },
+    }[kind] || { bg: '#333', fg: '#fff', he: kind, ru: '' };
+    g.fillStyle = P.bg; g.fillRect(0, 0, 256, 128);
+    const art = Assets.gen['facades/poster_' + kind];
+    if (art) { this.cover(g, art, 256, 128); g.fillStyle = 'rgba(0,0,0,0.45)'; g.fillRect(0, 0, 256, 128); }
+    else { g.fillStyle = 'rgba(0,0,0,0.25)'; for (let i = 0; i < 6; i++) g.fillRect(0, 20 * i + 8, 256, 3); }
+    g.fillStyle = P.fg; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = 'bold 26px Arial, sans-serif'; g.fillText(P.he, 128, 50, 240);
+    g.font = 'bold 18px Arial, sans-serif'; g.fillText(P.ru, 128, 96, 240);
+    g.strokeStyle = '#fff'; g.lineWidth = 4; g.strokeRect(3, 3, 250, 122);
+    this.cache[key] = c;
+    return c;
+  },
+
+  // Надпись баллончиком на тротуаре (192 × 64)
+  sprayTag(t) {
+    if (t.cv) return t.cv;
+    const c = this.canvas(192, 64), g = c.getContext('2d');
+    g.font = 'bold 40px "Arial Black", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = t.color; g.globalAlpha = 0.25;
+    for (let i = 0; i < 30; i++) g.fillRect(rand(10, 182), rand(8, 56), 2, 2);
+    g.globalAlpha = 0.9; g.fillText(t.text, 96, 34, 184);
+    g.strokeStyle = t.color; g.lineWidth = 2; g.globalAlpha = 0.6;
+    for (let i = 0; i < 4; i++) { const x = rand(30, 160); g.beginPath(); g.moveTo(x, 46); g.lineTo(x + rand(-2, 2), 46 + rand(6, 14)); g.stroke(); }
+    t.cv = c;
     return c;
   },
 

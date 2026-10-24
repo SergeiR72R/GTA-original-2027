@@ -31,6 +31,9 @@ const VTYPES = {
   garbage: { name: 'Мусоровоз', w: 44, l: 104, hp: 300, max: 220, acc: 130, grip: 7, turn: 1.7, color: '#4f7f3a' },
   scooter: { name: 'Скутер «Шмоне-Бис»', w: 16, l: 40, hp: 50, max: 330, acc: 320, grip: 14, turn: 3.4, moto: true, color: '#ff6a1a' },
   moto: { name: 'Мотоцикл', w: 18, l: 46, hp: 55, max: 440, acc: 350, grip: 14, turn: 3.2, moto: true },
+  // только для миссий: тягач с контейнером и бочка с топливом (взрывается)
+  truck: { name: 'Тягач с контейнером', w: 40, l: 120, hp: 420, max: 260, acc: 130, grip: 7, turn: 1.6, color: '#1565c0' },
+  barrel: { name: 'Бочка с топливом', w: 17, l: 17, hp: 8, max: 0, acc: 0, grip: 20, turn: 0, color: '#c62828', prop: true },
 };
 
 // Масштаб как в GTA2: машина почти во всю полосу (≈0,8 клетки) и длиной ≈1,6
@@ -47,6 +50,7 @@ const GEN_VEH = {
   sedan: ['sedan_1', 'sedan_2', 'sedan_3', 'sedan_4'], hatch: ['hatch_1', 'hatch_2', 'hatch_3'], suv: ['suv_1', 'suv_2'],
   lux: ['lux'], taxi: ['taxi'], police: ['police'], ambulance: ['ambulance'], van: ['van'], pickup: ['pickup'],
   sherut: ['sherut'], bus: ['bus'], garbage: ['garbage'], scooter: ['scooter'], moto: ['moto'],
+  truck: ['truck'], barrel: ['barrel'],
 };
 
 const Vehicles = {
@@ -289,6 +293,28 @@ const Vehicles = {
         g.fillStyle = '#4c6a7b';
         for (let y = -hl + 22; y < hl - 22; y += 14) { g.fillRect(-hw + 0.5, y, 2.5, 11); g.fillRect(hw - 3, y, 2.5, 11); }
         g.fillStyle = '#ffb300'; g.font = 'bold 7px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('5 מרכז', 0, -hl + 6.5);
+        break;
+      }
+      case 'truck': {
+        // кабина впереди, за ней контейнер с рёбрами
+        const cl = Math.min(34, l * 0.22);
+        g.save(); g.translate(0, -hl + cl / 2); this.body(g, w - 6, cl, '#eceff1', { round: 5 }); this.glass(g, -hw + 7, -cl / 2 + 3, w - 14, 7, 2); g.restore();
+        g.fillStyle = '#212121'; g.fillRect(-hw + 2, -hl + cl, w - 4, 4);
+        g.fillStyle = color; g.fillRect(-hw, -hl + cl + 4, w, l - cl - 4);
+        g.strokeStyle = shade(color, 0.65); g.lineWidth = 1.2;
+        for (let y = -hl + cl + 9; y < hl - 2; y += 6) { g.beginPath(); g.moveTo(-hw + 2, y); g.lineTo(hw - 2, y); g.stroke(); }
+        g.strokeStyle = shade(color, 0.45); g.lineWidth = 2; g.strokeRect(-hw + 1, -hl + cl + 5, w - 2, l - cl - 6);
+        g.fillStyle = '#fff'; g.font = 'bold 7px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('ODESSA LINE', 0, 4);
+        break;
+      }
+      case 'barrel': {
+        const r = Math.min(w, l) / 2 - 1;
+        g.fillStyle = 'rgba(0,0,0,0.3)'; g.beginPath(); g.arc(2, 2, r, 0, TAU); g.fill();
+        g.fillStyle = color; g.beginPath(); g.arc(0, 0, r, 0, TAU); g.fill();
+        g.strokeStyle = shade(color, 0.6); g.lineWidth = 1.5;
+        for (const k of [0.45, 0.8]) { g.beginPath(); g.arc(0, 0, r * k, 0, TAU); g.stroke(); }
+        g.fillStyle = '#ffeb3b'; g.beginPath(); g.moveTo(0, -r * 0.35); g.lineTo(r * 0.3, r * 0.2); g.lineTo(-r * 0.3, r * 0.2); g.closePath(); g.fill();
+        g.fillStyle = '#222'; g.fillRect(-1, -r * 0.15, 2, r * 0.22);
         break;
       }
       case 'garbage': {

@@ -77,19 +77,21 @@ function nearestAlive(list) {
 }
 
 // Пассажир: забрать (остановиться рядом) и довезти до точки
+// who — имя («Моше») или { acc: 'Розу Львовну', nom: 'Роза Львовна', dead: 'Роза Львовна пострадала' }
 function passengerStep(m, ped, dest, dt, who) {
   const pl = World.player;
-  if (ped.dead) return 'fail:' + who + ' погиб.';
+  const W = typeof who === 'string' ? { acc: who, nom: who, dead: who + ' погиб.' } : who;
+  if (ped.dead) return 'fail:' + W.dead;
   if (!m.pstage) m.pstage = 0;
   if (m.pstage === 0) {
-    m.text = pl.car ? `Забери: ${who} (остановись рядом)` : `Найди машину и забери: ${who}`;
+    m.text = pl.car ? `Забери: ${W.acc} (остановись рядом)` : `Найди машину и забери: ${W.acc}`;
     m.target = ped;
     if (pl.car && !pl.car.moto && pl.car.speed < 40 && dist(pl.car.x, pl.car.y, ped.x, ped.y) < 160) { ped.ai = 'board'; m.pstage = 1; }
   } else if (m.pstage === 1) {
-    m.text = `Подожди, пока ${who} сядет`;
+    m.text = `Подожди, пока ${W.nom} сядет`;
     m.target = ped;
     if (!pl.car) { ped.ai = 'idle'; m.pstage = 0; }
-    else if (ped.car) { m.pstage = 2; ped.mission = null; if (m.rideTime) m.timer = m.rideTime; return 'boarded'; }
+    else if (ped.car) { m.pstage = 2; ped.mission = null; ped.seat = true; if (m.rideTime) m.timer = m.rideTime; return 'boarded'; }
   } else {
     if (m.timer !== null && m.timer !== undefined) { m.timer -= dt; if (m.timer <= 0) return 'fail:Опоздали.'; }
     m.target = dest;
@@ -190,6 +192,8 @@ const Strikes = {
   },
 };
 
+// длина пролога: после него начинаются главы (js/chapter1.js)
+const PROLOGUE_LEN = 6;
 const MISSIONS = [
   // ===================== Акт 1: Алия =====================
   {
@@ -348,7 +352,11 @@ const MISSIONS = [
       if (m.gadi && !m.gadi.car) m.gadi.ai = 'walk';
     },
   },
-  // ===================== Акт 2: Фракции =====================
+];
+
+// Старые миссии второй половины: их сюжет переезжает в главы 2–3 и финал
+// (docs/PLAN_STORY_CH1.md). Пока не в игре — код пригодится при переработке.
+const RESERVE_MISSIONS = [
   {
     title: 'Земляк',
     phone: 'phoneRu',
@@ -809,21 +817,27 @@ const Missions = {
   dialog: null,
   retry: 0,
   word: 0,
+  cp: null,          // контрольная точка { index, si } — с неё повторяем после провала
+  resumeStage: 0,
 
-  reset(index) {
+  reset(index, cp) {
     this.index = index || 0;
     this.active = null;
     this.done = this.index >= MISSIONS.length;
     this.dialog = null;
     this.retry = 1.5;
+    this.cp = cp && cp.index === this.index ? cp : null;
     Strikes.clear();
   },
 
   blocking() { return !!this.active; },
 
+  // есть контрольная точка в текущей миссии — повтор приходит звонком на мобильный
+  atCp() { return !!(this.cp && this.cp.index === this.index && this.cp.si > 0); },
+
   // Активный телефон (звонит) — точка из City.places
   phonePlace() {
-    if (this.active || this.done || this.dialog) return null;
+    if (this.active || this.done || this.dialog || this.atCp()) return null;
     const m = MISSIONS[this.index];
     return m && m.phone ? City.places[m.phone] : null;
   },
@@ -831,7 +845,13 @@ const Missions = {
   call() {
     const def = MISSIONS[this.index];
     Sound.play('phone', 0.8);
-    this.dialog = { lines: def.intro, i: 0, done: () => this.begin(), title: def.title };
+    if (this.atCp()) {
+      const si = this.cp.si;
+      this.dialog = { lines: [['', `${def.title}: повтор с контрольной точки «${def.stageName(si)}».`]], i: 0, done: () => { this.resumeStage = si; this.begin(); }, title: def.title };
+      return;
+    }
+    if (def.card) HUD.bigText(def.card[0], def.card[1], '#ffd23f', 5);
+    this.dialog = { lines: typeof def.intro === 'function' ? def.intro() : def.intro, i: 0, done: () => this.begin(), title: def.title };
   },
 
   begin() {
@@ -839,7 +859,7 @@ const Missions = {
     const m = { def, text: '', target: null, timer: null };
     def.start(m);
     this.active = m;
-    Game.bigText(def.title, 'Миссия ' + (this.index + 1) + ' из ' + MISSIONS.length);
+    Game.bigText(def.title, def.sub || 'Миссия ' + (this.index + 1) + ' из ' + MISSIONS.length);
   },
 
   fail(reason) {
@@ -848,15 +868,19 @@ const Missions = {
     if (m.def.cleanup) m.def.cleanup(m);
     this.active = null;
     this.retry = 6;
+    Story.talk.length = 0;
     Sound.play('jFail', 0.8);
     Game.bigText('ПРОВАЛ', reason || 'Миссия провалена', '#ff5252');
-    if (m.def.phone) setTimeout(() => Game.message('Телефон снова звонит — попробуй ещё раз'), 4000);
+    if (this.atCp()) setTimeout(() => Game.message('Сейчас позвонят — продолжишь с контрольной точки'), 4000);
+    else if (m.def.phone) setTimeout(() => Game.message('Телефон снова звонит — попробуй ещё раз'), 4000);
   },
 
   update(dt) {
     const pl = World.player;
-    // миссии без телефона приходят звонком на мобильный
-    if (!this.active && !this.dialog && !this.done && MISSIONS[this.index].phone === null && !pl.dead) {
+    Story.prompt = null;
+    Story.update(dt);
+    // миссии без телефона (и повторы с контрольной точки) приходят звонком на мобильный
+    if (!this.active && !this.dialog && !this.done && MISSIONS[this.index] && (MISSIONS[this.index].phone === null || this.atCp()) && !pl.dead) {
       this.retry -= dt;
       if (this.retry <= 0) this.call();
     }
@@ -873,6 +897,7 @@ const Missions = {
     const m = this.active;
     if (m.def.cleanup) m.def.cleanup(m);
     this.active = null;
+    this.cp = null;
     Game.addMoney(m.def.reward);
     Sound.play('jWin', 0.9);
     const sign = m.def.reward < 0 ? '−' : '+';
@@ -914,6 +939,28 @@ const Missions = {
     Sound.play('ui', 0.5);
     d.i++;
     if (d.i >= d.lines.length) { this.dialog = null; d.done(); }
+  },
+
+  // ответ в диалоге с выбором
+  choose(i) {
+    const d = this.dialog;
+    if (!d || !d.choices) return;
+    Sound.play('ui', 0.6);
+    this.dialog = null;
+    d.choices[i].fn();
+    if (d.done) d.done();
+  },
+
+  // диалог с выбором ответа (мир на паузе): choices = [{ label, fn }]
+  ask(lines, choices, done) {
+    this.dialog = { lines, i: 0, choices, done, title: '' };
+    Sound.play('phone', 0.5);
+  },
+
+  // разговор посреди миссии (мир на паузе), потом done()
+  talk(lines, done) {
+    this.dialog = { lines, i: 0, done: done || (() => {}), title: '' };
+    Sound.play('phone', 0.5);
   },
 
   // точка, на которую указывает стрелка

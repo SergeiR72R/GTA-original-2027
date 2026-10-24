@@ -192,10 +192,13 @@ const Game = {
     pl.ammo = emptyAmmo(); pl.weapon = null;
     Wanted.reset();
     const sv = !fresh && save ? save : null;
+    // сохранения до глав: после пролога сюжет переписан — продолжаем с первой перебивки
+    if (sv && !sv.v && sv.index > PROLOGUE_LEN) { sv.index = PROLOGUE_LEN; sv.rep = null; }
+    Story.reset(sv && sv.flags);
     Factions.reset(sv && sv.rep);
     Jobs.reset(sv);
     Clock.reset(sv && sv.clock);
-    if (sv) { pl.money = sv.money; Missions.reset(sv.index); Missions.word = sv.word || 0; Object.assign(pl.ammo, sv.ammo || {}); pl.armor = sv.armor || 0; pl.weapon = this.bestWeapon(); }
+    if (sv) { pl.money = sv.money; Missions.reset(sv.index, sv.cp); Missions.word = sv.word || 0; Object.assign(pl.ammo, sv.ammo || {}); pl.armor = sv.armor || 0; pl.weapon = this.bestWeapon(); }
     else { pl.money = 500; Missions.reset(0); Missions.word = 0; this.bigText('ХАМСИН', 'Часть 1: Тель-Авив', '#ffd23f'); }
     this.placeHomeScooter();
     this.cam.x = pl.x; this.cam.y = pl.y;
@@ -221,7 +224,8 @@ const Game = {
   save() {
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify({
-        index: Missions.index, money: World.player.money, rep: Factions.rep, word: Missions.word,
+        v: 2, index: Missions.index, cp: Missions.cp, flags: Story.flags,
+        money: World.player.money, rep: Factions.rep, word: Missions.word,
         deliveries: Jobs.deliveries, rides: Jobs.rides, clock: Clock.min,
         ammo: World.player.ammo, armor: Math.round(World.player.armor),
       }));
@@ -364,7 +368,7 @@ const Game = {
       else { drv.scare(pl.x, pl.y); Wanted.crime('carjack', pl.x, pl.y); }
       Sound.play('punch', 0.7);
     }
-    if (best.passenger && best.passenger !== Missions.active?.moshe) { const p = best.passenger; best.passenger = null; p.car = null; p.x = best.x + 30; p.y = best.y; World.peds.push(p); p.scare(pl.x, pl.y); }
+    if (best.passenger && !best.passenger.seat) { const p = best.passenger; best.passenger = null; p.car = null; p.x = best.x + 30; p.y = best.y; World.peds.push(p); p.scare(pl.x, pl.y); }
     best.driver = 'player';
     best.ai = null;
     best.siren = false;
@@ -482,7 +486,7 @@ const Game = {
       if (c.skid && c.speed > 100 && Math.random() < 0.5) addSkid(c);
       if (this.hit('KeyH')) Sound.horn();
       if (this.hit('KeyR')) { Sound.radioOn = !Sound.radioOn; Sound.setRadio(true); this.message(Sound.radioOn ? '📻 Хамсин FM' : '📻 Радио выключено', 2); }
-      Sound.setEngine(!c.dead, clamp(c.speed / c.maxSpeed, 0, 1));
+      Sound.setEngine(!c.dead, clamp(c.speed / (c.maxSpeed || 1), 0, 1));
       // покраска
       const ps = City.places.paint;
       if (Wanted.level > 0 && dist(c.x, c.y, ps.x, ps.y) < 90 && c.speed < 120) {
@@ -656,7 +660,18 @@ const Game = {
     const pl = World.player;
     if (Missions.dialog && this.state === 'play') {
       // во время звонка мир на паузе
-      if (this.hit('Enter', 'NumpadEnter', 'Space', 'KeyF')) { Missions.advanceDialog(); this.dialogCool = 0.35; }
+      const d = Missions.dialog;
+      if (d.choices && d.i === d.lines.length - 1) {
+        // выбор ответа: ↑↓ и Enter или цифра
+        const n = d.choices.length;
+        d.sel = d.sel || 0;
+        if (this.hit('ArrowUp', 'KeyW')) { d.sel = (d.sel + n - 1) % n; Sound.play('uiSel', 0.4); }
+        if (this.hit('ArrowDown', 'KeyS')) { d.sel = (d.sel + 1) % n; Sound.play('uiSel', 0.4); }
+        let go = this.hit('Enter', 'NumpadEnter', 'Space');
+        d.choices.forEach((c, i) => { if (this.hit('Digit' + (i + 1))) { d.sel = i; go = true; } });
+        if (go && !this.dialogCool) { Missions.choose(d.sel); this.dialogCool = 0.35; }
+      } else if (this.hit('Enter', 'NumpadEnter', 'Space', 'KeyF')) { Missions.advanceDialog(); this.dialogCool = 0.35; }
+      this.dialogCool = Math.max(0, (this.dialogCool || 0) - dt);
       Sound.setEngine(false, 0);
       return;
     }
@@ -691,6 +706,7 @@ const Game = {
     // взорванные машины со временем убираем
     for (let i = World.cars.length - 1; i >= 0; i--) {
       const c = World.cars[i];
+      if (c.dead && c.burn < 0 && c.T.prop) { World.cars.splice(i, 1); continue; }
       if (c.dead && c.burn < 0 && c !== pl.car) { c.wreckT = (c.wreckT || 0) + dt; if (c.wreckT > 60 && !this.inView(c.x, c.y)) World.cars.splice(i, 1); }
     }
     if (pl.car && pl.car.dead && pl.car.burn < 0) this.exitCar(true);
@@ -757,6 +773,7 @@ const Game = {
     City.drawGround(ctx, view);
     City.drawSea(ctx, view, World.time);
     drawDecals(ctx, view);
+    Story.drawTags(ctx);
     City.drawLow(ctx, view, World.time);
     this.drawMarkers(ctx);
     for (const p of World.pickups) if (this.inView(p.x, p.y)) p.draw(ctx);

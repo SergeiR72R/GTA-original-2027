@@ -89,6 +89,8 @@ const HUD = {
     this.drawClock(ctx, vw, vh);
     this.drawRep(ctx, vw, vh);
     this.drawWord(ctx, vw, vh, dt);
+    this.drawTalk(ctx, vw, vh);
+    this.drawPrompt(ctx, vw, vh);
     if (Missions.dialog) this.drawDialog(ctx, vw, vh);
     Shops.draw(ctx, vw, vh);
   },
@@ -249,11 +251,54 @@ const HUD = {
     ctx.globalAlpha = 1;
   },
 
+  // перенос строк: возвращает y после последней строки
+  wrap(ctx, text, x, y, maxW, lh) {
+    let s = '';
+    for (const wd of text.split(' ')) {
+      if (s && ctx.measureText(s + wd).width > maxW) { ctx.fillText(s, x, y); s = ''; y += lh; }
+      s += wd + ' ';
+    }
+    ctx.fillText(s, x, y);
+    return y + lh;
+  },
+
+  // Разговор в дороге: небольшое окно над строкой задания, мир не стоит
+  drawTalk(ctx, vw, vh) {
+    const c = Story.talk[0];
+    if (!c || Missions.dialog) return;
+    const pic = Portraits.get(PORTRAIT_OF[c.who]);
+    const w = Math.min(600, vw - 40), h = 92, x = (vw - w) / 2, y = vh - 60 - h;
+    ctx.globalAlpha = clamp(c.t * 3, 0, 1);
+    ctx.fillStyle = 'rgba(10,12,20,0.78)'; ctx.fillRect(x, y, w, h);
+    let tx = x + 12;
+    if (pic) {
+      const ps = h - 16, sw = pic.width || pic.naturalWidth, sh = pic.height || pic.naturalHeight, sq = Math.min(sw, sh);
+      ctx.drawImage(pic, (sw - sq) / 2, (sh - sq) / 2, sq, sq, x + 8, y + 8, ps, ps);
+      tx = x + 16 + ps;
+    }
+    if (c.who) this.text(ctx, c.who, tx, y + 22, 15, '#ffd23f');
+    ctx.font = '15px "Trebuchet MS", "Segoe UI", sans-serif'; ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    this.wrap(ctx, c.text, tx, y + (c.who ? 44 : 26), x + w - 12 - tx, 19);
+    ctx.globalAlpha = 1;
+  },
+
+  // «E — действие» и полоска прогресса
+  drawPrompt(ctx, vw, vh) {
+    const p = Story.prompt;
+    if (!p || Missions.dialog) return;
+    const w = 260, x = (vw - w) / 2, y = vh * 0.62;
+    this.text(ctx, p.plain || p.label.startsWith('📷') ? p.label : 'Держи E — ' + p.label, vw / 2, y - 8, 18, '#fff', 'center');
+    if (p.plain) return;
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(x, y, w, 10);
+    ctx.fillStyle = '#ffd23f'; ctx.fillRect(x + 1, y + 1, (w - 2) * p.k, 8);
+  },
+
   drawDialog(ctx, vw, vh) {
     const d = Missions.dialog;
     const [who, line] = d.lines[d.i];
     const pic = Portraits.get(PORTRAIT_OF[who]);
-    const w = Math.min(820, vw - 40), h = pic ? 150 : 130;
+    const choice = d.choices && d.i === d.lines.length - 1;
+    const w = Math.min(820, vw - 40), h = (pic ? 150 : 130) + (choice ? d.choices.length * 30 + 10 : 0);
     const x = (vw - w) / 2, y = vh - h - 60;
     ctx.fillStyle = 'rgba(10,12,20,0.88)';
     ctx.fillRect(x, y, w, h);
@@ -280,6 +325,17 @@ const HUD = {
       s += wd + ' ';
     }
     ctx.fillText(s, tx, yy);
+    if (choice) {
+      let cy = y + (pic ? 150 : 130) - 6;
+      d.choices.forEach((c, i) => {
+        const sel = i === (d.sel || 0);
+        if (sel) { ctx.fillStyle = 'rgba(255,210,63,0.18)'; ctx.fillRect(tx - 8, cy - 20, x + w - 10 - tx, 28); }
+        this.text(ctx, `${i + 1}. ${c.label}`, tx, cy, 17, sel ? '#ffd23f' : '#ddd', 'left', sel ? 'bold' : 'normal');
+        cy += 30;
+      });
+      this.text(ctx, '↑↓ и Enter или цифра', x + w - 18, y + h - 10, 13, '#aaa', 'right', 'normal');
+      return;
+    }
     const blink = Math.floor(performance.now() / 400) % 2;
     if (blink) this.text(ctx, 'Enter ▶', x + w - 18, y + h - 14, 14, '#aaa', 'right', 'normal');
   },

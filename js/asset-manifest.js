@@ -157,6 +157,62 @@ const LANDMARK_FACADES = [
   ['facade_citygate', 'Фасад: башня «Городские ворота»', 'Curtain wall of the tallest skyscraper in Ramat Gan: dark blue reflective glass with thin vertical silver fins in a very regular grid, a few lit office windows.'],
 ];
 
+// Глава 1 «Одесса» и перебивки: новые герои, тягач, бочка, мелочи улиц и
+// иллюстрации для рекламных щитов. Добавлены в конец — номера 1–173 не сдвигаются.
+const CH1_PORTRAITS = [
+  ['portrait_garik', 'Портрет: Гарик, племянник Сёмы', 'Garik, the hot-headed nephew of a Russian mob boss, early 20s: messy dark curly hair, stubble, cocky crooked smirk, narrowed jealous eyes, black leather jacket over a red t-shirt, thin gold chain, car keys spinning on one finger. Background: bright red.'],
+  ['portrait_fira', 'Портрет: Фира Марковна', 'Fira Markovna, an elegant elderly bookkeeper from Odessa in her 70s: neat grey curls, reading glasses on a chain, sharp clever eyes, brown cardigan and a turquoise silk scarf, an old calculator in one hand and a stack of banknotes in the other. Background: warm beige.'],
+  ['portrait_botsman', 'Портрет: Боцман', 'Botsman, a silent former sailor in his 60s who runs the port for the gang: bald weathered head, short grey beard, bushy eyebrows, stern squint, striped navy-and-white sailor undershirt under a dark pea coat, a pipe in the corner of his mouth, an anchor tattoo on the hand. Background: slate grey-blue.'],
+  ['portrait_roza', 'Портрет: Роза Львовна', 'Roza Lvovna, the mob boss\'s mother in her late 70s: voluminous auburn-dyed curls, big round glasses, bright lipstick, purple blouse with a brooch, warm but demanding smile, holding a jar of homemade jam. Background: soft pink.'],
+  ['portrait_shlomi', 'Портрет: Шломи, помощник министра', 'Shlomi, a slick political aide in his 30s: gelled short black hair, stubble, toothy salesman grin, untucked white shirt with sleeves rolled up, two phones — one at his ear and one in his hand, a small national flag pin. Background: light blue.'],
+  ['portrait_yoav', 'Портрет: журналист Йоав', 'Yoav, a stubborn investigative TV journalist in his 30s: tousled brown hair, thick-rimmed glasses, tired eyes, stubble, grey hoodie with a press badge on a lanyard, holding a battered laptop. Background: orange.'],
+  ['portrait_karim', 'Портрет: Карим', 'Karim, a young man from Jaffa in his early 20s: short black hair, frightened but brave eyes, a small bruise on the cheekbone, plain white hoodie, holding his own wrist where a rope was. Sympathetic depiction. Background: teal.'],
+];
+const CH1_CHARS = [
+  ['garik', 'Гарик', 'Young man with messy dark curly hair, black leather jacket over a red t-shirt, thin gold chain, dark jeans, flashy sneakers.'],
+  ['karim', 'Карим', 'Young man with short black hair, plain white hoodie, grey sweatpants, a bit of rope still around one wrist.'],
+  ['roza', 'Роза Львовна', 'Elderly woman with voluminous auburn curls, purple blouse, long dark skirt, a big handbag.'],
+  ['yoav', 'Журналист Йоав', 'Man in his 30s with tousled brown hair and glasses, grey hoodie, press badge on a lanyard, laptop bag across the body.'],
+  ['bayanist', 'Баянист', 'Bald older man in a brown vest and white shirt carrying a red button accordion (bayan) on his chest.'],
+  ['baba', 'Бабушка Хая', 'Very old woman with short white curly hair, lilac cardigan, sitting-ready posture, holding a cane.'],
+  ['protester', 'Протестующий', 'Young protester in a blue t-shirt holding a large blue-and-white flag on a pole over the shoulder.'],
+  ['supporter', 'Сторонник правительства', 'Man in a dark-blue cap and white t-shirt, holding a blue-and-white flag, angry posture.'],
+  ['mechanic', 'Механик', 'Car mechanic in grey oil-stained overalls holding a large wrench.'],
+  ['runner', 'Беглец-киоскёр', 'Skinny man in an orange t-shirt and shorts, running pose with one arm forward.'],
+];
+const CH1_VEHICLES = [
+  ['truck', 'Тягач с контейнером', 'Semi-truck seen from above: a short white cab at the front and a long blue corrugated shipping container on the trailer behind it, the container roof clearly visible with ribs, no writing.', true],
+  ['barrel', 'Бочка с топливом', 'A single red steel fuel drum seen from directly above: round lid with two caps and a yellow hazard triangle, metal rings, filling about 70% of the image. Square image.', false],
+];
+const CH1_PROPS = [
+  ['planter', 'Кадка с цветами', 'Round terracotta street planter seen from above, full of green leaves and pink and yellow flowers.'],
+  ['hydrant', 'Гидрант', 'Red fire hydrant on a sidewalk seen from directly above, small, with a yellow cap.'],
+  ['elbox', 'Электрошкаф с граффити', 'Grey metal electrical utility cabinet on a sidewalk seen from above, covered in colorful spray-paint tags.'],
+  ['cafe_set', 'Столик кафе', 'Small round white cafe table with three dark chairs around it seen from above, a coffee cup on the table.'],
+  ['picnic_table', 'Стол для пикника', 'Wooden picnic table with two attached benches seen from above.'],
+  ['playground', 'Детская площадка', 'Small children\'s playground seen from above on a sand-colored rubber surface: a red slide, a blue swing frame, a green round spinner, framed by a low wooden border. Square.'],
+  ['lounger', 'Лежак', 'White plastic beach sun lounger with a blue towel seen from above, longer than wide.'],
+  ['shopping_cart', 'Тележка из супермаркета', 'Abandoned metal supermarket shopping cart seen from above, red handle.'],
+  ['fountain_small', 'Фонтанчик', 'Small round stone fountain with clear blue water seen from above, a stone basin in the middle.'],
+  ['flower_bed', 'Клумба', 'Square raised flower bed with a low stone border seen from above, green grass and small bright flowers, a young tree in the center. Square, fills the image.'],
+  ['crates', 'Ящики', 'A stack of four wooden shipping crates seen from above.'],
+  ['container_top', 'Морской контейнер', 'A single red corrugated steel shipping container seen from directly above, long and narrow, roof ribs visible, no writing.'],
+  ['kiosk', 'Киоск', 'Small Tel Aviv street kiosk seen from above: a square booth with a striped green-and-white awning roof and a few crates of drinks beside it.'],
+  ['ad_column', 'Афишная тумба', 'Round green advertising pillar (Morris column) seen from directly above: dark green domed top cap, colorful posters visible around the edge.'],
+];
+// иллюстрации для щитов: без текста, надписи игра наложит сама
+const CH1_POSTERS = [
+  ['poster_1', 'Щит: доставка «Шмоне-Бис»', 'A happy delivery rider on an orange scooter with a big orange delivery box speeding past Tel Aviv palm trees, sunny, dynamic.'],
+  ['poster_2', 'Щит: хумус «Абу-Сами»', 'A big plate of creamy hummus with olive oil, chickpeas and paprika next to warm pita, appetizing close-up, warm earthy colors.'],
+  ['poster_3', 'Щит: кондиционеры «Коль-Кар»', 'A family relaxing in a cool blue living room with an air conditioner blowing snowflakes while a red-hot desert wind blows outside the window, humorous.'],
+  ['poster_4', 'Щит: ульпан «Алеф»', 'Smiling adult students of different ages in a bright classroom raising their hands, a whiteboard with a big Hebrew letter Alef, friendly.'],
+  ['poster_5', 'Щит: лотерея «Мазаль»', 'Golden lottery balls and a shower of gold coins and confetti on a purple background, glamorous.'],
+  ['poster_6', 'Щит: квартиры в Бат-Яме', 'A shiny new residential tower by the sea at sunset with a tiny price tag dangling from it, ironic real-estate ad style.'],
+  ['poster_7', 'Щит: тариф «Шалом»', 'A smartphone with waves of signal bars and stylized data icons flying out of it, turquoise background, energetic.'],
+  ['poster_8', 'Щит: мороженое «Лимон»', 'A huge pink-and-yellow ice cream cone with a lemon slice dripping in the sun on the beach, playful.'],
+  ['poster_iran', 'Щит: «Протест оплачивает Иран»', 'A dramatic propaganda-style political poster: a crowd of protesters as dark silhouettes with banknotes raining down on them from above, red and black colors, ominous.'],
+];
+
 // Полный упорядоченный список: машины (с уроном), персонажи, фасады, объекты, текстуры, портреты
 const ASSET_MANIFEST = (() => {
   const out = [];
@@ -187,6 +243,17 @@ const ASSET_MANIFEST = (() => {
   for (const [file, title, desc] of LANDMARK_FACADES) {
     out.push({ cat: 'facades', file, title, kind: 'new', size: '16:9', prompt: `${ASSET_STYLE.common.replace('single object centered, ', '')} ${ASSET_STYLE.facade} ${desc}` });
   }
+  // глава 1 (batch: 'ch1' — отдельное задание CLAUDE_CHROME_ASSETS_CH1.md)
+  const ch1 = (o) => out.push(Object.assign({ batch: 'ch1' }, o));
+  for (const [file, title, desc] of CH1_PORTRAITS) ch1({ cat: 'portraits', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.portrait} ${desc}` });
+  for (const [file, title, desc] of CH1_CHARS) ch1({ cat: 'chars', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.common} ${ASSET_STYLE.person} ${desc} ${ASSET_STYLE.isolated}` });
+  for (const [file, title, desc, damage] of CH1_VEHICLES) {
+    const base = `${ASSET_STYLE.common} ${damage ? ASSET_STYLE.vehicle : ''} ${desc} ${ASSET_STYLE.isolated}`;
+    ch1({ cat: 'vehicles', file, title, kind: 'new', size: damage ? '768x1024' : '1024x1024', prompt: base });
+    if (damage) for (const st of DAMAGE_STAGES) ch1({ cat: 'vehicles', file: file + st.suffix, title: `${title} — ${st.title}`, kind: 'edit', base: file, size: '768x1024', prompt: st.prompt, full: `${base} ${st.prompt.replace(/^Edit the previous image of this exact vehicle\. Keep EXACTLY the same [^.]*\. /, '')}` });
+  }
+  for (const [file, title, desc] of CH1_PROPS) ch1({ cat: 'props', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.common} ${desc} ${ASSET_STYLE.isolated}` });
+  for (const [file, title, desc] of CH1_POSTERS) ch1({ cat: 'facades', file, title, kind: 'new', size: '16:9', prompt: `Flat bold billboard advertisement illustration, vivid colors, simple readable shapes, fills the whole image edge to edge, leave the lower third calm and uncluttered (text will be added later), NO text, NO letters, NO logos, NO watermark. ${desc}` });
   return out;
 })();
 

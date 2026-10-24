@@ -101,7 +101,7 @@ const GangCars = {
     chaseDrive(c, tx, ty, d, dt, d < 220);
     // стреляют из окна
     c.shootT -= dt;
-    if (d < 380 && c.shootT <= 0 && City.lineOfSight(c.x, c.y, tx, ty)) {
+    if (!c.noShoot && d < 380 && c.shootT <= 0 && City.lineOfSight(c.x, c.y, tx, ty)) {
       const g = c.gang.find((q) => q !== c.driver && !q.dead) || c.driver;
       g.x = c.x; g.y = c.y;
       g.burst = (g.burst || 0) + 1;

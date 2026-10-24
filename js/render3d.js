@@ -8,7 +8,7 @@ const HS = 2.6;           // во сколько раз в 3D дома выше,
 // высота в 3D: обычные дома заметно выше, высотки — с ограничением, чтобы не упирались в камеру
 // камера близко, как в GTA2, — небоскрёбы сжимаем сильнее, чтобы не упирались в неё
 function h3(h) { return h <= 100 ? h * HS : 100 * HS + (h - 100) * 0.45; }
-const CAR_H = { sedan: 15, hatch: 15, suv: 19, lux: 15, taxi: 15, police: 19, ambulance: 26, van: 26, pickup: 17, sherut: 26, bus: 32, garbage: 30, scooter: 7, moto: 7 };
+const CAR_H = { sedan: 15, hatch: 15, suv: 19, lux: 15, taxi: 15, police: 19, ambulance: 26, van: 26, pickup: 17, sherut: 26, bus: 32, garbage: 30, scooter: 7, moto: 7, truck: 34, barrel: 16 };
 for (const k in CAR_H) CAR_H[k] = Math.round(CAR_H[k] * 1.35); // машины крупнее — и выше
 const FACADE_OF = {
   bauhaus: 'bauhaus', florentin: 'florentin', hotel: 'hotel', warehouse: 'warehouse', cityhall: 'cityhall', templer: 'templer',
@@ -722,7 +722,7 @@ const R3 = {
     const grp = new THREE.Group();
     grp.add(body);
     // колёса — тёмная полоса под кузовом
-    if (!car.moto) {
+    if (!car.moto && !car.T.prop) {
       const wheels = new THREE.Mesh(new THREE.BoxGeometry(car.w + 2, 5, car.l * 0.8), new THREE.MeshLambertMaterial({ color: 0x151515 }));
       wheels.position.y = 3; grp.add(wheels);
     }
@@ -913,6 +913,29 @@ const R3 = {
       o.icon.rotation.y = World.time * 1.5;
     }
     for (const [p, o] of this.pickups) if (!seen.has(p)) { this.scene.remove(o); o.traverse((m) => m.geometry && m.geometry.dispose()); this.pickups.delete(p); }
+  },
+
+  // Плакаты миссий поверх щитов и граффити на тротуаре
+  syncStory() {
+    const M = this.storyObjs || (this.storyObjs = new Map());
+    const live = new Set();
+    for (const p of Story.posters) {
+      live.add(p);
+      if (M.has(p)) continue;
+      const d = p.d, a = DIR_ANGLE[d.d];
+      const g = new THREE.PlaneGeometry(124, 62);
+      g.rotateX(-0.75); g.rotateY(-a + Math.PI); g.translate(d.x + Math.sin(a) * 1.5, 89, d.y - Math.cos(a) * 1.5);
+      const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ map: this.tex(d.poster), side: THREE.DoubleSide }));
+      this.scene.add(m); M.set(p, m);
+    }
+    for (const t of Story.tags) {
+      live.add(t);
+      if (M.has(t)) continue;
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(96, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: this.tex(Facades.sprayTag(t)), transparent: true, depthWrite: false }));
+      m.position.set(t.x, 0.9, t.y); m.rotation.y = -t.a; m.renderOrder = 1;
+      this.scene.add(m); M.set(t, m);
+    }
+    for (const [k, m] of M) if (!live.has(k)) { this.scene.remove(m); m.geometry.dispose(); m.material.map.dispose(); m.material.dispose(); M.delete(k); }
   },
 
   // телефоны, круг цели, мастерская покраски, игроки в маткот
@@ -1348,6 +1371,7 @@ const R3 = {
     this.syncPeds(view);
     this.syncPickups(view);
     this.syncMarkers(view);
+    this.syncStory();
     this.syncFx(view);
     this.syncStrikes();
     this.syncProjectiles();

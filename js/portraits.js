@@ -15,6 +15,14 @@ const PORTRAIT_LOOKS = {
   ortal: { bg: '#a8c8a0', skin: '#e2b08c', hair: 'big', hairColor: '#e8c35a', top: 'blouse', shirt: '#d81b60', mouth: 'bored', glasses: 'reading', lashes: true, nose: 9, coffee: true, nails: true },
   shmulik: { bg: '#f08a3c', skin: '#e0a679', hair: 'receding', hairColor: '#3e2c22', top: 'tank', shirt: '#f5f5f5', mouth: 'grin', stubble: true, chain: true, nose: 13, jaw: 1.12, phoneEar: true },
   dvora: { bg: '#b39ddb', skin: '#efc3a2', hair: 'curly', hairColor: '#b0b0b0', top: 'blouse', shirt: '#5e35b1', scarf: '#ff7043', mouth: 'calm', glasses: 'reading', lashes: true, nose: 10, finger: true },
+  // глава 1 «Одесса»
+  garik: { bg: '#c62828', skin: '#efc6a8', hair: 'curly', hairColor: '#2b1d14', top: 'leather', shirt: '#1b1b1b', inner: '#b71c1c', mouth: 'smirk', chain: true, stubble: true, nose: 11, jaw: 1.05, eyes: 'narrow' },
+  fira: { bg: '#d7ccc8', skin: '#efc3a2', hair: 'curly', hairColor: '#cfcfcf', top: 'blouse', shirt: '#4e342e', scarf: '#80cbc4', mouth: 'calm', glasses: 'reading', lashes: true, nose: 11 },
+  botsman: { bg: '#455a64', skin: '#d39a72', hair: 'bald', hairColor: '#333', top: 'stripes', shirt: '#f5f5f5', mouth: 'stern', beard: 'short', beardColor: '#9e9e9e', brows: 'bushy', nose: 13, jaw: 1.15 },
+  roza: { bg: '#f8bbd0', skin: '#f0c8a8', hair: 'curly', hairColor: '#8d6e63', top: 'blouse', shirt: '#6a1b9a', mouth: 'grin', glasses: 'reading', lashes: true, nose: 10, nails: true },
+  shlomi: { bg: '#90caf9', skin: '#d8a882', hair: 'short', hairColor: '#1c1c1c', top: 'polo', shirt: '#fafafa', mouth: 'grin', stubble: true, phoneEar: true, nose: 11, jaw: 1.08 },
+  yoav: { bg: '#ffb74d', skin: '#e2b08c', hair: 'neat', hairColor: '#3e2723', top: 'hoodie', shirt: '#37474f', mouth: 'stern', glasses: 'reading', stubble: true, nose: 10 },
+  karim: { bg: '#4db6ac', skin: '#c48b5c', hair: 'short', hairColor: '#151515', top: 'hoodie', shirt: '#eceff1', mouth: 'calm', nose: 10 },
 };
 
 const Portraits = {
