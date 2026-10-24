@@ -714,16 +714,21 @@ const R3 = {
     const h = CAR_H[car.type] || 15;
     const cv = document.createElement('canvas');
     cv.width = Math.ceil(car.w * 2); cv.height = Math.ceil(car.l * 2);
-    const top = new THREE.MeshLambertMaterial({ map: this.tex(cv) });
+    // крыша — картинка машины с прозрачными углами; кузов чуть уже силуэта,
+    // чтобы вокруг картинки не было тёмной рамки
+    const top = new THREE.MeshLambertMaterial({ map: this.tex(cv), alphaTest: 0.5 });
     const side = new THREE.MeshLambertMaterial({ color: COL(car.color).multiplyScalar(0.7) });
-    const body = new THREE.Mesh(new THREE.BoxGeometry(car.w, h, car.l), [side, side, top, side, side, side]);
-    body.position.y = h / 2 + (car.moto ? 1 : 3);
+    const bw = car.w * 0.82, bl = car.l * 0.9, base = car.moto ? 1 : 3;
+    const body = new THREE.Mesh(new THREE.BoxGeometry(bw, h, bl), side);
+    body.position.y = h / 2 + base;
     body.castShadow = true; body.receiveShadow = true;
+    const roof = new THREE.Mesh(new THREE.PlaneGeometry(car.w, car.l).rotateX(-Math.PI / 2), top);
+    roof.position.y = h + base + 0.2;
     const grp = new THREE.Group();
-    grp.add(body);
+    grp.add(body, roof);
     // колёса — тёмная полоса под кузовом
     if (!car.moto && !car.T.prop) {
-      const wheels = new THREE.Mesh(new THREE.BoxGeometry(car.w + 2, 5, car.l * 0.8), new THREE.MeshLambertMaterial({ color: 0x151515 }));
+      const wheels = new THREE.Mesh(new THREE.BoxGeometry(bw + 2, 5, car.l * 0.8), new THREE.MeshLambertMaterial({ color: 0x151515 }));
       wheels.position.y = 3; grp.add(wheels);
     }
     const head = new THREE.Mesh(new THREE.PlaneGeometry(car.w * 2.6, 170).rotateX(-Math.PI / 2), this.mats.headlights);
@@ -767,7 +772,23 @@ const R3 = {
     if (car.dead && shown < 3) { g.fillStyle = 'rgba(25,20,18,0.85)'; g.fillRect(-w / 2, -l / 2, w, l); }
     g.restore();
     o.top.map.needsUpdate = true;
-    o.side.color.copy(COL(car.dead && shown < 3 ? '#2a2420' : car.color)).multiplyScalar(0.7);
+    // бока — под цвет картинки (у сгенерированных машин свой цвет, не car.color)
+    const avg = car.genKey && !(car.dead && shown < 3) ? this.carColor(o.cv, car.genKey + ':' + shown) : null;
+    o.side.color.copy(avg || COL(car.dead && shown < 3 ? '#2a2420' : car.color)).multiplyScalar(0.7);
+  },
+
+  // средний цвет непрозрачной части картинки машины (кешируется)
+  carColor(cv, key) {
+    const C = this.carColors || (this.carColors = {});
+    if (key in C) return C[key];
+    let c = null;
+    try {
+      const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data;
+      let r = 0, g = 0, b = 0, n = 0;
+      for (let i = 0; i < d.length; i += 16) if (d[i + 3] > 200) { r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
+      if (n) c = COL('#' + [r, g, b].map((v) => Math.round(v / n).toString(16).padStart(2, '0')).join(''));
+    } catch (e) { /* картинка с диска без доступа к пикселям */ }
+    return (C[key] = c);
   },
 
   syncCars(view, night) {

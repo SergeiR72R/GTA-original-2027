@@ -247,7 +247,9 @@ ${intro}
 
 Напиши пользователю, какие номера готовы, какие пропущены и (если не
 получилось переименовать) какой файл к какому номеру. Файлы пусть загрузит
-в папку Google Диска «Ассеты ГТА» — Claude Code сам разложит их по местам.
+в **новую** папку Google Диска (например, «Ассеты ГТА 2») — Claude Code сам
+разложит их по местам. Скачивай в **PNG или JPG** (не WebP): картинки WebP
+из прошлой партии не загрузились.
 
 ---
 
@@ -261,8 +263,15 @@ const ch1First = CH1[0].n, ch1Last = CH1[CH1.length - 1].n;
 const flow = flowDoc(CH1, 'Задание для Claude в Chrome: новые ассеты главы 1 в Google Flow',
   `> Здесь только новые картинки для главы 1 «Одесса» и перебивок (номера ${ch1First}–${ch1Last}).`);
 // чего ещё нет в assets/gen — одно задание «догенерировать»
-const have = (a) => fs.existsSync(path.join(root, 'assets/gen', a.cat, a.file + '.png'));
-const missing = ALL.filter((a) => !have(a));
+// готовые картинки лежат в assets/gen/bundle.js (tools/pack-assets.py) или ещё файлами
+const bundleFile = path.join(root, 'assets/gen/bundle.js');
+const bundleKeys = new Set(fs.existsSync(bundleFile)
+  ? [...fs.readFileSync(bundleFile, 'utf8').matchAll(/"([a-z]+\/[A-Za-z0-9_]+)":\s*"data:/g)].map((m) => m[1]) : []);
+const have = (a) => bundleKeys.has(a.cat + '/' + a.file) || fs.existsSync(path.join(root, 'assets/gen', a.cat, a.file + '.png'));
+// по категориям, чтобы машины шли одним блоком
+const grp = (a) => (a.cat === 'facades' && a.file.startsWith('poster') ? 'posters' : a.cat);
+const order = [...new Set(ALL.map(grp))];
+const missing = ALL.filter((a) => !have(a)).sort((a, b) => order.indexOf(grp(a)) - order.indexOf(grp(b)) || a.n - b.n);
 if (fs.existsSync(path.join(root, 'assets/gen'))) {
   fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_MISSING.md'), flowDoc(missing, `Задание для Claude в Chrome: недостающие ассеты (${missing.length})`,
     `> Это всё, чего пока нет в игре: старые картинки, которые не получились или\n> пропущены, и новые для главы 1. Файл собирается автоматически.`));
