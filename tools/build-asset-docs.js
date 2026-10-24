@@ -288,6 +288,11 @@ if (fs.existsSync(path.join(root, 'assets/gen'))) {
     `> Единое задание: всё, чего пока нет в игре, — недостающие машины (со\n> стадиями повреждений) и новое для пролога: белый «Цивик» Даниса, серый\n> «Солярис» Димы, китайский электрокар, матрас, портреты и спрайты Димы,\n> Даниса и Семёна; карикатурные машины всех четырёх банд с эмблемами\n> на крышах, таксофон, Лёва и бойцы банд с каждым видом оружия. Файл собирается автоматически.\n>\n> **Фото.** Для портретов и спрайтов Димы, Даниса и Семёна пользователь\n> прикладывает фото — прикладывай нужное к каждому такому запросу.`, missing.find((a) => a.ref && a.cat === 'portraits')));
   console.log(`Недостающих: ${missing.length} → CLAUDE_CHROME_ASSETS_MISSING.md`);
 }
+// машины банд — отдельным дополнением к большому заданию (досылается следом)
+const GANG_CARS = ALL.filter((a) => /^(lux_odessa|pickup_bahar|lions_car|iran_car)(_d\d)?$/.test(a.file));
+fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_GANGCARS.md'), flowDoc(GANG_CARS, `Дополнение для Claude в Chrome: карикатурные машины банд (${GANG_CARS.length})`,
+  `> Дополнение к основному заданию CLAUDE_CHROME_ASSETS_MISSING.md — выполняй\n> после него (или вместо его пунктов с теми же номерами).\n> Машины четырёх банд в карикатурном виде, с яркой эмблемой банды во всю\n> крышу. **Номера 246–253 заменяют** одноимённые пункты основного задания:\n> если они уже сгенерированы по старому промпту — сгенерируй заново по этому.`,
+  GANG_CARS[0]));
 fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_CH1.md'), flow);
 fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS.md'), agent);
 fs.writeFileSync(path.join(root, 'PROMPTS.md'), human);
