@@ -6,8 +6,10 @@
 
 const HS = 2.6;           // во сколько раз в 3D дома выше, чем в 2D-режиме
 // высота в 3D: обычные дома заметно выше, высотки — с ограничением, чтобы не упирались в камеру
-function h3(h) { return h <= 100 ? h * HS : 100 * HS + (h - 100) * 0.8; }
+// камера близко, как в GTA2, — небоскрёбы сжимаем сильнее, чтобы не упирались в неё
+function h3(h) { return h <= 100 ? h * HS : 100 * HS + (h - 100) * 0.45; }
 const CAR_H = { sedan: 15, hatch: 15, suv: 19, lux: 15, taxi: 15, police: 19, ambulance: 26, van: 26, pickup: 17, sherut: 26, bus: 32, garbage: 30, scooter: 7, moto: 7 };
+for (const k in CAR_H) CAR_H[k] = Math.round(CAR_H[k] * 1.35); // машины крупнее — и выше
 const FACADE_OF = {
   bauhaus: 'bauhaus', florentin: 'florentin', hotel: 'hotel', warehouse: 'warehouse', cityhall: 'cityhall', templer: 'templer',
   mall: 'mall', hospital: 'hospital', police: 'police', garage: 'garage', busstation: 'busstation', concrete: 'concrete',
@@ -22,7 +24,7 @@ const FACADE_VARIANTS = { bauhaus: 3, florentin: 3, concrete: 3 };
 const PILOTIS_STYLES = { bauhaus: 1, concrete: 1 };
 const SHOP_GEN_MAX = 8;
 const TINTED = { bauhaus: 1, florentin: 1, concrete: 1, nevetzedek: 1, cityhall: 1, hospital: 1, police: 1, busstation: 1, garage: 1 };
-const FOV = 50;
+const FOV = 55; // перспектива сверху: стены видны у краёв экрана, как в GTA2
 const TILT = 0.58; // наклон камеры (≈33°), чтобы видеть фасады; клавиша V — строго сверху, как в GTA2
 // сгенерированные фасады (assets/gen/facades) для стилей районов
 const FACADE_GEN = {
@@ -536,7 +538,7 @@ const R3 = {
       g.strokeStyle = '#fff'; g.lineWidth = 14; g.beginPath(); g.arc(128, 128, 110, 0, TAU); g.stroke();
       g.fillStyle = '#e53935'; g.font = 'bold 150px Arial'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('H', 128, 136);
     } else {
-      const sg = b.sign || (b.label === 'POLICE' ? { text: 'משטרה', bg: '#1d4fa3', fg: '#fff' } : { text: 'ПОКРАСКА', bg: '#5b4a6d', fg: '#ffeb3b' });
+      const sg = b.sign || (b.label === 'POLICE' ? { text: 'משטרה', bg: '#1d4fa3', fg: '#fff' } : b.label === 'KIRYA' ? { text: 'הקריה', sub: 'штаб Кирья', bg: '#33691e', fg: '#fff' } : { text: 'ПОКРАСКА', bg: '#5b4a6d', fg: '#ffeb3b' });
       c.width = 512; c.height = sg.sub ? 160 : 112;
       g.fillStyle = sg.bg; g.fillRect(0, 0, c.width, c.height);
       g.strokeStyle = 'rgba(255,255,255,0.6)'; g.lineWidth = 6; g.strokeRect(6, 6, c.width - 12, c.height - 12);
@@ -777,9 +779,9 @@ const R3 = {
 
   // ---------------------------------------------------------------- люди
   makePed() {
-    const cv = document.createElement('canvas'); cv.width = cv.height = 80;
+    const cv = document.createElement('canvas'); cv.width = cv.height = 100;
     const mat = new THREE.MeshLambertMaterial({ map: this.tex(cv), transparent: true, depthWrite: false });
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(40, 40).rotateX(-Math.PI / 2), mat);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(40 * PED_SCALE, 40 * PED_SCALE).rotateX(-Math.PI / 2), mat);
     m.renderOrder = 2;
     this.scene.add(m);
     return { m, cv, key: '' };
@@ -794,8 +796,8 @@ const R3 = {
     if (o.key && moving && this.pedBudget-- <= 0) return;
     o.key = key;
     const g = o.cv.getContext('2d');
-    g.clearRect(0, 0, 80, 80);
-    g.save(); g.translate(40, 40); g.scale(2, 2);
+    g.clearRect(0, 0, 100, 100);
+    g.save(); g.translate(50, 50); g.scale(2 * PED_SCALE, 2 * PED_SCALE);
     drawPersonLook(g, p.look, q * Math.PI / 4, moving, p.weapon, p.dead);
     g.restore();
     o.m.material.map.needsUpdate = true;
@@ -989,6 +991,39 @@ const R3 = {
       burn: dtex((g) => { const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(10,10,10,0.7)'); gr.addColorStop(1, 'rgba(10,10,10,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); }),
     };
     this.decalGeo = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
+  },
+
+  // Светофоры на жёлто-чёрных столбах (как в Израиле): лампа сверху меняет цвет
+  syncLights(view) {
+    const M = this.lightObjs || (this.lightObjs = new Map());
+    if (!this.lightKit) {
+      this.lightKit = {
+        pole: new THREE.BoxGeometry(5, 64, 5).translate(0, 32, 0),
+        band: new THREE.BoxGeometry(6, 8, 6).translate(0, 20, 0),
+        head: new THREE.BoxGeometry(12, 10, 26).translate(0, 66, 0),
+        bulb: new THREE.SphereGeometry(5, 8, 6).translate(0, 73, 0),
+        mPole: new THREE.MeshLambertMaterial({ color: 0x2b2b2b }), mBand: new THREE.MeshLambertMaterial({ color: 0xf2c230 }),
+        r: new THREE.MeshBasicMaterial({ color: 0xff2a20 }), y: new THREE.MeshBasicMaterial({ color: 0xffcc22 }), g: new THREE.MeshBasicMaterial({ color: 0x3dff5a }),
+      };
+    }
+    const K = this.lightKit, live = new Set();
+    for (const L of City.lights) {
+      if ((L.x1 + 2) * TILE < view.x0 || (L.x0 - 2) * TILE > view.x1 || (L.y1 + 2) * TILE < view.y0 || (L.y0 - 2) * TILE > view.y1) continue;
+      live.add(L);
+      let o = M.get(L);
+      if (!o) {
+        o = new THREE.Group(); o.bulbs = [];
+        for (const [x, z, vert] of City.lightCorners(L)) {
+          const p = new THREE.Mesh(K.pole, K.mPole), b = new THREE.Mesh(K.band, K.mBand), h = new THREE.Mesh(K.head, K.mPole), u = new THREE.Mesh(K.bulb, K.r);
+          for (const m of [p, b, h, u]) m.position.set(x, 0, z);
+          p.castShadow = true;
+          o.add(p, b, h, u); o.bulbs.push({ u, vert });
+        }
+        this.scene.add(o); M.set(L, o);
+      }
+      for (const b of o.bulbs) b.u.material = K[City.lightState(L.id, b.vert)];
+    }
+    for (const [L, o] of M) if (!live.has(L)) { this.scene.remove(o); M.delete(L); }
   },
 
   // Гранаты и ракеты РПГ
@@ -1262,7 +1297,7 @@ const R3 = {
     this.tilt = lerp(this.tilt, Game.topDown ? 0 : TILT, 0.12);
     const tx = cam.x + sx, tz = cam.y + sy;
     this.camera.position.set(tx, H * Math.cos(this.tilt), tz + H * Math.sin(this.tilt));
-    this.camera.near = Math.max(20, H * 0.2); this.camera.far = H * 2.8 + 400;
+    this.camera.near = Math.max(15, H * 0.1); this.camera.far = H * 2.8 + 400;
     this.camera.updateProjectionMatrix();
     this.camera.lookAt(tx, 0, tz);
     this.camera.updateMatrixWorld();
@@ -1281,6 +1316,7 @@ const R3 = {
     this.syncFx(view);
     this.syncStrikes();
     this.syncProjectiles();
+    this.syncLights(view);
     this.waterTex.offset.set((World.time * 0.02) % 1, (World.time * 0.013) % 1);
     this.renderer.render(this.scene, this.camera);
   },

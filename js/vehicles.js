@@ -33,6 +33,16 @@ const VTYPES = {
   moto: { name: 'Мотоцикл', w: 18, l: 46, hp: 55, max: 440, acc: 350, grip: 14, turn: 3.2, moto: true },
 };
 
+// Масштаб как в GTA2: машина почти во всю полосу (≈0,8 клетки) и длиной ≈1,6
+// клетки. Таблица выше — в «старых» единицах, пересчитываем один раз.
+const CAR_SCALE = 1.55, CAR_SPEED = 1.2;
+for (const t of Object.values(VTYPES)) {
+  t.w = Math.min(58, Math.round(t.w * CAR_SCALE));
+  t.l = Math.round(t.l * CAR_SCALE);
+  t.max = Math.round(t.max * CAR_SPEED);
+  t.acc = Math.round(t.acc * CAR_SPEED);
+}
+
 const GEN_VEH = {
   sedan: ['sedan_1', 'sedan_2', 'sedan_3', 'sedan_4'], hatch: ['hatch_1', 'hatch_2', 'hatch_3'], suv: ['suv_1', 'suv_2'],
   lux: ['lux'], taxi: ['taxi'], police: ['police'], ambulance: ['ambulance'], van: ['van'], pickup: ['pickup'],

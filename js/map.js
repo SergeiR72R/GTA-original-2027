@@ -47,14 +47,31 @@ const DISTRICTS = {
 };
 
 const City = {
-  W: 132,
-  H: 130,
-  NB: 10, // кварталов по горизонтали и вертикали
-  V: [8, 20, 32, 44, 56, 68, 80, 92, 104, 116, 128], // левые колонки вертикальных дорог
-  HR: [6, 18, 30, 42, 54, 66, 78, 90, 102, 114, 126], // верхние строки горизонтальных дорог
-  JAFFA_SEA: 102, // южнее — море подходит к Яффо и Аджами
-  VNAMES: ['Тайелет', 'Ха-Яркон', 'Бен-Йехуда', 'Дизенгоф', 'Ибн-Гвироль', 'Леонардо да Винчи', 'Дерех Бегин', 'Шоссе Аялон', 'Жаботински', 'Бялик', 'Абба Гилель'],
-  HNAMES: ['Рокех', 'Нордау', 'Арлозоров', 'Фришман', 'Бограшов', 'Алленби', 'Левински', 'Эйлат', 'Салама', 'Йефет', 'Яффо-Порт'],
+  W: 0, H: 0, // считаются в layout()
+  NB: 10, // суперкварталов по горизонтали и вертикали
+  V: [], HR: [], VW: [], HW: [], // начало и ширина каждой большой улицы
+
+  // Улицы как в Тель-Авиве: главные идут вдоль моря (с севера на юг), поперечные —
+  // от моря вглубь. Профиль поперёк улицы: A — полоса на юг/запад, B — на север/
+  // восток (правостороннее движение), P — аллея бульвара, M — разделительная Аялона.
+  ROAD_PROFILES: { std: 'AB', oneA: 'AA', oneB: 'BB', ave: 'AABB', blvd: 'AAPPPBB', hwy: 'AAAMMBBB' },
+  ROAD_KIND: { minor: 1, std: 2, oneA: 2, oneB: 2, ave: 3, blvd: 4, hwy: 5, ring: 6 },
+  VROADS: [['std', 'Тайелет'], ['oneA', 'Ха-Яркон'], ['oneB', 'Бен-Йехуда'], ['ave', 'Дизенгоф'], ['ave', 'Ибн-Гвироль'], ['std', 'Леонардо да Винчи'],
+    ['ave', 'Дерех Бегин'], ['hwy', 'Шоссе Аялон'], ['ave', 'Жаботински'], ['std', 'Бялик'], ['std', 'Абба Гилель']],
+  HROADS: [['ave', 'Рокех'], ['blvd', 'Нордау'], ['ave', 'Арлозоров'], ['std', 'Фришман'], ['std', 'Бограшов'], ['ave', 'Алленби'],
+    ['blvd', 'Ротшильд'], ['ave', 'Эйлат'], ['std', 'Салама'], ['blvd', 'Иерусалимский бульвар'], ['std', 'Яффо-Порт']],
+  BUS_LANES: { V: [4, 8], H: [5] }, // красные автобусные полосы: Ибн-Гвироль, Жаботински, Алленби
+  // ширина суперкварталов (с тротуаром), разная — сетка неровная
+  COLW: [15, 17, 18, 17, 18, 16, 18, 16, 18, 17],
+  ROWH: [15, 18, 18, 17, 18, 17, 18, 17, 18, 17],
+  // тихие внутренние улицы суперквартала по районам: [ось, доля, профиль]
+  MINORS: {
+    center: [['h', 0.5, 'std']], north: [['h', 0.5, 'std']], florentin: [['h', 0.5, 'oneB'], ['v', 0.5, 'oneA']],
+    south: [['h', 0.5, 'std'], ['v', 0.5, 'std']], ramatgan: [['v', 0.5, 'std']], rgshops: [['h', 0.5, 'std']],
+    jaffa: [['h', 0.5, 'std']], shikun: [['v', 0.5, 'std']], nevetzedek: [['v', 0.5, 'oneB']],
+  },
+  // здесь стоят достопримечательности — без внутренних улиц
+  NO_MINOR: ['1,0', '3,4', '4,4', '3,7', '0,7', '8,4', '0,5', '5,9'],
 
   // Районы по кварталам [by][bx]. Запад — море, север — Яркон.
   // Банды: «Одесса» — Рамат-Ган за Аялоном (северо-восток), клан Аль-Бахар —
@@ -94,18 +111,94 @@ const City = {
   isWalkway(x, y) { const tt = this.t(x, y); return tt === T_WALK || tt === T_PLAZA || tt === T_DECK; },
 
   blockRect(bx, by) {
-    return { x0: this.V[bx] + 2, x1: this.V[bx + 1] - 1, y0: this.HR[by] + 2, y1: this.HR[by + 1] - 1 };
+    return { x0: this.V[bx] + this.VW[bx], x1: this.V[bx + 1] - 1, y0: this.HR[by] + this.HW[by], y1: this.HR[by + 1] - 1 };
+  },
+
+  // Положение больших улиц и размер города
+  layout() {
+    const P = this.ROAD_PROFILES;
+    this.VW = this.VROADS.map(([k]) => P[k].length);
+    this.HW = this.HROADS.map(([k]) => P[k].length);
+    this.VNAMES = this.VROADS.map((r) => r[1]);
+    this.HNAMES = this.HROADS.map((r) => r[1]);
+    this.V = []; let x = 8;
+    for (let i = 0; i < this.VROADS.length; i++) { this.V.push(x); x += this.VW[i] + (i < this.NB ? this.COLW[i] : 0); }
+    this.HR = []; let y = 6;
+    for (let i = 0; i < this.HROADS.length; i++) { this.HR.push(y); y += this.HW[i] + (i < this.NB ? this.ROWH[i] : 0); }
+    this.W = x + 2; this.H = y + 2;
+    this.JAFFA_SEA = this.HR[8]; // южнее — море подходит к Яффо и Аджами
+  },
+
+  // Полоса дороги: тип клетки, направление, вид улицы
+  lane(x, y, ch, axis, kind) {
+    if (!this.inside(x, y)) return;
+    const i = this.idx(x, y);
+    if (ch === 'P' || ch === 'M') {
+      // аллея и разделительная — только там, где не проходит поперечная улица
+      if (this.type[i] !== T_ROAD) { this.type[i] = ch === 'P' ? T_PLAZA : T_GRASS; this.median[i] = ch === 'P' ? 1 : 2; }
+      return;
+    }
+    const d = axis === 'v' ? (ch === 'A' ? 2 : 0) : (ch === 'A' ? 3 : 1);
+    this.type[i] = T_ROAD;
+    this.bid[i] = -1;
+    if (axis === 'v') this.laneV[i] = d; else this.laneH[i] = d;
+    if (!this.roadKind[i] || kind > this.roadKind[i]) this.roadKind[i] = kind;
+  },
+
+  // Улица-отрезок: ось, первая клетка поперёк, от и до вдоль, профиль
+  street(axis, at, from, to, prof, kind) {
+    const s = this.ROAD_PROFILES[prof];
+    for (let k = 0; k < s.length; k++) for (let t = from; t <= to; t++) {
+      if (axis === 'v') this.lane(at + k, t, s[k], 'v', kind); else this.lane(t, at + k, s[k], 'h', kind);
+    }
+  },
+
+  // Перекрёсток: клетки с движением по обеим осям
+  isJunction(x, y) { if (!this.inside(x, y)) return false; const i = this.idx(x, y); return this.laneV[i] >= 0 && this.laneH[i] >= 0; },
+
+  // Светофоры: на пересечениях больших улиц, кроме двух обычных (там уступают)
+  findLights() {
+    this.lightId = new Int16Array(this.W * this.H).fill(-1);
+    this.lights = [];
+    for (let i = 0; i < this.V.length; i++) for (let j = 0; j < this.HR.length; j++) {
+      const kv = this.ROAD_KIND[this.VROADS[i][0]], kh = this.ROAD_KIND[this.HROADS[j][0]];
+      if (kv <= 2 && kh <= 2) continue;
+      const L = { x0: this.V[i], y0: this.HR[j], x1: this.V[i] + this.VW[i] - 1, y1: this.HR[j] + this.HW[j] - 1, off: (i * 7 + j * 5) % 18 };
+      L.id = this.lights.length; this.lights.push(L);
+      for (let y = L.y0; y <= L.y1; y++) for (let x = L.x0; x <= L.x1; x++) this.lightId[this.idx(x, y)] = L.id;
+    }
+  },
+
+  // Столбы светофора на углах: северо-запад и юго-восток показывают сигнал для
+  // движения север–юг, северо-восток и юго-запад — для восток–запад
+  lightCorners(L) {
+    const a = 10;
+    return [[L.x0 * TILE - a, L.y0 * TILE - a, true], [(L.x1 + 1) * TILE + a, L.y0 * TILE - a, false],
+      [(L.x1 + 1) * TILE + a, (L.y1 + 1) * TILE + a, true], [L.x0 * TILE - a, (L.y1 + 1) * TILE + a, false]];
+  },
+
+  // Цикл 18 с: север–юг зелёный 7 с, жёлтый 2, потом восток–запад так же
+  lightState(id, vertical) {
+    const t = ((World.time || 0) + this.lights[id].off) % 18;
+    const ns = t < 7 ? 'g' : t < 9 ? 'y' : 'r';
+    const ew = t < 9 ? 'r' : t < 16 ? 'g' : 'y';
+    return vertical ? ns : ew;
   },
 
   // Центр клетки в пикселях
   tc(tx, ty) { return { x: tx * TILE + TILE / 2, y: ty * TILE + TILE / 2 }; },
 
   generate() {
+    this.layout();
     const W = this.W, H = this.H;
     this.type = new Uint8Array(W * H);
     this.laneV = new Int8Array(W * H).fill(-1);
     this.laneH = new Int8Array(W * H).fill(-1);
     this.bid = new Int16Array(W * H).fill(-1);
+    this.roadKind = new Uint8Array(W * H);
+    this.median = new Uint8Array(W * H);
+    this.busLane = new Uint8Array(W * H);
+    this.touches = []; // где внутренние улицы упираются в большие
     const rng = makeRng(1948);
 
     // Парк Яркон с рекой на севере, море и пляж на западе
@@ -121,29 +214,74 @@ const City = {
     // У Яффо и Аджами пляжа нет — море подходит к набережной
     for (let y = this.JAFFA_SEA; y < H; y++) for (let x = 5; x < 8; x++) this.type[this.idx(x, y)] = T_SEA;
 
-    // Кварталы
+    // Суперкварталы; в жилых районах их делят тихие внутренние улицы
     for (let by = 0; by < this.NB; by++) {
       for (let bx = 0; bx < this.NB; bx++) {
         const r = this.blockRect(bx, by);
+        const d = this.LAYOUT[by][bx];
         for (let y = r.y0; y <= r.y1; y++) for (let x = r.x0; x <= r.x1; x++) this.type[this.idx(x, y)] = T_WALK;
-        this.genBlock(bx, by, r, this.LAYOUT[by][bx], rng);
+        const minors = this.NO_MINOR.includes(bx + ',' + by) ? null : this.MINORS[d];
+        if (!minors) { this.genBlock(bx, by, r, d, rng); continue; }
+        // режем квартал внутренними улицами и заполняем каждую часть
+        let xs = [r.x0], ys = [r.y0];
+        const xe = [], ye = [];
+        for (const [ax, frac, prof] of minors) {
+          const w = this.ROAD_PROFILES[prof].length;
+          if (ax === 'h') {
+            const at = r.y0 + Math.round((r.y1 - r.y0 + 1 - w) * frac);
+            this.street('h', at, r.x0, r.x1, prof, 1);
+            this.touches.push({ axis: 'h', at, prof, ci: bx }, { axis: 'h', at, prof, ci: bx + 1 });
+            ye.push(at - 1); ys.push(at + w);
+          } else {
+            const at = r.x0 + Math.round((r.x1 - r.x0 + 1 - w) * frac);
+            this.street('v', at, r.y0, r.y1, prof, 1);
+            this.touches.push({ axis: 'v', at, prof, ci: by }, { axis: 'v', at, prof, ci: by + 1 });
+            xe.push(at - 1); xs.push(at + w);
+          }
+        }
+        xe.push(r.x1); ye.push(r.y1);
+        xs.sort((a, b) => a - b); xe.sort((a, b) => a - b); ys.sort((a, b) => a - b); ye.sort((a, b) => a - b);
+        for (let a = 0; a < xs.length; a++) for (let b = 0; b < ys.length; b++) {
+          this.genBlock(bx, by, { x0: xs[a], x1: xe[a], y0: ys[b], y1: ye[b] }, d, rng);
+        }
       }
     }
 
-    // Дороги: правостороннее движение
-    const vy0 = this.HR[0], vy1 = this.HR[this.HR.length - 1] + 1;
-    const hx0 = this.V[0], hx1 = this.V[this.V.length - 1] + 1;
-    for (const c of this.V) {
-      for (let y = vy0; y <= vy1; y++) {
-        this.type[this.idx(c, y)] = T_ROAD; this.laneV[this.idx(c, y)] = 2;
-        this.type[this.idx(c + 1, y)] = T_ROAD; this.laneV[this.idx(c + 1, y)] = 0;
+    // Большие улицы: сначала вдоль моря, потом поперечные; на пересечениях
+    // у клетки оба направления — это перекрёсток
+    const vy0 = this.HR[0], vy1 = this.HR[this.HR.length - 1] + this.HW[this.HW.length - 1] - 1;
+    const hx0 = this.V[0], hx1 = this.V[this.V.length - 1] + this.VW[this.VW.length - 1] - 1;
+    this.VROADS.forEach(([prof], i) => this.street('v', this.V[i], vy0, vy1, prof, this.ROAD_KIND[prof]));
+    this.HROADS.forEach(([prof], j) => this.street('h', this.HR[j], hx0, hx1, prof, this.ROAD_KIND[prof]));
+    // внутренние улицы продолжаются через большую — получается перекрёсток
+    for (const t of this.touches) {
+      const s = this.ROAD_PROFILES[t.prof];
+      if (t.axis === 'h') {
+        if (t.ci >= this.V.length) continue;
+        for (let k = 0; k < s.length; k++) for (let x = this.V[t.ci]; x < this.V[t.ci] + this.VW[t.ci]; x++) {
+          const i = this.idx(x, t.at + k);
+          if (this.type[i] !== T_ROAD) { this.type[i] = T_ROAD; this.median[i] = 0; this.roadKind[i] = 1; }
+          this.laneH[i] = s[k] === 'A' ? 3 : 1;
+        }
+      } else {
+        if (t.ci >= this.HR.length) continue;
+        for (let k = 0; k < s.length; k++) for (let y = this.HR[t.ci]; y < this.HR[t.ci] + this.HW[t.ci]; y++) {
+          const i = this.idx(t.at + k, y);
+          if (this.type[i] !== T_ROAD) { this.type[i] = T_ROAD; this.median[i] = 0; this.roadKind[i] = 1; }
+          this.laneV[i] = s[k] === 'A' ? 2 : 0;
+        }
       }
     }
-    for (const r of this.HR) {
-      for (let x = hx0; x <= hx1; x++) {
-        this.type[this.idx(x, r)] = T_ROAD; this.laneH[this.idx(x, r)] = 3;
-        this.type[this.idx(x, r + 1)] = T_ROAD; this.laneH[this.idx(x, r + 1)] = 1;
-      }
+    // автобусные полосы — крайние справа по ходу
+    for (const i of this.BUS_LANES.V) { const x0 = this.V[i], x1 = x0 + this.VW[i] - 1; for (let y = vy0; y <= vy1; y++) for (const x of [x0, x1]) if (!this.isJunction(x, y)) this.busLane[this.idx(x, y)] = 1; }
+    for (const j of this.BUS_LANES.H) { const y0 = this.HR[j], y1 = y0 + this.HW[j] - 1; for (let x = hx0; x <= hx1; x++) for (const y of [y0, y1]) if (!this.isJunction(x, y)) this.busLane[this.idx(x, y)] = 1; }
+    this.findLights();
+    // деревья и киоски на аллеях бульваров
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = this.idx(x, y);
+      if (this.median[i] !== 1) continue;
+      if ((x + y) % 2 === 0) this.decor.push({ k: 'treeS', x: x * TILE + 32, y: y * TILE + 32, h: 36, s: 0.55 });
+      else if (rng() < 0.08) this.decor.push({ k: 'bench', x: x * TILE + 32, y: y * TILE + 32, h: 0, low: true, d: 0 });
     }
 
     // Пальмы вдоль набережной и зонтики на пляже
@@ -207,7 +345,7 @@ const City = {
           if (this.bid[this.idx(xx, yy)] === id) { this.bid[this.idx(xx, yy)] = -1; this.type[this.idx(xx, yy)] = tt; }
         }
       }
-      this.type[this.idx(x, y)] = tt;
+      if (this.type[this.idx(x, y)] !== T_ROAD) this.type[this.idx(x, y)] = tt;
     }
     this.decor = this.decor.filter((d) => !inR(d.x, d.y));
     this.parkingSpots = this.parkingSpots.filter((p) => !inR(p.x, p.y));
@@ -217,64 +355,77 @@ const City = {
   // видны в 2D и 3D. Квадраты в клетках внутри кварталов (см. LAYOUT).
   landmarks() {
     const sign = (b, text, sub, bg, fg) => { b.sign = { text, sub, bg, fg }; };
+    // начало внутренней части квартала (после тротуара)
+    const I = (bx, by) => { const r = this.blockRect(bx, by); return { x: r.x0 + 1, y: r.y0 + 1, w: r.x1 - r.x0 - 1, h: r.y1 - r.y0 - 1 }; };
+    let o;
     // Порт: электростанция Ридинг — корпус и две полосатые трубы
-    this.clearRect(24, 10, 6, 5, T_DECK);
-    const rd = this.box(24, 11, 6, 3, 0, 70, '#b9b0a2', '#8f8f8f', 'power');
-    this.bands(25.5, 12.5, 17, 0, 300, 8, '#c62828', '#f5f5f5');
-    this.bands(28.5, 12.5, 17, 0, 300, 8, '#c62828', '#f5f5f5');
+    o = I(1, 0);
+    this.clearRect(o.x + 1, o.y + 1, 6, 5, T_DECK);
+    const rd = this.box(o.x + 1, o.y + 2, 6, 3, 0, 70, '#b9b0a2', '#8f8f8f', 'power');
+    this.bands(o.x + 2.5, o.y + 3.5, 17, 0, 300, 8, '#c62828', '#f5f5f5');
+    this.bands(o.x + 5.5, o.y + 3.5, 17, 0, 300, 8, '#c62828', '#f5f5f5');
     sign(rd, 'רדינג', 'электростанция Ридинг', '#b71c1c', '#fff');
     // Ротшильд: башня Шалом и театр Габима
-    this.clearRect(47, 57, 4, 3, T_WALK);
-    const sh = this.box(47, 57, 4, 3, 0, 420, '#7b6a58', '#8d7b68', 'tower', { floors: 16 });
+    o = I(3, 4);
+    this.clearRect(o.x, o.y, 4, 3, T_WALK);
+    const sh = this.box(o.x, o.y, 4, 3, 0, 420, '#7b6a58', '#8d7b68', 'tower', { floors: 16 });
     sign(sh, 'מגדל שלום', 'башня Шалом', '#4e342e', '#ffe0b2');
-    this.clearRect(63, 61, 4, 4, T_PLAZA);
-    this.markSolid(63, 61, 4, 4);
-    this.cyl(65, 63, 100, 0, 52, '#e8e4da', 'arena', '#f2f2f2');
-    this.cyl(65, 63, 76, 52, 64, '#d7d2c6', 'plain', '#ffffff');
+    o = I(4, 4);
+    this.clearRect(o.x + o.w - 4, o.y + o.h - 4, 4, 4, T_PLAZA);
+    this.markSolid(o.x + o.w - 4, o.y + o.h - 4, 4, 4);
+    this.cyl(o.x + o.w - 2, o.y + o.h - 2, 100, 0, 52, '#e8e4da', 'arena', '#f2f2f2');
+    this.cyl(o.x + o.w - 2, o.y + o.h - 2, 76, 52, 64, '#d7d2c6', 'plain', '#ffffff');
     // Кирья: мачта связи на штабе
     const kq = this.buildings.find((b) => b.label === 'KIRYA');
     if (kq) this.bands((kq.x + kq.w / 2) / TILE, (kq.y + kq.h / 2) / TILE, 7, kq.h1, kq.h1 + 230, 6, '#d32f2f', '#fafafa');
     // Яффо: церковь Святого Петра с колокольней и маяк в гавани
-    this.clearRect(48, 94, 5, 4, T_PLAZA);
-    const ch = this.box(48, 95, 4, 3, 0, 70, '#dcbc85', '#c9a46a', 'church', { stone: true });
-    this.box(52, 94, 1, 2, 0, 175, '#d6b47c', '#b88f55', 'church', { stone: true });
-    this.onion(50, 96.5, 34, 70, '#b88f55');
+    o = I(3, 7);
+    this.clearRect(o.x + 1, o.y + 1, 5, 4, T_PLAZA);
+    const ch = this.box(o.x + 1, o.y + 2, 4, 3, 0, 70, '#dcbc85', '#c9a46a', 'church', { stone: true });
+    this.box(o.x + 5, o.y + 1, 1, 2, 0, 175, '#d6b47c', '#b88f55', 'church', { stone: true });
+    this.onion(o.x + 3, o.y + 3.5, 34, 70, '#b88f55');
     sign(ch, 'כנסיית פטרוס', 'церковь Св. Петра', '#6d4c41', '#fff3e0');
-    this.clearRect(11, 96, 1, 1, T_DECK);
-    this.markSolid(11, 96, 1, 1);
-    this.bands(11.5, 96.5, 18, 0, 150, 5, '#fafafa', '#d32f2f');
-    this.cyl(11.5, 96.5, 12, 150, 168, '#fff59d');
-    this.cyl(11.5, 96.5, 16, 168, 174, '#c62828');
+    o = I(0, 7);
+    this.clearRect(o.x, o.y + 3, 1, 1, T_DECK);
+    this.markSolid(o.x, o.y + 3, 1, 1);
+    this.bands(o.x + 0.5, o.y + 3.5, 18, 0, 150, 5, '#fafafa', '#d32f2f');
+    this.cyl(o.x + 0.5, o.y + 3.5, 12, 150, 168, '#fff59d');
+    this.cyl(o.x + 0.5, o.y + 3.5, 16, 168, 174, '#c62828');
     // Рамат-Ган: православная церковь с луковицами — приход «земляков»
-    this.clearRect(108, 58, 4, 4, T_PLAZA);
-    const rc = this.box(108, 58, 4, 4, 0, 55, '#f2eee6', '#e0dbd0', 'church');
-    this.cyl(110, 60, 40, 55, 92, '#f5f5f5');
-    const top = this.onion(110, 60, 50, 92, '#d4a017');
-    this.cyl(110, 60, 3, top, top + 34, '#d4a017');
+    o = I(8, 4);
+    const ox = o.x + 1, oy = o.y + 1;
+    this.clearRect(ox, oy, 4, 4, T_PLAZA);
+    const rc = this.box(ox, oy, 4, 4, 0, 55, '#f2eee6', '#e0dbd0', 'church');
+    this.cyl(ox + 2, oy + 2, 40, 55, 92, '#f5f5f5');
+    const top = this.onion(ox + 2, oy + 2, 50, 92, '#d4a017');
+    this.cyl(ox + 2, oy + 2, 3, top, top + 34, '#d4a017');
     for (const [dx, dy] of [[-1.35, -1.35], [1.35, -1.35], [-1.35, 1.35], [1.35, 1.35]]) {
-      this.cyl(110 + dx, 60 + dy, 14, 55, 78, '#f5f5f5');
-      this.onion(110 + dx, 60 + dy, 18, 78, '#1e88e5');
+      this.cyl(ox + 2 + dx, oy + 2 + dy, 14, 55, 78, '#f5f5f5');
+      this.onion(ox + 2 + dx, oy + 2 + dy, 18, 78, '#1e88e5');
     }
     sign(rc, 'ЦЕРКОВЬ', 'русский приход', '#1565c0', '#ffd54f');
     // Пляж: заброшенный Дельфинариум
-    this.clearRect(5, 60, 3, 3, T_SAND);
-    const dl = this.box(5, 60, 3, 3, 0, 22, '#9fb0b8', '#8a9aa2', 'arena');
+    const dy0 = this.HR[4] + 3;
+    this.clearRect(5, dy0, 3, 3, T_SAND);
+    const dl = this.box(5, dy0, 3, 3, 0, 22, '#9fb0b8', '#8a9aa2', 'arena');
     sign(dl, 'דולפינריום', 'заброшенный дельфинарий', '#455a64', '#e0f7fa');
     // Набережная: мечеть Хасан-Бек с минаретом
-    this.clearRect(11, 70, 4, 4, T_PLAZA);
-    const mq = this.box(11, 71, 3, 3, 0, 45, '#e3cfa4', '#d9c49a', 'mosque', { stone: true });
-    this.onion(12.5, 72.5, 42, 45, '#c8b48a');
-    this.markSolid(14, 70, 1, 1);
-    this.cyl(14.5, 70.5, 13, 0, 165, '#e8d5a8');
-    this.cyl(14.5, 70.5, 19, 118, 124, '#d4bf90');
-    this.cyl(14.5, 70.5, 9, 165, 190, '#9e9e9e');
+    o = I(0, 5);
+    this.clearRect(o.x, o.y + 1, 4, 4, T_PLAZA);
+    const mq = this.box(o.x, o.y + 2, 3, 3, 0, 45, '#e3cfa4', '#d9c49a', 'mosque', { stone: true });
+    this.onion(o.x + 1.5, o.y + 3.5, 42, 45, '#c8b48a');
+    this.markSolid(o.x + 3, o.y + 1, 1, 1);
+    this.cyl(o.x + 3.5, o.y + 1.5, 13, 0, 165, '#e8d5a8');
+    this.cyl(o.x + 3.5, o.y + 1.5, 19, 118, 124, '#d4bf90');
+    this.cyl(o.x + 3.5, o.y + 1.5, 9, 165, 190, '#9e9e9e');
     sign(mq, 'מסגד חסן בק', 'мечеть Хасан-Бек', '#00695c', '#fff');
     // Юг: арена «Менора» в шхунот
-    this.clearRect(72, 118, 6, 6, T_PLAZA);
-    this.markSolid(72, 118, 6, 6);
-    this.cyl(75, 121, 170, 0, 58, '#cfd8dc', 'arena', '#90a4ae');
-    this.cyl(75, 121, 140, 58, 72, '#b0bec5', 'plain', '#cfd8dc');
-    this.cyl(75, 121, 95, 72, 82, '#cfd8dc', 'plain', '#eceff1');
+    o = I(5, 9);
+    this.clearRect(o.x + 1, o.y + 1, 6, 6, T_PLAZA);
+    this.markSolid(o.x + 1, o.y + 1, 6, 6);
+    this.cyl(o.x + 4, o.y + 4, 170, 0, 58, '#cfd8dc', 'arena', '#90a4ae');
+    this.cyl(o.x + 4, o.y + 4, 140, 58, 72, '#b0bec5', 'plain', '#cfd8dc');
+    this.cyl(o.x + 4, o.y + 4, 95, 72, 82, '#cfd8dc', 'plain', '#eceff1');
   },
 
   markSolid(x0, y0, w, h, id) {
@@ -376,6 +527,33 @@ const City = {
         }
       }
     };
+    // Белый город по Геддесу: отдельные дома на своих участках в зелени, между
+    // ними промежуток; в середине суперквартала — общественный сад
+    const geddes = (style) => {
+      this.fill(ix, iy, iw, ih, T_GRASS);
+      const row = (y, h) => {
+        let x = ix;
+        while (x + 2 <= ix + iw) {
+          const w = Math.min(rng() < 0.55 ? 2 : 3, ix + iw - x);
+          if (w < 2) break;
+          this.lotBuilding({ x, y, w, h }, style, rng);
+          x += w + 1;
+        }
+      };
+      const hh = Math.min(2, ih);
+      row(iy, hh);
+      if (ih >= 5) row(iy + ih - hh, hh);
+      // сад между рядами домов: деревья, скамейки, дорожка
+      if (ih >= 6) {
+        const gy0 = iy + hh + 1, gy1 = iy + ih - hh - 2;
+        const path = gy1 - gy0 >= 2 ? Math.floor((gy0 + gy1) / 2) : -1;
+        for (let y = gy0 - 1; y <= gy1 + 1; y++) for (let x = ix; x < ix + iw; x++) {
+          if (y === path) { this.type[this.idx(x, y)] = T_PLAZA; continue; }
+          if (this.type[this.idx(x, y)] === T_BUILD) continue;
+          if (rng() < (y < gy0 || y > gy1 ? 0.15 : 0.4)) this.decor.push({ k: rng() < 0.7 ? 'treeS' : 'tree', x: x * TILE + rng.range(14, 50), y: y * TILE + rng.range(14, 50), h: 40, s: rng.range(0.5, 0.8) });
+        }
+      }
+    };
     // прилавок рынка на клетке (непроходимый)
     const stall = (x, y, fr) => {
       this.markSolid(x, y, 1, 1);
@@ -412,13 +590,32 @@ const City = {
         break;
       }
       case 'dizengoff': {
-        this.fill(ix, iy, iw, ih, T_PLAZA);
-        // кольцо невысоких домов по краю площади
-        for (const l of [{ x: ix, y: iy, w: 3, h: 2 }, { x: ix + iw - 3, y: iy, w: 3, h: 2 }, { x: ix, y: iy + ih - 2, w: 3, h: 2 }, { x: ix + iw - 3, y: iy + ih - 2, w: 3, h: 2 }]) this.lotBuilding(l, S.bauhaus, rng);
-        const cx = (ix + iw / 2) * TILE, cy = (iy + ih / 2) * TILE;
-        this.fill(ix + iw / 2 - 1, iy + ih / 2 - 1, 2, 2, T_BUILD);
-        this.addBuilding({ kind: 'circle', cx, cy, r: 58, h0: 0, h1: 10, roof: '#7fc4d8', wall: '#9a9a9a', items: [{ t: 'fountain' }], floors: 99, style: 'fountain' });
-        for (let i = 0; i < 8; i++) this.decor.push({ k: 'palm', x: cx + Math.cos(i / 8 * TAU) * 200, y: cy + Math.sin(i / 8 * TAU) * 200, h: 80, r: i });
+        // Кикар Дизенгоф: одностороннее кольцо против часовой стрелки вокруг площади
+        // с фонтаном и четыре улицы-«спицы» к соседним большим улицам
+        const cx = Math.floor((r.x0 + r.x1) / 2), cy = Math.floor((r.y0 + r.y1) / 2), R = 4;
+        const lx0 = cx - R, lx1 = cx + R, ly0 = cy - R, ly1 = cy + R;
+        const ring = (x, y, ax, d) => { const i = this.idx(x, y); this.type[i] = T_ROAD; if (ax === 'v') this.laneV[i] = d; else this.laneH[i] = d; this.roadKind[i] = 6; };
+        this.fill(lx0 + 1, ly0 + 1, 2 * R - 1, 2 * R - 1, T_PLAZA);
+        for (let x = lx0; x <= lx1; x++) { ring(x, ly0, 'h', 3); ring(x, ly1, 'h', 1); }
+        for (let y = ly0; y <= ly1; y++) { ring(lx0, y, 'v', 2); ring(lx1, y, 'v', 0); }
+        // спицы: въезд вливается в кольцо, у выезда кольцу добавляем направление наружу
+        this.street('v', cx - 1, r.y0, ly0 - 1, 'std', 1); ring(cx, ly0, 'v', 0);
+        this.street('v', cx - 1, ly1 + 1, r.y1, 'std', 1); ring(cx - 1, ly1, 'v', 2);
+        this.street('h', cy - 1, r.x0, lx0 - 1, 'std', 1); ring(lx0, cy - 1, 'h', 3);
+        this.street('h', cy - 1, lx1 + 1, r.x1, 'std', 1); ring(lx1, cy, 'h', 1);
+        this.touches.push({ axis: 'v', at: cx - 1, prof: 'std', ci: by }, { axis: 'v', at: cx - 1, prof: 'std', ci: by + 1 },
+          { axis: 'h', at: cy - 1, prof: 'std', ci: bx }, { axis: 'h', at: cy - 1, prof: 'std', ci: bx + 1 });
+        // фонтан в центре и пальмы вокруг
+        const fx = (cx + 0.5) * TILE, fy = (cy + 0.5) * TILE;
+        this.fill(cx - 1, cy - 1, 3, 3, T_BUILD);
+        this.addBuilding({ kind: 'circle', cx: fx, cy: fy, r: 70, h0: 0, h1: 10, roof: '#7fc4d8', wall: '#9a9a9a', items: [{ t: 'fountain' }], floors: 99, style: 'fountain' });
+        for (let i = 0; i < 8; i++) this.decor.push({ k: 'palm', x: fx + Math.cos(i / 8 * TAU) * 170, y: fy + Math.sin(i / 8 * TAU) * 170, h: 80, r: i });
+        // четверти вокруг кольца — дома Белого города
+        const q = (x0, y0, x1, y1) => { if (x1 - x0 >= 1 && y1 - y0 >= 1) generic(S.bauhaus, 3, 0.1, { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 }); };
+        q(ix, iy, cx - 3, ly0 - 2); q(cx + 2, iy, ix + iw - 1, ly0 - 2);
+        q(ix, ly1 + 2, cx - 3, iy + ih - 1); q(cx + 2, ly1 + 2, ix + iw - 1, iy + ih - 1);
+        q(ix, ly0, lx0 - 2, cy - 3); q(ix, cy + 2, lx0 - 2, ly1);
+        q(lx1 + 2, ly0, ix + iw - 1, cy - 3); q(lx1 + 2, cy + 2, ix + iw - 1, ly1);
         break;
       }
       case 'rabin': {
@@ -583,12 +780,22 @@ const City = {
         break;
       }
       case 'rgshops': generic([[S.concrete, 3], [S.florentin, 1]], 3, 0.1); sidewalkTrees(0.3); break;
-      case 'shikun': generic(S.concrete, 5, 0.3); break;
+      case 'shikun': {
+        // «шикуны»: длинные бетонные дома среди газонов
+        this.fill(ix, iy, iw, ih, T_GRASS);
+        for (let y = iy + 1; y + 2 <= iy + ih; y += 5) {
+          const half = Math.floor((iw - 3) / 2);
+          if (half >= 3) { this.lotBuilding({ x: ix + 1, y, w: half, h: 2 }, S.concrete, rng); this.lotBuilding({ x: ix + 2 + half, y, w: iw - 3 - half, h: 2 }, S.concrete, rng); }
+          else if (iw >= 4) this.lotBuilding({ x: ix + 1, y, w: iw - 2, h: 2 }, S.concrete, rng);
+        }
+        for (let i = 0; i < iw * ih / 10; i++) this.decor.push({ k: 'treeS', x: rng.range(ix, ix + iw) * TILE, y: rng.range(iy, iy + ih) * TILE, h: 34, s: 0.5 });
+        break;
+      }
       case 'south': generic([[S.concrete, 3], [S.florentin, 2]], 3, 0.1); break;
       case 'jaffa': generic(S.jaffa, 3, 0.1); break;
       case 'ramatgan': generic([[S.tower, 2], [S.concrete, 3]], 4, 0.15); sidewalkTrees(0.3); break;
-      case 'north': generic(S.bauhaus, 3, 0.15); sidewalkTrees(0.6); break;
-      case 'center': generic(S.bauhaus, 3, 0.12); sidewalkTrees(0.5); break;
+      case 'north': geddes(S.bauhaus); sidewalkTrees(0.6); break;
+      case 'center': geddes(S.bauhaus); sidewalkTrees(0.5); break;
       case 'nevetzedek': generic(S.nevetzedek, 2, 0.15); break;
       case 'florentin': generic(S.florentin, 3, 0.12); break;
       default: generic(S.concrete, 3, 0.18); break;
@@ -621,21 +828,25 @@ const City = {
 
   // Ключевые точки города для миссий и сервисов
   definePlaces() {
+    // точка на тротуаре у стороны квартала; если там внутренняя улица — сдвигаемся вдоль
     const side = (bx, by, where, off = 0) => {
       const r = this.blockRect(bx, by);
       const mx = Math.floor((r.x0 + r.x1) / 2) + off, my = Math.floor((r.y0 + r.y1) / 2) + off;
-      if (where === 'S') return this.tc(mx, r.y1);
-      if (where === 'N') return this.tc(mx, r.y0);
-      if (where === 'W') return this.tc(r.x0, my);
-      return this.tc(r.x1, my);
+      const horiz = where === 'S' || where === 'N';
+      const px = where === 'W' ? r.x0 : where === 'E' ? r.x1 : mx, py = where === 'N' ? r.y0 : where === 'S' ? r.y1 : my;
+      for (let k = 0; k < 8; k++) for (const sg of [1, -1]) {
+        const x = horiz ? px + sg * k : px, y = horiz ? py : py + sg * k;
+        if (this.isWalkway(x, y)) return this.tc(x, y);
+      }
+      return this.tc(px, py);
     };
     const P = this.places;
     this.side = side;
-    P.start = { x: 6.5 * TILE, y: 52.5 * TILE }; // пляж Гордон
+    P.start = { x: 6.5 * TILE, y: (this.HR[4] - 2) * TILE }; // пляж Гордон
     P.shuk = side(1, 4, 'N');
     P.jaffaClock = this.tc(this.blockRect(1, 7).x0 + 4, this.blockRect(1, 7).y0 + 4); // площадь перед башней
     P.florentin = side(3, 5, 'N');
-    P.florentinCar = this.tc(52, this.HR[6] + 1); // на улице у Флорентина
+    P.florentinCar = this.tc(this.blockRect(3, 5).x0 + 4, this.HR[6]); // на улице у Флорентина
     P.nevetzedek = side(1, 5, 'E');
     P.azrieli = side(6, 2, 'S');
     P.beach = { x: 6.3 * TILE, y: 34 * TILE };
@@ -808,8 +1019,8 @@ const City = {
     const x = Math.floor(px / TILE), y = Math.floor(py / TILE);
     if (this.t(x, y) !== T_ROAD) return null;
     const i = this.idx(x, y);
-    if (this.laneV[i] >= 0 && this.laneH[i] < 0) return this.VNAMES[this.V.indexOf(x - (this.laneV[i] === 0 ? 1 : 0))];
-    if (this.laneH[i] >= 0 && this.laneV[i] < 0) return this.HNAMES[this.HR.indexOf(y - (this.laneH[i] === 1 ? 1 : 0))];
+    if (this.laneV[i] >= 0 && this.laneH[i] < 0) { const k = this.V.findIndex((v, n) => x >= v && x < v + this.VW[n]); return k >= 0 ? this.VNAMES[k] : null; }
+    if (this.laneH[i] >= 0 && this.laneV[i] < 0) { const k = this.HR.findIndex((v, n) => y >= v && y < v + this.HW[n]); return k >= 0 ? this.HNAMES[k] : null; }
     return null;
   },
 
@@ -827,7 +1038,7 @@ const City = {
 
   // ---------- Поиск пути по дорогам (BFS) для полиции ----------
   bfsBuf: null,
-  pathTo(sx, sy, gx, gy, maxNodes = 12000) {
+  pathTo(sx, sy, gx, gy, maxNodes = 40000) {
     const W = this.W, N = W * this.H;
     if (!this.bfsBuf) { this.bfsBuf = { prev: new Int32Array(N), q: new Int32Array(N), seen: new Uint32Array(N), stamp: 0 }; }
     const B = this.bfsBuf;
@@ -930,7 +1141,7 @@ const City = {
       case T_GRASS: this.texTile(g, 'grass', tx, ty, px, py); break;
       case T_BOUND: this.texTile(g, 'scrub', tx, ty, px, py); break;
       case T_ROAD: {
-        this.texTile(g, (tx === 80 || tx === 81) ? 'asphaltDark' : 'asphalt', tx, ty, px, py);
+        this.texTile(g, this.roadKind[this.idx(tx, ty)] === 5 ? 'asphaltDark' : 'asphalt', tx, ty, px, py);
         const v = r();
         if (v < 0.06) {
           // люк
@@ -990,23 +1201,43 @@ const City = {
     if (tt !== T_ROAD) return;
     const i = this.idx(tx, ty);
     const lv = this.laneV[i], lh = this.laneH[i];
-    const hw = tx === 80 || tx === 81;
-    if (lv === 2 && lh < 0) {
-      g.fillStyle = hw ? '#f2c94c' : '#eeeeee';
-      if (hw) g.fillRect(px + TILE - 3, py, 6, TILE);
-      else for (let y = 0; y < TILE; y += 32) g.fillRect(px + TILE - 2, py + y + 4, 4, 18);
-      if (hw) { g.fillStyle = '#ddd'; g.fillRect(px + 2, py, 3, TILE); g.fillRect(px + TILE * 2 - 5, py, 3, TILE); }
-      this.zebra(g, tx, ty, true);
+    const kind = this.roadKind[i];
+    // красная автобусная полоса (נת״צ)
+    if (this.busLane[i]) { g.fillStyle = 'rgba(190,45,40,0.42)'; g.fillRect(px, py, TILE, TILE); }
+    const d0 = lv >= 0 && lh < 0 ? lv : lh >= 0 && lv < 0 ? lh : -1;
+    if (d0 >= 0) {
+      // линия на краю клетки со стороны sideDir
+      const edge = (sideDir, col, w, dash, off = 0) => {
+        g.fillStyle = col;
+        const vert = sideDir % 2 === 1;
+        const pos = sideDir === 1 ? TILE - w - off : sideDir === 2 ? TILE - w - off : off;
+        for (let t = 0; t < TILE; t += dash ? 32 : TILE) {
+          const len = dash ? 18 : TILE;
+          if (vert) g.fillRect(px + pos, py + t + (dash ? 7 : 0), w, len); else g.fillRect(px + t + (dash ? 7 : 0), py + pos, len, w);
+        }
+      };
+      // слева по ходу: встречная — осевая, попутная — пунктир между полосами
+      const L = (d0 + 3) % 4, nx = tx + DIRS[L].x, ny = ty + DIRS[L].y;
+      if (this.isRoad(nx, ny) && !this.isJunction(nx, ny)) {
+        const j = this.idx(nx, ny), nd = d0 % 2 === 0 ? this.laneV[j] : this.laneH[j];
+        if (nd === (d0 + 2) % 4) {
+          if (kind >= 3) edge(L, '#f2c94c', 3, false, 2); // двойная сплошная на проспектах
+          else edge(L, '#eeeeee', 3, true, 0);
+        } else if (nd === d0) edge(L, '#e8e8e8', 2, true, 0);
+      }
+      // шоссе: жёлтая кромка у разделительной и обочины
+      if (kind === 5) for (const sd of [L, (d0 + 1) % 4]) { const ex = tx + DIRS[sd].x, ey = ty + DIRS[sd].y; if (!this.isRoad(ex, ey)) edge(sd, '#f2c94c', 4, false, 3); }
+      // перед перекрёстком — «зебра» и стоп-линия
+      const fx = tx + DIRS[d0].x, fy = ty + DIRS[d0].y;
+      if (this.isJunction(fx, fy) && kind !== 6) {
+        this.zebra(g, tx, ty, d0 % 2 === 0);
+        g.fillStyle = '#f4f4f4';
+        if (d0 === 0) g.fillRect(px, py + 28, TILE, 4); else if (d0 === 2) g.fillRect(px, py + TILE - 32, TILE, 4);
+        else if (d0 === 1) g.fillRect(px + TILE - 32, py, 4, TILE); else g.fillRect(px + 28, py, 4, TILE);
+      }
     }
-    if (lh === 3 && lv < 0) {
-      g.fillStyle = '#eeeeee';
-      for (let x = 0; x < TILE; x += 32) g.fillRect(px + x + 4, py + TILE - 2, 18, 4);
-      this.zebra(g, tx, ty, false);
-    }
-    if (lv === 0 && lh < 0) this.zebra(g, tx, ty, true);
-    if (lh === 1 && lv < 0) this.zebra(g, tx, ty, false);
+    const d = d0;
     // стрелки полосы за две клетки до перекрёстка
-    const d = lv >= 0 && lh < 0 ? lv : lh >= 0 && lv < 0 ? lh : -1;
     if (d >= 0) {
       const nx = tx + DIRS[d].x * 2, ny = ty + DIRS[d].y * 2;
       if (this.inside(nx, ny) && this.laneV[this.idx(nx, ny)] >= 0 && this.laneH[this.idx(nx, ny)] >= 0) {

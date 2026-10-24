@@ -70,6 +70,8 @@ const Game = {
   vw: 0,
   vh: 0,
   zoom: 1,
+  view: 0,
+  topDown: true, // камера строго сверху, как в GTA2; V — с наклоном
   zoomTotal: 1,
   cam: { x: 0, y: 0 },
   shakeAmt: 0,
@@ -156,8 +158,8 @@ const Game = {
     pl.hp = 100; pl.armor = 0; pl.money = 500; pl.ammo = emptyAmmo(); pl.weapon = null; pl.bust = 0;
     this.placeHomeScooter();
     // такси у Шука — для подработки
-    const tx = City.tc(31, 54);
-    const taxi = new Car(tx.x, tx.y, Math.PI, { type: 'taxi' });
+    const tx = City.tc(City.blockRect(1, 4).x0 + 3, City.HR[4] + 1);
+    const taxi = new Car(tx.x, tx.y, DIR_ANGLE[1], { type: 'taxi' });
     taxi.keep = true;
     World.cars.push(taxi);
     // постоянные предметы
@@ -255,7 +257,7 @@ const Game = {
       if ((lv >= 0) === (lh >= 0)) continue; // не на перекрёстке
       const c = City.tc(tx, ty);
       if (!allowVisible && this.inView(c.x, c.y)) continue;
-      if (World.cars.some((o) => dist2(o.x, o.y, c.x, c.y) < 90 * 90)) continue;
+      if (World.cars.some((o) => dist2(o.x, o.y, c.x, c.y) < 150 * 150)) continue;
       return { x: c.x, y: c.y, dir: lv >= 0 ? lv : lh };
     }
     return null;
@@ -311,7 +313,8 @@ const Game = {
       const d2 = dist2(s.x, s.y, pl.x, pl.y);
       if (!s.car && d2 < 1300 * 1300 && d2 > 500 * 500 && !this.inView(s.x, s.y) && s.roll === undefined) {
         s.roll = Math.random() < 0.65;
-        if (s.roll) {
+        // большие машины не ставим вплотную друг к другу
+        if (s.roll && !World.cars.some((o) => dist2(o.x, o.y, s.x, s.y) < 110 * 110)) {
           // на территории банды во дворах стоят её машины
           const fac = City.factionAt(s.x, s.y);
           const own = fac && Math.random() < 0.4;
@@ -558,7 +561,7 @@ const Game = {
       const a = cars[i];
       for (let j = i + 1; j < cars.length; j++) {
         const b = cars[j];
-        if (dist2(a.x, a.y, b.x, b.y) > 110 * 110) continue;
+        if (dist2(a.x, a.y, b.x, b.y) > 180 * 180) continue;
         // все точки касания пары машин — но урон считаем один раз за удар
         let maxRv = 0, hx = 0, hy = 0;
         const cA = a.circles(), cB = b.circles();
@@ -694,27 +697,35 @@ const Game = {
     this.updateCamera(dt);
   },
 
+  // Камера как в GTA2: строго сверху. Пешком — близко (≈8,5 клетки по высоте
+  // экрана), в машине выше и ещё выше на скорости (до ≈18), с упреждением
+  // по ходу движения. Вверх едет быстрее, вниз — плавнее.
   updateCamera(dt) {
     const pl = World.player;
-    let tx = pl.x, ty = pl.y, tz = 1;
+    let tx = pl.x, ty = pl.y, view = 8.5;
     if (this.state === 'title') {
       // облёт города на заставке
       this.titleT += dt;
       tx = City.W * TILE / 2 + Math.cos(this.titleT * 0.05) * 1400;
       ty = City.H * TILE / 2 + Math.sin(this.titleT * 0.05) * 1400;
-      tz = 0.75;
+      view = 16;
       this.cam.x = tx; this.cam.y = ty;
     } else {
       if (pl.car) {
-        tx += pl.car.vx * 0.45; ty += pl.car.vy * 0.45;
-        tz = clamp(1 - pl.car.speed / 750, 0.6, 1);
+        const c = pl.car;
+        const k = clamp(c.speed / (c.T.max * 0.85), 0, 1);
+        view = lerp(11, 18, k * (2 - k));
+        // смотрим вперёд по ходу, но не дальше трети экрана
+        const lead = Math.min(this.view * TILE * 0.33, c.speed * 0.55);
+        const sp = c.speed || 1;
+        tx += c.vx / sp * lead; ty += c.vy / sp * lead;
       }
       this.cam.x = lerp(this.cam.x, tx, Math.min(1, dt * 4));
       this.cam.y = lerp(this.cam.y, ty, Math.min(1, dt * 4));
     }
-    this.zoom = lerp(this.zoom, tz, Math.min(1, dt * 1.5));
-    const base = clamp(Math.min(this.vw, this.vh) / 760, 0.65, 1.5);
-    this.zoomTotal = this.zoom * base;
+    this.view = this.view || view;
+    this.view = lerp(this.view, view, Math.min(1, dt * (view > this.view ? 1.4 : 0.6)));
+    this.zoomTotal = this.vh / (this.view * TILE);
     this.shakeAmt = Math.max(0, this.shakeAmt - dt * 30);
   },
 
@@ -904,6 +915,16 @@ const Game = {
   },
 
   drawMarkers(ctx) {
+    // светофоры: на углах перекрёстка, у каждого — своё направление
+    for (const L of City.lights) {
+      if (!this.inView((L.x0 + L.x1 + 1) * TILE / 2, (L.y0 + L.y1 + 1) * TILE / 2, 300)) continue;
+      for (const [x, y, vert] of City.lightCorners(L)) {
+        const st = City.lightState(L.id, vert);
+        ctx.fillStyle = '#222'; ctx.fillRect(x - 7, y - 7, 14, 14);
+        ctx.fillStyle = st === 'g' ? '#43e05a' : st === 'y' ? '#ffd23f' : '#ff3b30';
+        ctx.beginPath(); ctx.arc(x, y, 5, 0, TAU); ctx.fill();
+      }
+    }
     // двери магазинов оружия
     for (const sh of SHOPS) {
       const p = Shops.place(sh);

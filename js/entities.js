@@ -19,6 +19,9 @@ const World = {
 // melee — дальность удара; plDmg — урон по игроку от пули NPC; npcCd — пауза
 // между выстрелами у NPC; burst — очередь из N выстрелов; pellets — дробь;
 // life — дальность пули (секунды полёта); throw/rocket — гранаты и РПГ
+// люди крупнее, как в GTA2 (≈⅓ полосы)
+const PED_SCALE = 1.25;
+
 const WEAPONS = {
   fists: { name: 'Кулаки', cd: 0.4, dmg: 25, melee: 34, sprite: 'stand' },
   bat: { name: 'Бита', cd: 0.55, dmg: 50, melee: 44, npcDmg: 14, sprite: 'stand' },
@@ -39,6 +42,9 @@ const emptyAmmo = () => Object.fromEntries(WEAPON_ORDER.map((w) => [w, 0]));
 // точки корпуса: углы, середины носа/кормы и бортов (доли длины и ширины)
 const HULL_F = [1, 1, -1, -1, 1, -1, 0, 0];
 const HULL_R = [1, -1, 1, -1, 0, 0, 1, -1];
+// крейсерская скорость трафика по виду улицы (City.ROAD_KIND)
+const CRUISE = { 0: 120, 1: 110, 2: 160, 3: 200, 4: 200, 5: 300, 6: 90 };
+
 class Car {
   constructor(x, y, a, opts = {}) {
     this.x = x; this.y = y; this.a = a;
@@ -252,10 +258,27 @@ class Car {
 
   // ---------- ИИ городского трафика ----------
   pickNext(tx, ty) {
-    let opts = City.laneDirs(tx, ty).filter((d) => d !== (this.dir + 2) % 4);
-    if (!opts.length) opts = City.laneDirs(tx, ty);
+    const all = City.laneDirs(tx, ty);
+    // на перекрёстке помним, откуда въехали, — развернуться через него нельзя
+    if (City.isJunction(tx, ty)) {
+      if (!(this.jdir >= 0)) {
+        // въезд на перекрёсток: направо можно только из крайней правой полосы
+        const d = this.dir, px = tx - DIRS[d].x, py = ty - DIRS[d].y, r = DIRS[(d + 1) % 4];
+        this.jdir = d;
+        this.jright = !(City.isRoad(px + r.x, py + r.y) && City.laneDirs(px + r.x, py + r.y).includes(d));
+      }
+    } else this.jdir = -1;
+    const back = this.jdir >= 0 ? this.jdir : this.dir;
+    let opts = all.filter((d) => d !== (this.dir + 2) % 4 && d !== (back + 2) % 4);
+    // как в GTA2: без нужды налево через встречку не поворачиваем
+    if (this.jdir >= 0) {
+      const strict = opts.filter((d) => d !== (back + 3) % 4 && (d !== (back + 1) % 4 || this.jright));
+      if (strict.length) opts = strict;
+    }
+    if (!opts.length) opts = all.filter((d) => d !== (this.dir + 2) % 4);
+    if (!opts.length) opts = all;
     if (!opts.length) return null;
-    let d = opts.includes(this.dir) && Math.random() < 0.65 ? this.dir : pick(opts);
+    let d = opts.includes(this.dir) && Math.random() < 0.7 ? this.dir : pick(opts);
     this.dir = d;
     return { x: tx + DIRS[d].x, y: ty + DIRS[d].y };
   }
@@ -290,17 +313,25 @@ class Car {
     const want = Math.atan2(gx - this.x, -(gy - this.y));
     const diff = wrapAngle(want - this.a);
     const steer = clamp(diff * 2.5, -1, 1);
-    const highway = tx === 80 || tx === 81;
-    let cruise = highway ? 230 : 140;
-    if (Math.abs(diff) > 0.35) cruise = 70;
+    // скорость по виду улицы: шоссе, проспект, обычная, переулок, кольцо
+    const kind = City.inside(tx, ty) ? City.roadKind[City.idx(tx, ty)] : 0;
+    let cruise = CRUISE[kind] || 140;
+    if (Math.abs(diff) > 0.35) cruise = 80;
+    const light = this.lightGap();
     // не врезаться в то, что впереди
     const block = this.obstacleAhead();
     let throttle = this.fspeed < cruise ? 0.8 : 0;
+    if (light !== null) {
+      // красный: подъезжаем к стоп-линии и стоим
+      const want = Math.max(0, (light - 30) * 2.2);
+      throttle = this.fspeed > want ? -1 : this.fspeed < want * 0.8 ? 0.5 : 0;
+    }
     if (block) {
       throttle = this.fspeed > 5 ? -1 : 0;
-      this.stuck += dt;
+      // в очереди у светофора — не паникуем и не сдаём назад
+      this.stuck += block === 'queue' ? dt * 0.12 : dt;
       if (block === 'player' && Math.random() < dt * 0.5) { this.honk(); }
-    } else this.stuck = Math.max(0, this.stuck - dt);
+    } else if (this.speed > 20) this.stuck = Math.max(0, this.stuck - dt);
     if (!block && this.speed < 10 && throttle > 0) this.stuck += dt * 0.5;
     if (this.stuck > 4) { this.stuck = 0; this.recover = 0.9; this.recoverSteer = rand(-1, 1); this.target = null; }
     this.drive(dt, throttle, steer, false);
@@ -312,6 +343,34 @@ class Car {
     if (dist2(this.x, this.y, World.player.x, World.player.y) < 500 * 500) Sound.horn();
   }
 
+  // Светофор впереди: расстояние от носа до края перекрёстка, если нам не зелёный
+  lightGap() {
+    const tx = Math.floor(this.x / TILE), ty = Math.floor(this.y / TILE), d = this.dir;
+    if (d === undefined || City.isJunction(tx, ty)) return null;
+    for (let k = 1; k <= 3; k++) {
+      const ax = tx + DIRS[d].x * k, ay = ty + DIRS[d].y * k;
+      if (!City.isRoad(ax, ay)) return null;
+      if (!City.isJunction(ax, ay)) continue;
+      const edge = d === 0 ? (ay + 1) * TILE : d === 2 ? ay * TILE : d === 1 ? ax * TILE : (ax + 1) * TILE;
+      const nose = d === 0 ? this.y - this.l / 2 : d === 2 ? this.y + this.l / 2 : d === 1 ? this.x + this.l / 2 : this.x - this.l / 2;
+      const gap = d === 0 || d === 3 ? nose - edge : edge - nose;
+      if (gap < 4) return null; // нос уже на перекрёстке — проезжаем
+      // за перекрёстком пробка — не въезжаем, чтобы не запереть поперечных
+      let ex = ax, ey = ay;
+      while (City.isJunction(ex, ey)) { ex += DIRS[d].x; ey += DIRS[d].y; }
+      const cx = (ex + 0.5) * TILE, cy = (ey + 0.5) * TILE;
+      for (const c of World.cars) if (c !== this && c.speed < 15 && dist2(c.x, c.y, cx, cy) < 44 * 44) return gap;
+      const id = City.lightId[City.idx(ax, ay)];
+      if (id < 0) return null;
+      const st = City.lightState(id, d % 2 === 0);
+      if (st === 'g') return null;
+      // жёлтый, а затормозить уже не успеть — едем
+      if (st === 'y' && gap < 30 + this.fspeed * 0.3) return null;
+      return gap;
+    }
+    return null;
+  }
+
   obstacleAhead() {
     const f = this.fwd;
     const look = 40 + Math.max(0, this.fspeed) * 0.35;
@@ -319,7 +378,7 @@ class Car {
     const rr = look / 2 + 6;
     for (const c of World.cars) {
       if (c === this) continue;
-      if (dist2(c.x, c.y, ax, ay) < (rr + c.w / 2) * (rr + c.w / 2)) return c.driver === 'player' ? 'player' : 'car';
+      if (dist2(c.x, c.y, ax, ay) < (rr + c.w / 2) * (rr + c.w / 2)) return c.driver === 'player' ? 'player' : c.ai === 'traffic' && (c.speed > 15 || Math.abs(wrapAngle(c.a - this.a)) < 0.6) ? 'queue' : 'car';
     }
     const pl = World.player;
     if (!pl.car && !pl.dead && dist2(pl.x, pl.y, ax, ay) < rr * rr) return 'player';
@@ -402,7 +461,7 @@ class Ped {
     this.name = opts.name || null;
     this.hp = opts.hp || 50;
     this.dead = false;
-    this.r = 9;
+    this.r = 11;
     this.weapon = opts.weapon || null;
     this.cool = 0;
     this.dir = randi(0, 3);
@@ -655,6 +714,7 @@ class Ped {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.a);
+    ctx.scale(PED_SCALE, PED_SCALE);
     drawPersonLook(ctx, this.look, this.walkAnim, this.moving, this.weapon, this.dead);
     ctx.restore();
     if (this.dead) return;
