@@ -335,6 +335,8 @@ const R3 = {
     M.boug = foliage(Facades.bougainvillea());
     M.flag = foliage(Facades.flag());
     for (let i = 0; i < 4; i++) M['awn' + i] = foliage(Facades.awning(i));
+    for (let i = 0; i < ADS.length; i++) M['ad' + i] = new THREE.MeshLambertMaterial({ map: this.tex(Facades.adPoster(i)), vertexColors: true, side });
+    M.adcol = new THREE.MeshLambertMaterial({ map: this.tex(Facades.adColumn()), vertexColors: true, side });
     M.lampHead = new THREE.MeshBasicMaterial({ color: 0x9aa0a6 });
     M.glow = new THREE.MeshBasicMaterial({ map: this.tex(Facades.glow('rgba(255,190,110,1)')), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 });
     M.headlights = new THREE.MeshBasicMaterial({ map: this.tex(Facades.headlights()), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 });
@@ -607,6 +609,39 @@ const R3 = {
           const a0 = i / 8 * TAU, a1 = (i + 1) / 8 * TAU;
           P.poly([[d.x, 39, d.y], [d.x + Math.cos(a0) * 24, 30, d.y + Math.sin(a0) * 24], [d.x + Math.cos(a1) * 24, 30, d.y + Math.sin(a1) * 24]], i % 2 ? COL(d.c) : WHITE, null, true);
         }
+        break;
+      }
+      case 'billboard': {
+        // щит на двух ногах, чуть откинут назад — виден и сверху, и с наклоном
+        const a = DIR_ANGLE[d.d], fx = Math.sin(a), fz = -Math.cos(a), rx = Math.cos(a), rz = Math.sin(a);
+        for (const s of [-1, 1]) P.box(d.x + rx * 46 * s, 0, d.y + rz * 46 * s, 4, 66, 4, COL('#5f6368'));
+        P.box(d.x - fx * 4, 64, d.y - fz * 4, 128, 4, 6, COL('#5f6368'), -a);
+        const g = new THREE.PlaneGeometry(124, 62);
+        g.rotateX(-0.75); g.rotateY(-a + Math.PI); g.translate(d.x, 88, d.y);
+        B('ad' + d.ad).geo(g, WHITE);
+        break;
+      }
+      case 'adcol': {
+        // тель-авивская афишная тумба
+        B('adcol').geo(new THREE.CylinderGeometry(13, 13, 46, 12, 1, true).translate(d.x, 27, d.y), WHITE);
+        P.cyl(d.x, 0, d.y, 15, 15, 4, 12, COL('#2e5d3a'));
+        P.cyl(d.x, 50, d.y, 3, 16, 7, 12, COL('#2e5d3a'));
+        break;
+      }
+      case 'kiosk': {
+        P.box(d.x, 0, d.y, 46, 30, 38, COL(d.c));
+        P.box(d.x, 30, d.y, 54, 3, 46, COL('#eeeeee'));
+        B('awn' + d.v).flat(d.x, 34, d.y, 52, 44, 0, WHITE);
+        break;
+      }
+      case 'container': {
+        const a = d.a || 0;
+        P.box(d.x, 0, d.y, 36, 36, 112, COL(d.c), a);
+        if (d.two) P.box(d.x, 36, d.y, 36, 36, 112, COL(d.c2), a);
+        break;
+      }
+      case 'crates': {
+        for (let i = 0; i < 4; i++) P.box(d.x + (i % 2) * 22 - 11, 0, d.y + Math.floor(i / 2) * 22 - 11, 20, 14 + (i * 7) % 12, 20, COL(i % 2 ? '#a1887f' : '#8d6e63'));
         break;
       }
       case 'stall': {

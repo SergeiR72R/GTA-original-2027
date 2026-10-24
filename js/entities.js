@@ -310,12 +310,17 @@ class Car {
       const nt = this.pickNext(this.target.x, this.target.y);
       if (nt) { this.target = nt; gx = nt.x * TILE + TILE / 2; gy = nt.y * TILE + TILE / 2; }
     }
+    // уступаем: прижимаемся вправо, если на нас несётся игрок или погоня с сиреной
+    const yld = this.yieldCheck(tx, ty);
+    this.yieldOff = clamp((this.yieldOff || 0) + (yld ? 70 : -40) * dt, 0, 30);
+    if (this.yieldOff > 0) { gx += Math.cos(this.a) * this.yieldOff; gy += Math.sin(this.a) * this.yieldOff; }
     const want = Math.atan2(gx - this.x, -(gy - this.y));
     const diff = wrapAngle(want - this.a);
     const steer = clamp(diff * 2.5, -1, 1);
     // скорость по виду улицы: шоссе, проспект, обычная, переулок, кольцо
     const kind = City.inside(tx, ty) ? City.roadKind[City.idx(tx, ty)] : 0;
     let cruise = CRUISE[kind] || 140;
+    if (yld === 2) cruise = Math.min(cruise, 70); // навстречу по нашей полосе — притормаживаем
     if (Math.abs(diff) > 0.35) cruise = 80;
     const light = this.lightGap();
     // не врезаться в то, что впереди
@@ -335,6 +340,28 @@ class Car {
     if (!block && this.speed < 10 && throttle > 0) this.stuck += dt * 0.5;
     if (this.stuck > 4) { this.stuck = 0; this.recover = 0.9; this.recoverSteer = rand(-1, 1); this.target = null; }
     this.drive(dt, throttle, steer, false);
+  }
+
+  // 1 — догоняют сзади, 2 — летят навстречу по нашей полосе; 0 — никого.
+  // Прижимаемся только из крайней правой полосы, где справа нет попутной.
+  yieldCheck(tx, ty) {
+    if (this.dir === undefined || City.isJunction(tx, ty)) return 0;
+    const r = DIRS[(this.dir + 1) % 4];
+    if (City.isRoad(tx + r.x, ty + r.y) && City.laneDirs(tx + r.x, ty + r.y).includes(this.dir)) return 0;
+    const f = this.fwd, pc = World.player.car;
+    const test = (c) => {
+      if (!c || c === this || c.dead || c.speed < 150) return 0;
+      const dx = c.x - this.x, dy = c.y - this.y;
+      const along = dx * f.x + dy * f.y, lat = Math.abs(dx * f.y - dy * f.x);
+      if (lat > 75 || Math.abs(along) > 420) return 0;
+      const d = Math.hypot(dx, dy) || 1;
+      const closing = -((c.vx - this.vx) * dx + (c.vy - this.vy) * dy) / d;
+      if (closing < 90) return 0;
+      return along > 0 ? 2 : 1;
+    };
+    let v = test(pc);
+    if (!v && Wanted.level > 0) for (const c of World.cars) if (c.police && c.siren && (v = test(c))) break;
+    return v;
   }
 
   honk() {

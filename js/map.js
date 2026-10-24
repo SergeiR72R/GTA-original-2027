@@ -301,6 +301,7 @@ const City = {
     }
 
     this.landmarks();
+    this.fillEmpty(makeRng(77));
     this.indexBuildings();
     this.definePlaces();
     this.buildMinimap();
@@ -932,6 +933,12 @@ const City = {
       if (b.kind !== 'rect' || b.sign || b.removed || b.landmark || b.h1 > 90 || b.w < 90 || b.h < 90 || b.glass) continue;
       if (srng() < 0.16) { const sg = srng.pick(SIGNS); b.sign = { text: sg[0], bg: sg[1], fg: '#fff' }; }
     }
+    // рекламные щиты на крышах — как в GTA2, их видно сверху
+    let ad = 0;
+    for (const b of this.buildings) {
+      if (b.kind !== 'rect' || b.sign || b.removed || b.landmark || b.label || b.h1 > 260 || b.w < 110 || b.h < 90 || b.glass) continue;
+      if (srng() < 0.09) { const a = ADS[ad++ % ADS.length]; b.sign = { text: a.he, sub: a.ru, bg: a.bg, fg: a.fg }; }
+    }
   },
 
   // Здание рядом с точкой
@@ -1003,6 +1010,121 @@ const City = {
       else if (r < 0.15) this.decor.push({ k: 'flag', x: ex, y: ey, h: 70 });
       else if (r < 0.16 && !nearX) this.decor.push({ k: 'bikes', x: inX, y: inY, h: 0, low: true, d: side });
       else if (r < 0.18) this.decor.push({ k: 'scooterE', x: inX + rng.range(-10, 10), y: inY + rng.range(-10, 10), h: 0, low: true, a: rng() * TAU });
+    }
+  },
+
+  // Пустых участков быть не должно: всё, где в радиусе клетки нет ни одной
+  // детали, заполняем по месту — тротуары, газоны, площади, парковки, пляж, порт.
+  // Ничего из этого не мешает ехать: детали не твёрдые.
+  fillEmpty(rng) {
+    const W = this.W, H = this.H;
+    const occ = new Uint8Array(W * H);
+    const mark = (x, y, r = 1) => { for (let oy = -r; oy <= r; oy++) for (let ox = -r; ox <= r; ox++) { const xx = x + ox, yy = y + oy; if (xx >= 0 && yy >= 0 && xx < W && yy < H) occ[yy * W + xx] = 1; } };
+    for (const d of this.decor) mark(Math.floor(d.x / TILE), Math.floor(d.y / TILE));
+    for (const p of this.parkingSpots) mark(Math.floor(p.x / TILE), Math.floor(p.y / TILE), 0);
+    const distKey = (x, y) => {
+      if (x < 8) return y < this.JAFFA_SEA ? 'beach' : 'ajami';
+      if (y < 6) return 'park';
+      const { bx, by } = this.blockAt((x + 0.5) * TILE, (y + 0.5) * TILE);
+      return this.LAYOUT[by][bx];
+    };
+    const MARKET = { shuk: 1, flea: 1, hatikva: 1, levinsky: 1, nahalat: 1, busstation: 1 };
+    const CAFE = { center: 1, north: 1, rothschild: 1, nahalat: 1, dizengoff: 1, nevetzedek: 1, florentin: 1, sarona: 1, jaffaclock: 1, jaffaport: 1, tayelet: 1, rabin: 1 };
+    const FLOWERS = ['#e91e63', '#ffeb3b', '#ff7043', '#ab47bc', '#ffffff'];
+    const SPRAY = ['#e53935', '#1e88e5', '#43a047', '#8e24aa', '#212121', '#ff9800'];
+    const pickW = (list) => { let sum = 0; for (const it of list) sum += it[1]; let r = rng() * sum; for (const it of list) { r -= it[1]; if (r <= 0) return it[0]; } return list[0][0]; };
+    const order = [];
+    for (let y = 1; y < H - 1; y++) for (let x = 8; x < W - 1; x++) order.push(y * W + x);
+    for (let y = 1; y < H - 1; y++) for (let x = 5; x < 8; x++) order.push(y * W + x);
+    for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); const t = order[i]; order[i] = order[j]; order[j] = t; }
+    let ads = 0;
+    // на больших площадях — крупные элементы: клумбы с деревом и фонтанчики со скамейками
+    for (const i of order) {
+      const x = i % W, y = Math.floor(i / W);
+      if (x % CHUNK < 1 || x % CHUNK > CHUNK - 2 || y % CHUNK < 1 || y % CHUNK > CHUNK - 2 || rng() > 0.4) continue;
+      let ok = true;
+      for (let oy = -1; oy <= 1 && ok; oy++) for (let ox = -1; ox <= 1 && ok; ox++) { const j = i + oy * W + ox; if (occ[j] || this.type[j] !== T_PLAZA) ok = false; }
+      if (!ok) continue;
+      const cx = (x + 0.5) * TILE, cy = (y + 0.5) * TILE;
+      if (rng() < 0.65) {
+        this.decor.push({ k: 'bed', x: cx, y: cy, h: 0, low: true, c: rng.pick(FLOWERS) });
+        this.decor.push(rng() < 0.5 ? { k: 'tree', x: cx, y: cy, h: 40, s: rng.range(0.6, 0.8) } : { k: 'palm', x: cx, y: cy, h: rng.range(70, 95), r: rng() * TAU });
+      } else {
+        this.decor.push({ k: 'fountainS', x: cx, y: cy, h: 0, low: true });
+        for (let d = 0; d < 4; d++) if (rng() < 0.7) this.decor.push({ k: 'bench', x: cx + DIRS[d].x * 58, y: cy + DIRS[d].y * 58, h: 0, low: true, d: (d + 2) % 4 });
+      }
+      mark(x, y, 2);
+    }
+    for (const i of order) {
+      if (occ[i]) continue;
+      const x = i % W, y = Math.floor(i / W), t = this.type[i];
+      if (t === T_ROAD || t === T_BUILD || t === T_SEA || t === T_BOUND || t === T_RIVER) continue;
+      // дорога рядом: с какой стороны и какая
+      let side = -1, kind = 0;
+      for (let d = 0; d < 4; d++) { const xx = x + DIRS[d].x, yy = y + DIRS[d].y; if (this.isRoad(xx, yy)) { side = d; kind = this.roadKind[this.idx(xx, yy)]; break; } }
+      const cx = (x + rng.range(0.3, 0.7)) * TILE, cy = (y + rng.range(0.3, 0.7)) * TILE;
+      const dk = distKey(x, y);
+      const push = (o) => { this.decor.push(Object.assign({ x: cx, y: cy, h: 0 }, o)); };
+      const tree = () => push({ k: rng() < 0.4 ? 'tree' : 'treeS', h: 40, s: rng.range(0.45, 0.75) });
+      let what;
+      if (t === T_WALK && side >= 0) {
+        what = pickW([['tree', 4], ['planter', 3], ['bin', 2], ['hydrant', 2], ['elbox', 2], ['scooterE', 2], ['bikes', 1], ['adcol', kind >= 2 ? 1.2 : 0.3], ['cafe', CAFE[dk] ? 2 : 0], ['stall', MARKET[dk] ? 2 : 0]]);
+      } else if (t === T_WALK) {
+        what = pickW([['tree', 3], ['bench', 2], ['planter', 2], ['bin', 1], ['cafe', CAFE[dk] ? 2 : 0.5], ['bikes', 1], ['cage', 1], ['scooterE', 1], ['stall', MARKET[dk] ? 3 : 0]]);
+      } else if (t === T_GRASS) {
+        what = side >= 0 && kind >= 3 && rng() < 0.45 ? 'billboard' : pickW([['tree', 6], ['bush', 3], ['bench', 1], ['picnic', dk === 'park' ? 2 : 0.6], ['playground', 0.8], ['palm', 1]]);
+      } else if (t === T_PLAZA) {
+        what = pickW([['bench', 2], ['planter', 2], ['palm', 2], ['cafe', CAFE[dk] ? 4 : 1], ['kiosk', 1], ['adcol', 1], ['umbrella', CAFE[dk] ? 1.5 : 0.3], ['stall', MARKET[dk] ? 4 : 0.3], ['scooterE', 1], ['tree', 1.5]]);
+      } else if (t === T_PARKING) {
+        what = pickW([['spot', 4], ['cart', 1], ['stain', 2], ['bin', 1]]);
+      } else if (t === T_SAND) {
+        what = pickW([['umbrella', 3], ['towel', 2], ['lounger', 2], ['palm', 0.6]]);
+      } else if (t === T_DECK) {
+        what = pickW([['container', 3], ['crates', 3], ['bollard', 1], ['stain', 1]]);
+      } else what = 'tree';
+      switch (what) {
+        case 'tree': tree(); break;
+        case 'bush': push({ k: 'treeS', h: 14, s: rng.range(0.28, 0.4) }); break;
+        case 'palm': push({ k: 'palm', h: rng.range(60, 90), r: rng() * TAU, dates: rng() < 0.3 }); break;
+        case 'planter': push({ k: 'planter', low: true, c: rng.pick(FLOWERS) }); break;
+        case 'hydrant': push({ k: 'hydrant', low: true }); break;
+        case 'elbox': push({ k: 'elbox', low: true, d: Math.max(0, side), c: rng.pick(SPRAY) }); break;
+        case 'bin': push({ k: 'bin', low: true, a: side % 2 ? 0 : Math.PI / 2 }); break;
+        case 'bench': push({ k: 'bench', low: true, d: side >= 0 ? side : rng.int(0, 3) }); break;
+        case 'bikes': push({ k: 'bikes', low: true, d: Math.max(0, side) }); break;
+        case 'cage': push({ k: 'cage', low: true }); break;
+        case 'scooterE': push({ k: 'scooterE', low: true, a: rng() * TAU }); break;
+        case 'cafe': push({ k: 'cafe', low: true, a: rng() * TAU, c: rng.pick(['#37474f', '#c62828', '#2e7d32', '#1565c0']) }); if (rng() < 0.4) push({ k: 'umbrella', h: 22, c: rng.pick(['#ffffff', '#e94f37', '#3fa7d6']) }); break;
+        case 'umbrella': push({ k: 'umbrella', h: 22, c: rng.pick(['#e94f37', '#f6c90e', '#3fa7d6', '#ffffff', '#59cd90']) }); break;
+        case 'picnic': push({ k: 'picnic', low: true, a: rng() * TAU }); break;
+        case 'playground': {
+          // площадка 2 × 2, если рядом есть место
+          let ok = x + 1 < W && y + 1 < H && x % CHUNK < CHUNK - 1 && y % CHUNK < CHUNK - 1; // целиком в одном участке земли
+          for (let oy = 0; oy < 2 && ok; oy++) for (let ox = 0; ox < 2 && ok; ox++) { const j = (y + oy) * W + x + ox; if (occ[j] || this.type[j] !== T_GRASS) ok = false; }
+          if (ok) { this.decor.push({ k: 'playground', x: (x + 1) * TILE, y: (y + 1) * TILE, h: 0, low: true }); mark(x + 1, y + 1); } else tree();
+          break;
+        }
+        case 'billboard': {
+          // щит лицом к дороге, у самой обочины
+          const D = DIRS[side];
+          push({ k: 'billboard', x: (x + 0.5) * TILE + D.x * 6, y: (y + 0.5) * TILE + D.y * 6, h: 60, d: side, ad: ads++ % ADS.length });
+          mark(x, y, 2);
+          break;
+        }
+        case 'adcol': push({ k: 'adcol', h: 50 }); break;
+        case 'kiosk': push({ k: 'kiosk', h: 30, v: rng.int(0, 3), c: rng.pick(['#2e7d32', '#00695c', '#f5f5f5', '#6d4c41']) }); break;
+        case 'stall': push({ k: 'stall', h: 16, c: rng.pick(['tent_blue', 'tent_red']), fr: rng.pick(['#e63946', '#f4a261', '#2a9d8f', '#e9c46a', '#8ac926', '#ff006e']) }); break;
+        case 'spot': this.parkingSpots.push({ x: cx, y: cy, a: rng.pick([0, Math.PI]) }); break;
+        case 'cart': push({ k: 'cart', low: true, a: rng() * TAU }); break;
+        case 'stain': push({ k: 'stain', low: true, a: rng() * TAU }); break;
+        case 'bollard': push({ k: 'bollard', low: true }); break;
+        case 'towel': push({ k: 'towel', low: true, c: rng.pick(['#e91e63', '#03a9f4', '#ffeb3b', '#4caf50']), r: rng.range(-0.4, 0.4) }); break;
+        case 'lounger': push({ k: 'lounger', low: true, r: rng.range(-0.3, 0.3), c: rng.pick(['#1e88e5', '#ef6c00', '#43a047']) }); break;
+        case 'container': push({ k: 'container', h: 36, a: rng.pick([0, Math.PI / 2]), c: rng.pick(['#c62828', '#1565c0', '#2e7d32', '#ef6c00', '#6d4c41']), two: rng() < 0.35, c2: rng.pick(['#00838f', '#ad1457', '#f9a825']) }); mark(x, y, 2); break;
+        case 'crates': push({ k: 'crates', h: 20 }); break;
+      }
+      // на площадях и в парке погуще: мелочь может стоять в соседней клетке
+      mark(x, y, (t === T_PLAZA || t === T_SAND || dk === 'park') && rng() < 0.5 ? 0 : 1);
     }
   },
 
@@ -1591,6 +1713,100 @@ const City = {
         ctx.restore();
         break;
       }
+      case 'planter': {
+        // кадка с цветами
+        ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.arc(d.x + 3, d.y + 3, 12, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#a1887f'; ctx.beginPath(); ctx.arc(d.x, d.y, 12, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#558b2f'; ctx.beginPath(); ctx.arc(d.x, d.y, 9, 0, TAU); ctx.fill();
+        for (let i = 0; i < 6; i++) { ctx.fillStyle = d.c; ctx.beginPath(); ctx.arc(d.x + Math.cos(i * 1.7) * 6, d.y + Math.sin(i * 1.7) * 6, 2.6, 0, TAU); ctx.fill(); }
+        break;
+      }
+      case 'hydrant': {
+        ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.arc(d.x + 2, d.y + 2, 6, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#d32f2f'; ctx.beginPath(); ctx.arc(d.x, d.y, 6, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#ffeb3b'; ctx.beginPath(); ctx.arc(d.x, d.y, 2.5, 0, TAU); ctx.fill();
+        break;
+      }
+      case 'elbox': {
+        // электрический шкаф, исписанный граффити
+        ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(rot);
+        ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(-11, -5, 26, 14);
+        ctx.fillStyle = '#9e9e9e'; ctx.fillRect(-13, -7, 26, 14);
+        ctx.strokeStyle = d.c; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-10, 2); ctx.quadraticCurveTo(-4, -8, 2, 2); ctx.quadraticCurveTo(7, 8, 10, -3); ctx.stroke();
+        ctx.restore();
+        break;
+      }
+      case 'cafe': {
+        // столик и стулья уличного кафе
+        ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.arc(d.x + 3, d.y + 3, 10, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#eeeeee'; ctx.beginPath(); ctx.arc(d.x, d.y, 10, 0, TAU); ctx.fill();
+        ctx.fillStyle = d.c;
+        for (let i = 0; i < 3; i++) { const an = d.a + i * TAU / 3; ctx.fillRect(d.x + Math.cos(an) * 17 - 5, d.y + Math.sin(an) * 17 - 5, 10, 10); }
+        ctx.fillStyle = '#795548'; ctx.beginPath(); ctx.arc(d.x - 3, d.y - 2, 2.5, 0, TAU); ctx.arc(d.x + 3, d.y + 2, 2.5, 0, TAU); ctx.fill();
+        break;
+      }
+      case 'picnic': {
+        ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(d.a);
+        ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(-18, -12, 40, 28);
+        ctx.fillStyle = '#8d6e63'; ctx.fillRect(-20, -6, 40, 12); ctx.fillStyle = '#6d4c41'; ctx.fillRect(-20, -14, 40, 5); ctx.fillRect(-20, 9, 40, 5);
+        ctx.restore();
+        break;
+      }
+      case 'playground': {
+        // песочница, горка и качели (2 × 2 клетки)
+        ctx.save(); ctx.translate(d.x, d.y);
+        ctx.fillStyle = '#e8c27a'; ctx.fillRect(-56, -56, 112, 112);
+        ctx.strokeStyle = '#8d6e63'; ctx.lineWidth = 4; ctx.strokeRect(-56, -56, 112, 112);
+        ctx.fillStyle = '#e53935'; ctx.fillRect(-44, -40, 16, 46); ctx.fillStyle = '#ffeb3b'; ctx.fillRect(-42, 6, 12, 30);
+        ctx.strokeStyle = '#1e88e5'; ctx.lineWidth = 3; ctx.strokeRect(6, -44, 40, 26);
+        ctx.fillStyle = '#212121'; ctx.fillRect(14, -34, 8, 4); ctx.fillRect(30, -34, 8, 4);
+        ctx.fillStyle = '#43a047'; ctx.beginPath(); ctx.arc(26, 24, 18, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#fff59d'; ctx.beginPath(); ctx.arc(26, 24, 8, 0, TAU); ctx.fill();
+        ctx.restore();
+        break;
+      }
+      case 'lounger': {
+        ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(d.r);
+        ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(-7, -14, 18, 34);
+        ctx.fillStyle = '#fafafa'; ctx.fillRect(-9, -18, 18, 36); ctx.fillStyle = d.c; ctx.fillRect(-9, -18, 18, 10);
+        ctx.restore();
+        break;
+      }
+      case 'cart': {
+        // брошенная тележка из супермаркета
+        ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(d.a);
+        ctx.strokeStyle = '#90a4ae'; ctx.lineWidth = 1.5; ctx.strokeRect(-8, -12, 16, 22);
+        for (let i = -8; i <= 8; i += 4) { ctx.beginPath(); ctx.moveTo(i, -12); ctx.lineTo(i, 10); ctx.stroke(); }
+        ctx.fillStyle = '#e53935'; ctx.fillRect(-9, 10, 18, 3);
+        ctx.restore();
+        break;
+      }
+      case 'bed': {
+        // клумба 3 × 3 клетки в каменном бортике
+        ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(d.x - 86, d.y - 86, 176, 176);
+        ctx.fillStyle = '#bdb3a0'; ctx.fillRect(d.x - 90, d.y - 90, 180, 180);
+        ctx.fillStyle = '#5d8a3a'; ctx.fillRect(d.x - 82, d.y - 82, 164, 164);
+        ctx.fillStyle = '#6fa046'; for (let i = 0; i < 18; i++) { ctx.beginPath(); ctx.arc(d.x - 70 + (i * 37) % 140, d.y - 70 + (i * 53) % 140, 9, 0, TAU); ctx.fill(); }
+        ctx.fillStyle = d.c; for (let i = 0; i < 30; i++) { ctx.beginPath(); ctx.arc(d.x - 76 + (i * 41) % 152, d.y - 76 + (i * 67) % 152, 3, 0, TAU); ctx.fill(); }
+        break;
+      }
+      case 'fountainS': {
+        ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.arc(d.x + 4, d.y + 4, 42, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#cfc6b4'; ctx.beginPath(); ctx.arc(d.x, d.y, 42, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#4fb3d9'; ctx.beginPath(); ctx.arc(d.x, d.y, 35, 0, TAU); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(d.x, d.y, 22 + Math.sin(time * 3) * 3, 0, TAU); ctx.stroke();
+        ctx.fillStyle = '#e8e2d4'; ctx.beginPath(); ctx.arc(d.x, d.y, 9, 0, TAU); ctx.fill();
+        break;
+      }
+      case 'stain': {
+        ctx.fillStyle = 'rgba(20,20,25,0.28)'; ctx.beginPath(); ctx.ellipse(d.x, d.y, 14, 9, d.a, 0, TAU); ctx.fill();
+        break;
+      }
+      case 'bollard': {
+        ctx.fillStyle = '#37474f'; ctx.beginPath(); ctx.arc(d.x, d.y, 6, 0, TAU); ctx.fill();
+        ctx.strokeStyle = '#fbc02d'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(d.x, d.y, 4, 0, TAU); ctx.stroke();
+        break;
+      }
       case 'towel': {
         ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(d.r);
         ctx.fillStyle = d.c; ctx.fillRect(-10, -18, 20, 36);
@@ -1687,6 +1903,37 @@ const City = {
           ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, 22 * s, i / 8 * TAU, (i + 1) / 8 * TAU); ctx.closePath(); ctx.fill();
         }
         ctx.restore();
+        break;
+      }
+      case 'billboard': {
+        const a = DIR_ANGLE[d.d];
+        ctx.save(); ctx.translate(tx, ty); ctx.rotate(a); ctx.scale(s, s);
+        ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(-60, 6, 124, 40);
+        ctx.drawImage(Facades.adPoster(d.ad), -62, -20, 124, 44);
+        ctx.restore();
+        break;
+      }
+      case 'adcol': {
+        ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.arc(d.x + 5, d.y + 5, 15, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#2e5d3a'; ctx.beginPath(); ctx.arc(tx, ty, 16 * s, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#ffd54f'; ctx.beginPath(); ctx.arc(tx, ty, 6 * s, 0, TAU); ctx.fill();
+        break;
+      }
+      case 'kiosk': {
+        ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(d.x - 22, d.y - 16, 54, 46);
+        const im = Facades.awning(d.v);
+        ctx.drawImage(im, tx - 27 * s, ty - 23 * s, 54 * s, 46 * s);
+        break;
+      }
+      case 'container': {
+        ctx.save(); ctx.translate(tx, ty); ctx.rotate(d.a || 0); ctx.scale(s, s);
+        ctx.fillStyle = d.two ? d.c2 : d.c; ctx.fillRect(-18, -56, 36, 112);
+        ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 1; for (let i = -50; i < 56; i += 8) { ctx.beginPath(); ctx.moveTo(-18, i); ctx.lineTo(18, i); ctx.stroke(); }
+        ctx.restore();
+        break;
+      }
+      case 'crates': {
+        for (let i = 0; i < 4; i++) { ctx.fillStyle = i % 2 ? '#a1887f' : '#8d6e63'; ctx.fillRect(tx + (i % 2) * 22 - 21, ty + Math.floor(i / 2) * 22 - 21, 20, 20); ctx.strokeStyle = '#5d4037'; ctx.strokeRect(tx + (i % 2) * 22 - 21, ty + Math.floor(i / 2) * 22 - 21, 20, 20); }
         break;
       }
       case 'stall': {

@@ -177,7 +177,7 @@ const Game = {
     at(9, 3, 'W', 'money', { amount: 800 });
     this.cam.x = pl.x; this.cam.y = pl.y;
     // заполняем окрестности трафиком сразу
-    for (let i = 0; i < 40; i++) this.spawnTraffic(true);
+    for (let i = 0; i < 30; i++) this.spawnTraffic(true);
     for (let i = 0; i < 40; i++) this.spawnPed(true);
   },
 
@@ -305,7 +305,8 @@ const Game = {
   manageSpawns() {
     const pl = World.player;
     const traffic = World.cars.filter((c) => c.ai === 'traffic' && !c.dead).length;
-    if (traffic < 30) this.spawnTraffic(false);
+    // в погоне машин на улицах поменьше — есть где разогнаться
+    if (traffic < (Wanted.level > 0 ? 20 : 25)) this.spawnTraffic(false);
     const alive = World.peds.filter((p) => !p.dead).length;
     if (alive < 45) this.spawnPed(false);
     // припаркованные машины во дворах

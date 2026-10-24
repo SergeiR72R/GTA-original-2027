@@ -11,8 +11,59 @@ const SHOP_SIGNS = [
   ['קפה', '#5d4037'], ['БЕРЁЗКА', '#37474f'], ['בית מרקחת', '#00897b'], ['פרחים', '#c2185b'], ['ירקות', '#558b2f'], ['לוטו', '#f9a825'],
 ];
 
+// Рекламные плакаты (вымышленные): иврит крупно, русский мелко
+const ADS = [
+  { he: 'שמונה ביס', ru: 'Шмоне-Бис: доставка за 8 минут', bg: '#ff6a1a', fg: '#fff', ic: 'scooter' },
+  { he: 'חומוס אבו סמי', ru: 'Хумус «Абу-Сами» — лучший в Яффо', bg: '#827717', fg: '#fff8e1', ic: 'bowl' },
+  { he: 'מזגנים כל-קר', ru: 'Кондиционеры «Коль-Кар»: хамсин не страшен', bg: '#0277bd', fg: '#fff', ic: 'snow' },
+  { he: 'אולפן אלף', ru: 'Ульпан «Алеф»: иврит за 5 месяцев', bg: '#f5f5f5', fg: '#1565c0', ic: 'alef' },
+  { he: 'לוטו מזל', ru: 'Лотерея «Мазаль»: 30 миллионов!', bg: '#6a1b9a', fg: '#ffd54f', ic: 'star' },
+  { he: 'דירות בבת ים', ru: 'Квартиры в Бат-Яме — всего от ₪3 млн', bg: '#37474f', fg: '#fff', ic: 'house' },
+  { he: 'סלולר שלום', ru: 'Тариф «Шалом»: 100 ГБ за ₪29', bg: '#00897b', fg: '#fff', ic: 'phone' },
+  { he: 'גלידה לימון', ru: 'Мороженое «Лимон» — холоднее моря', bg: '#f06292', fg: '#fff', ic: 'ice' },
+];
+
 const Facades = {
   cache: {},
+
+  // Плакат для щита и тумбы (256 × 128)
+  adPoster(i) {
+    const key = 'ad' + i;
+    if (this.cache[key]) return this.cache[key];
+    const a = ADS[i % ADS.length];
+    const c = this.canvas(256, 128), g = c.getContext('2d');
+    const gr = g.createLinearGradient(0, 0, 0, 128); gr.addColorStop(0, shade(a.bg, 1.12)); gr.addColorStop(1, shade(a.bg, 0.85));
+    g.fillStyle = gr; g.fillRect(0, 0, 256, 128);
+    // значок слева
+    g.save(); g.translate(42, 56); g.fillStyle = a.fg; g.strokeStyle = a.fg; g.lineWidth = 5;
+    switch (a.ic) {
+      case 'scooter': g.fillRect(-22, -6, 30, 18); g.beginPath(); g.arc(-16, 18, 7, 0, TAU); g.arc(16, 18, 7, 0, TAU); g.fill(); g.fillRect(10, -20, 5, 30); break;
+      case 'bowl': g.beginPath(); g.arc(0, 0, 26, 0, Math.PI); g.fill(); g.fillStyle = '#c0a060'; g.beginPath(); g.ellipse(0, 0, 26, 7, 0, 0, TAU); g.fill(); break;
+      case 'snow': for (let k = 0; k < 3; k++) { g.beginPath(); g.moveTo(-26 * Math.cos(k), -26 * Math.sin(k)); g.lineTo(26 * Math.cos(k), 26 * Math.sin(k)); g.stroke(); } break;
+      case 'alef': g.font = 'bold 64px Arial'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('א', 0, 4); break;
+      case 'star': g.beginPath(); for (let k = 0; k < 10; k++) { const r = k % 2 ? 12 : 28, an = k / 10 * TAU - Math.PI / 2; g.lineTo(Math.cos(an) * r, Math.sin(an) * r); } g.fill(); break;
+      case 'house': g.fillRect(-20, -4, 40, 30); g.beginPath(); g.moveTo(-26, -2); g.lineTo(0, -28); g.lineTo(26, -2); g.fill(); break;
+      case 'phone': g.strokeRect(-14, -26, 28, 52); g.fillRect(-4, 18, 8, 4); break;
+      case 'ice': g.beginPath(); g.moveTo(-14, -2); g.lineTo(14, -2); g.lineTo(0, 30); g.fill(); g.beginPath(); g.arc(0, -12, 15, 0, TAU); g.fill(); break;
+    }
+    g.restore();
+    g.fillStyle = a.fg; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = 'bold 36px Arial, sans-serif'; g.fillText(a.he, 166, 44, 170);
+    g.font = '15px Arial, sans-serif'; g.fillText(a.ru, 128, 104, 240);
+    g.strokeStyle = 'rgba(255,255,255,0.5)'; g.lineWidth = 3; g.strokeRect(2, 2, 252, 124);
+    this.cache[key] = c;
+    return c;
+  },
+
+  // Афишная тумба: полоса из плакатов вокруг цилиндра
+  adColumn() {
+    if (this.cache.adcol) return this.cache.adcol;
+    const c = this.canvas(512, 128), g = c.getContext('2d');
+    g.fillStyle = '#2e5d3a'; g.fillRect(0, 0, 512, 128);
+    for (let k = 0; k < 4; k++) g.drawImage(this.adPoster(k * 2 + 1), k * 128 + 4, 14, 120, 100);
+    this.cache.adcol = c;
+    return c;
+  },
 
   canvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; },
 
