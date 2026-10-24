@@ -158,7 +158,11 @@ const Game = {
     pl.hp = 100; pl.armor = 0; pl.money = 500; pl.ammo = emptyAmmo(); pl.weapon = null; pl.bust = 0;
     this.placeHomeScooter();
     // такси у Шука — для подработки
-    const tx = City.tc(City.blockRect(1, 4).x0 + 3, City.HR[4] + 1);
+    // ставим на тротуар у обочины, а не в полосу — иначе за ним встаёт поток
+    const ttx = City.blockRect(1, 4).x0 + 3;
+    let tty = City.HR[4] + 1;
+    while (City.isRoad(ttx, tty) && tty < City.HR[4] + 6) tty++;
+    const tx = City.tc(ttx, tty);
     const taxi = new Car(tx.x, tx.y, DIR_ANGLE[1], { type: 'taxi' });
     taxi.keep = true;
     World.cars.push(taxi);

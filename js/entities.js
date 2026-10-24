@@ -104,7 +104,10 @@ class Car {
   // те же 8 точек корпуса, что в hullPoints, но без создания массивов — вызывается очень часто
   hitsWall(x, y, a) {
     const fx = Math.sin(a), fy = -Math.cos(a), rx = Math.cos(a), ry = Math.sin(a);
-    const hl = this.l / 2 - 2, hw = this.w / 2 - 2;
+    // автобус и мусоровоз трафика вписываются в поворот, чуть задевая углы:
+    // иначе на Т-перекрёстке они застревают
+    const L = this.l > 150 && this.driver && this.driver !== 'player' ? 150 : this.l;
+    const hl = L / 2 - 2, hw = this.w / 2 - 2;
     for (let i = 0; i < 8; i++) {
       const sf = HULL_F[i] * hl, sr = HULL_R[i] * hw;
       if (City.solidAt(x + fx * sf + rx * sr, y + fy * sf + ry * sr)) return true;
@@ -157,7 +160,9 @@ class Car {
     vr -= lost;
     this.skid = Math.abs(vr) > 70 ? 1 : 0;
     // руление зависит от скорости
-    const turn = this.T.turn * clamp(vf / 140, -1, 1) * (handbrake ? 1.35 : 1);
+    // длинным машинам трафика руль покруче — иначе не вписываются в повороты
+    const tk = this.l > 150 && this.driver && this.driver !== 'player' ? 1.6 : 1;
+    const turn = this.T.turn * tk * clamp(vf / 140, -1, 1) * (handbrake ? 1.35 : 1);
     this.av = steer * turn;
     const na = this.a + this.av * dt;
     if (!this.hitsWall(this.x, this.y, na)) this.a = na;
@@ -278,17 +283,34 @@ class Car {
     if (!opts.length) opts = all.filter((d) => d !== (this.dir + 2) % 4);
     if (!opts.length) opts = all;
     if (!opts.length) return null;
-    let d = opts.includes(this.dir) && Math.random() < 0.7 ? this.dir : pick(opts);
+    // автобус и мусоровоз длиной в три-четыре клетки на перекрёстках едут прямо:
+    // поворачивая, они задевают углы домов
+    const straight = this.l > 150 ? 1 : 0.7;
+    let d = opts.includes(this.dir) && Math.random() < straight ? this.dir : pick(opts);
     this.dir = d;
     return { x: tx + DIRS[d].x, y: ty + DIRS[d].y };
+  }
+
+  // Следующая клетка после t — планируем на шаг вперёд, не трогая текущий курс
+  plan(t) {
+    const d0 = this.dir, j0 = this.jdir, r0 = this.jright;
+    this.dir = this.pdir; this.jdir = this.pjdir; this.jright = this.pjright;
+    const n = this.pickNext(t.x, t.y);
+    if (n) n.d = this.dir;
+    this.pdir = this.dir; this.pjdir = this.jdir; this.pjright = this.jright;
+    this.dir = d0; this.jdir = j0; this.jright = r0;
+    return n;
   }
 
   trafficAI(dt) {
     const tx = Math.floor(this.x / TILE), ty = Math.floor(this.y / TILE);
     if (!this.target || this.recover > 0) {
       if (this.recover > 0) {
+        // сдаём назад медленно (под 85 уже сбивает) и не на людей
         this.recover -= dt;
-        this.drive(dt, -0.7, this.recoverSteer, false);
+        const f = this.fwd, bx = this.x - f.x * (this.l / 2 + 30), by = this.y - f.y * (this.l / 2 + 30);
+        const behind = World.peds.some((p) => !p.dead && !p.car && dist2(p.x, p.y, bx, by) < 45 * 45);
+        this.drive(dt, behind ? 0.3 : this.speed > 55 ? 0 : -0.7, this.recoverSteer, false);
         return;
       }
       if (City.isRoad(tx, ty)) {
@@ -303,17 +325,38 @@ class Car {
         const r = City.nearestRoad(tx, ty);
         this.target = r || { x: tx, y: ty };
       }
+      this.pdir = this.dir; this.pjdir = -1; this.pjright = false;
+      this.next = this.plan(this.target);
     }
     let gx = this.target.x * TILE + TILE / 2, gy = this.target.y * TILE + TILE / 2;
-    // если подъехали к центру клетки — берём следующую
-    if (dist2(this.x, this.y, gx, gy) < 26 * 26) {
-      const nt = this.pickNext(this.target.x, this.target.y);
-      if (nt) { this.target = nt; gx = nt.x * TILE + TILE / 2; gy = nt.y * TILE + TILE / 2; }
-    }
+    // центр клетки близко или уже позади — берём следующую. Радиус растёт со
+    // скоростью: длинная машина не успевает попасть точно в центр и иначе
+    // кружит вокруг него
+    const f = this.fwd, tdx = gx - this.x, tdy = gy - this.y;
+    const reach = clamp(18 + this.fspeed * 0.2, 26, 64);
+    if (this.next && (tdx * tdx + tdy * tdy < reach * reach || (tdx * f.x + tdy * f.y < 0 && tdx * tdx + tdy * tdy < TILE * TILE * 2))) {
+      this.target = this.next; this.dir = this.next.d;
+      this.next = this.plan(this.target);
+      gx = this.target.x * TILE + TILE / 2; gy = this.target.y * TILE + TILE / 2;
+    } else if (!this.next && tdx * tdx + tdy * tdy < 26 * 26) this.target = null; // тупик — осмотреться заново
     // уступаем: прижимаемся вправо, если на нас несётся игрок или погоня с сиреной
     const yld = this.yieldCheck(tx, ty);
     this.yieldOff = clamp((this.yieldOff || 0) + (yld ? 70 : -40) * dt, 0, 30);
     if (this.yieldOff > 0) { gx += Math.cos(this.a) * this.yieldOff; gy += Math.sin(this.a) * this.yieldOff; }
+    // не врезаться в то, что впереди
+    const block = this.obstacleAhead();
+    // брошенную или разбитую машину объезжаем по соседней полосе, а не ждём
+    const bc = this.blockCar;
+    if (block === 'car' && bc && bc.speed < 5 && (!bc.driver || bc.dead) && !this.passCar && this.dir !== undefined) {
+      const side = [3, 1].find((k) => City.isRoad(tx + DIRS[(this.dir + k) % 4].x, ty + DIRS[(this.dir + k) % 4].y));
+      if (side) { this.passCar = bc; this.passT = 6; this.passSide = side === 3 ? -1 : 1; }
+    }
+    if (this.passCar) {
+      const pc = this.passCar, ff = this.fwd;
+      this.passT -= dt;
+      if (this.passT <= 0 || (pc.x - this.x) * ff.x + (pc.y - this.y) * ff.y < -(this.l + pc.l) / 2 - 10) this.passCar = null;
+      else { gx += Math.cos(this.a) * 62 * this.passSide; gy += Math.sin(this.a) * 62 * this.passSide; }
+    }
     const want = Math.atan2(gx - this.x, -(gy - this.y));
     const diff = wrapAngle(want - this.a);
     const steer = clamp(diff * 2.5, -1, 1);
@@ -322,9 +365,10 @@ class Car {
     let cruise = CRUISE[kind] || 140;
     if (yld === 2) cruise = Math.min(cruise, 70); // навстречу по нашей полосе — притормаживаем
     if (Math.abs(diff) > 0.35) cruise = 80;
+    // впереди поворот — сбрасываем скорость заранее, а не в самом повороте
+    else if (this.next && this.next.d !== this.dir && dist2(this.x, this.y, gx, gy) < 150 * 150) cruise = Math.min(cruise, 85);
+    if (this.passCar) cruise = Math.min(cruise, 70);
     const light = this.lightGap();
-    // не врезаться в то, что впереди
-    const block = this.obstacleAhead();
     let throttle = this.fspeed < cruise ? 0.8 : 0;
     if (light !== null) {
       // красный: подъезжаем к стоп-линии и стоим
@@ -403,15 +447,21 @@ class Car {
     const look = 40 + Math.max(0, this.fspeed) * 0.35;
     const ax = this.x + f.x * (this.l / 2 + look / 2), ay = this.y + f.y * (this.l / 2 + look / 2);
     const rr = look / 2 + 6;
+    this.blockCar = null;
     for (const c of World.cars) {
-      if (c === this) continue;
-      if (dist2(c.x, c.y, ax, ay) < (rr + c.w / 2) * (rr + c.w / 2)) return c.driver === 'player' ? 'player' : c.ai === 'traffic' && (c.speed > 15 || Math.abs(wrapAngle(c.a - this.a)) < 0.6) ? 'queue' : 'car';
+      if (c === this || c === this.passCar) continue;
+      if (dist2(c.x, c.y, ax, ay) < (rr + c.w / 2) * (rr + c.w / 2)) {
+        this.blockCar = c;
+        return c.driver === 'player' ? 'player' : c.ai === 'traffic' && c.driver && !c.dead && (c.speed > 15 || Math.abs(wrapAngle(c.a - this.a)) < 0.6) ? 'queue' : 'car';
+      }
     }
     const pl = World.player;
     if (!pl.car && !pl.dead && dist2(pl.x, pl.y, ax, ay) < rr * rr) return 'player';
+    // людей видим дальше: тормозной путь длиннее, чем до бампера впереди
+    const pl2 = look * 0.6, px0 = ax + f.x * pl2 / 2, py0 = ay + f.y * pl2 / 2, pr = rr + pl2 / 2;
     for (const p of World.peds) {
-      if (p.dead) continue;
-      if (dist2(p.x, p.y, ax, ay) < rr * rr) return 'ped';
+      if (p.dead || p.car) continue;
+      if (dist2(p.x, p.y, px0, py0) < pr * pr) return 'ped';
     }
     return null;
   }
@@ -588,7 +638,29 @@ class Ped {
       this.target = this.nextWalk(this.target.x, this.target.y);
       return;
     }
+    // на проезжей части, а машина близко: её полоса ещё впереди — ждём,
+    // уже пересекли её путь — перебегаем
+    const c = this.crossing && this.carNear(this.x, this.y, 220);
+    if (c) {
+      const f = c.fwd, lat = (this.x - c.x) * -f.y + (this.y - c.y) * f.x;
+      const mx = gx - this.x, my = gy - this.y;
+      const toward = (mx * -f.y + my * f.x) * lat < 0; // идём к линии её хода
+      if (toward && Math.abs(lat) > c.w / 2 + 8) { this.moving = false; return; }
+      this.moveTo(gx, gy, 115, dt);
+      return;
+    }
     this.moveTo(gx, gy, 46, dt);
+  }
+
+  // Едет ли рядом машина к этой точке (пешеход смотрит по сторонам)
+  carNear(x, y, r) {
+    for (const c of World.cars) {
+      if (c.dead || c.speed < 30) continue;
+      const dx = x - c.x, dy = y - c.y;
+      if (dx * dx + dy * dy > r * r) continue;
+      if (dx * c.vx + dy * c.vy > 0) return c;
+    }
+    return null;
   }
 
   nextWalk(tx, ty) {
@@ -604,7 +676,8 @@ class Ped {
     }
     // иногда переходим дорогу
     const D = DIRS[this.dir];
-    if (City.isRoad(tx + D.x, ty + D.y) && City.isRoad(tx + D.x * 2, ty + D.y * 2) && City.isWalkway(tx + D.x * 3, ty + D.y * 3) && Math.random() < 0.35) {
+    if (City.isRoad(tx + D.x, ty + D.y) && City.isRoad(tx + D.x * 2, ty + D.y * 2) && City.isWalkway(tx + D.x * 3, ty + D.y * 3) && Math.random() < 0.35
+      && !this.carNear((tx + D.x * 1.5 + 0.5) * TILE, (ty + D.y * 1.5 + 0.5) * TILE, 360)) {
       this.crossing = true;
       return { x: tx + D.x, y: ty + D.y };
     }
@@ -697,10 +770,19 @@ class Ped {
       this.moving = true;
       return;
     }
+    // кошка на проезжей части, а машина рядом — удирает на тротуар
+    const tx = Math.floor(this.x / TILE), ty = Math.floor(this.y / TILE);
+    if (City.isRoad(tx, ty) && this.carNear(this.x, this.y, 260)) {
+      const w = this.findWalkway(tx, ty);
+      if (w) { this.wa = Math.atan2((w.y + 0.5) * TILE - this.y, (w.x + 0.5) * TILE - this.x); this.a = this.wa; this.step(Math.cos(this.wa) * 180 * dt, Math.sin(this.wa) * 180 * dt); this.moving = true; return; }
+    }
     this.wander = (this.wander || 0) - dt;
     if (this.wander <= 0) { this.wander = rand(1, 4); this.wa = Math.random() < 0.4 ? null : rand(-Math.PI, Math.PI); }
     if (this.wa !== null && this.wa !== undefined) {
       this.a = this.wa;
+      // гуляет по тротуарам и дворам, на дорогу сама не выходит
+      const nx = this.x + Math.cos(this.wa) * 20, ny = this.y + Math.sin(this.wa) * 20;
+      if (!City.isRoad(tx, ty) && City.isRoad(Math.floor(nx / TILE), Math.floor(ny / TILE))) { this.wa = null; return; }
       if (!this.step(Math.cos(this.wa) * 30 * dt, Math.sin(this.wa) * 30 * dt)) this.wa = null;
       this.moving = true;
     }
