@@ -380,7 +380,7 @@ const Game = {
     pl.car = best;
     Sound.play('doorClose', 0.8);
     Sound.setRadio(true);
-    if (Sound.radioOn) this.message('📻 Хамсин FM — R: выключить радио', 3);
+    if (Sound.radioOn) this.message('📻 Хамсин FM — R: сменить станцию', 3);
   },
 
   exitCar(silent) {
@@ -489,7 +489,7 @@ const Game = {
       pl.x = c.x; pl.y = c.y;
       if (c.skid && c.speed > 100 && Math.random() < 0.5) addSkid(c);
       if (this.hit('KeyH')) Sound.horn();
-      if (this.hit('KeyR')) { Sound.radioOn = !Sound.radioOn; Sound.setRadio(true); this.message(Sound.radioOn ? '📻 Хамсин FM' : '📻 Радио выключено', 2); }
+      if (this.hit('KeyR')) this.message(Sound.nextStation(), 2);
       Sound.setEngine(!c.dead, clamp(c.speed / (c.maxSpeed || 1), 0, 1));
       // покраска
       const ps = City.places.paint;

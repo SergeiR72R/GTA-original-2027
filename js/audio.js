@@ -10,6 +10,9 @@ const Sound = {
   siren: null,
   radioOn: true,
   radio: null,
+  // станции: 0 — старые пластинки на иврите, 1 — восточный ритм (синтез), 2 — выключено
+  station: 0,
+  song: null,
 
   init() {
     if (this.ctx) return;
@@ -320,6 +323,42 @@ const Sound = {
   },
 
   // ---------- Радио «Хамсин FM» ----------
+  // Песни — записи 1915–1925 гг. из National Jukebox Библиотеки Конгресса,
+  // общественное достояние (assets/radio/CREDITS.txt)
+  SONGS: [
+    { file: 'nes_ziona', title: '«Нес Циона» (נס ציונה)', who: 'Яков Медведев, 1916' },
+    { file: 'shir_avoda', title: '«Шир ха-авода» (שיר העבודה)', who: 'Яков Медведев, 1916' },
+    { file: 'ahavat_raya', title: '«Ахават рая» (אהבת רעיה)', who: 'Мордехай Гершман, 1923' },
+    { file: 'talmidei_hachamim', title: '«Талмидей хахамим» (תלמידי חכמים)', who: 'Давид Ройтман, 1925' },
+    { file: 'hatikva', title: '«Ха-Тиква» (התקווה)', who: 'Мейер Каневский, 1915' },
+  ],
+  STATIONS: ['📻 Хамсин FM · Старые пластинки', '📻 Хамсин FM · Восточный ритм', '📻 Радио выключено'],
+
+  // R: следующая станция
+  nextStation() {
+    this.station = (this.station + 1) % 3;
+    this.radioOn = this.station !== 2;
+    if (this.song) this.song.shown = false;
+    return this.STATIONS[this.station];
+  },
+
+  // Плеер песен: один <audio>, по кругу в случайном порядке. Работает и с диска
+  songPlayer() {
+    if (this.song) return this.song;
+    const order = this.SONGS.map((_, i) => i).sort(() => Math.random() - 0.5);
+    const el = new Audio();
+    el.preload = 'auto';
+    const S = this.song = { el, order, k: 0, vol: 0, failed: 0, shown: false };
+    const load = () => { el.src = 'assets/radio/' + this.SONGS[S.order[S.k]].file + '.mp3'; S.shown = false; };
+    S.next = () => { S.k = (S.k + 1) % S.order.length; load(); if (S.vol > 0.01) el.play().catch(() => {}); };
+    el.addEventListener('ended', S.next);
+    // нет файла — следующая; ни одной — включаем восточный ритм
+    el.addEventListener('error', () => { if (++S.failed >= S.order.length) { if (this.station === 0) this.station = 1; } else S.next(); });
+    el.addEventListener('playing', () => { S.failed = 0; });
+    load();
+    return S;
+  },
+
   // Простой генеративный луп: ритм дарбуки + мелодия во фригийском доминантовом ладу.
   radioStart() {
     if (!this.ctx || this.radio) return;
@@ -329,15 +368,34 @@ const Sound = {
     this.radio = { g, step: 0, next: this.ctx.currentTime + 0.1, on: false };
   },
 
-  setRadio(on) {
-    if (!this.ctx) return;
-    this.radioStart();
-    const want = on && this.radioOn;
-    this.radio.on = want;
-    this.radio.g.gain.setTargetAtTime(want ? 0.35 : 0, this.ctx.currentTime, 0.2);
+  // Включает и выключает станции updateRadio по тому, в машине ли игрок; здесь — только подготовка
+  setRadio() {
+    if (this.ctx) this.radioStart();
   },
 
   updateRadio() {
+    // песни: громкость плавно идёт к нужной, в тишине плеер на паузе
+    const pl = World.player;
+    const inCar = Game.state === 'play' && pl && pl.car && !pl.dead;
+    const songOn = inCar && this.station === 0 && !this.muted;
+    if (songOn || this.song) {
+      const S = this.songPlayer();
+      const want = songOn ? 0.45 : 0;
+      S.vol += Math.sign(want - S.vol) * Math.min(Math.abs(want - S.vol), 0.03);
+      S.el.volume = clamp(S.vol, 0, 1);
+      if (songOn && S.el.paused) S.el.play().catch(() => {});
+      if (!songOn && S.vol <= 0.001 && !S.el.paused) S.el.pause();
+      if (songOn && !S.shown && !S.el.paused && S.el.currentTime > 0.2) {
+        S.shown = true;
+        const t = this.SONGS[S.order[S.k]];
+        Game.message(`📻 ${t.title} — ${t.who}`, 4);
+      }
+    }
+    // восточный ритм — только на своей станции
+    if (this.radio) {
+      const on = inCar && this.station === 1;
+      if (on !== this.radio.on) { this.radio.on = on; this.radio.g.gain.setTargetAtTime(on ? 0.35 : 0, this.ctx.currentTime, 0.2); }
+    } else if (inCar && this.station === 1) this.radioStart();
     const r = this.radio;
     if (!r || !r.on || this.muted) return;
     const ctx = this.ctx;
