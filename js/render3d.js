@@ -474,7 +474,24 @@ const R3 = {
     g.setAttribute('position', new THREE.BufferAttribute(f32(d.pos), 3));
     g.setAttribute('normal', new THREE.BufferAttribute(f32(d.nor), 3));
     g.setAttribute('color', new THREE.BufferAttribute(f32(d.col), 3));
-    return (C[key] = { g, d, mat: new THREE.MeshLambertMaterial({ vertexColors: true }) });
+    // материалы по группам: есть бесшовная текстура (assets/gen/textures/m_*) — она,
+    // нет — цвет в вершинах. uv уже в повторах текстуры
+    let mat = this.modelMat('');
+    if (d.uv && d.groups) {
+      g.setAttribute('uv', new THREE.BufferAttribute(f32(d.uv), 2));
+      mat = d.groups.map(([, start, count, tex, tint], i) => { g.addGroup(start, count, i); return this.modelMat(tex, tint); });
+    }
+    return (C[key] = { g, d, mat });
+  },
+
+  modelMat(tex, tint = 1) {
+    const C = this.modelMats || (this.modelMats = {});
+    const k = tex + '|' + tint;
+    if (C[k]) return C[k];
+    const im = tex && Assets.gen['textures/' + tex];
+    return (C[k] = im
+      ? new THREE.MeshLambertMaterial({ map: this.tex(im, true), color: new THREE.Color(tint, tint, tint) })
+      : new THREE.MeshLambertMaterial({ vertexColors: true }));
   },
 
   // масштаб модели под участок: rot ±90° — модель лежит поперёк
@@ -1128,6 +1145,17 @@ const R3 = {
       o.ring.visible = ringing;
       if (ringing) { const k = (World.time * 1.5) % 1; o.ring.scale.setScalar(1 + k * 1.8); o.ring.material.opacity = 1 - k; }
     }
+    // мячи маткот на пляже
+    const B = this.balls || (this.balls = new Map());
+    const live = new Set();
+    for (const g of Beach.games) {
+      live.add(g);
+      let m = B.get(g);
+      if (!m) { m = new THREE.Mesh(new THREE.SphereGeometry(3.2, 8, 6), new THREE.MeshLambertMaterial({ color: 0xffeb3b })); m.castShadow = true; this.scene.add(m); B.set(g, m); }
+      const b = Beach.ball(g);
+      m.position.set(b.x, b.h, b.y);
+    }
+    for (const [g, m] of B) if (!live.has(g)) { this.scene.remove(m); m.geometry.dispose(); m.material.dispose(); B.delete(g); }
     // магазины оружия: оранжевое кольцо и вращающийся значок
     for (const sh of SHOPS) {
       const p = Shops.place(sh);

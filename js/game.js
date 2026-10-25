@@ -735,6 +735,7 @@ const Game = {
       Police.update(dt);
       Missions.update(dt);
       Factions.update(dt);
+      Beach.update(dt);
       Jobs.update(dt);
     }
     if (this.state !== 'title') Clock.update(dt);
@@ -820,6 +821,7 @@ const Game = {
     if (pl.dead && this.state === 'down' && !pl.car) { pl.dead = true; pl.draw(ctx); }
     for (const c of World.cars) if (this.inView(c.x, c.y, 120)) c.draw(ctx);
     for (const p of World.peds) if (!p.dead && this.inView(p.x, p.y)) p.draw(ctx);
+    Beach.draw(ctx);
     if (!pl.car && !pl.dead && this.state !== 'title') {
       pl.weapon = pl.weapon || null;
       pl.draw(ctx);

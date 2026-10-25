@@ -17,6 +17,7 @@ PAL = {
     'green': (0.20, 0.42, 0.28), 'water': (0.25, 0.58, 0.72), 'yellow': (0.95, 0.78, 0.18), 'beige': (0.86, 0.80, 0.70),
     'ochre': (0.88, 0.72, 0.48), 'shutter': (0.86, 0.84, 0.78), 'wood': (0.42, 0.27, 0.15), 'graffiti1': (0.85, 0.25, 0.55),
     'graffiti2': (0.20, 0.65, 0.85), 'graffiti3': (0.95, 0.75, 0.15), 'rust': (0.55, 0.32, 0.20),
+    'paintBlue': (0.16, 0.42, 0.78), 'paintGreen': (0.20, 0.55, 0.30), 'shutterG': (0.22, 0.45, 0.30),
 }
 MODELS = {}
 
@@ -338,7 +339,7 @@ def agam():
     # фонтан Агама на площади Дизенгоф: бассейн и колонна из цветных зубчатых колёс. Круг r ≈ 4,4 м
     prism(0, 0, 0, 0.6, 4.4, 4.4, 24, 'concrete')
     prism(0, 0, 0.6, 0.65, 4.0, 4.0, 24, 'water')
-    for i, c in enumerate(['red', 'yellow', 'blue', 'green', 'red', 'yellow']):
+    for i, c in enumerate(['red', 'yellow', 'paintBlue', 'paintGreen', 'red', 'yellow']):
         z = 0.65 + i * 0.95
         prism(0, 0, z, z + 0.75, 1.8 - i * 0.12, 1.8 - i * 0.12, 12, c, rot=i * 0.25)
         prism(0, 0, z + 0.75, z + 0.95, 0.5, 0.5, 8, 'metal')
@@ -411,7 +412,7 @@ def house_eclectic():
                 b = (ox + u[0] * t, oy + u[1] * t, z)
                 plate(rect_shape(0.9, 2.0), b, u, n, 0.08, 'dark')
                 for s in (-1, 1):
-                    plate(rect_shape(0.45, 2.0), (b[0] + u[0] * s * 0.7, b[1] + u[1] * s * 0.7, z), u, n, 0.1, 'green')
+                    plate(rect_shape(0.45, 2.0), (b[0] + u[0] * s * 0.7, b[1] + u[1] * s * 0.7, z), u, n, 0.1, 'shutterG')
     box(-1.6, -4.6, 4.2, 1.6, -3.6, 4.4, 'trim')            # кованый балкон
     box(-1.6, -4.65, 4.4, 1.6, -4.55, 5.3, 'dark')
     parapet(-3.8, -3.6, 3.8, 3.6, 10.7, 0.6, 0.2, 'ochre')

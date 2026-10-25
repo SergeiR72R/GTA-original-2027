@@ -43,6 +43,15 @@ const Sound = {
     return buf;
   },
 
+  // «Ток» ракетки маткот по мячу: короткий деревянный щелчок
+  tok(vol = 0.3) {
+    if (!this.ctx || this.muted) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.setValueAtTime(1300 + Math.random() * 300, t); o.frequency.exponentialRampToValueAtTime(500, t + 0.05);
+    const g = ctx.createGain(); g.gain.setValueAtTime(clamp(vol, 0, 1), t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+    o.connect(g); g.connect(this.master); o.start(t); o.stop(t + 0.08);
+  },
+
   // Глухой удар кузова: низкий шумовой «бум» (под звук аварии)
   thud(vol = 0.6) {
     if (!this.ctx || this.muted) return;

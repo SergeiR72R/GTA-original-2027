@@ -601,7 +601,7 @@ class Ped {
   }
 
   scare(fx, fy) {
-    if (this.ai !== 'walk' && this.ai !== 'flee') return;
+    if (this.ai !== 'walk' && this.ai !== 'flee' && this.ai !== 'beach' && this.ai !== 'matkot') return;
     this.ai = 'flee';
     this.flee = rand(4, 7);
     this.threat = { x: fx, y: fy };
@@ -635,6 +635,8 @@ class Ped {
       case 'cat': this.catAI(dt); break;
       case 'follow': this.followAI(dt); break;
       case 'runner': this.runnerAI(dt); break;
+      case 'beach': Beach.walkAI(this, dt); break;
+      case 'matkot': Beach.matkotAI(this, dt); break;
     }
     if (this.moving) this.walkAnim += dt * 10;
   }

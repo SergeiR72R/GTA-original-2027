@@ -257,6 +257,34 @@ const DEAD_POSE = 'A single person lying dead flat on the back on the ground, se
 // ref — файл живого персонажа из архива референсов (hamsin-refs-dead.zip)
 const DEAD_EDIT = (ref, who) => `Use the attached reference image ${ref} (${who}). Draw EXACTLY this character from ${ref}: the same person, face, hair, clothes, colors, art style, lighting and the solid magenta background. Change ONLY the pose: ${DEAD_POSE}`;
 
+// Текстуры материалов 3D-моделей (tools/models/lib.py TEX): бесшовные, лицом к стене
+// (или сверху — для крыш). Модель берёт их сама, когда картинка появится
+const MODEL_TEX_STYLE = 'Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size.';
+const MODEL_TEXTURES = [
+  ['m_stone', 'Камень Яффо (известняк)', 'Old Jaffa limestone wall: warm golden-beige rough-cut limestone blocks in regular horizontal courses with lighter mortar joints, weathered and sun-bleached.'],
+  ['m_trim', 'Светлый камень карнизов', 'Smooth cream-white dressed limestone / lime plaster surface with faint chisel marks, very subtle, almost uniform.'],
+  ['m_concrete', 'Бетон', 'Weathered raw grey concrete with horizontal board-formwork lines, rust streaks and dark water stains.'],
+  ['m_white', 'Белая штукатурка баухауза', 'White-painted smooth lime plaster of a Tel Aviv Bauhaus building, slightly weathered, faint hairline cracks and sun-bleached patches.'],
+  ['m_beige', 'Бежевая штукатурка 1960-х', 'Beige-grey sand-coloured rough spray stucco of a 1960s Israeli apartment block, light grime streaks.'],
+  ['m_ochre', 'Охра (эклектика)', 'Aged ochre lime plaster, warm yellow-orange, patchy, with a few small peeling spots revealing older plaster underneath.'],
+  ['m_brick', 'Терракотовая штукатурка церкви', 'Warm terracotta-orange painted plaster of a Spanish baroque church wall, slightly faded and patchy.'],
+  ['m_brown', 'Коричневая мозаика 1960-х', 'Facade cladding of small brown and beige square mosaic tiles in a vertical striped pattern, 1960s modernist tower.'],
+  ['m_glass', 'Тёмное стекло фасада', 'Dark tinted glass curtain wall with thin aluminium mullions in a regular rectangular grid, faint sky reflections.'],
+  ['m_glassB', 'Синее стекло (Азриэли)', 'Blue reflective glass curtain wall with grey mullions in a regular grid, soft reflections of clouds.'],
+  ['m_metal', 'Металлические панели', 'Brushed grey aluminium cladding panels with straight seams and rivets.'],
+  ['m_roofT', 'Черепица (сверху)', 'Mediterranean terracotta clay roof tiles seen from directly above, slightly weathered, a little lichen.'],
+  ['m_patina', 'Патина купола', 'Oxidized green-grey copper and lead roof sheets with standing seams and patina streaks.'],
+  ['m_gold', 'Золото луковицы', 'Gold leaf sheet metal with subtle panel seams and warm reflections.'],
+  ['m_blueroof', 'Синий купол со звёздами', 'Blue enamel-painted metal dome sheets with small scattered golden stars.'],
+  ['m_shutter', 'Ставни-«трисим»', 'Israeli plastic roller shutter: horizontal light grey slats, slightly dirty.'],
+  ['m_wood', 'Старая деревянная дверь', 'Old weathered wooden door planks, dark brown, vertical boards with a few iron nails.'],
+  ['m_roofflat', 'Плоская крыша', 'Flat roof covered with whitewashed bitumen membrane, patches, seams and stains, seen from above.'],
+  ['m_graffiti', 'Граффити на бетоне', 'Colorful street graffiti tags and throw-ups on a grey concrete wall, abandoned building vibe (no readable words).'],
+  ['m_rust', 'Ржавый металл', 'Rusty corroded steel sheet with flaking orange-brown rust.'],
+  ['m_paint_red', 'Красная краска по металлу', 'Glossy red paint on steel, slightly chipped and faded.'],
+  ['m_water', 'Вода фонтана', 'Clear turquoise fountain water surface with gentle ripples seen from above.'],
+];
+
 // Тарантайка Лёвы: на ней он везёт Семёна с матрасом
 const LEVA_CAR = [
   ['leva_vw', '«Фолькс» Лёвы', 'A tired old 1990s German compact hatchback (classic boxy two-box shape), faded pale grey-blue paint with sun-bleached roof, the front left door in a different color (matte primer grey), small dents and rust spots, plain steel wheels, two black roof-rack bars, a cracked plastic mirror held with tape, no badges. A lovable clunker.'],
@@ -370,6 +398,8 @@ const ASSET_MANIFEST = (() => {
     for (const st of DAMAGE_STAGES) out.push({ batch: 'leva', cat: 'vehicles', file: file + st.suffix, title: `${title} — ${st.title}`, kind: 'edit', base: file, size: '768x1024', prompt: st.prompt, full: `${base} ${st.prompt.replace(/^Edit the previous image of this exact vehicle\. Keep EXACTLY the same [^.]*\. /, '')}` });
   }
   out.push(...deadLater);
+  // текстуры моделей — в самом конце
+  for (const [file, title, desc] of MODEL_TEXTURES) out.push({ batch: 'modeltex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: `${MODEL_TEX_STYLE} ${desc}` });
   return out;
 })();
 

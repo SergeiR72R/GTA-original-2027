@@ -6,6 +6,21 @@ from mathutils import Vector
 
 PAL = {}
 
+# Текстуры материалов (бесшовные, assets/gen/textures/<имя>.png): материал модели →
+# (текстура, метров на один повтор, яркость). Нет картинки — цвет из палитры.
+# Список и промпты — js/asset-manifest.js (MODEL_TEXTURES), план — docs/PLAN_TEXTURES.md
+TEX = {
+    'stone': ('m_stone', 2.5, 1.0), 'trim': ('m_trim', 2.0, 1.0), 'concrete': ('m_concrete', 4.0, 1.0),
+    'concreteD': ('m_concrete', 4.0, 0.78), 'white': ('m_white', 3.0, 1.0), 'beige': ('m_beige', 3.0, 1.0),
+    'ochre': ('m_ochre', 3.0, 1.0), 'brick': ('m_brick', 3.0, 1.0), 'brown': ('m_brown', 3.0, 1.0),
+    'brownL': ('m_brown', 3.0, 1.3), 'glass': ('m_glass', 4.0, 1.0), 'glassB': ('m_glassB', 4.0, 1.0),
+    'metal': ('m_metal', 3.0, 1.0), 'roofT': ('m_roofT', 2.5, 1.0), 'dome': ('m_patina', 2.5, 1.0),
+    'green': ('m_patina', 2.5, 0.9), 'gold': ('m_gold', 2.0, 1.0), 'blue': ('m_blueroof', 2.0, 1.0),
+    'shutter': ('m_shutter', 2.0, 1.0), 'wood': ('m_wood', 1.5, 1.0), 'roof': ('m_roofflat', 4.0, 1.0),
+    'graffiti1': ('m_graffiti', 4.0, 1.0), 'graffiti2': ('m_graffiti', 4.0, 1.0), 'graffiti3': ('m_graffiti', 4.0, 1.0),
+    'rust': ('m_rust', 2.0, 1.0), 'red': ('m_paint_red', 2.0, 1.0), 'water': ('m_water', 3.0, 1.0),
+}
+
 
 def reset(palette):
     """Новая пустая сцена и палитра {имя: (r, g, b)} в sRGB 0..1."""
@@ -143,31 +158,42 @@ def rect_shape(w, h):
 
 
 def export_data():
-    """Геометрия сцены для игры: x — восток, y — высота, z — юг (= −Y Blender)."""
-    pos, nor, col = [], [], []
-    tris = 0
+    """Геометрия сцены для игры: x — восток, y — высота, z — юг (= −Y Blender).
+    Треугольники сгруппированы по материалам (groups: [материал, начало, число вершин]),
+    uv — кубическая развёртка в повторах текстуры материала."""
+    by = {}
     lo = Vector((1e9, 1e9, 1e9)); hi = -lo
     for o in bpy.context.scene.objects:
         if o.type != 'MESH' or o.name.startswith('_'):
             continue
+        name = o.data.materials[0].name
+        L = by.setdefault(name, {'pos': [], 'nor': [], 'uv': []})
+        sc = TEX.get(name, (None, 3.0))[1]
         bm = bmesh.new(); bm.from_mesh(o.data)
         bmesh.ops.triangulate(bm, faces=bm.faces)
         bm.normal_update()
-        c = PAL[o.data.materials[0].name]
         for f in bm.faces:
             n = (o.matrix_world.to_3x3() @ f.normal).normalized()
+            ax = max(range(3), key=lambda i: abs(n[i]))
             for v in f.verts:
                 p = o.matrix_world @ v.co
                 lo = Vector(map(min, lo, p)); hi = Vector(map(max, hi, p))
                 # как h3() в игре: высотки сжимаем, иначе упираются в камеру
                 z = p.z if p.z <= 24 else 24 + (p.z - 24) * 0.4
-                pos += [p.x, z, -p.y]
-                nor += [n.x, n.z, -n.y]
-                col += list(c)
-            tris += 1
+                L['pos'] += [p.x, z, -p.y]
+                L['nor'] += [n.x, n.z, -n.y]
+                u, w = (p.y, p.z) if ax == 0 else (p.x, p.z) if ax == 1 else (p.x, p.y)
+                L['uv'] += [u / sc, w / sc]
         bm.free()
+    pos, nor, col, uv, groups = [], [], [], [], []
+    for name in sorted(by):
+        L = by[name]
+        t = TEX.get(name)  # [материал, начало, вершин, текстура или None, яркость]
+        groups.append([name, len(pos) // 3, len(L['pos']) // 3, t[0] if t else None, t[2] if t else 1.0])
+        pos += L['pos']; nor += L['nor']; uv += L['uv']
+        col += list(PAL[name]) * (len(L['pos']) // 3)
     b64 = lambda a: base64.b64encode(struct.pack('<%df' % len(a), *a)).decode()
-    return {'tris': tris, 'top': round(hi.z, 2), 'pos': b64(pos), 'nor': b64(nor), 'col': b64(col)}
+    return {'tris': len(pos) // 9, 'top': round(hi.z, 2), 'pos': b64(pos), 'nor': b64(nor), 'col': b64(col), 'uv': b64(uv), 'groups': groups}
 
 
 def render(path, kind='hero', size=640):

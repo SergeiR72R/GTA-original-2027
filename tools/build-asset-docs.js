@@ -301,6 +301,30 @@ const DEAD = ALL.filter((a) => a.batch === 'dead' && !have(a));
 if (DEAD.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_DEAD.md'), flowDoc(DEAD, `Задание для Claude в Chrome: убитые персонажи (${DEAD.length})`,
   `> Каждый вид людей в игре — в виде трупа: лежит на спине, вид сверху,\n> голова вправо, небольшая лужа крови (комикс, без жести).\n>\n> **Референсы.** Пользователь даёт архив \`hamsin-refs-dead.zip\` с живыми\n> персонажами: файл \`ref_<имя>.png\` — образец для пункта \`chars/<имя>_dead.png\`.\n> К каждому запросу прикладывай свой референс — его имя указано в пункте и в\n> самом промпте. Убитый должен быть тем же персонажем, что на референсе.`,
   DEAD[0]));
+// текстуры 3D-моделей — отдельное задание
+const MTEX = ALL.filter((a) => a.batch === 'modeltex' && !have(a));
+if (MTEX.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_MODELTEX.md'), flowDoc(MTEX, `Задание для Claude в Chrome: текстуры 3D-моделей зданий (${MTEX.length})`,
+  `> Бесшовные текстуры материалов для моделей знаковых зданий и типовых домов\n> (камень, штукатурка, стекло, черепица, патина…). Картинка должна\n> бесшовно повторяться по краям — без рамки и без предмета в центре.\n> План: docs/PLAN_TEXTURES.md.`, MTEX[0]));
+// план текстур 3D-моделей: какие материалы у каких моделей (из assets/models/*.js)
+{
+  const window = {};
+  for (const f of ['hassanbek.js', 'models.js']) {
+    const fp = path.join(root, 'assets/models', f);
+    if (fs.existsSync(fp)) new Function('window', fs.readFileSync(fp, 'utf8'))(window);
+  }
+  const M = window.GEN_MODELS || {};
+  const NAME = { hassanbek: 'Мечеть Хасан-Бек', reading: 'Электростанция Ридинг', shalom: 'Башня Шалом', habima: 'Театр Габима', kirya: 'Штаб в Кирье', stpeter: 'Церковь Св. Петра', lighthouse: 'Маяк Яффо', ruchurch: 'Русская церковь', dolphinarium: 'Дельфинариум', menora: 'Арена «Менора»', azrieli: 'Азриэли', clocktower: 'Часовая башня Яффо', citygate: '«Городские ворота»', agam: 'Фонтан Агама', house_bauhaus: 'Типовой дом: баухауз', house_60s: 'Типовой дом: 1960-е', house_eclectic: 'Типовой дом: эклектика 1920-х' };
+  const T = ALL.filter((a) => a.batch === 'modeltex');
+  let out = '# План текстур 3D-моделей\n\n> Правило: к каждой новой модели сразу план текстур и промпты в задание на\n> генерацию. Текстуры общие для всех моделей — бесшовные материалы\n> (assets/gen/textures/m_*.png). Пока картинки нет, модель окрашена цветом.\n> Задание — CLAUDE_CHROME_ASSETS_MODELTEX.md, промпты — js/asset-manifest.js\n> (MODEL_TEXTURES), материалы → текстуры — tools/models/lib.py (TEX).\n> Файл собирается tools/build-asset-docs.js.\n\n## Текстуры\n\n| № | Файл | Что это | Есть |\n|---|---|---|---|\n';
+  for (const a of T) out += `| ${a.n} | textures/${a.file}.png | ${a.title.replace('Текстура модели: ', '')} | ${have(a) ? 'да' : '—'} |\n`;
+  out += '\n## Какие текстуры у каких моделей\n\n| Модель | Текстуры | Без текстуры (цвет) |\n|---|---|---|\n';
+  for (const k of Object.keys(M)) {
+    const g = M[k].groups || [];
+    out += `| ${NAME[k] || k} | ${[...new Set(g.filter((x) => x[3]).map((x) => x[3]))].join(', ')} | ${g.filter((x) => !x[3]).map((x) => x[0]).join(', ') || '—'} |\n`;
+  }
+  out += '\nБез текстуры остаются проёмы окон, краска (ставни, разметка, колёса фонтана) и фонарь маяка.\n';
+  fs.writeFileSync(path.join(root, 'docs/PLAN_TEXTURES.md'), out);
+}
 // машины банд — отдельным дополнением к большому заданию (досылается следом)
 const GANG_CARS = ALL.filter((a) => /^(lux_odessa|pickup_bahar|lions_car|iran_car)(_d\d)?$/.test(a.file));
 fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_GANGCARS.md'), flowDoc(GANG_CARS, `Дополнение для Claude в Chrome: карикатурные машины банд (${GANG_CARS.length})`,

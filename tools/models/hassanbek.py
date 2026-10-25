@@ -212,34 +212,16 @@ for i in range(7):
     box('crescent', x - 0.07, MY - 0.06, z - 0.07, x + 0.07, MY + 0.06, z + 0.07, 'gold')
 
 # ---------------------------------------------------------------- экспорт для игры
-def export(path):
-    pos, nor, col = [], [], []
-    tris = 0
-    for o in scene.objects:
-        if o.type != 'MESH': continue
-        me = o.data
-        bm = bmesh.new(); bm.from_mesh(me)
-        bmesh.ops.triangulate(bm, faces=bm.faces)
-        bm.normal_update()
-        c = COL[me.materials[0].name]
-        for f in bm.faces:
-            n = f.normal
-            for v in f.verts:
-                p = o.matrix_world @ v.co
-                # Blender Z-up → игра: x — восток, y — высота, z — юг (= −Y Blender)
-                pos += [p.x, p.z, -p.y]
-                nor += [n.x, n.z, -n.y]
-                col += list(c)
-            tris += 1
-        bm.free()
-    b64 = lambda a: base64.b64encode(struct.pack('<%df' % len(a), *a)).decode()
-    data = {'tris': tris, 'size': 16, 'pos': b64(pos), 'nor': b64(nor), 'col': b64(col)}
-    with open(path, 'w') as f:
-        f.write('// Сгенерировано tools/models/hassanbek.py — не править руками\n')
-        f.write('window.GEN_MODELS = window.GEN_MODELS || {};\nwindow.GEN_MODELS.hassanbek = ' + json.dumps(data) + ';\n')
-    print('triangles:', tris, '->', path)
-
-export(os.path.join(ROOT, 'assets', 'models', 'hassanbek.js'))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import lib
+lib.PAL.update(COL)
+data = lib.export_data()
+data['w'], data['d'] = 16, 16
+path = os.path.join(ROOT, 'assets', 'models', 'hassanbek.js')
+with open(path, 'w') as f:
+    f.write('// Сгенерировано tools/models/hassanbek.py — не править руками\n')
+    f.write('window.GEN_MODELS = window.GEN_MODELS || {};\nwindow.GEN_MODELS.hassanbek = ' + json.dumps(data) + ';\n')
+print('triangles:', data['tris'], '->', path)
 
 # ---------------------------------------------------------------- превью
 if '--render' in sys.argv:
