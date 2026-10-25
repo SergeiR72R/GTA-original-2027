@@ -343,43 +343,56 @@ const Sound = {
   },
 
   // ---------- Радио «Хамсин FM» ----------
-  // Песни — записи 1915–1925 гг. из National Jukebox Библиотеки Конгресса,
-  // общественное достояние (assets/radio/CREDITS.txt)
+  // Станции с песнями: «Новая волна» — израильская инди-музыка на иврите под
+  // Creative Commons (в т. ч. NC: игра бесплатная), «Старые пластинки» — записи
+  // 1915–1925 гг., общественное достояние. Авторы и лицензии — assets/radio/CREDITS.txt.
+  // Добавить песню: файл в assets/radio/ и строка сюда
   SONGS: [
-    { file: 'nes_ziona', title: '«Нес Циона» (נס ציונה)', who: 'Яков Медведев, 1916' },
-    { file: 'shir_avoda', title: '«Шир ха-авода» (שיר העבודה)', who: 'Яков Медведев, 1916' },
-    { file: 'ahavat_raya', title: '«Ахават рая» (אהבת רעיה)', who: 'Мордехай Гершман, 1923' },
-    { file: 'talmidei_hachamim', title: '«Талмидей хахамим» (תלמידי חכמים)', who: 'Давид Ройтман, 1925' },
-    { file: 'hatikva', title: '«Ха-Тиква» (התקווה)', who: 'Мейер Каневский, 1915' },
+    { list: 'new', file: 'rosenfeld_jeans', title: '«Ба-джинс ве-сандалим» (בג׳ינס וסנדלים)', who: 'Ави Розенфельд, 2010' },
+    { list: 'new', file: 'rosenfeld_hayam', title: '«Ха-ям» (הים)', who: 'Ави Розенфельд, 2010' },
+    { list: 'new', file: 'rosenfeld_ahava', title: '«Ха-ахава шели» (האהבה שלי)', who: 'Ави Розенфельд, 2012' },
+    { list: 'old', file: 'nes_ziona', title: '«Нес Циона» (נס ציונה)', who: 'Яков Медведев, 1916' },
+    { list: 'old', file: 'shir_avoda', title: '«Шир ха-авода» (שיר העבודה)', who: 'Яков Медведев, 1916' },
+    { list: 'old', file: 'ahavat_raya', title: '«Ахават рая» (אהבת רעיה)', who: 'Мордехай Гершман, 1923' },
+    { list: 'old', file: 'talmidei_hachamim', title: '«Талмидей хахамим» (תלמידי חכמים)', who: 'Давид Ройтман, 1925' },
+    { list: 'old', file: 'hatikva', title: '«Ха-Тиква» (התקווה)', who: 'Мейер Каневский, 1915' },
   ],
-  STATIONS: ['📻 Хамсин FM · Старые пластинки', '📻 Хамсин FM · Восточный ритм', '📻 Радио выключено'],
+  // станции по кругу (R): песни списка list, синтезатор или тишина
+  STATIONS: [
+    { name: '📻 Хамсин FM · Новая волна', list: 'new' },
+    { name: '📻 Хамсин FM · Старые пластинки', list: 'old' },
+    { name: '📻 Хамсин FM · Восточный ритм', synth: true },
+    { name: '📻 Радио выключено' },
+  ],
 
   // R: следующая станция
   nextStation() {
-    this.station = (this.station + 1) % 3;
-    this.radioOn = this.station !== 2;
-    if (this.song) this.song.shown = false;
-    return this.STATIONS[this.station];
+    this.station = (this.station + 1) % this.STATIONS.length;
+    const st = this.STATIONS[this.station];
+    this.radioOn = !!(st.list || st.synth);
+    for (const k in this.players) this.players[k].shown = false;
+    return st.name;
   },
 
-  // Плеер песен: один <audio>, по кругу в случайном порядке. Работает и с диска
-  songPlayer() {
-    if (this.song) return this.song;
-    const order = this.SONGS.map((_, i) => i).sort(() => Math.random() - 0.5);
+  // Плеер песен станции: один <audio>, по кругу в случайном порядке. Работает и с диска
+  songPlayer(list) {
+    this.players = this.players || {};
+    if (this.players[list]) return this.players[list];
+    const songs = this.SONGS.filter((t) => t.list === list);
+    const order = songs.map((_, i) => i).sort(() => Math.random() - 0.5);
     const el = new Audio();
     el.preload = 'auto';
-    const S = this.song = { el, order, k: 0, vol: 0, failed: 0, shown: false };
-    const load = () => { el.src = 'assets/radio/' + this.SONGS[S.order[S.k]].file + '.mp3'; S.shown = false; };
+    const S = this.players[list] = { el, songs, order, k: 0, vol: 0, failed: 0, shown: false };
+    const load = () => { el.src = 'assets/radio/' + songs[S.order[S.k]].file + '.mp3'; S.shown = false; };
     S.next = () => { S.k = (S.k + 1) % S.order.length; load(); if (S.vol > 0.01) el.play().catch(() => {}); };
     el.addEventListener('ended', S.next);
-    // нет файла — следующая; ни одной — включаем восточный ритм
-    el.addEventListener('error', () => { if (++S.failed >= S.order.length) { if (this.station === 0) this.station = 1; } else S.next(); });
+    // нет файла — следующая; ни одной — станция молчит
+    el.addEventListener('error', () => { if (++S.failed < S.order.length) S.next(); });
     el.addEventListener('playing', () => { S.failed = 0; });
     load();
     return S;
   },
 
-  // Простой генеративный луп: ритм дарбуки + мелодия во фригийском доминантовом ладу.
   radioStart() {
     if (!this.ctx || this.radio) return;
     const g = this.ctx.createGain();
@@ -397,9 +410,11 @@ const Sound = {
     // песни: громкость плавно идёт к нужной, в тишине плеер на паузе
     const pl = World.player;
     const inCar = Game.state === 'play' && pl && pl.car && !pl.dead;
-    const songOn = inCar && this.station === 0 && !this.muted;
-    if (songOn || this.song) {
-      const S = this.songPlayer();
+    const st = this.STATIONS[this.station] || {};
+    if (inCar && st.list && !this.muted) this.songPlayer(st.list);
+    for (const list in this.players || {}) {
+      const S = this.players[list];
+      const songOn = inCar && st.list === list && !this.muted;
       const want = songOn ? 0.45 : 0;
       S.vol += Math.sign(want - S.vol) * Math.min(Math.abs(want - S.vol), 0.03);
       S.el.volume = clamp(S.vol, 0, 1);
@@ -407,15 +422,15 @@ const Sound = {
       if (!songOn && S.vol <= 0.001 && !S.el.paused) S.el.pause();
       if (songOn && !S.shown && !S.el.paused && S.el.currentTime > 0.2) {
         S.shown = true;
-        const t = this.SONGS[S.order[S.k]];
+        const t = S.songs[S.order[S.k]];
         Game.message(`📻 ${t.title} — ${t.who}`, 4);
       }
     }
     // восточный ритм — только на своей станции
     if (this.radio) {
-      const on = inCar && this.station === 1;
+      const on = inCar && !!st.synth;
       if (on !== this.radio.on) { this.radio.on = on; this.radio.g.gain.setTargetAtTime(on ? 0.35 : 0, this.ctx.currentTime, 0.2); }
-    } else if (inCar && this.station === 1) this.radioStart();
+    } else if (inCar && st.synth) this.radioStart();
     const r = this.radio;
     if (!r || !r.on || this.muted) return;
     const ctx = this.ctx;
