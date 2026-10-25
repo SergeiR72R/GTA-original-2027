@@ -1,6 +1,6 @@
 # Все тексты игры «ХАМСИН» — на вычитку
 
-Собрано из кода (версия 66c429b): `node tools/texts.js export`.
+Собрано из кода (версия dfb52f5): `node tools/texts.js export`.
 
 ## Как править
 
@@ -1431,13 +1431,13 @@
 
 ## 3D-графика
 
-[render3d:45] высокое
-[render3d:46] среднее
-[render3d:47] низкое
-[render3d:150] WebGL недоступен — 2D-режим
-[render3d:207] 3D: {dropped} сгенерированных картинок нельзя использовать при запуске с диска. Запустите start.sh или распакуйте bundle.js из импортёра.
-[render3d:251] авто ({QUALITY[this.autoLevel].name})
-[render3d:717] משטרה
-[render3d:717.2] הקריה
-[render3d:717.3] штаб Кирья
-[render3d:717.4] ПОКРАСКА
+[render3d:43] высокое
+[render3d:44] среднее
+[render3d:45] низкое
+[render3d:148] WebGL недоступен — 2D-режим
+[render3d:205] 3D: {dropped} сгенерированных картинок нельзя использовать при запуске с диска. Запустите start.sh или распакуйте bundle.js из импортёра.
+[render3d:249] авто ({QUALITY[this.autoLevel].name})
+[render3d:734] משטרה
+[render3d:734.2] הקריה
+[render3d:734.3] штаб Кирья
+[render3d:734.4] ПОКРАСКА
