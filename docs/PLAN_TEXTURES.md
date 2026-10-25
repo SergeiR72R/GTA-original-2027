@@ -11,35 +11,35 @@
 
 | № | Файл | Что это | Есть |
 |---|---|---|---|
-| 318 | textures/m_stone.png | Камень Яффо (известняк) | — |
-| 319 | textures/m_trim.png | Светлый камень карнизов | — |
-| 320 | textures/m_concrete.png | Бетон | — |
-| 321 | textures/m_white.png | Белая штукатурка баухауза | — |
-| 322 | textures/m_beige.png | Бежевая штукатурка 1960-х | — |
-| 323 | textures/m_ochre.png | Охра (эклектика) | — |
-| 324 | textures/m_brick.png | Терракотовая штукатурка церкви | — |
-| 325 | textures/m_brown.png | Коричневая мозаика 1960-х | — |
-| 326 | textures/m_glass.png | Тёмное стекло фасада | — |
-| 327 | textures/m_glassB.png | Синее стекло (Азриэли) | — |
-| 328 | textures/m_metal.png | Металлические панели | — |
-| 329 | textures/m_roofT.png | Черепица (сверху) | — |
-| 330 | textures/m_patina.png | Патина купола | — |
-| 331 | textures/m_gold.png | Золото луковицы | — |
-| 332 | textures/m_blueroof.png | Синий купол со звёздами | — |
-| 333 | textures/m_shutter.png | Ставни-«трисим» | — |
-| 334 | textures/m_wood.png | Старая деревянная дверь | — |
-| 335 | textures/m_roofflat.png | Плоская крыша | — |
-| 336 | textures/m_graffiti.png | Граффити на бетоне | — |
-| 337 | textures/m_rust.png | Ржавый металл | — |
-| 338 | textures/m_paint_red.png | Красная краска по металлу | — |
-| 339 | textures/m_water.png | Вода фонтана | — |
-| 340 | textures/m_bh_cream.png | Баухауз: кремовая штукатурка | — |
-| 341 | textures/m_bh_pastel.png | Баухауз: пастельно-розовая штукатурка | — |
-| 342 | textures/m_60_grey.png | Дом 60-х: серая «шуба» | — |
-| 343 | textures/m_60_stone.png | Дом 60-х: облицовка иерусалимским камнем | — |
-| 344 | textures/m_ecl_pink.png | Эклектика: лососевая штукатурка | — |
-| 345 | textures/m_ecl_blue.png | Эклектика: серо-голубая штукатурка | — |
-| 348 | textures/m_pinkpaint.png | Розовая краска балконов («Опера») | — |
+| 318 | textures/m_stone.png | Камень Яффо (известняк) | да |
+| 319 | textures/m_trim.png | Светлый камень карнизов | да |
+| 320 | textures/m_concrete.png | Бетон | да |
+| 321 | textures/m_white.png | Белая штукатурка баухауза | да |
+| 322 | textures/m_beige.png | Бежевая штукатурка 1960-х | да |
+| 323 | textures/m_ochre.png | Охра (эклектика) | да |
+| 324 | textures/m_brick.png | Терракотовая штукатурка церкви | да |
+| 325 | textures/m_brown.png | Коричневая мозаика 1960-х | да |
+| 326 | textures/m_glass.png | Тёмное стекло фасада | да |
+| 327 | textures/m_glassB.png | Синее стекло (Азриэли) | да |
+| 328 | textures/m_metal.png | Металлические панели | да |
+| 329 | textures/m_roofT.png | Черепица (сверху) | да |
+| 330 | textures/m_patina.png | Патина купола | да |
+| 331 | textures/m_gold.png | Золото луковицы | да |
+| 332 | textures/m_blueroof.png | Синий купол со звёздами | да |
+| 333 | textures/m_shutter.png | Ставни-«трисим» | да |
+| 334 | textures/m_wood.png | Старая деревянная дверь | да |
+| 335 | textures/m_roofflat.png | Плоская крыша | да |
+| 336 | textures/m_graffiti.png | Граффити на бетоне | да |
+| 337 | textures/m_rust.png | Ржавый металл | да |
+| 338 | textures/m_paint_red.png | Красная краска по металлу | да |
+| 339 | textures/m_water.png | Вода фонтана | да |
+| 340 | textures/m_bh_cream.png | Баухауз: кремовая штукатурка | да |
+| 341 | textures/m_bh_pastel.png | Баухауз: пастельно-розовая штукатурка | да |
+| 342 | textures/m_60_grey.png | Дом 60-х: серая «шуба» | да |
+| 343 | textures/m_60_stone.png | Дом 60-х: облицовка иерусалимским камнем | да |
+| 344 | textures/m_ecl_pink.png | Эклектика: лососевая штукатурка | да |
+| 345 | textures/m_ecl_blue.png | Эклектика: серо-голубая штукатурка | да |
+| 348 | textures/m_pinkpaint.png | Розовая краска балконов («Опера») | да |
 
 ## Какие текстуры у каких моделей
 
