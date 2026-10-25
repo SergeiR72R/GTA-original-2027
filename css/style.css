@@ -108,3 +108,44 @@ button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
   border-left: 3px solid #ffd23f;
   text-align: left;
 }
+
+/* ---- логотип: эмблема с надписью на ленте (js/brand.js) ---- */
+.brand { --w: min(400px, 70vw, 52vh); position: relative; }
+.brand .emblem { display: none; }
+.brand.has-emblem .emblem { display: block; width: var(--w); filter: drop-shadow(6px 8px 0 rgba(0, 0, 0, 0.55)); }
+.brand.has-emblem .logo {
+  position: absolute;
+  left: 13%; right: 13%; top: 58%; height: 21%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: calc(var(--w) * 0.125);
+  letter-spacing: 0.06em;
+  color: #c8371a;
+  -webkit-text-stroke: calc(var(--w) * 0.004) #1b0d05;
+  text-shadow: calc(var(--w) * 0.008) calc(var(--w) * 0.008) 0 #1b0d05;
+}
+#title .brand { --w: min(360px, 66vw, 40vh); }
+
+/* ---- экран загрузки в духе GTA V: заставка во весь экран, логотип и полоска внизу ---- */
+#loading .art {
+  position: absolute; inset: 0;
+  background: center / cover no-repeat;
+  opacity: 0; transition: opacity 1.2s;
+}
+#loading .art.on { opacity: 1; }
+#loading.has-art { justify-content: flex-end; align-items: flex-start; padding: 0; background: #000; }
+#loading.has-art::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+}
+#loading.has-art .brand { --w: min(260px, 42vw, 34vh); position: absolute; left: 3vw; bottom: 3vh; z-index: 1; }
+#loading.has-art .status { position: absolute; right: 3vw; bottom: 4vh; z-index: 1; text-align: right; }
+#loading.has-art .bar { margin-top: 10px; margin-left: auto; width: min(300px, 40vw); height: 6px; border-width: 1px; }
+.spin {
+  display: none; width: 0.8em; height: 0.8em; margin-right: 0.5em; vertical-align: -0.05em;
+  border: 3px solid rgba(255, 233, 176, 0.3); border-top-color: #ffe9b0; border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+#loading.has-art .spin { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#loading.has-art { z-index: 10; transition: opacity 0.8s; }
+#loading.fade { opacity: 0; pointer-events: none; }

@@ -74,7 +74,7 @@ function loadImage(file) {
   });
 }
 
-function process(im, cat, rot) {
+function process(im, cat, rot, name = '') {
   let c = document.createElement('canvas');
   if (cat === 'facades') {
     // фасады: без вырезания фона, ширина до 1024
@@ -90,7 +90,15 @@ function process(im, cat, rot) {
     c.getContext('2d').drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, n, n);
     return c;
   }
-  const k = Math.min(1, 512 / Math.max(im.width, im.height));
+  // заставки (ui/loading_*) — целиком, без вырезания фона, ширина до 1600
+  if (cat === 'ui' && name.startsWith('loading')) {
+    const k = Math.min(1, 1600 / im.width);
+    c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+    c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+    return c;
+  }
+  // эмблема (ui) крупнее спрайтов: до 1024
+  const k = Math.min(1, (cat === 'ui' ? 1024 : 512) / Math.max(im.width, im.height));
   c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
   const g = c.getContext('2d');
   g.drawImage(im, 0, 0, c.width, c.height);
@@ -142,11 +150,11 @@ async function assign(slot, file) {
   try {
     const im = await loadImage(file);
     slot.raw = im; slot.srcName = file.name; slot.rot = 0;
-    slot.canvas = process(im, slot.cat, 0);
+    slot.canvas = process(im, slot.cat, 0, slot.file);
   } catch (e) { slot.srcName = 'ошибка: ' + file.name; }
 }
 
-function redo(slot) { if (slot.raw) slot.canvas = process(slot.raw, slot.cat, slot.rot); }
+function redo(slot) { if (slot.raw) slot.canvas = process(slot.raw, slot.cat, slot.rot, slot.file); }
 
 async function addFiles(files) {
   const list = [...files].filter((f) => f.type.startsWith('image/'));
@@ -178,7 +186,7 @@ function shiftUp(idx) {
 }
 function copyData(to, from) {
   to.raw = from.raw; to.srcName = from.srcName; to.rot = from.rot;
-  to.canvas = from.raw ? process(from.raw, to.cat, to.rot) : null;
+  to.canvas = from.raw ? process(from.raw, to.cat, to.rot, to.file) : null;
 }
 function clearData(s) { s.raw = null; s.canvas = null; s.srcName = ''; s.rot = 0; }
 

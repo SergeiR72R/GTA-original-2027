@@ -103,7 +103,7 @@ const Game = {
       if (this.gl) { R3.build(); R3.resize(this.vw, this.vh); }
       else document.getElementById('gl').style.display = 'none';
       this.setupWorld();
-      document.getElementById('loading').classList.add('hidden');
+      Brand.hide();
       this.showTitle();
       requestAnimationFrame((t) => this.loop(t));
     });
