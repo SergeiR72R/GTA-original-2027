@@ -518,10 +518,14 @@ const Game = {
         if (pl.money >= 500) {
           this.addMoney(-500);
           Wanted.reset();
-          c.color = pickWeighted(CAR_PALETTE.filter((x) => x[0] !== c.color));
-          c.genKey = null; // перекрашенная машина рисуется встроенным спрайтом нового цвета
+          // новый цвет — заметно другой, чем видно сейчас (у картинки — цвет её кузова)
+          const was = (c.genKey && Vehicles.bodyColor(c.genKey)) || [1, 3, 5].map((i) => parseInt(c.color.slice(i, i + 2), 16));
+          const far = CAR_PALETTE.filter((x) => [1, 3, 5].reduce((s, i, j) => s + Math.abs(parseInt(x[0].slice(i, i + 2), 16) - was[j]), 0) > 150);
+          c.color = pickWeighted(far.length ? far : CAR_PALETTE.filter((x) => x[0] !== c.color));
           c.dents = [];
-          if (c.police) { c.police = false; c.type = 'suv'; c.T = VTYPES.suv; }
+          if (c.police) { c.police = false; c.type = 'suv'; c.T = VTYPES.suv; c.genKey = Vehicles.genKey('suv'); }
+          // перекрашиваем сгенерированную картинку машины, а не меняем её на встроенную
+          if (c.genKey && !c.moto) c.genKey = Vehicles.repaint(c.genKey, c.color);
           c.hp = c.maxHp;
           Sound.play('mission', 0.8);
           this.message('Машина перекрашена, розыск снят (−₪500)', 4);

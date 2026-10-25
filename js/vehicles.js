@@ -81,6 +81,98 @@ const Vehicles = {
     return { img: Assets.gen['vehicles/' + key], stage: 0 };
   },
 
+  // Перекраска сгенерированной машины: кузов (самый частый цвет картинки и
+  // его оттенки) получает новый цвет с прежней светотенью, стёкла, шины и
+  // фары не трогаем. Стадии повреждений перекрашиваются так же. Возвращает
+  // новый ключ картинки (key~цвет).
+  // Цвет кузова сгенерированной картинки — самый частый цвет в её середине
+  // (у перекрашенной — тот, в который красили). Возвращает [r, g, b] с .l и .c.
+  bodyColor(key) {
+    const [k, hex] = key.split('~');
+    this.bodies = this.bodies || {};
+    let body = this.bodies[key];
+    if (body) return body;
+    if (hex) body = [parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16)];
+    else {
+      const im = Assets.gen['vehicles/' + k];
+      if (!im) return null;
+      const c = document.createElement('canvas'); c.width = im.width; c.height = im.height;
+      const g = c.getContext('2d'); g.drawImage(im, 0, 0);
+      let d;
+      try { d = g.getImageData(0, 0, c.width, c.height).data; } catch (e) { return null; }
+      const hist = new Map(), W = c.width, H = c.height;
+      for (let y = Math.floor(H * 0.1); y < H * 0.9; y++) for (let x = Math.floor(W * 0.15); x < W * 0.85; x++) {
+        const i = (y * W + x) * 4;
+        if (d[i + 3] < 220) continue;
+        const q = (d[i] >> 4) << 8 | (d[i + 1] >> 4) << 4 | (d[i + 2] >> 4);
+        hist.set(q, (hist.get(q) || 0) + 1);
+      }
+      let bq = 0, bn = -1;
+      for (const [q, n] of hist) if (n > bn) { bn = n; bq = q; }
+      // среднее по пикселям этого и соседних оттенков
+      let sr = 0, sg = 0, sb = 0, sn = 0;
+      const qr = (bq >> 8) * 16 + 8, qg = (bq >> 4 & 15) * 16 + 8, qb = (bq & 15) * 16 + 8;
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i + 3] < 220 || Math.abs(d[i] - qr) + Math.abs(d[i + 1] - qg) + Math.abs(d[i + 2] - qb) > 40) continue;
+        sr += d[i]; sg += d[i + 1]; sb += d[i + 2]; sn++;
+      }
+      body = sn ? [sr / sn, sg / sn, sb / sn] : [qr, qg, qb];
+    }
+    body.l = Math.max(0.04, (0.299 * body[0] + 0.587 * body[1] + 0.114 * body[2]) / 255);
+    body.c = [body[0] - body.l * 255, body[1] - body.l * 255, body[2] - body.l * 255];
+    this.bodies[key] = body;
+    return body;
+  },
+
+  repaint(key, color) {
+    key = key.split('~')[0];
+    const nk = key + '~' + color.slice(1);
+    const base = Assets.gen['vehicles/' + key];
+    if (Assets.gen['vehicles/' + nk] || !base) return base ? nk : key;
+    const tr = parseInt(color.slice(1, 3), 16), tg = parseInt(color.slice(3, 5), 16), tb = parseInt(color.slice(5, 7), 16);
+    const tl = (0.299 * tr + 0.587 * tg + 0.114 * tb) / 255;
+    let body = null;
+    for (const suf of ['', '_d1', '_d2', '_d3']) {
+      const im = Assets.gen['vehicles/' + key + suf];
+      if (!im) continue;
+      const c = document.createElement('canvas'); c.width = im.width; c.height = im.height;
+      const g = c.getContext('2d'); g.drawImage(im, 0, 0);
+      let data;
+      try { data = g.getImageData(0, 0, c.width, c.height); } catch (e) { return key; }
+      const d = data.data;
+      body = body || this.bodyColor(key);
+      if (!body) return key;
+      const bl = body.l, bc = body.c;
+      for (let i = 0; i < d.length; i += 4) {
+        if (!d[i + 3]) continue;
+        const r = d[i], gg = d[i + 1], b = d[i + 2];
+        const l = (0.299 * r + 0.587 * gg + 0.114 * b) / 255;
+        // похож по оттенку (цветность) и по яркости — значит, это краска кузова
+        // блики того же цвета бледнее, поэтому цветность сравниваем с поправкой на насыщенность
+        const pr = r - l * 255, pg = gg - l * 255, pb = b - l * 255;
+        const bm = Math.abs(bc[0]) + Math.abs(bc[1]) + Math.abs(bc[2]), pm = Math.abs(pr) + Math.abs(pg) + Math.abs(pb);
+        const sc = bm > 20 ? Math.min(1.3, Math.max(0.3, pm / bm)) : 1;
+        const cd = Math.abs(pr - bc[0] * sc) + Math.abs(pg - bc[1] * sc) + Math.abs(pb - bc[2] * sc);
+        const rl = l / bl;
+        // у тёмной и цветной краски блики гораздо светлее самого кузова
+        const lo = bl < 0.25 ? 0.55 : 0.5, hi = bl < 0.6 ? Math.min(4, 0.97 / bl) : 1.3;
+        let w = Math.min(1, Math.max(0, (70 - cd) / 35));
+        w *= Math.min(1, Math.max(0, (rl - lo) / 0.15)) * Math.min(1, Math.max(0, (hi - rl) / 0.15));
+        if (w <= 0) continue;
+        // светотень сохраняем: темнее кузова — темнее новый цвет, блики — к белому
+        let nr, ng, nb;
+        if (rl <= 1) { nr = tr * rl; ng = tg * rl; nb = tb * rl; }
+        else { const h = Math.min(1, (rl - 1) * bl / Math.max(0.05, 1 - bl)); nr = tr + (255 - tr) * h; ng = tg + (255 - tg) * h; nb = tb + (255 - tb) * h; }
+        // у тёмной краски блики слабее
+        if (tl < 0.2 && rl > 1) { nr = (nr + tr) / 2; ng = (ng + tg) / 2; nb = (nb + tb) / 2; }
+        d[i] = r + (nr - r) * w; d[i + 1] = gg + (ng - gg) * w; d[i + 2] = b + (nb - b) * w;
+      }
+      g.putImageData(data, 0, 0);
+      Assets.gen['vehicles/' + nk + suf] = c;
+    }
+    return nk;
+  },
+
   // Груз на крыше (car.roof): матрас Семёна. roofTilt — насколько он съехал
   drawRoof(g, car) {
     if (car.roof !== 'mattress' || car.dead) return;
