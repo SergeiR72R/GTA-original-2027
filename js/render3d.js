@@ -1132,7 +1132,7 @@ const R3 = {
     const g = c.getContext('2d');
     g.translate(32, 32);
     if (kind === 'health') { g.fillStyle = '#e53935'; g.beginPath(); g.moveTo(0, 18); g.bezierCurveTo(-30, -4, -18, -30, 0, -12); g.bezierCurveTo(18, -30, 30, -4, 0, 18); g.fill(); }
-    else if (kind === 'armor') { g.fillStyle = '#455a64'; g.beginPath(); g.moveTo(-18, -18); g.lineTo(18, -18); g.lineTo(16, 18); g.lineTo(-16, 18); g.closePath(); g.fill(); g.fillStyle = '#90a4ae'; g.fillRect(-12, -12, 24, 8); }
+    else if (kind === 'armor' && !Assets.gen['props/w_armor']) { g.fillStyle = '#455a64'; g.beginPath(); g.moveTo(-18, -18); g.lineTo(18, -18); g.lineTo(16, 18); g.lineTo(-16, 18); g.closePath(); g.fill(); g.fillStyle = '#90a4ae'; g.fillRect(-12, -12, 24, 8); }
     else if (kind === 'money') { g.fillStyle = '#3fae49'; g.fillRect(-22, -13, 44, 26); g.fillStyle = '#fff'; g.font = 'bold 20px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('₪', 0, 1); }
     else drawWeaponIcon(g, kind, 1.25);
     this.mats[key] = new THREE.MeshBasicMaterial({ map: this.tex(c), transparent: true, depthWrite: false });

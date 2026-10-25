@@ -360,6 +360,20 @@ const WEAPON_CHARS = [
 const WEAPON_NAME = { bat: 'с битой', shotgun: 'с дробовиком', uzi: 'с узи', ak: 'с автоматом', rpg: 'с РПГ' };
 const WEAPON_EDIT = (pose) => `Edit the previous image of this exact character. Keep EXACTLY the same person, face, hair, clothes, colors, size, framing, top-down camera, facing direction (FACING RIGHT) and the solid magenta background. Change ONLY the arms and what he holds: ${pose}. Same art style, same lighting.`;
 
+// Значки оружия: витрины оружейных, подбираемые предметы, маркеры магазинов
+// (props/w_*; пока картинки нет — значок рисует код, drawWeaponIcon)
+const ICON_STYLE = 'Game item icon for the weapon shop and pickups of a stylized top-down crime video game set in Tel Aviv: clean stylized illustration, crisp dark outlines, soft cel shading with light from the top-left, slightly stylized realistic proportions, readable at a small size, single object centered. Generic design without any real brand names, serial numbers, markings or logos. No hands, no people, no text, no watermark.';
+const WEAPON_ICONS = [
+  ['w_bat', 'Значок: бейсбольная бита', 'A wooden baseball bat with a black grip tape handle, side view, lying horizontally with the handle on the left and the thick end pointing RIGHT, fills about 85% of the image width.'],
+  ['w_pistol', 'Значок: пистолет', 'A black semi-automatic pistol, side view (profile), the muzzle pointing RIGHT, the grip at the bottom left, fills about 70% of the image width.'],
+  ['w_shotgun', 'Значок: дробовик', 'A pump-action shotgun with a wooden stock and wooden pump grip and a dark steel barrel, side view (profile), lying horizontally, the muzzle pointing RIGHT, fills about 90% of the image width.'],
+  ['w_uzi', 'Значок: узи', 'A compact black submachine gun in the style of a classic Israeli Uzi with a long straight magazine through the grip and a folded metal stock, side view (profile), the muzzle pointing RIGHT, fills about 70% of the image width.'],
+  ['w_ak', 'Значок: автомат АК', 'An old Soviet-style assault rifle in the style of a Kalashnikov AK-47 with a wooden stock and wooden handguard and a curved magazine, side view (profile), lying horizontally, the muzzle pointing RIGHT, fills about 90% of the image width.'],
+  ['w_grenade', 'Значок: граната', 'A single olive-green fragmentation hand grenade with a grey metal top, safety lever and pull ring, standing upright, three-quarter side view, fills about 60% of the image height.'],
+  ['w_rpg', 'Значок: РПГ', 'A shoulder-fired rocket launcher in the style of an RPG-7: an olive-green metal tube with a wooden heat shield, a pistol grip and a pointed rocket warhead loaded at the front, side view (profile), lying horizontally, the warhead pointing RIGHT, fills about 90% of the image width.'],
+  ['w_armor', 'Значок: бронежилет', 'A dark grey-blue tactical bulletproof vest with shoulder straps, front panel pockets and velcro, front view, upright, symmetric, fills about 75% of the image height. No letters or patches with text.'],
+];
+
 // Полный упорядоченный список: машины (с уроном), персонажи, фасады, объекты, текстуры, портреты
 const ASSET_MANIFEST = (() => {
   const out = [];
@@ -457,6 +471,8 @@ const ASSET_MANIFEST = (() => {
   // логотип и заставки загрузки, за ними — текстуры Ихилова
   for (const [file, title, size, refs, desc] of BRAND) out.push({ batch: 'brand', cat: 'ui', file, title, kind: 'new', size, refFiles: refs, prompt: file.startsWith('loading') ? `${BRAND_STYLE} ${desc}` : desc });
   for (const [file, title, desc] of MODEL_TEXTURES_ICHILOV) out.push({ batch: 'modeltex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: file === 'm_helipad' ? `${MODEL_TEX_STYLE.replace('Seamless tileable texture of a building material', 'Texture').replace('no text,', 'no words or other letters except the single big letter H,')} ${desc}` : `${MODEL_TEX_STYLE} ${desc}` });
+  // значки оружия — в самом конце (новые — только в конец этого списка)
+  for (const [file, title, desc] of WEAPON_ICONS) out.push({ batch: 'weapons', cat: 'props', file, title, kind: 'new', size: '1024x1024', prompt: `${ICON_STYLE} ${desc} ${ASSET_STYLE.isolated}` });
   return out;
 })();
 

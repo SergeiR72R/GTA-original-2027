@@ -1016,6 +1016,14 @@ function updateBullets(dt) {
 // Водитель в панике выскакивает из машины
 // Значок оружия по центру (пикапы, витрина магазина): ширина ~44·s
 function drawWeaponIcon(g, kind, s = 1) {
+  // сгенерированный значок (props/w_*) — вписываем в 44 × 30 (бронежилет и граната — 34 × 34)
+  const im = typeof Assets !== 'undefined' && Assets.gen['props/w_' + kind];
+  if (im) {
+    const bw = (kind === 'armor' || kind === 'grenade' ? 34 : 44) * s, bh = (kind === 'armor' || kind === 'grenade' ? 34 : 30) * s;
+    const k = Math.min(bw / im.width, bh / im.height), w = im.width * k, h = im.height * k;
+    g.drawImage(im, -w / 2, -h / 2, w, h);
+    return;
+  }
   const D = '#212121';
   g.save(); g.scale(s, s);
   switch (kind) {
@@ -1256,7 +1264,9 @@ class Pickup {
     ctx.translate(this.x, this.y + b);
     ctx.fillStyle = 'rgba(255,255,140,0.25)';
     ctx.beginPath(); ctx.arc(0, 0, 16 + Math.sin(World.time * 6) * 2, 0, TAU); ctx.fill();
-    if (this.kind === 'armor') {
+    const gen = Assets.gen['props/w_' + this.kind];
+    if (gen) drawWeaponIcon(ctx, this.kind, 0.6); // сгенерированный значок
+    else if (this.kind === 'armor') {
       ctx.fillStyle = '#455a64'; ctx.beginPath(); ctx.moveTo(-9, -9); ctx.lineTo(9, -9); ctx.lineTo(8, 9); ctx.lineTo(-8, 9); ctx.closePath(); ctx.fill();
       ctx.fillStyle = '#90a4ae'; ctx.fillRect(-6, -6, 12, 4);
     } else if (this.kind === 'health') {

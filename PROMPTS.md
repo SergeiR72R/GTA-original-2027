@@ -34,7 +34,7 @@ Claude в Chrome).
 | Текстуры | без фона, бесшовная | вид сверху | квадрат 1024×1024 |
 | Портреты | свой цветной фон | по плечи, лицом к зрителю | квадрат |
 
-# Список (361)
+# Список (369)
 
 ## Машины (122)
 
@@ -1141,7 +1141,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Объекты улиц (25)
+## Объекты улиц (33)
 
 ### 138. `props/palm.png` — Финиковая пальма
 
@@ -1618,7 +1618,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Объекты улиц (25)
+## Объекты улиц (33)
 
 ### 195. `props/planter.png` — Кадка с цветами
 
@@ -1982,7 +1982,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Объекты улиц (25)
+## Объекты улиц (33)
 
 ### 239. `props/mattress.png` — Матрас на крышу
 
@@ -2114,7 +2114,7 @@ Edit the previous image of this exact vehicle. Keep EXACTLY the same outline, an
 ```
 
 
-## Объекты улиц (25)
+## Объекты улиц (33)
 
 ### 254. `props/payphone.png` — Таксофон
 
@@ -3002,5 +3002,72 @@ Texture for a stylized top-down crime game, orthographic straight-on view of a f
 
 ```
 Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Playful facade of a children's hospital: irregular vertical rectangular panels in bright cheerful colours (red, orange, yellow, lime green, sky blue, white), matte finish, thin seams, cheerful but tidy.
+```
+
+
+## Объекты улиц (33)
+
+### 362. `props/w_bat.png` — Значок: бейсбольная бита
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Game item icon for the weapon shop and pickups of a stylized top-down crime video game set in Tel Aviv: clean stylized illustration, crisp dark outlines, soft cel shading with light from the top-left, slightly stylized realistic proportions, readable at a small size, single object centered. Generic design without any real brand names, serial numbers, markings or logos. No hands, no people, no text, no watermark. A wooden baseball bat with a black grip tape handle, side view, lying horizontally with the handle on the left and the thick end pointing RIGHT, fills about 85% of the image width. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 363. `props/w_pistol.png` — Значок: пистолет
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Game item icon for the weapon shop and pickups of a stylized top-down crime video game set in Tel Aviv: clean stylized illustration, crisp dark outlines, soft cel shading with light from the top-left, slightly stylized realistic proportions, readable at a small size, single object centered. Generic design without any real brand names, serial numbers, markings or logos. No hands, no people, no text, no watermark. A black semi-automatic pistol, side view (profile), the muzzle pointing RIGHT, the grip at the bottom left, fills about 70% of the image width. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 364. `props/w_shotgun.png` — Значок: дробовик
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Game item icon for the weapon shop and pickups of a stylized top-down crime video game set in Tel Aviv: clean stylized illustration, crisp dark outlines, soft cel shading with light from the top-left, slightly stylized realistic proportions, readable at a small size, single object centered. Generic design without any real brand names, serial numbers, markings or logos. No hands, no people, no text, no watermark. A pump-action shotgun with a wooden stock and wooden pump grip and a dark steel barrel, side view (profile), lying horizontally, the muzzle pointing RIGHT, fills about 90% of the image width. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 365. `props/w_uzi.png` — Значок: узи
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Game item icon for the weapon shop and pickups of a stylized top-down crime video game set in Tel Aviv: clean stylized illustration, crisp dark outlines, soft cel shading with light from the top-left, slightly stylized realistic proportions, readable at a small size, single object centered. Generic design without any real brand names, serial numbers, markings or logos. No hands, no people, no text, no watermark. A compact black submachine gun in the style of a classic Israeli Uzi with a long straight magazine through the grip and a folded metal stock, side view (profile), the muzzle pointing RIGHT, fills about 70% of the image width. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 366. `props/w_ak.png` — Значок: автомат АК
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Game item icon for the weapon shop and pickups of a stylized top-down crime video game set in Tel Aviv: clean stylized illustration, crisp dark outlines, soft cel shading with light from the top-left, slightly stylized realistic proportions, readable at a small size, single object centered. Generic design without any real brand names, serial numbers, markings or logos. No hands, no people, no text, no watermark. An old Soviet-style assault rifle in the style of a Kalashnikov AK-47 with a wooden stock and wooden handguard and a curved magazine, side view (profile), lying horizontally, the muzzle pointing RIGHT, fills about 90% of the image width. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 367. `props/w_grenade.png` — Значок: граната
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Game item icon for the weapon shop and pickups of a stylized top-down crime video game set in Tel Aviv: clean stylized illustration, crisp dark outlines, soft cel shading with light from the top-left, slightly stylized realistic proportions, readable at a small size, single object centered. Generic design without any real brand names, serial numbers, markings or logos. No hands, no people, no text, no watermark. A single olive-green fragmentation hand grenade with a grey metal top, safety lever and pull ring, standing upright, three-quarter side view, fills about 60% of the image height. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 368. `props/w_rpg.png` — Значок: РПГ
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Game item icon for the weapon shop and pickups of a stylized top-down crime video game set in Tel Aviv: clean stylized illustration, crisp dark outlines, soft cel shading with light from the top-left, slightly stylized realistic proportions, readable at a small size, single object centered. Generic design without any real brand names, serial numbers, markings or logos. No hands, no people, no text, no watermark. A shoulder-fired rocket launcher in the style of an RPG-7: an olive-green metal tube with a wooden heat shield, a pistol grip and a pointed rocket warhead loaded at the front, side view (profile), lying horizontally, the warhead pointing RIGHT, fills about 90% of the image width. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+### 369. `props/w_armor.png` — Значок: бронежилет
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Game item icon for the weapon shop and pickups of a stylized top-down crime video game set in Tel Aviv: clean stylized illustration, crisp dark outlines, soft cel shading with light from the top-left, slightly stylized realistic proportions, readable at a small size, single object centered. Generic design without any real brand names, serial numbers, markings or logos. No hands, no people, no text, no watermark. A dark grey-blue tactical bulletproof vest with shoulder straps, front panel pockets and velcro, front view, upright, symmetric, fills about 75% of the image height. No letters or patches with text. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 

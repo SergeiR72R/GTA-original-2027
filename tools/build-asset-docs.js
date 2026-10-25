@@ -336,6 +336,10 @@ if (MTEX.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_MODELTEX
 const BRAND_LIST = ALL.filter((a) => a.batch === 'brand' && !have(a));
 if (BRAND_LIST.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_BRAND.md'), flowDoc(BRAND_LIST, `Задание для Claude в Chrome: логотип и заставки загрузки (${BRAND_LIST.length})`,
   `> Логотип игры «ХАМСИН» и рисованные заставки загрузки с героями игры.\n>\n> **Референсы.** Пользователь даёт архив \`hamsin-refs-brand.zip\`: портреты\n> героев (\`ref_portrait_*.png\`), спрайты, машины и рендеры зданий. К каждому\n> запросу прикладывай файлы, перечисленные в пункте, — их имена есть и в\n> промпте. Герои должны быть узнаваемы по референсам.\n>\n> **Логотип.** Генераторы часто путают кириллицу: проверь, что написано ровно\n> «ХАМСИН» и «ЧАСТЬ 1: ТЕЛЬ-АВИВ». Если после трёх попыток буквы кривые —\n> пропусти пункт: надпись игра наложит сама поверх эмблемы (№ следующий).`, BRAND_LIST[0]));
+// значки оружия — отдельное задание
+const WEAP = ALL.filter((a) => a.batch === 'weapons' && !have(a));
+if (WEAP.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_WEAPONS.md'), flowDoc(WEAP, `Задание для Claude в Chrome: значки оружия (${WEAP.length})`,
+  `> Значки оружия и бронежилета для витрин оружейных магазинов и подбираемых\n> предметов. Вид **сбоку**, ствол **вправо**, один предмет по центру на\n> сплошном пурпурном фоне (#FF00FF). Без рук, надписей и логотипов.`, WEAP[0]));
 // машины банд — отдельным дополнением к большому заданию (досылается следом)
 const GANG_CARS = ALL.filter((a) => /^(lux_odessa|pickup_bahar|lions_car|iran_car)(_d\d)?$/.test(a.file));
 fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_GANGCARS.md'), flowDoc(GANG_CARS, `Дополнение для Claude в Chrome: карикатурные машины банд (${GANG_CARS.length})`,
