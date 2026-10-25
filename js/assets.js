@@ -25,8 +25,14 @@ const Assets = {
   soundList() {
     const S = 'assets/sounds/';
     return {
-      crash0: S + 'impactMetal_heavy_000.ogg', crash1: S + 'impactMetal_heavy_001.ogg', crash2: S + 'impactMetal_heavy_002.ogg',
-      crash3: S + 'impactMetal_heavy_003.ogg', crash4: S + 'impactMetal_heavy_004.ogg',
+      // аварии: удар металла + хруст + стекло (слои, см. CREDITS.txt)
+      crash0: S + 'carcrash0.ogg', crash1: S + 'carcrash1.ogg', crash2: S + 'carcrash2.ogg',
+      crash3: S + 'carcrash3.ogg', crash4: S + 'carcrash4.ogg',
+      // выстрелы: записи настоящего оружия (The Free Firearm Sound Library, CC0), по 3 варианта
+      shot_pistol0: S + 'shot_pistol0.ogg', shot_pistol1: S + 'shot_pistol1.ogg', shot_pistol2: S + 'shot_pistol2.ogg',
+      shot_shotgun0: S + 'shot_shotgun0.ogg', shot_shotgun1: S + 'shot_shotgun1.ogg', shot_shotgun2: S + 'shot_shotgun2.ogg',
+      shot_uzi0: S + 'shot_uzi0.ogg', shot_uzi1: S + 'shot_uzi1.ogg', shot_uzi2: S + 'shot_uzi2.ogg',
+      shot_ak0: S + 'shot_ak0.ogg', shot_ak1: S + 'shot_ak1.ogg', shot_ak2: S + 'shot_ak2.ogg',
       punch0: S + 'impactPunch_medium_000.ogg', punch1: S + 'impactPunch_heavy_000.ogg', punch2: S + 'impactPunch_heavy_001.ogg',
       splat: S + 'impactSoft_heavy_000.ogg',
       fall: S + 'impactSoft_medium_000.ogg',

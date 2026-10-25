@@ -938,7 +938,7 @@ function fireBullet(shooter, weapon, angle) {
   spawnParticle(mx, my, 'flash');
   const pl = World.player;
   const d = dist(shooter.x, shooter.y, pl.x, pl.y);
-  if (d < 900) Sound.gunshot(weapon === 'uzi' || weapon === 'ak', weapon === 'shotgun');
+  if (d < 1100) Sound.shot(weapon, d);
   // выстрелы пугают прохожих в радиусе квартала
   panic(shooter.x, shooter.y);
   if (shooter === pl) { Wanted.crime('shoot', pl.x, pl.y); Game.shots = (Game.shots || 0) + 1; }

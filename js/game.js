@@ -505,7 +505,7 @@ const Game = {
       if (c.skid && c.speed > 100 && Math.random() < 0.5) addSkid(c);
       if (this.hit('KeyH')) Sound.horn();
       if (this.hit('KeyR')) this.message(Sound.nextStation(), 2);
-      Sound.setEngine(!c.dead, clamp(c.speed / (c.maxSpeed || 1), 0, 1));
+      Sound.setEngine(!c.dead, clamp(c.speed / (c.maxSpeed || 1), 0, 1), thr, c.type);
       // покраска
       const ps = City.places.paint;
       if (Wanted.level > 0 && dist(c.x, c.y, ps.x, ps.y) < 90 && c.speed < 120) {

@@ -150,32 +150,81 @@ const Sound = {
     }
   },
 
-  // Мотор: пила + фильтр, частота зависит от скорости
-  setEngine(on, speed01) {
+  // Выстрел: запись оружия (3 варианта), громкость от расстояния, чуть разный тон.
+  // Одновременно звучит не больше 8 выстрелов — очередь узи не превращается в кашу
+  SHOT_VOL: { pistol: 0.8, shotgun: 1, uzi: 0.55, ak: 0.7 },
+  shot(weapon, d = 0) {
+    if (this.muted) return;
+    const base0 = this.SHOT_VOL[weapon];
+    if (!base0) { this.gunshot(weapon === 'uzi' || weapon === 'ak', weapon === 'shotgun'); return; }
+    if ((this.shots || 0) >= 8) return;
+    const list = ['0', '1', '2'].map((n) => Assets.snd['shot_' + weapon + n]).filter(Boolean);
+    if (!list.length) { this.gunshot(weapon === 'uzi' || weapon === 'ak', weapon === 'shotgun'); return; }
+    try {
+      const a = pick(list).cloneNode();
+      a.volume = clamp(base0 * Math.pow(1 - clamp(d / 1100, 0, 1), 1.5), 0, 1);
+      a.preservesPitch = false; a.playbackRate = rand(0.95, 1.05);
+      this.shots = (this.shots || 0) + 1;
+      const done = () => { this.shots = Math.max(0, this.shots - 1); };
+      a.addEventListener('ended', done, { once: true });
+      a.addEventListener('error', done, { once: true });
+      const p = a.play();
+      if (p && p.catch) p.catch(done);
+    } catch (e) { /* без звука */ }
+  },
+
+  // Мотор: запись настоящего мотора (assets/sounds/engine_loop.js) в петле, тон и
+  // тембр — от оборотов. Коробка передач: обороты растут внутри передачи, при
+  // переключении падают; на газу мотор громче и звонче. Скутер — вариатор (без
+  // передач, выше тон), автобус и грузовик — ниже
+  GEARS: [0.16, 0.32, 0.5, 0.72, 1.0],
+  engineBuffer() {
+    if (this.engBufP || !window.ENGINE_LOOP) return this.engBufP;
+    const b = atob(window.ENGINE_LOOP.split(',')[1]), u = new Uint8Array(b.length);
+    for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+    this.engBufP = this.ctx.decodeAudioData(u.buffer).then((buf) => (this.engBuf = buf)).catch(() => null);
+    return this.engBufP;
+  },
+
+  setEngine(on, speed01, throttle = 0, type = 'car') {
     if (!this.ctx) return;
     if (on && !this.engine) {
-      const o = this.ctx.createOscillator();
-      const o2 = this.ctx.createOscillator();
+      this.engineBuffer();
+      if (!this.engBuf) return; // ещё декодируется
+      const src = this.ctx.createBufferSource();
       const f = this.ctx.createBiquadFilter();
       const g = this.ctx.createGain();
-      o.type = 'sawtooth'; o2.type = 'square';
-      f.type = 'lowpass'; f.frequency.value = 400;
+      src.buffer = this.engBuf; src.loop = true;
+      f.type = 'lowpass'; f.frequency.value = 1200;
       g.gain.value = 0;
-      o.connect(f); o2.connect(f); f.connect(g); g.connect(this.master);
-      o.start(); o2.start();
-      this.engine = { o, o2, f, g };
+      src.connect(f); f.connect(g); g.connect(this.master);
+      src.start();
+      this.engine = { src, f, g, gear: 0, rpm: 0.2 };
     }
-    if (!this.engine) return;
+    const E = this.engine;
+    if (!E) return;
     const t = this.ctx.currentTime;
-    if (!on) {
-      this.engine.g.gain.setTargetAtTime(0, t, 0.05);
-      return;
+    if (!on) { E.g.gain.setTargetAtTime(0, t, 0.08); E.gear = 0; return; }
+    const s = clamp(speed01, 0, 1), G = this.GEARS, cvt = type === 'scooter' || type === 'moto';
+    let rpm;
+    if (cvt) rpm = 0.25 + 0.7 * Math.sqrt(s);
+    else {
+      // передача: вверх у верхней границы, вниз с запасом (без дребезга)
+      let g = E.gear;
+      while (g < G.length - 1 && s > G[g] * 0.97) g++;
+      while (g > 0 && s < G[g - 1] * 0.8) g--;
+      if (g > E.gear) E.shiftT = t + 0.16; // на переключении — короткий провал газа
+      E.gear = g;
+      const lo = g ? G[g - 1] * 0.8 : 0, k = clamp((s - lo) / (G[g] - lo), 0, 1);
+      rpm = g ? 0.42 + 0.58 * k : 0.2 + 0.8 * k;
     }
-    const fr = 38 + speed01 * 95;
-    this.engine.o.frequency.setTargetAtTime(fr, t, 0.05);
-    this.engine.o2.frequency.setTargetAtTime(fr * 0.5, t, 0.05);
-    this.engine.f.frequency.setTargetAtTime(250 + speed01 * 900, t, 0.05);
-    this.engine.g.gain.setTargetAtTime(0.05 + speed01 * 0.04, t, 0.05);
+    if (s < 0.03) rpm = throttle > 0 ? 0.42 : 0.2; // холостые; на газу с места — подгазовка
+    const shifting = E.shiftT && t < E.shiftT;
+    const pitch = type === 'bus' || type === 'truck' ? 0.75 : cvt ? 1.3 : 1;
+    E.src.playbackRate.setTargetAtTime((0.38 + rpm * 1.5) * pitch, t, shifting ? 0.05 : 0.09);
+    const gas = throttle > 0 && !shifting ? 1 : 0;
+    E.f.frequency.setTargetAtTime(700 + rpm * 2600 + gas * 900, t, 0.08);
+    E.g.gain.setTargetAtTime((0.05 + rpm * 0.06 + gas * 0.04) * (shifting ? 0.6 : 1), t, 0.06);
   },
 
   // Сирена полиции: громкость зависит от расстояния до ближайшей машины
