@@ -356,7 +356,7 @@ const R3 = {
     M.adcol = new THREE.MeshLambertMaterial({ map: this.tex(Facades.adColumn()), vertexColors: true, side });
     M.lampHead = new THREE.MeshBasicMaterial({ color: 0x9aa0a6 });
     M.glow = new THREE.MeshBasicMaterial({ map: this.tex(Facades.glow('rgba(255,190,110,1)')), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 });
-    M.headlights = new THREE.MeshBasicMaterial({ map: this.tex(Facades.headlights()), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 });
+    this.headMats = new Map();
     M.sirenR = new THREE.MeshBasicMaterial({ map: this.tex(Facades.glow('rgba(255,40,40,1)')), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
     M.sirenB = new THREE.MeshBasicMaterial({ map: this.tex(Facades.glow('rgba(60,120,255,1)')), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
     M.ground = new THREE.MeshLambertMaterial({ color: 0x56703e });
@@ -940,8 +940,10 @@ const R3 = {
       wheels.position.y = 3; grp.add(wheels);
     }
     // пятно света начинается у самого бампера: фары — его источники (Facades.headlights)
-    const head = new THREE.Mesh(new THREE.PlaneGeometry(car.w * 3.2, 200).rotateX(-Math.PI / 2), this.mats.headlights);
-    head.position.set(0, 1.5, -car.l / 2 - 100 + 2);
+    // у каждой машины фары на своих местах (VTYPES.lamp), у мопеда и мотоцикла — одна
+    const off = Math.round((car.T.lamp ?? 0.35) * car.w), PW = off ? 2 * off + 136 : 110, PL = off ? 200 : 190;
+    const head = new THREE.Mesh(new THREE.PlaneGeometry(PW, PL).rotateX(-Math.PI / 2), this.headMat(off, PW, PL));
+    head.position.set(0, 1.5, -car.l / 2 - PL / 2 + 2);
     grp.add(head);
     const o = { grp, body, cv, top, side, head, key: '', h };
     if (car.police || car.type === 'ambulance') {
@@ -955,6 +957,17 @@ const R3 = {
     }
     this.scene.add(grp);
     return o;
+  },
+
+  // материал пятна фар — один на каждое расположение фар
+  headMat(off, PW, PL) {
+    const key = off + '_' + PW + '_' + PL;
+    let m = this.headMats.get(key);
+    if (!m) {
+      m = new THREE.MeshBasicMaterial({ map: this.tex(Facades.headlights(off, PW, PL)), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: this.headMats.size ? [...this.headMats.values()][0].opacity : 0 });
+      this.headMats.set(key, m);
+    }
+    return m;
   },
 
   drawCarTex(o, car) {
@@ -1528,7 +1541,7 @@ const R3 = {
     this.mats.lampHead.color.setHex(k > 0.35 ? 0xfff3c4 : 0x9aa0a6);
     // световое пятно под каждым фонарём — дешёвая замена источника света
     this.mats.glow.opacity = k * 0.5;
-    this.mats.headlights.opacity = k * 0.7;
+    for (const m of this.headMats.values()) m.opacity = k * 0.7;
     // хамсин — жёлтая пыльная мгла, наползает и уходит плавно
     // граница тумана сдвигается равномерно: при слабом хамсине — за край
     // экрана (до него ~2 высоты камеры), при сильном — почти к герою

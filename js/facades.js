@@ -669,13 +669,19 @@ const Facades = {
   // Свет фар на асфальте (вид сверху, машина внизу текстуры): два мягких
   // конуса с размытыми краями, которые дальше сливаются в общее пятно, и
   // яркие пятна у самих фар. Считается по пикселям — без резких граней
-  headlights() {
-    if (this.cache.head) return this.cache.head;
+  // Пятно света фар: off — от середины до каждой фары, PW×PL — размер пятна
+  // (в единицах игры); off = 0 — одна фара по центру (мопед, мотоцикл).
+  // Свет начинается точно в фарах, поэтому у широкой машины лучи шире.
+  headlights(off = 18, PW = 172, PL = 200) {
+    const key = 'head' + off + '_' + PW + '_' + PL;
+    if (this.cache[key]) return this.cache[key];
     const W = 128, H = 256, c = this.canvas(W, H), g = c.getContext('2d');
     const img = g.createImageData(W, H), d = img.data;
-    // фары — по краям капота: ±0,33 ширины машины при ширине пятна 3,2 машины
-    const lamps = [W * (0.5 - 0.33 / 3.2), W * (0.5 + 0.33 / 3.2)];
-    const AW = 0.55; // ширина пятна к его длине (≈ 3,2 ширины машины к 200)
+    const one = off === 0;
+    const lamps = one ? [W / 2] : [W * (0.5 - off / PW), W * (0.5 + off / PW)];
+    const AW = PW / PL; // ширина пятна к его длине
+    // одна фара светит узким конусом, но ярче
+    const sig = one ? 0.3 : 0.36, gain = one ? 0.75 : 0.5, tilt = one ? 0 : 0.1;
     for (let y = 0; y < H; y++) {
       const v = (H - y) / H; // 0 — у бампера, 1 — дальний край
       for (let x = 0; x < W; x++) {
@@ -683,13 +689,13 @@ const Facades = {
         lamps.forEach((lx, k) => {
           const dx = (x - lx) / W * AW, dist = Math.hypot(dx, v);
           // луч чуть развёрнут наружу (как у настоящих фар), край мягкий
-          const ang = Math.atan2(dx * (k ? 1 : -1), v + 0.015) - 0.1;
-          const cone = Math.exp(-Math.pow(ang / 0.36, 2));
+          const ang = Math.atan2(dx * (k ? 1 : -1), v + 0.015) - tilt;
+          const cone = Math.exp(-Math.pow(ang / sig, 2));
           const fall = 1 - Math.min(1, dist / 1.02); // гаснет вдали
           const hot = Math.exp(-Math.pow(dist / 0.03, 2)) * 0.5; // сама фара
-          a += cone * fall * 0.5 + hot;
+          a += cone * fall * gain + hot;
         });
-        // лёгкая засветка асфальта между лучами
+        // лёгкая засветка асфальта перед машиной
         const ex = (x / W - 0.5) / 0.3, ey = (v - 0.3) / 0.4;
         a += Math.exp(-(ex * ex + ey * ey)) * 0.08;
         // к краям текстуры — ноль, чтобы не было видно прямоугольника
@@ -700,7 +706,7 @@ const Facades = {
       }
     }
     g.putImageData(img, 0, 0);
-    this.cache.head = c;
+    this.cache[key] = c;
     return c;
   },
 

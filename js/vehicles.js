@@ -17,27 +17,29 @@ function pickWeighted(list) {
 }
 
 const VTYPES = {
-  sedan: { name: 'Седан', w: 34, l: 66, hp: 100, max: 360, acc: 260, grip: 9, turn: 2.6 },
-  hatch: { name: 'Хэтчбек', w: 32, l: 56, hp: 85, max: 340, acc: 270, grip: 9.5, turn: 2.8 },
-  suv: { name: 'Джип', w: 37, l: 70, hp: 130, max: 350, acc: 250, grip: 8.5, turn: 2.4 },
-  lux: { name: 'Чёрный лимузин', w: 37, l: 76, hp: 140, max: 400, acc: 290, grip: 9, turn: 2.4, color: '#141518' },
-  taxi: { name: 'Такси', w: 34, l: 66, hp: 100, max: 350, acc: 260, grip: 9, turn: 2.6, color: '#f4f4f2' },
-  police: { name: 'Полиция', w: 37, l: 70, hp: 170, max: 410, acc: 300, grip: 9, turn: 2.6, color: '#f6f6f6' },
-  ambulance: { name: 'Скорая', w: 40, l: 86, hp: 160, max: 330, acc: 220, grip: 8, turn: 2.2, color: '#fafafa' },
-  van: { name: 'Фургон', w: 38, l: 80, hp: 140, max: 300, acc: 210, grip: 8, turn: 2.2 },
-  pickup: { name: 'Пикап', w: 37, l: 78, hp: 140, max: 340, acc: 250, grip: 8.5, turn: 2.3 },
-  sherut: { name: 'Маршрутка-шерут', w: 40, l: 92, hp: 160, max: 300, acc: 200, grip: 8, turn: 2.1, color: '#f2c21b' },
-  bus: { name: 'Автобус', w: 46, l: 150, hp: 320, max: 230, acc: 130, grip: 7, turn: 1.6, color: '#2e8b57' },
-  garbage: { name: 'Мусоровоз', w: 44, l: 104, hp: 300, max: 220, acc: 130, grip: 7, turn: 1.7, color: '#4f7f3a' },
-  scooter: { name: 'Скутер «Шмоне-Бис»', w: 16, l: 40, hp: 50, max: 330, acc: 320, grip: 14, turn: 3.4, moto: true, color: '#ff6a1a' },
-  moto: { name: 'Мотоцикл', w: 18, l: 46, hp: 55, max: 440, acc: 350, grip: 14, turn: 3.2, moto: true },
+  sedan: { name: 'Седан', w: 34, l: 66, hp: 100, max: 360, acc: 260, grip: 9, turn: 2.6, lamp: 0.35 },
+  hatch: { name: 'Хэтчбек', w: 32, l: 56, hp: 85, max: 340, acc: 270, grip: 9.5, turn: 2.8, lamp: 0.32 },
+  suv: { name: 'Джип', w: 37, l: 70, hp: 130, max: 350, acc: 250, grip: 8.5, turn: 2.4, lamp: 0.38 },
+  lux: { name: 'Чёрный лимузин', w: 37, l: 76, hp: 140, max: 400, acc: 290, grip: 9, turn: 2.4, color: '#141518', lamp: 0.36 },
+  taxi: { name: 'Такси', w: 34, l: 66, hp: 100, max: 350, acc: 260, grip: 9, turn: 2.6, color: '#f4f4f2', lamp: 0.35 },
+  police: { name: 'Полиция', w: 37, l: 70, hp: 170, max: 410, acc: 300, grip: 9, turn: 2.6, color: '#f6f6f6', lamp: 0.37 },
+  ambulance: { name: 'Скорая', w: 40, l: 86, hp: 160, max: 330, acc: 220, grip: 8, turn: 2.2, color: '#fafafa', lamp: 0.4 },
+  van: { name: 'Фургон', w: 38, l: 80, hp: 140, max: 300, acc: 210, grip: 8, turn: 2.2, lamp: 0.4 },
+  pickup: { name: 'Пикап', w: 37, l: 78, hp: 140, max: 340, acc: 250, grip: 8.5, turn: 2.3, lamp: 0.38 },
+  sherut: { name: 'Маршрутка-шерут', w: 40, l: 92, hp: 160, max: 300, acc: 200, grip: 8, turn: 2.1, color: '#f2c21b', lamp: 0.41 },
+  bus: { name: 'Автобус', w: 46, l: 150, hp: 320, max: 230, acc: 130, grip: 7, turn: 1.6, color: '#2e8b57', lamp: 0.43 },
+  garbage: { name: 'Мусоровоз', w: 44, l: 104, hp: 300, max: 220, acc: 130, grip: 7, turn: 1.7, color: '#4f7f3a', lamp: 0.42 },
+  scooter: { name: 'Скутер «Шмоне-Бис»', w: 16, l: 40, hp: 50, max: 330, acc: 320, grip: 14, turn: 3.4, moto: true, color: '#ff6a1a', lamp: 0 },
+  moto: { name: 'Мотоцикл', w: 18, l: 46, hp: 55, max: 440, acc: 350, grip: 14, turn: 3.2, moto: true, lamp: 0 },
   // только для миссий: тягач с контейнером и бочка с топливом (взрывается)
-  truck: { name: 'Тягач с контейнером', w: 40, l: 120, hp: 420, max: 260, acc: 130, grip: 7, turn: 1.6, color: '#1565c0' },
+  truck: { name: 'Тягач с контейнером', w: 40, l: 120, hp: 420, max: 260, acc: 130, grip: 7, turn: 1.6, color: '#1565c0', lamp: 0.42 },
   barrel: { name: 'Бочка с топливом', w: 17, l: 17, hp: 8, max: 0, acc: 0, grip: 20, turn: 0, color: '#c62828', prop: true },
 };
 
 // Масштаб как в GTA2: машина почти во всю полосу (≈0,8 клетки) и длиной ≈1,6
 // клетки. Таблица выше — в «старых» единицах, пересчитываем один раз.
+// lamp — где фары: доля ширины от середины до каждой фары (0 — одна фара по
+// центру, как у мопеда и мотоцикла)
 const CAR_SCALE = 1.55, CAR_SPEED = 1.2;
 for (const t of Object.values(VTYPES)) {
   t.w = Math.min(58, Math.round(t.w * CAR_SCALE));
