@@ -1,58 +1,22 @@
 Песни радио «Хамсин FM»
 
-=== Станция «Новая волна» ===
-Израильская музыка на иврите под лицензиями Creative Commons. Игра
-бесплатная и некоммерческая, поэтому годятся и лицензии с NC. Для игры —
-выровнена громкость, убрана тишина в начале, mp3 64 кбит/с.
+Все песни написаны и созданы для этой игры: тексты на иврите — автор игры
+вместе с Claude, музыка и вокал сгенерированы в Gemini (Google) и Suno
+по заказу автора игры. Только для бесплатной некоммерческой игры «ХАМСИН».
+Для игры выровнена громкость, убрана тишина в начале, mp3 64 кбит/с стерео.
+Тексты — CLAUDE_CHROME_GEMINI_SONGS.md.
 
-suno_avak_rock.mp3     «Пыль дорог» (אבק הדרכים), рок-версия
-suno_avak_mizrahi.mp3  «Пыль дорог» (אבק הדרכים), мизрахи-кантри
-                       Созданы автором игры в Suno (suno.com), 2026.
-                       Только для этой бесплатной некоммерческой игры.
-
-rosenfeld_jeans.mp3    «Ба-джинс ве-сандалим» (בג׳ינס וסנדלים)
-                       Avi Rosenfeld, альбом Kompozitsia II, 2010
-                       CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/
-                       https://www.jamendo.com/track/521708
-
-rosenfeld_hayam.mp3    «Ха-ям» (הים)
-                       Avi Rosenfeld, альбом Kompozitsia IV, 2010
-                       CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/
-                       https://www.jamendo.com/track/692004
-
-rosenfeld_ahava.mp3    «Ха-ахава шели клапайх» (האהבה שלי כלפייך)
-                       Avi Rosenfeld, альбом Tramontana II, 2012
-                       CC BY-NC-SA 3.0 — https://creativecommons.org/licenses/by-nc-sa/3.0/
-                       https://www.jamendo.com/track/983813
-
-=== Станция «Старые пластинки» ===
-
-Все пять записей — общественное достояние (Public Domain Mark 1.0).
-Оцифровка: Library of Congress, National Jukebox (Packard Campus for Audio
-Visual Conservation), копии в Internet Archive. Для игры обрезана тишина,
-снижен шум, выровнена громкость, моно 56 кбит/с.
-
-nes_ziona.mp3          «Нес Циона» (נס ציונה), иврит
-                       Jakov M. Medvedieff, King's Orchestra, дир. Edward T. King
-                       Victor, 1916-08-08
-                       https://archive.org/details/loc-jukebox-19190-nes-ziona
-
-shir_avoda.mp3         «Шир ха-авода» (שיר העבודה), иврит
-                       Jakov M. Medvedieff, King's Orchestra, дир. Edward T. King
-                       Victor, 1916-08-08
-                       https://archive.org/details/loc-jukebox-19191-shir-avoida
-
-ahavat_raya.mp3        «Ахават рая» (אהבת רעיה), иврит, музыка Joel Engel
-                       Mordechai Hershman, дир. Nathaniel Shilkret
-                       Victor, 1923-01-31
-                       https://archive.org/details/loc-jukebox-65971-ahavat-rahya
-
-talmidei_hachamim.mp3  «Талмидей хахамим» (תלמידי חכמים), иврит
-                       David Roitman, дир. Nathaniel Shilkret
-                       Victor, 1925-01-07
-                       https://archive.org/details/loc-jukebox-72311-talmidei-chachomim
-
-hatikva.mp3            «Ха-Тиква» (התקווה), иврит, слова Naphtali Herz Imber
-                       Meyer Kanewsky, дир. Edward T. King
-                       Victor, 1915-10-22
-                       https://archive.org/details/loc-jukebox-15276-hatikvoh
+fm_hamsin.mp3           «Хамсин» (חמסין), мизрахи-поп
+fm_hamsin_halaila.mp3   «Хамсин этой ночью» (חמסין הלילה), мизрахи
+fm_ayalon_a.mp3         «Аялон» (איילון), рэп
+fm_ayalon_b.mp3         «Аялон» (איילון), рэп, вторая версия
+fm_yihye_tov_a.mp3      «Будет хорошо» (יהיה טוב), рок-баллада
+fm_yihye_tov_b.mp3      «Будет хорошо» (יהיה טוב), рок-баллада, вторая версия
+fm_shakshuka_a.mp3      «Шакшука» (שקשוקה), регги
+fm_shakshuka_b.mp3      «Шакшука» (שקשוקה), регги, вторая версия
+fm_rothschild.mp3       «Ротшильд» (רוטשילד), синти-поп
+fm_odessa.mp3           «Одесса» (אודסה), шансон
+fm_gondar.mp3           «Гондэр» (גונדר), эфиопский грув
+fm_yafo.mp3             «Яффо» (יפו), восточный поп
+fm_arnona.mp3           «Арнона» (ארנונה), панк
+fm_hummus.mp3           «Хумус» (חומוס), фанк

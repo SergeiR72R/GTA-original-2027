@@ -345,6 +345,20 @@ const Sound = {
   // Два положения: включено / выключено (R); по умолчанию музыки нет, выбор
   // запоминается. Добавить песню: файл в assets/radio/ и строка сюда
   SONGS: [
+    { list: 'fm', file: 'fm_hamsin', title: '«Хамсин» (חמסין)', genre: 'мизрахи-поп', he: 'חמסין — מזרחית' },
+    { list: 'fm', file: 'fm_hamsin_halaila', title: '«Хамсин этой ночью» (חמסין הלילה)', genre: 'мизрахи', he: 'חמסין הלילה' },
+    { list: 'fm', file: 'fm_ayalon_a', title: '«Аялон» (איילון)', genre: 'рэп', he: 'איילון — ראפ' },
+    { list: 'fm', file: 'fm_ayalon_b', title: '«Аялон» (איילון)', genre: 'рэп, вторая версия', he: 'איילון — ראפ, גרסה שנייה' },
+    { list: 'fm', file: 'fm_yihye_tov_a', title: '«Будет хорошо» (יהיה טוב)', genre: 'рок-баллада', he: 'יהיה טוב — בלדת רוק' },
+    { list: 'fm', file: 'fm_yihye_tov_b', title: '«Будет хорошо» (יהיה טוב)', genre: 'рок-баллада, вторая версия', he: 'יהיה טוב — בלדת רוק, גרסה שנייה' },
+    { list: 'fm', file: 'fm_shakshuka_a', title: '«Шакшука» (שקשוקה)', genre: 'регги', he: 'שקשוקה — רגאיי' },
+    { list: 'fm', file: 'fm_shakshuka_b', title: '«Шакшука» (שקשוקה)', genre: 'регги, вторая версия', he: 'שקשוקה — רגאיי, גרסה שנייה' },
+    { list: 'fm', file: 'fm_rothschild', title: '«Ротшильд» (רוטשילד)', genre: 'синти-поп', he: 'רוטשילד — סינת׳ פופ' },
+    { list: 'fm', file: 'fm_odessa', title: '«Одесса» (אודסה)', genre: 'шансон', he: 'אודסה — שנסון' },
+    { list: 'fm', file: 'fm_gondar', title: '«Гондэр» (גונדר)', genre: 'эфиопский грув', he: 'גונדר — גרוב אתיופי' },
+    { list: 'fm', file: 'fm_yafo', title: '«Яффо» (יפו)', genre: 'восточный поп', he: 'יפו — פופ מזרחי' },
+    { list: 'fm', file: 'fm_arnona', title: '«Арнона» (ארנונה)', genre: 'панк', he: 'ארנונה — פאנק' },
+    { list: 'fm', file: 'fm_hummus', title: '«Хумус» (חומוס)', genre: 'фанк', he: 'חומוס — פאנק־דיסקו' },
   ],
   STATIONS: [
     { name: '📻 Хамсин FM', list: 'fm' },
