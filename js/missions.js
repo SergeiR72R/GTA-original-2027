@@ -325,10 +325,25 @@ const MISSIONS = [
       m.car = c;
       m.gadi = new Ped(p.x + 44, p.y + 10, { look: Looks.named('gadi', Object.assign(Looks.civilian(), { shirt: '#6a1b9a' })), ai: 'idle', hp: 60 });
       World.peds.push(m.gadi);
-      World.pickups.push(new Pickup(City.places.pistol.x, City.places.pistol.y, 'pistol', { ammo: 36, once: true }));
+      // пистолет — «за углом от телефона»: ближайший тротуар в 4–8 клетках от автомата
+      const ph = City.places.phone2, tx0 = Math.floor(ph.x / TILE), ty0 = Math.floor(ph.y / TILE);
+      let spot = null;
+      for (let r = 4; r <= 8 && !spot; r++) {
+        for (let dy = -r; dy <= r && !spot; dy++) for (let dx = -r; dx <= r && !spot; dx++) {
+          if (Math.max(Math.abs(dx), Math.abs(dy)) !== r || !City.isWalkway(tx0 + dx, ty0 + dy)) continue;
+          const x = (tx0 + dx + 0.5) * TILE, y = (ty0 + dy + 0.5) * TILE;
+          if (!City.solidAt(x, y)) spot = { x, y };
+        }
+      }
+      spot = spot || City.places.pistol;
+      m.gun = new Pickup(spot.x, spot.y, 'pistol', { ammo: 36, once: true });
+      World.pickups.push(m.gun);
     },
     update(m, dt) {
       const pl = World.player, c = m.car;
+      // сначала — за пистолетом (если его ещё нет)
+      if (!m.armed && (pl.ammo.pistol > 0 || !World.pickups.includes(m.gun) || !m.gun.active)) m.armed = true;
+      if (!m.armed && !m.fled && !c.dead) { m.text = 'Возьми пистолет — он за углом от телефона'; m.target = m.gun; return; }
       if (c.dead) {
         if (c.driver && c.driver !== 'player') bailOut(c);
         Wanted.set(Math.max(Wanted.level, 1));
@@ -350,6 +365,7 @@ const MISSIONS = [
     cleanup(m) {
       if (m.car) { m.car.mission = null; if (m.car.ai === 'scripted') m.car.ai = null; }
       if (m.gadi && !m.gadi.car) m.gadi.ai = 'walk';
+      if (m.gun) m.gun.dead = true; // при повторе миссии появится новый
     },
   },
 ];
