@@ -394,7 +394,8 @@ const Game = {
     pl.car = best;
     Sound.play('doorClose', 0.8);
     Sound.setRadio(true);
-    if (Sound.radioOn) this.message('📻 Хамсин FM — R: сменить станцию', 3);
+    if (Sound.radioOn) this.message('📻 Хамсин FM — R: выключить радио', 3);
+    else if ((this.radioHints = (this.radioHints || 0) + 1) <= 3) this.message('📻 R — включить радио «Хамсин FM»', 3);
   },
 
   exitCar(silent) {

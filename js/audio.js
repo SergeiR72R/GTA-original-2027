@@ -1,5 +1,5 @@
 // Звук: сэмплы Kenney (CC0) + синтез через WebAudio (выстрелы, взрывы,
-// мотор, сирена, клаксон и простое «радио» с восточным мотивом).
+// мотор, сирена, клаксон). Радио «Хамсин FM» — песни из assets/radio/.
 'use strict';
 
 const Sound = {
@@ -8,11 +8,9 @@ const Sound = {
   muted: false,
   engine: null,
   siren: null,
-  radioOn: true,
-  radio: null,
-  // станции: 0 — старые пластинки на иврите, 1 — восточный ритм (синтез), 2 — выключено
-  station: 0,
-  song: null,
+  // радио «Хамсин FM»: по умолчанию выключено (station 1), выбор игрока запоминается
+  radioOn: false,
+  station: 1,
 
   init() {
     if (this.ctx) return;
@@ -343,37 +341,23 @@ const Sound = {
   },
 
   // ---------- Радио «Хамсин FM» ----------
-  // Станции с песнями: «Новая волна» — израильская инди-музыка на иврите под
-  // Creative Commons (в т. ч. NC: игра бесплатная), «Старые пластинки» — записи
-  // 1915–1925 гг., общественное достояние. Авторы и лицензии — assets/radio/CREDITS.txt.
-  // Добавить песню: файл в assets/radio/ и строка сюда
+  // Песни на иврите, созданные для игры в Gemini (assets/radio/CREDITS.txt).
+  // Два положения: включено / выключено (R); по умолчанию музыки нет, выбор
+  // запоминается. Добавить песню: файл в assets/radio/ и строка сюда
   SONGS: [
-    { list: 'new', file: 'suno_avak_rock', title: '«Пыль дорог» (אבק הדרכים)', who: 'Хамсин FM, рок-версия', he: 'אבק הדרכים — חמסין FM, גרסת רוק' },
-    { list: 'new', file: 'suno_avak_mizrahi', title: '«Пыль дорог» (אבק הדרכים)', who: 'Хамсин FM, мизрахи-кантри', he: 'אבק הדרכים — חמסין FM, גרסה מזרחית־קאנטרי' },
-    { list: 'new', file: 'rosenfeld_jeans', title: '«Ба-джинс ве-сандалим» (בג׳ינס וסנדלים)', who: 'Ави Розенфельд, 2010', he: 'בג׳ינס וסנדלים — אבי רוזנפלד, 2010' },
-    { list: 'new', file: 'rosenfeld_hayam', title: '«Ха-ям» (הים)', who: 'Ави Розенфельд, 2010', he: 'הים — אבי רוזנפלד, 2010' },
-    { list: 'new', file: 'rosenfeld_ahava', title: '«Ха-ахава шели» (האהבה שלי)', who: 'Ави Розенфельд, 2012', he: 'האהבה שלי כלפייך — אבי רוזנפלד, 2012' },
-    { list: 'old', file: 'nes_ziona', title: '«Нес Циона» (נס ציונה)', who: 'Яков Медведев, 1916', he: 'נס ציונה — יעקב מדבדב, 1916' },
-    { list: 'old', file: 'shir_avoda', title: '«Шир ха-авода» (שיר העבודה)', who: 'Яков Медведев, 1916', he: 'שיר העבודה — יעקב מדבדב, 1916' },
-    { list: 'old', file: 'ahavat_raya', title: '«Ахават рая» (אהבת רעיה)', who: 'Мордехай Гершман, 1923', he: 'אהבת רעיה — מרדכי הרשמן, 1923' },
-    { list: 'old', file: 'talmidei_hachamim', title: '«Талмидей хахамим» (תלמידי חכמים)', who: 'Давид Ройтман, 1925', he: 'תלמידי חכמים — דוד רויטמן, 1925' },
-    { list: 'old', file: 'hatikva', title: '«Ха-Тиква» (התקווה)', who: 'Мейер Каневский, 1915', he: 'התקווה — מאיר קנבסקי, 1915' },
   ],
-  // станции по кругу (R): песни списка list, синтезатор или тишина
   STATIONS: [
-    { name: '📻 Хамсин FM · Новая волна', list: 'new' },
-    { name: '📻 Хамсин FM · Старые пластинки', list: 'old' },
-    { name: '📻 Хамсин FM · Восточный ритм', synth: true },
+    { name: '📻 Хамсин FM', list: 'fm' },
     { name: '📻 Радио выключено' },
   ],
 
-  // R: следующая станция
+  // R: включить / выключить радио
   nextStation() {
     this.station = (this.station + 1) % this.STATIONS.length;
-    const st = this.STATIONS[this.station];
-    this.radioOn = !!(st.list || st.synth);
+    this.radioOn = !!this.STATIONS[this.station].list;
+    try { localStorage.setItem('hamsin.radio', this.radioOn ? 'on' : 'off'); } catch (e) { /* без хранилища */ }
     for (const k in this.players) this.players[k].shown = false;
-    return st.name;
+    return this.STATIONS[this.station].name;
   },
 
   // Плеер песен станции: один <audio>, по кругу в случайном порядке. Работает и с диска
@@ -395,25 +379,15 @@ const Sound = {
     return S;
   },
 
-  radioStart() {
-    if (!this.ctx || this.radio) return;
-    const g = this.ctx.createGain();
-    g.gain.value = 0;
-    g.connect(this.master);
-    this.radio = { g, step: 0, next: this.ctx.currentTime + 0.1, on: false };
-  },
-
-  // Включает и выключает станции updateRadio по тому, в машине ли игрок; здесь — только подготовка
-  setRadio() {
-    if (this.ctx) this.radioStart();
-  },
+  // радио включается само в машине (updateRadio); оставлено для вызовов из игры
+  setRadio() {},
 
   updateRadio() {
-    // песни: громкость плавно идёт к нужной, в тишине плеер на паузе
+    // громкость плавно идёт к нужной, в тишине плеер на паузе
     const pl = World.player;
     const inCar = Game.state === 'play' && pl && pl.car && !pl.dead;
     const st = this.STATIONS[this.station] || {};
-    if (inCar && st.list && !this.muted) this.songPlayer(st.list);
+    if (inCar && st.list && !this.muted && this.SONGS.length) this.songPlayer(st.list);
     for (const list in this.players || {}) {
       const S = this.players[list];
       const songOn = inCar && st.list === list && !this.muted;
@@ -425,86 +399,11 @@ const Sound = {
       if (songOn && !S.shown && !S.el.paused && S.el.currentTime > 0.2) {
         S.shown = true;
         const t = S.songs[S.order[S.k]];
-        Game.message(I18N.he && t.he ? `📻 ${t.he}` : `📻 ${t.title} — ${t.who}`, 4);
+        Game.message(I18N.he ? `📻 ${t.he}` : `📻 ${t.title} — ${t.genre}`, 4);
       }
-    }
-    // восточный ритм — только на своей станции
-    if (this.radio) {
-      const on = inCar && !!st.synth;
-      if (on !== this.radio.on) { this.radio.on = on; this.radio.g.gain.setTargetAtTime(on ? 0.35 : 0, this.ctx.currentTime, 0.2); }
-    } else if (inCar && st.synth) this.radioStart();
-    const r = this.radio;
-    if (!r || !r.on || this.muted) return;
-    const ctx = this.ctx;
-    const bpm = 112;
-    const stepDur = 60 / bpm / 4;
-    // Фригийский доминантовый от ре: D Eb F# G A Bb C
-    const scale = [0, 1, 4, 5, 7, 8, 10, 12];
-    const base = 293.66;
-    // мелодия на 32 шага (индекс в ладу или -1 — пауза)
-    const mel = [4, -1, 3, 2, 1, -1, 2, -1, 0, -1, -1, 1, 2, -1, 1, 0,
-      4, -1, 5, 4, 3, -1, 2, 3, 2, -1, 1, -1, 0, -1, -1, -1];
-    const bass = [0, -1, -1, 0, -1, -1, 4, -1];
-    // дум-тек: 1 = дум, 2 = тек, 3 = ка
-    const drum = [1, 0, 3, 2, 0, 3, 1, 0, 1, 0, 3, 2, 0, 3, 2, 3];
-    while (r.next < ctx.currentTime + 0.2) {
-      const t = r.next;
-      const s = r.step;
-      const dr = drum[s % 16];
-      if (dr === 1) this.drumHit(t, 90, 0.5, 0.18);
-      else if (dr === 2) this.drumHit(t, 2600, 0.28, 0.05, true);
-      else if (dr === 3) this.drumHit(t, 4200, 0.12, 0.03, true);
-      const m = mel[s % 32];
-      if (m >= 0 && (Math.floor(s / 32) % 4 !== 3 || s % 2 === 0)) {
-        this.note(t, base * Math.pow(2, scale[m] / 12), stepDur * 1.6, 'sawtooth', 0.09);
-      }
-      if (s % 4 === 0) {
-        const b = bass[(s / 4) % 8];
-        if (b >= 0) this.note(t, base / 4 * Math.pow(2, scale[b] / 12), stepDur * 3, 'triangle', 0.22);
-      }
-      r.next += stepDur;
-      r.step++;
-    }
-  },
-
-  note(t, freq, dur, type, vol) {
-    const ctx = this.ctx;
-    const o = ctx.createOscillator();
-    const f = ctx.createBiquadFilter();
-    const g = ctx.createGain();
-    o.type = type;
-    o.frequency.setValueAtTime(freq, t);
-    // лёгкое «восточное» вибрато
-    o.frequency.linearRampToValueAtTime(freq * 1.006, t + dur * 0.6);
-    f.type = 'lowpass';
-    f.frequency.value = 2200;
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(vol, t + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    o.connect(f); f.connect(g); g.connect(this.radio.g);
-    o.start(t); o.stop(t + dur + 0.05);
-  },
-
-  drumHit(t, freq, vol, dur, noise) {
-    const ctx = this.ctx;
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(vol, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + dur + 0.1);
-    g.connect(this.radio.g);
-    if (noise) {
-      const src = ctx.createBufferSource();
-      src.buffer = this.noiseBuf;
-      const f = ctx.createBiquadFilter();
-      f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = 2;
-      src.connect(f); f.connect(g);
-      src.start(t, Math.random(), dur + 0.1);
-    } else {
-      const o = ctx.createOscillator();
-      o.type = 'sine';
-      o.frequency.setValueAtTime(freq * 1.8, t);
-      o.frequency.exponentialRampToValueAtTime(freq * 0.7, t + dur);
-      o.connect(g);
-      o.start(t); o.stop(t + dur + 0.1);
     }
   },
 };
+
+// выбор игрока «радио вкл/выкл» из прошлых игр
+try { if (localStorage.getItem('hamsin.radio') === 'on') { Sound.station = 0; Sound.radioOn = true; } } catch (e) { /* без хранилища */ }
