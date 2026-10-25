@@ -1227,7 +1227,7 @@ const R3 = {
         const grp = new THREE.Group();
         const ring = new THREE.Mesh(new THREE.RingGeometry(20, 25, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xff9800, transparent: true, opacity: 0.85, depthWrite: false }));
         ring.position.y = 1.5;
-        const mat = this.pickupTex(sh.place === 'gunShop' ? 'pistol' : 'ak').clone(); mat.side = THREE.DoubleSide;
+        const mat = this.pickupTex(sh.place === 'blackMarket' ? 'ak' : 'pistol').clone(); mat.side = THREE.DoubleSide;
         const icon = new THREE.Mesh(new THREE.PlaneGeometry(34, 34), mat);
         icon.position.y = 30;
         grp.add(ring, icon); grp.icon = icon;
@@ -1248,14 +1248,16 @@ const R3 = {
     const isPlace = obj && !(obj instanceof Car) && !(obj instanceof Ped);
     tgt.visible = !!isPlace;
     if (isPlace) { tgt.position.set(obj.x, 0, obj.y); tgt.ring.scale.setScalar(1 + ((World.time * 1.2) % 1) * 0.9); }
-    const ps = City.places.paint;
-    const paint = get('paint', () => {
-      const g = new THREE.BufferGeometry().setFromPoints([[-60, -60], [60, -60], [60, 60], [-60, 60]].map(([x, z]) => new THREE.Vector3(x, 1.5, z)));
-      return new THREE.LineLoop(g, new THREE.LineDashedMaterial({ color: 0xe91e63, dashSize: 10, gapSize: 8, transparent: true }));
+    // площадки всех покрасок — пунктирный квадрат
+    City.places.paints.forEach(({ p: ps }, i) => {
+      const paint = get('paint' + i, () => {
+        const g = new THREE.BufferGeometry().setFromPoints([[-60, -60], [60, -60], [60, 60], [-60, 60]].map(([x, z]) => new THREE.Vector3(x, 1.5, z)));
+        return new THREE.LineLoop(g, new THREE.LineDashedMaterial({ color: 0xe91e63, dashSize: 10, gapSize: 8, transparent: true }));
+      });
+      if (!paint.dashed) { paint.computeLineDistances(); paint.dashed = true; }
+      paint.position.set(ps.x, 0, ps.y);
+      paint.material.opacity = Wanted.level > 0 ? 1 : 0.4;
     });
-    if (!paint.dashed) { paint.computeLineDistances(); paint.dashed = true; }
-    paint.position.set(ps.x, 0, ps.y);
-    paint.material.opacity = Wanted.level > 0 ? 1 : 0.4;
     // игроки в маткот на пляже
     const cw = Math.ceil(City.W / CHUNK), cs = CHUNK * TILE;
     for (let cy = Math.max(0, Math.floor(view.y0 / cs)); cy <= Math.min(Math.ceil(City.H / CHUNK) - 1, Math.floor(view.y1 / cs)); cy++) {

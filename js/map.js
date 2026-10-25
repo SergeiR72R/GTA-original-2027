@@ -1119,6 +1119,18 @@ const City = {
     // Оружие: легальный магазин во Флорентине и склад «без лишних вопросов» в порту
     P.gunShop = side(3, 6, 'N', -2);
     P.blackMarket = side(0, 0, 'E');
+    // по оружейной на каждую территорию банды (решение пользователя)
+    P.gunRu = side(7, 4, 'W');
+    P.gunAr = side(2, 9, 'E');
+    P.gunLions = side(7, 7, 'E');
+    // покраски: Флорентин (юг), «Яркон» (север), «Аялон» (восток, Рамат-Ган)
+    P.paintN = side(4, 1, 'E');
+    P.paintE = side(8, 3, 'W');
+    P.paints = [
+      { name: 'Покраска «Флорентин»', p: P.paint },
+      { name: 'Покраска «Яркон»', p: P.paintN },
+      { name: 'Покраска «Аялон»', p: P.paintE },
+    ];
     // Телефоны-автоматы — у каждого свой «заказчик»
     P.phone1 = side(1, 4, 'E');
     P.phone2 = side(2, 3, 'S');
@@ -1137,6 +1149,11 @@ const City = {
     this.labelNear(P.arHQ, { text: 'מוסך אל-בחר', sub: 'гараж Аль-Бахар', bg: '#eeeeee', fg: '#212121' });
     this.labelNear(P.lionsHQ, { text: 'GONDAR GARAGE', sub: 'студия и мастерская', bg: '#1b7f3a', fg: '#f2c230' });
     this.labelNear(P.gunShop, { text: 'חנות נשק', sub: 'Оружие «Шломо и сыновья»', bg: '#263238', fg: '#ffca28' });
+    this.labelNear(P.gunRu, { text: 'ציד ודיג', sub: 'Охота и рыбалка у Толика', bg: '#3e2723', fg: '#ffca28' });
+    this.labelNear(P.gunAr, { text: 'מזכרות', sub: 'Сувениры Абу-Халиля', bg: '#004d40', fg: '#ffca28' });
+    this.labelNear(P.gunLions, { text: 'GONDAR STUDIO', sub: 'звук и защита', bg: '#1b5e20', fg: '#f2c230' });
+    this.labelNear(P.paintN, { text: 'צבעייה', sub: 'Покраска «Яркон»', bg: '#5b4a6d', fg: '#ffeb3b' });
+    this.labelNear(P.paintE, { text: 'צבעייה', sub: 'Покраска «Аялон»', bg: '#5b4a6d', fg: '#ffeb3b' });
     this.labelNear(P.police, { text: 'משטרה', sub: 'Полиция', bg: '#1d4fa3', fg: '#fff' });
     this.labelNear(P.hospital, { text: 'איכילוב', sub: 'Больница Ихилов', bg: '#c62828', fg: '#fff' });
     this.labelNear(P.paint, { text: 'ПОКРАСКА', sub: 'сменить цвет — сбросить розыск', bg: '#5b4a6d', fg: '#ffeb3b' });

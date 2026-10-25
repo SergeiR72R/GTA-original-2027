@@ -86,6 +86,8 @@ const HUD = {
 
     this.drawMinimap(ctx, vw, vh);
     this.drawObjective(ctx, vw, vh);
+    NavMap.drawArrow(ctx, vw, vh);
+    NavMap.drawLabel(ctx, vw, vh);
     this.drawMessages(ctx, vw, vh, dt);
     this.drawBig(ctx, vw, vh, dt);
     this.drawClock(ctx, vw, vh);
@@ -95,6 +97,7 @@ const HUD = {
     this.drawPrompt(ctx, vw, vh);
     if (Missions.dialog) this.drawDialog(ctx, vw, vh);
     Shops.draw(ctx, vw, vh);
+    NavMap.draw(ctx, vw, vh);
   },
 
   drawMinimap(ctx, vw, vh) {
@@ -111,12 +114,17 @@ const HUD = {
     ctx.drawImage(City.minimap, x0 + size / 2 - ptx * k, y0 + size / 2 - pty * k, City.W * k, City.H * k);
     ctx.imageSmoothingEnabled = true;
     const toMap = (wx, wy) => [x0 + size / 2 + (wx / TILE - ptx) * k, y0 + size / 2 + (wy / TILE - pty) * k];
-    // магазины оружия — оранжевые ромбы
-    for (const sh of SHOPS) {
-      const p = Shops.place(sh);
-      const [mx, my] = toMap(p.x, p.y);
-      ctx.fillStyle = '#ff9800'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(mx, my - 5); ctx.lineTo(mx + 5, my); ctx.lineTo(mx, my + 5); ctx.lineTo(mx - 5, my); ctx.closePath(); ctx.fill(); ctx.stroke();
+    // маршрут к своей метке, оружейные (ромбы) и покраски
+    NavMap.drawRoute(ctx, toMap);
+    for (const q of NavMap.points()) {
+      const [mx, my] = toMap(q.p.x, q.p.y);
+      NavMap.icon(ctx, q.kind, mx, my, 5);
+    }
+    if (NavMap.mark) {
+      let [mx, my] = toMap(NavMap.mark.p.x, NavMap.mark.p.y);
+      mx = clamp(mx, x0 + 6, x0 + size - 6); my = clamp(my, y0 + 6, y0 + size - 6);
+      ctx.strokeStyle = '#4fc3f7'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(mx, my, 7 + Math.sin(World.time * 6), 0, TAU); ctx.stroke();
     }
     // полиция
     for (const c of World.cars) {

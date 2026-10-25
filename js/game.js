@@ -127,9 +127,9 @@ const Game = {
       if (!this.keys[e.code]) this.pressed[e.code] = true;
       this.keys[e.code] = true;
       Sound.resume();
-      if (e.code === 'Escape' && !Shops.open) this.togglePause();
-      if (e.code === 'KeyM') Sound.toggleMute();
-      if ((e.code === 'F3' || e.code === 'KeyP') && this.gl) { e.preventDefault(); this.showPerf = !this.showPerf; }
+      if (e.code === 'Escape' && !Shops.open && !NavMap.open) this.togglePause();
+      if (e.code === 'KeyN') Sound.toggleMute();
+      if (e.code === 'F3' && this.gl) { e.preventDefault(); this.showPerf = !this.showPerf; }
       if (e.code === 'KeyO' && this.gl && this.state !== 'title') this.message(T('Качество графики: {0}', R3.cycleQuality()), 3);
       if (e.code === 'KeyV' && this.gl && this.state === 'play') { this.topDown = !this.topDown; this.message(this.topDown ? 'Камера: строго сверху' : 'Камера: с наклоном — видно фасады', 2); }
     });
@@ -513,8 +513,9 @@ const Game = {
       if (this.hit('KeyR')) this.message(Sound.nextStation(), 2);
       Sound.setEngine(!c.dead, clamp(c.speed / (c.maxSpeed || 1), 0, 1), thr, c.type);
       // покраска
-      const ps = City.places.paint;
-      if (Wanted.level > 0 && dist(c.x, c.y, ps.x, ps.y) < 90 && c.speed < 120) {
+      // три покраски на город (City.places.paints)
+      const ps = City.places.paints.find((q) => dist(c.x, c.y, q.p.x, q.p.y) < 90);
+      if (Wanted.level > 0 && ps && c.speed < 120) {
         if (pl.money >= 500) {
           this.addMoney(-500);
           Wanted.reset();
@@ -737,8 +738,11 @@ const Game = {
     }
     // у витрины магазина мир тоже стоит
     if (Shops.open && this.state === 'play') { Shops.input(this); return; }
+    // карта города (M): пока открыта, мир стоит
+    if (NavMap.open && this.state === 'play') { NavMap.input(this); Sound.setEngine(false, 0); return; }
+    if (this.state === 'play' && this.hit('KeyM')) { NavMap.toggle(); return; }
     World.time += dt;
-    if (this.state === 'play') { this.updatePlayer(dt); Shops.update(); }
+    if (this.state === 'play') { this.updatePlayer(dt); Shops.update(); NavMap.update(dt); }
     if (this.state === 'down') {
       this.downT -= dt;
       if (this.downT <= 0) this.respawn();
@@ -1045,8 +1049,8 @@ const Game = {
       ctx.beginPath(); ctx.arc(obj.x, obj.y, 34, 0, TAU); ctx.fill();
     }
     // мастерская покраски
-    const ps = City.places.paint;
-    if (this.inView(ps.x, ps.y)) {
+    for (const { p: ps } of City.places.paints) {
+      if (!this.inView(ps.x, ps.y)) continue;
       ctx.strokeStyle = Wanted.level > 0 ? 'rgba(233,30,99,0.8)' : 'rgba(233,30,99,0.35)';
       ctx.setLineDash([10, 8]); ctx.lineWidth = 3;
       ctx.strokeRect(ps.x - 60, ps.y - 60, 120, 120);

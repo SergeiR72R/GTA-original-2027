@@ -14,6 +14,40 @@ const SHOPS = [
       { kind: 'armor', price: 500, label: 'Бронежилет' },
     ],
   },
+  // по оружейной на каждую территорию банды — ассортимент в духе хозяев
+  {
+    place: 'gunRu',
+    name: 'Охота и рыбалка у Толика',
+    owner: 'Толик: «Удочки кончились ещё в девяносто восьмом. Бери, что есть»',
+    items: [
+      { w: 'pistol', price: 400, ammo: 24, label: 'Пистолет ТТ + 24 патрона' },
+      { w: 'shotgun', price: 1200, ammo: 16, label: 'Дробовик + 16 патронов' },
+      { w: 'ak', price: 3000, ammo: 90, label: 'Автомат АК + 90 патронов' },
+      { kind: 'armor', price: 500, label: 'Бронежилет' },
+    ],
+  },
+  {
+    place: 'gunAr',
+    name: 'Сувениры Абу-Халиля',
+    owner: 'Абу-Халиль: «Сувениры — на витрине. Настоящие сувениры — в подсобке»',
+    items: [
+      { w: 'pistol', price: 400, ammo: 24, label: 'Пистолет + 24 патрона' },
+      { w: 'uzi', price: 1500, ammo: 90, label: 'Узи + 90 патронов' },
+      { w: 'shotgun', price: 1200, ammo: 16, label: 'Дробовик + 16 патронов' },
+      { w: 'grenade', price: 900, ammo: 3, label: 'Гранаты × 3' },
+    ],
+  },
+  {
+    place: 'gunLions',
+    name: 'Студия «Гондэр»: звук и защита',
+    owner: 'Звукорежиссёр Тесфайе: «Бас — в студии. Защита — за звукоизоляцией»',
+    items: [
+      { w: 'bat', price: 150, ammo: 1, label: 'Бейсбольная бита' },
+      { w: 'pistol', price: 400, ammo: 24, label: 'Пистолет + 24 патрона' },
+      { w: 'uzi', price: 1500, ammo: 90, label: 'Узи + 90 патронов' },
+      { kind: 'armor', price: 500, label: 'Бронежилет' },
+    ],
+  },
   {
     place: 'blackMarket',
     name: 'Склад Рафи (порт)',
@@ -91,8 +125,8 @@ const Shops = {
     const rtl = I18N.he, L = (dx) => (rtl ? x + w - dx : x + dx), A = (al) => (rtl ? (al === 'left' ? 'right' : 'left') : al);
     HUD.text(ctx, s.name, L(18), y + 32, 22, '#ffca28', A('left'));
     HUD.text(ctx, formatMoney(pl.money), L(w - 18), y + 32, 20, '#7CFC9A', A('right'));
-    ctx.font = 'italic 14px "Trebuchet MS", sans-serif'; ctx.fillStyle = '#bbb'; ctx.textAlign = 'left'; ctx.direction = 'ltr';
-    ctx.fillText(s.owner, x + 18, y + 56, w - 36);
+    ctx.font = 'italic 14px "Trebuchet MS", sans-serif'; ctx.fillStyle = '#bbb'; ctx.textAlign = A('left'); ctx.direction = rtl ? 'rtl' : 'ltr';
+    ctx.fillText(T(s.owner), L(18), y + 56, w - 36);
     s.items.forEach((it, i) => {
       const o = this.offer(it), ry = y + 72 + i * rowH, sel = i === this.sel;
       ctx.fillStyle = sel ? 'rgba(255,202,40,0.18)' : 'rgba(255,255,255,0.04)';
