@@ -1,198 +1,473 @@
 # Задание для Claude в Chrome: 10 песен для радио «Хамсин FM» (Gemini)
 
 > Генерируем в **Gemini** (gemini.google.com, создание музыки) под аккаунтом
-> пользователя 10 коротких песен на иврите в разных жанрах. Тексты — готовые,
-> ниже. Песни — для радио «Хамсин FM · Новая волна» в бесплатной игре.
+> пользователя 10 полноценных песен на иврите (около 3 минут), каждая в своём
+> жанре. Тексты готовые, ниже. Песни — для радио «Хамсин FM · Новая волна»
+> в бесплатной игре.
 
 ## Как делать
 
-1. Открой gemini.google.com, новый чат. Включи создание музыки («Create music» /
-   «Создать музыку» в инструментах), если он не включается сам от слов
-   «Create a song».
-2. Для каждой песни вставь **весь блок «Запрос»** из задания одним сообщением,
-   ничего не меняя: там жанр, голос, темп и точный текст на иврите.
-3. Дождись трека. Скачай его кнопкой загрузки: нужен **аудиофайл (MP3)**; если
-   есть только видео (MP4) — скачай видео, звук вытащим сами.
-4. Имя файла — из заголовка песни, например `radio_g01_hamsin.mp3`.
-   Загрузи файл в папку Google Диска, куда кладёшь ассеты игры.
-5. **Сначала только песня № 1 — и остановись.** Пользователь послушает, как
-   Gemini поёт на иврите (иврита нет в официальном списке языков). Если
-   произношение плохое — по его команде замени текст на транслитерацию
-   латиницей (израильское произношение: kh для ח/כ, ts для צ) и попробуй снова.
-   Дальше иди тем способом, который он одобрит.
-6. Если Gemini предлагает сделать трек длиннее (продлить, «extend», полная
-   версия) — соглашайся: длинная песня лучше. Если нет — оставляй 30 секунд.
-7. Если Gemini переписал текст по-своему или запел на другом языке —
-   сгенерируй ещё раз, добавив в начало: «Use exactly these Hebrew lyrics,
-   do not translate or change them.» После двух неудач — сообщи и иди дальше.
-8. Кончился лимит — остановись и напиши, на какой песне; продолжим позже.
+1. Открой gemini.google.com, новый чат, включи создание музыки (если не
+   включается само от слов «Create a full-length song»).
+2. Вставь **весь блок «Запрос»** песни одним сообщением, ничего не меняя:
+   там жанр, голос, длина и точный текст на иврите с разметкой частей.
+3. Дождись трека, проверь, что он **полной длины** (2,5–3,5 минуты) и поётся
+   на иврите. Если трек короткий — попроси продлить («Extend this song to a
+   full length of about 3 minutes, keep the same lyrics and style»).
+4. Скачай **аудио (MP3)**; если есть только видео (MP4) — скачай видео.
+   Имя файла — из заголовка, например `radio_g01_hamsin.mp3`. Загрузи в папку
+   Google Диска, куда кладёшь ассеты игры.
+5. **Сейчас делаем только песню № 1 и останавливаемся.** Пользователь
+   послушает длину, иврит и звук; остальные — после его одобрения.
+6. Если Gemini переписал текст или запел на другом языке — сгенерируй ещё раз
+   с той же строкой «Use exactly these Hebrew lyrics…». После двух неудач —
+   сообщи пользователю.
+7. Кончился лимит — остановись и напиши, на какой песне.
 
 ---
 
 ## 1. «Хамсин» — мизрахи-поп · `radio_g01_hamsin`
 
-> Хамсин, кондиционер умер; «кондиционера нет, зато есть любовь».
+> Хамсин в городе, кондиционер умер, она ждёт любимого на набережной: «кондиционера нет, зато есть любовь».
 
 **Запрос:**
 ```
-Create a song. Genre: Israeli Mizrahi pop, darbuka, oud, synth strings, Mediterranean dance groove, 100 bpm. Vocals: female singer, sung in Hebrew with a natural Israeli accent. Use exactly these Hebrew lyrics, do not translate or change them:
+Create a full-length song, about 3 minutes, with all the sections below. Title: חמסין (Khamsin). Genre and sound: Israeli Mizrahi pop, female vocal sung in Hebrew, darbuka, oud, synth strings, Mediterranean dance groove, catchy chorus, 100 bpm. Use exactly these Hebrew lyrics with the section labels, do not translate, shorten or change them:
 
+[Verse 1]
 חמסין בעיר, האוויר עומד
 המזגן מת והלב בוער
+החול מהמדבר על כל המרפסות
+ואני מחכה לך מול הים
+
+[Pre-Chorus]
 יאללה חביבי, בוא כבר לים
 רק אתה ואני וכל תל אביב שם
 
+[Chorus]
 חמסין, חמסין, חם לי בלב
+חמסין, חמסין, אין לי אוויר
 אין לי מזגן, אבל יש לי אהבה
+חמסין, חמסין, תישאר איתי הלילה
+
+[Verse 2]
+השמש צורבת, הכביש נמס
+אמא אומרת: "תשתי מים, אל תצאי"
+אבל אני רוקדת על הטיילת
+עם משקפי שמש ומניפה ביד
+
+[Pre-Chorus]
+יאללה חביבי, בוא כבר לים
+רק אתה ואני וכל תל אביב שם
+
+[Chorus]
+חמסין, חמסין, חם לי בלב
+חמסין, חמסין, אין לי אוויר
+אין לי מזגן, אבל יש לי אהבה
+חמסין, חמסין, תישאר איתי הלילה
+
+[Bridge]
+שלושה ימים של אש ואבק
+ואז הרוח תתהפך
+אבל עד אז, חביבי, תחזיק לי את היד
+
+[Chorus]
+חמסין, חמסין, חם לי בלב
+חמסין, חמסין, אין לי אוויר
+אין לי מזגן, אבל יש לי אהבה
+חמסין, חמסין, תישאר איתי הלילה
 ```
 
 ## 2. «Аялон» — рэп / трап · `radio_g02_ayalon`
 
-> Пробка на Аялоне, «огромная парковка, я тут уже год».
+> Восемь утра, пробка на Аялоне от Глилот до Холона; начальник звонит, он отвечает «пять минут» уже два часа. «Съезд на Шалом — не съезжаем, съезд на Роках — не съезжаем…»
 
 **Запрос:**
 ```
-Create a song. Genre: Israeli hip hop trap, heavy 808 bass, car horns, gritty and humorous, 90 bpm. Vocals: male rapper, rapping in Hebrew with a natural Israeli accent. Use exactly these Hebrew lyrics, do not translate or change them:
+Create a full-length song, about 3 minutes, with all the sections below. Title: איילון (Ayalon). Genre and sound: Israeli hip hop trap, male rapper in Hebrew, heavy 808 bass, car horns, gritty and humorous, 90 bpm. Use exactly these Hebrew lyrics with the section labels, do not translate, shorten or change them:
 
+[Verse 1]
 שמונה בבוקר, אני תקוע באיילון
 המנוע רותח, הקפה כבר קר
 כולם צופרים כאילו זה יעזור
-ואני בנתיב של העם, סנטימטר לשעה
+אחד מצלם סטורי, אחד מתפלל, אחד צורח
+הנתיב המהיר עולה לי משכורת
+אז אני בנתיב של העם, סנטימטר לשעה
 
+[Chorus]
 איילון, איילון, חניון ענק
 איילון, איילון, אני פה כבר שנה
+הרדיו מנגן, אף אחד לא זז
+איילון, איילון, תל אביב, אני בדרך
+
+[Verse 2]
+משאית מימין, אופנוע משמאל
+שליח עם פיצה עוקף אותי בשוליים
+המנהל מתקשר: "איפה אתה, אחי?"
+אני עונה "חמש דקות" — כבר שעתיים אני עונה ככה
+פקק מגלילות ועד חולון
+אם תבנו פה רכבת, אני מבטיח, אני בא ראשון
+
+[Chorus]
+איילון, איילון, חניון ענק
+איילון, איילון, אני פה כבר שנה
+הרדיו מנגן, אף אחד לא זז
+איילון, איילון, תל אביב, אני בדרך
+
+[Bridge]
+יציאה לשלום... לא יוצאים
+יציאה לרוקח... לא יוצאים
+יציאה לחיים... אולי מחר
+
+[Chorus]
+איילון, איילון, חניון ענק
+איילון, איילון, אני פה כבר שנה
+הרדיו מנגן, אף אחד לא זז
+איילון, איילון, תל אביב, אני בדרך
 ```
 
 ## 3. «Будет хорошо» — рок-баллада репатрианта · `radio_g03_yihye_tov`
 
-> Приехал из Петербурга с одним чемоданом; «будет хорошо — только скажите когда».
+> Приехал из Петербурга с одним чемоданом и зимним пальто в город без зимы. Все говорят «будет хорошо» — «я верю, только скажите когда». В конце он сам говорит это новичку.
 
 **Запрос:**
 ```
-Create a song. Genre: Israeli soft rock ballad, acoustic and electric guitars, warm and bittersweet, 80 bpm. Vocals: male singer, sung in Hebrew with a light Russian accent. Use exactly these Hebrew lyrics, do not translate or change them:
+Create a full-length song, about 3 minutes, with all the sections below. Title: יהיה טוב (Yihye Tov). Genre and sound: Israeli soft rock ballad, male vocal in Hebrew with a light Russian accent, acoustic and electric guitars, warm and bittersweet, 80 bpm. Use exactly these Hebrew lyrics with the section labels, do not translate, shorten or change them:
 
+[Verse 1]
 באתי מפטרבורג עם מזוודה אחת
 מעיל של חורף בעיר בלי חורף
 עברית של "בסדר" ושל "תודה רבה"
+ושמש שלא שואלת אם אני מוכן
 
+[Chorus]
 יהיה טוב, יהיה טוב, כולם פה אומרים
+יהיה טוב, יהיה טוב, בתור, בבנק ובשוק
 אני כבר מאמין, אני רק שואל
 יהיה טוב — אבל תגידו לי מתי
+
+[Verse 2]
+בדירה בפלורנטין, שלושה שותפים
+מאוורר שמסתובב ולא עוזר
+אמא בטלפון: "אתה אוכל? אתה ישן?"
+אני כותב לה "הכל טוב" ומחייך לקיר
+
+[Chorus]
+יהיה טוב, יהיה טוב, כולם פה אומרים
+יהיה טוב, יהיה טוב, בתור, בבנק ובשוק
+אני כבר מאמין, אני רק שואל
+יהיה טוב — אבל תגידו לי מתי
+
+[Bridge]
+פה כולם צועקים, אבל כולם עוזרים
+פה זרים לגמרי מזמינים אותך לשבת
+ואולי עוד שנה, אולי עוד שתיים
+גם אני אגיד למישהו חדש: יהיה טוב
+
+[Chorus]
+יהיה טוב, יהיה טוב, עכשיו גם אני אומר
+יהיה טוב, יהיה טוב, בתור, בבנק ובשוק
+אני כבר מאמין, ואני כבר לא שואל
+יהיה טוב — כי אני כבר פה
 ```
 
 ## 4. «Шакшука» — регги · `radio_g04_shakshuka`
 
-> Утро в Яффо, шакшука, никто не спешит: «мир подождёт».
+> Утро в Яффо, шакшука и пита, никто никуда не спешит: «мир подождёт». Счета приходят как волны — он их заплатит… завтра утром.
 
 **Запрос:**
 ```
-Create a song. Genre: Israeli reggae, offbeat guitar skank, warm bass, relaxed beach vibe, 75 bpm. Vocals: relaxed male singer, sung in Hebrew with a natural Israeli accent. Use exactly these Hebrew lyrics, do not translate or change them:
+Create a full-length song, about 3 minutes, with all the sections below. Title: שקשוקה (Shakshuka). Genre and sound: Israeli reggae, relaxed male vocal in Hebrew, offbeat guitar skank, warm bass, beach vibe, 75 bpm. Use exactly these Hebrew lyrics with the section labels, do not translate, shorten or change them:
 
+[Verse 1]
 בוקר ביפו, הים כחול
 שקשוקה במחבת, פיתה ביד
+החתול של השכנה ישן על הגדר
 ואף אחד פה לא ממהר לשום מקום
 
+[Chorus]
 שקשוקה, שקשוקה, לאט לאט
-אל תלחץ, אחי, העולם מחכה
+שקשוקה, שקשוקה, אל תלחץ, אחי
+העולם מחכה, הוא לא יברח
+שקשוקה, שקשוקה, החיים זה פה
+
+[Verse 2]
+הבוס מתקשר, אני שם על שקט
+יש לי חומוס, יש לי ים, יש לי חברים
+הגלים באים והולכים כמו חשבונות
+ואני משלם אותם... מחר בבוקר
+
+[Chorus]
+שקשוקה, שקשוקה, לאט לאט
+שקשוקה, שקשוקה, אל תלחץ, אחי
+העולם מחכה, הוא לא יברח
+שקשוקה, שקשוקה, החיים זה פה
+
+[Bridge]
+עגבנייה, פלפל, ביצה ותבלין
+ככה מבשלים, ככה חיים
+
+[Chorus]
+שקשוקה, שקשוקה, לאט לאט
+שקשוקה, שקשוקה, אל תלחץ, אחי
+העולם מחכה, הוא לא יברח
 שקשוקה, שקשוקה, החיים זה פה
 ```
 
 ## 5. «Ротшильд» — синти-поп · `radio_g05_rothschild`
 
-> Самокаты, капучино, три стартапа; «Тель-Авив — пузырь света».
+> Бульвар Ротшильд: самокаты, капучино, три стартапа, все гендиректоры и никто не спит. Аренда в небесах, сердце на полу — «Тель-Авив, не вытаскивайте меня отсюда».
 
 **Запрос:**
 ```
-Create a song. Genre: Israeli synth-pop, 80s synths, punchy drums, night-city vibe, upbeat, 118 bpm. Vocals: female singer, sung in Hebrew with a natural Israeli accent. Use exactly these Hebrew lyrics, do not translate or change them:
+Create a full-length song, about 3 minutes, with all the sections below. Title: רוטשילד (Rothschild). Genre and sound: Israeli synth-pop, female vocal in Hebrew, 80s synths, punchy drums, night-city vibe, upbeat, 118 bpm. Use exactly these Hebrew lyrics with the section labels, do not translate, shorten or change them:
 
+[Verse 1]
 שדרות רוטשילד, קורקינטים חשמליים
 קפה הפוך ושלושה סטארטאפים
 כולם פה מנכ"לים, אף אחד לא ישן
+העיר לא עוצרת, וגם אני לא
 
+[Chorus]
 תל אביב, תל אביב, בועה של אור
+תל אביב, תל אביב, אל תוציאו אותי מכאן
+שכר דירה בשמיים, הלב על הרצפה
+תל אביב, תל אביב, אני שלך הלילה
+
+[Verse 2]
+דייט באפליקציה, עוד אחד, עוד אחד
+כולם "מחפשים משהו רציני"
+בשתיים בלילה פיצה על הבר
+ובשבע בבוקר יוגה על החוף
+
+[Chorus]
+תל אביב, תל אביב, בועה של אור
+תל אביב, תל אביב, אל תוציאו אותי מכאן
+שכר דירה בשמיים, הלב על הרצפה
+תל אביב, תל אביב, אני שלך הלילה
+
+[Bridge]
+אולי מחר אעבור לפרבר שקט
+עם גינה וכלב ואוויר נקי
+...אבל לא הלילה
+
+[Chorus]
+תל אביב, תל אביב, בועה של אור
+תל אביב, תל אביב, אל תוציאו אותי מכאן
 שכר דירה בשמיים, הלב על הרצפה
 תל אביב, תל אביב, אני שלך הלילה
 ```
 
 ## 6. «Одесса» — шансон на иврите · `radio_g06_odessa`
 
-> Ресторан в Рамат-Гане, дядя из Одессы: «не задавай вопросов, ешь и молчи».
+> Ресторан в Рамат-Гане, водка на столе, дядя из Одессы всех знает: «не задавай вопросов, ешь и молчи — тут решают дела над тарелкой борща». «Родители бежали от всего этого — а мы построили это заново у моря».
 
 **Запрос:**
 ```
-Create a song. Genre: Russian chanson style ballad, accordion, acoustic guitar, restaurant atmosphere, waltz feel. Vocals: husky male singer, sung in Hebrew with a heavy Russian accent. Use exactly these Hebrew lyrics, do not translate or change them:
+Create a full-length song, about 3 minutes, with all the sections below. Title: אודסה (Odessa). Genre and sound: Russian chanson style ballad sung in Hebrew by a husky male vocal with a heavy Russian accent, accordion, acoustic guitar, restaurant atmosphere, waltz feel. Use exactly these Hebrew lyrics with the section labels, do not translate, shorten or change them:
 
+[Verse 1]
 במסעדה ברמת גן, וודקה על השולחן
 הדוד שלי מאודסה, הוא מכיר את כולם
 אל תשאל שאלות, תאכל ותשתוק
+פה סוגרים עניינים מעל צלחת בורשט
 
+[Chorus]
 אודסה, אודסה, הים שם אחר
 אודסה, אודסה, אבל המחיר אותו מחיר
+שרים בשולחן, בוכים בחצי הלילה
+ובבוקר — כאילו שום דבר לא קרה
+
+[Verse 2]
+יש לו זהב על הצוואר ולימוזינה שחורה
+והוא קורא לי "ילד" מול כל החבר'ה
+"תהיה בן אדם", הוא אומר, ומוזג עוד כוס
+ואני יודע שהכוס הזאת תעלה לי ביוקר
+
+[Chorus]
+אודסה, אודסה, הים שם אחר
+אודסה, אודסה, אבל המחיר אותו מחיר
+שרים בשולחן, בוכים בחצי הלילה
+ובבוקר — כאילו שום דבר לא קרה
+
+[Bridge]
+ההורים שלנו ברחו מכל זה
+ואנחנו בנינו את זה מחדש, ליד הים
+
+[Chorus]
+אודסה, אודסה, הים שם אחר
+אודסה, אודסה, אבל המחיר אותו מחיר
+שרים בשולחן, בוכים בחצי הלילה
+ובבוקר — כאילו שום דבר לא קרה
 ```
 
 ## 7. «Гондэр» — эфиопский грув · `radio_g07_gondar`
 
-> От Гондэра до Лода; «эскиста в крови, юг — наш».
+> От Гондэра до Лода путь долгий: бабушка поёт на амхарском, он отвечает на иврите. Эскиста в крови, кофе буна на огне: «юг — наш, район — наш».
 
 **Запрос:**
 ```
-Create a song. Genre: Ethiopian-Israeli groove, ethio-jazz meets modern hip hop, pentatonic Ethiopian melody, krar, brass, bouncy rhythm, 105 bpm. Vocals: male singer in Hebrew with a group call-and-response. Use exactly these Hebrew lyrics, do not translate or change them:
+Create a full-length song, about 3 minutes, with all the sections below. Title: גונדר (Gondar). Genre and sound: Ethiopian-Israeli groove, ethio-jazz meets modern hip hop, male vocal in Hebrew with a group call-and-response, pentatonic Ethiopian melody, krar, brass, bouncy rhythm, 105 bpm. Use exactly these Hebrew lyrics with the section labels, do not translate, shorten or change them:
 
+[Verse 1]
 מגונדר עד לוד, הדרך ארוכה
 סבתא שרה באמהרית, אני עונה בעברית
-וכשהמוזיקה מתחילה, אף אחד לא יושב
+בשכונה בדרום, כולם מכירים את כולם
+וכשהמוזיקה מתחילה, אף אחד לא נשאר לשבת
 
+[Chorus]
 אסקיסטה! הכתפיים זזות
 אסקיסטה! הקצב בדם
+מגונדר עד תל אביב
+הדרום שלנו, השכונה שלנו
+
+[Verse 2]
+אומרים לנו "תתקדמו", אומרים לנו "תתאימו"
+אנחנו מתאימים כבר שלושים שנה
+עם בונה על האש וקטורת באוויר
+וכל השכונה נכנסת לבית
+
+[Chorus]
+אסקיסטה! הכתפיים זזות
+אסקיסטה! הקצב בדם
+מגונדר עד תל אביב
+הדרום שלנו, השכונה שלנו
+
+[Bridge]
+הלב בגונדר, הרגליים פה
+ושניהם רוקדים יחד
+
+[Chorus]
+אסקיסטה! הכתפיים זזות
+אסקיסטה! הקצב בדם
+מגונדר עד תל אביב
 הדרום שלנו, השכונה שלנו
 ```
 
 ## 8. «Яффо» — восточный поп · `radio_g08_yafo`
 
-> Порт Яффо, кофе с кардамоном; «море шепчет мне шалом, салям».
+> Порт Яффо, рыбаки, кофе с кардамоном; «йа айни» — смеётся она из окна. На блошином рынке торгуются на иврите и арабском — «и оба знаем, что я в конце куплю».
 
 **Запрос:**
 ```
-Create a song. Genre: Middle Eastern pop ballad, oud, qanun, darbuka, strings, warm and romantic, 95 bpm. Vocals: male singer, sung in Hebrew with a natural Israeli accent. Use exactly these Hebrew lyrics, do not translate or change them:
+Create a full-length song, about 3 minutes, with all the sections below. Title: יפו (Yafo). Genre and sound: Middle Eastern pop ballad, male vocal in Hebrew with a few Arabic words, oud, qanun, darbuka, strings, warm and romantic, 95 bpm. Use exactly these Hebrew lyrics with the section labels, do not translate, shorten or change them:
 
+[Verse 1]
 בנמל של יפו הדייגים חוזרים
 ריח של קפה עם הל באוויר
+"יא עיני", היא צוחקת מהחלון
 והים לוחש לי שלום, סלאם
 
+[Chorus]
 יפו, יפו, את הכי יפה בלילה
 השעון במגדל עוצר בשבילך
+בין המסגד לכנסייה, בין הים לשוק
+יפו, יפו, הלב שלי נשאר אצלך
+
+[Verse 2]
+בשוק הפשפשים מוכרים לי את העבר
+מנורה של סבתא של מישהו אחר
+אני מתמקח בעברית, הוא עונה בערבית
+ושנינו יודעים שאני אקנה בסוף
+
+[Chorus]
+יפו, יפו, את הכי יפה בלילה
+השעון במגדל עוצר בשבילך
+בין המסגד לכנסייה, בין הים לשוק
+יפו, יפו, הלב שלי נשאר אצלך
+
+[Bridge]
+יאללה, יאללה, הלילה עוד צעיר
+ומהמרפסת רואים את כל העיר
+
+[Chorus]
+יפו, יפו, את הכי יפה בלילה
+השעון במגדל עוצר בשבילך
+בין המסגד לכנסייה, בין הים לשוק
 יפו, יפו, הלב שלי נשאר אצלך
 ```
 
 ## 9. «Арнона» — панк · `radio_g09_arnona`
 
-> Арнона, налоговая, «бланк! ещё бланк! печать! приходите во вторник!»
+> Арнона, Битуах леуми, налоговая; «бланк! ещё бланк! печать! приходите во вторник!» Номер в очереди 206, на табло — 3.
 
 **Запрос:**
 ```
-Create a song. Genre: Israeli punk rock, fast, distorted guitars, gang shouts, 180 bpm, angry but funny. Vocals: shouted male vocal in Hebrew with a natural Israeli accent. Use exactly these Hebrew lyrics, do not translate or change them:
+Create a full-length song, about 3 minutes, with all the sections below. Title: ארנונה (Arnona). Genre and sound: Israeli punk rock, fast, shouted male vocal in Hebrew, distorted guitars, gang chorus, 180 bpm, angry but funny. Use exactly these Hebrew lyrics with the section labels, do not translate, shorten or change them:
 
+[Verse 1]
 ארנונה, ארנונה, עוד מכתב מהעירייה
+ביטוח לאומי, מס הכנסה, אין לי כבר כוח
 התור בדואר הוא עד הרחוב
 ואני רק רציתי לשלם חשבון!
 
+[Chorus]
 טופס! טופס! עוד טופס אחד!
 חותמת! חותמת! תחזור ביום שלישי!
+הפקידה בהפסקה, המערכת נפלה
+אני צועק, אני צועק — ומחר אני חוזר
+
+[Verse 2]
+שלחו אותי לקומה שתיים, משם לקומה ארבע
+משם לאתר, והאתר שולח אותי לסניף
+בסניף יש מספר, המספר — מאתיים שש
+והלוח מראה... שלוש!
+
+[Chorus]
+טופס! טופס! עוד טופס אחד!
+חותמת! חותמת! תחזור ביום שלישי!
+הפקידה בהפסקה, המערכת נפלה
+אני צועק, אני צועק — ומחר אני חוזר
+
+[Bridge]
+"סבלנות!" "סבלנות!" — אין לי סבלנות!
+
+[Chorus]
+טופס! טופס! עוד טופס אחד!
+חותמת! חותמת! תחזור ביום שלישי!
+הפקידה בהפסקה, המערכת נפלה
+אני צועק, אני צועק — ומחר אני חוזר
 ```
 
 ## 10. «Хумус» — фанк / диско · `radio_g10_hummus`
 
-> С фулем или с яйцом — каждый уверен, что у него лучший; «это не еда, это любовь».
+> С фулем или с яйцом — каждый уверен, что у него лучший. Открываются в семь, к двум уже кончился; едут из Хайфы и Эйлата ради одной тарелки. «Это не еда, это любовь».
 
 **Запрос:**
 ```
-Create a song. Genre: funky disco groove, slap bass, brass section, wah guitar, playful, 112 bpm. Vocals: female singer, sung in Hebrew with a natural Israeli accent. Use exactly these Hebrew lyrics, do not translate or change them:
+Create a full-length song, about 3 minutes, with all the sections below. Title: חומוס (Hummus). Genre and sound: Funky disco groove, female vocal in Hebrew, slap bass, brass section, wah guitar, playful, 112 bpm. Use exactly these Hebrew lyrics with the section labels, do not translate, shorten or change them:
 
+[Verse 1]
 חומוס עם פול, חומוס עם ביצה
 כל אחד בטוח שאצלו הכי טוב
+מתווכחים בתור, מתווכחים בשולחן
 אבל כולם מנגבים עד הסוף
 
+[Chorus]
 נגב, נגב, עם הפיתה עד הסוף
+נגב, נגב, אל תשאיר כלום בצלחת
+עם בצל, עם חריף, עם חמוצים בצד
+חומוס, חומוס — זה לא אוכל, זה אהבה
+
+[Verse 2]
+פותחים בשבע, סוגרים כשנגמר
+בשתיים כבר אין, תחזרו מחר
+יש מי שבא מחיפה, יש מי שבא מאילת
+רק בשביל צלחת אחת עם שמן זית
+
+[Chorus]
+נגב, נגב, עם הפיתה עד הסוף
+נגב, נגב, אל תשאיר כלום בצלחת
+עם בצל, עם חריף, עם חמוצים בצד
+חומוס, חומוס — זה לא אוכל, זה אהבה
+
+[Bridge]
+טחינה, לימון, שום ופטרוזיליה
+זה המתכון — אבל הסוד נשאר אצלי
+
+[Chorus]
+נגב, נגב, עם הפיתה עד הסוף
+נגב, נגב, אל תשאיר כלום בצלחת
 עם בצל, עם חריף, עם חמוצים בצד
 חומוס, חומוס — זה לא אוכל, זה אהבה
 ```
