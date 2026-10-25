@@ -1015,11 +1015,13 @@ function updateBullets(dt) {
 
 // Водитель в панике выскакивает из машины
 // Значок оружия по центру (пикапы, витрина магазина): ширина ~44·s
-function drawWeaponIcon(g, kind, s = 1) {
+// fit — [ширина, высота] рамки, в которую вписать сгенерированный значок (витрина)
+function drawWeaponIcon(g, kind, s = 1, fit = null) {
   // сгенерированный значок (props/w_*) — вписываем в 44 × 30 (бронежилет и граната — 34 × 34)
   const im = typeof Assets !== 'undefined' && Assets.gen['props/w_' + kind];
   if (im) {
-    const bw = (kind === 'armor' || kind === 'grenade' ? 34 : 44) * s, bh = (kind === 'armor' || kind === 'grenade' ? 34 : 30) * s;
+    const tall = kind === 'armor' || kind === 'grenade';
+    const bw = fit ? fit[0] : (tall ? 34 : 44) * s, bh = fit ? fit[1] : (tall ? 34 : 30) * s;
     const k = Math.min(bw / im.width, bh / im.height), w = im.width * k, h = im.height * k;
     g.drawImage(im, -w / 2, -h / 2, w, h);
     return;
