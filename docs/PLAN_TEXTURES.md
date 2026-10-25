@@ -45,25 +45,25 @@
 
 | Модель | Текстуры | Без текстуры (цвет) |
 |---|---|---|
-| Мечеть Хасан-Бек | m_patina, m_gold, m_roofflat, m_stone, m_trim, m_wood | dark |
+| Мечеть Хасан-Бек | m_patina, m_gold, m_roofflat, m_stone, m_trim, m_wood | cap, dark |
 | Фонтан Агама | m_concrete, m_metal, m_paint_red, m_water | paintBlue, paintGreen, yellow |
-| Азриэли | m_concrete, m_glassB, m_metal | yellow |
-| «Городские ворота» | m_glass, m_metal | — |
-| Часовая башня Яффо | m_roofT, m_stone, m_trim, m_white, m_wood | dark |
-| Дельфинариум | m_concrete, m_graffiti, m_rust | dark |
-| Театр Габима | m_glass, m_trim, m_white | — |
-| Типовой дом: 1960-е | m_beige, m_concrete, m_glass, m_glassB, m_metal, m_shutter, m_white | — |
-| Типовой дом: баухауз | m_concrete, m_glass, m_glassB, m_stone, m_white | — |
-| Типовой дом: эклектика 1920-х | m_concrete, m_ochre, m_trim | dark, shutterG |
-| Штаб в Кирье | m_concrete, m_glass, m_metal, m_paint_red, m_white | yellow |
-| Маяк Яффо | m_paint_red, m_stone, m_trim, m_white | dark, yellow |
-| Арена «Менора» | m_concrete, m_glass, m_metal, m_white | — |
-| Башня «Опера» (Алленби) | m_concrete, m_glass, m_glassB, m_pinkpaint, m_roofflat, m_white | dark |
+| Азриэли | m_concrete, m_glassB, m_metal | cap, yellow |
+| «Городские ворота» | m_glass, m_metal | cap |
+| Часовая башня Яффо | m_roofT, m_stone, m_trim, m_white, m_wood | cap, dark |
+| Дельфинариум | m_concrete, m_graffiti, m_rust | cap, dark |
+| Театр Габима | m_glass, m_trim, m_white | cap |
+| Типовой дом: 1960-е | m_beige, m_concrete, m_glass, m_glassB, m_metal, m_shutter, m_white | cap |
+| Типовой дом: баухауз | m_concrete, m_glass, m_glassB, m_stone, m_white | cap |
+| Типовой дом: эклектика 1920-х | m_concrete, m_ochre, m_trim | cap, dark, shutterG |
+| Штаб в Кирье | m_concrete, m_glass, m_metal, m_paint_red, m_white | cap, yellow |
+| Маяк Яффо | m_paint_red, m_stone, m_trim, m_white | cap, dark, yellow |
+| Арена «Менора» | m_concrete, m_glass, m_metal, m_white | cap |
+| Башня «Опера» (Алленби) | m_concrete, m_glass, m_glassB, m_pinkpaint, m_roofflat, m_white | cap, dark |
 | Фонтан на площади у «Оперы» | m_concrete, m_water | foam |
-| Электростанция Ридинг | m_concrete, m_glass, m_paint_red, m_white | — |
-| Русская церковь | m_blueroof, m_gold, m_patina, m_white | dark |
-| Башня Шалом | m_brown, m_glass, m_metal | — |
-| Церковь Св. Петра | m_brick, m_gold, m_roofT, m_stone, m_wood | dark |
+| Электростанция Ридинг | m_concrete, m_glass, m_paint_red, m_white | cap |
+| Русская церковь | m_blueroof, m_gold, m_patina, m_white | cap, dark |
+| Башня Шалом | m_brown, m_glass, m_metal | cap |
+| Церковь Св. Петра | m_brick, m_gold, m_roofT, m_stone, m_wood | cap, dark |
 
 Без текстуры остаются проёмы окон, краска (ставни, разметка, колёса фонтана) и фонарь маяка.
 

@@ -3,6 +3,18 @@
 > Откройте этот файл в боковой панели **Claude в Chrome** и скажите:
 > «Выполни задание из этого файла».
 > Единое задание: всё, чего пока нет в игре (73) — «Фолькс» Лёвы, Текстура модели: Камень Яффо (известняк), Текстура модели: Светлый камень карнизов, Текстура модели: Бетон, Текстура модели: Белая штукатурка баухауза, Текстура модели: Бежевая штукатурка 1960-х, Текстура модели: Охра (эклектика), Текстура модели: Терракотовая штукатурка церкви, Текстура модели: Коричневая мозаика 1960-х, Текстура модели: Тёмное стекло фасада, Текстура модели: Синее стекло (Азриэли), Текстура модели: Металлические панели, Текстура модели: Черепица (сверху), Текстура модели: Патина купола, Текстура модели: Золото луковицы, Текстура модели: Синий купол со звёздами, Текстура модели: Ставни-«трисим», Текстура модели: Старая деревянная дверь, Текстура модели: Плоская крыша, Текстура модели: Граффити на бетоне, Текстура модели: Ржавый металл, Текстура модели: Красная краска по металлу, Текстура модели: Вода фонтана, Текстура модели: Баухауз: кремовая штукатурка, Текстура модели: Баухауз: пастельно-розовая штукатурка, Текстура модели: Дом 60-х: серая «шуба», Текстура модели: Дом 60-х: облицовка иерусалимским камнем, Текстура модели: Эклектика: лососевая штукатурка, Текстура модели: Эклектика: серо-голубая штукатурка, Текстура модели: Розовая краска балконов («Опера»), Портрет: Сергей Аусбендер, аналитик 12-го канала, Портрет: ведущая новостей Яэль, у машин — со стадиями повреждений. Файл собирается автоматически.
+>
+> **Фото.** Для пунктов с пометкой о фото пользователь прикладывает фото —
+> прикладывай нужное к каждому такому запросу.
+
+## Сначала — одна картинка на согласование
+
+1. Сгенерируй **только № 346** (`portraits/portrait_ausbender.png`).
+2. Покажи её пользователю и спроси: «Так подходит? Продолжать?»
+3. **Дальше не иди, пока пользователь не ответит «да».** Если просит
+   поправить — допиши его уточнение в конец промпта, сгенерируй заново и
+   снова спроси. Потом добавляй это же уточнение к похожим пунктам списка.
+4. После «да» — весь список по порядку.
 
 ## Главное правило: имя файла
 
@@ -962,10 +974,10 @@ Seamless tileable texture of a building material for a stylized top-down crime g
 
 ### 346. `portraits/portrait_ausbender.png` — Портрет: Сергей Аусбендер, аналитик 12-го канала
 
-- [ ] Новая картинка, формат квадрат 1:1.
+- [ ] Новая картинка, формат квадрат 1:1. **Приложи к запросу фото этого человека** (его даст пользователь) — внешность берётся с фото, стиль — как у остальных героев игры. Без фото не генерируй — спроси пользователя.
 
 ```
-Head-and-shoulders caricature portrait for the phone-call dialog box of a satirical crime video game set in Tel Aviv: bold comic-book style, thick black ink outlines, flat cel shading, exaggerated proportions (big head, small shoulders, oversized nose and expressive eyebrows), the character looks toward the viewer at a slight three-quarter angle, flat solid single-color background with a subtle halftone dot pattern, square format, head and shoulders fill the frame. Funny and good-natured, never mean; exaggerate expression and props, not ethnic features. No text, no letters, no speech bubbles, no frame, no logos, no watermark. Sergey Ausbender, a self-confident TV political analyst in his 50s: receding hair combed back, reading glasses low on the nose, dark suit with a loosened tie, raised index finger and a know-it-all smirk, as if explaining something obvious and completely wrong. Background: dark blue TV studio with glowing screens.
+Head-and-shoulders caricature portrait for the phone-call dialog box of a satirical crime video game set in Tel Aviv: bold comic-book style, thick black ink outlines, flat cel shading, exaggerated proportions (big head, small shoulders, oversized nose and expressive eyebrows), the character looks toward the viewer at a slight three-quarter angle, flat solid single-color background with a subtle halftone dot pattern, square format, head and shoulders fill the frame. Funny and good-natured, never mean; exaggerate expression and props, not ethnic features. No text, no letters, no speech bubbles, no frame, no logos, no watermark. Sergey Ausbender, a self-confident TV political analyst in his 50s: receding hair combed back, reading glasses low on the nose, dark suit with a loosened tie, raised index finger and a know-it-all smirk, as if explaining something obvious and completely wrong. Background: dark blue TV studio with glowing screens. Base the face, hairstyle, facial hair, glasses (if any) and build on the attached reference photo of this real person, caricatured in exactly the same style as the other characters; keep him clearly recognizable.
 ```
 
 ### 347. `portraits/portrait_anchor.png` — Портрет: ведущая новостей Яэль

@@ -294,7 +294,7 @@ const MODEL_TEXTURES = [
 
 // Вечерние новости 12-го канала: аналитик и ведущая
 const NEWS_PORTRAITS = [
-  ['portrait_ausbender', 'Портрет: Сергей Аусбендер, аналитик 12-го канала', 'Sergey Ausbender, a self-confident TV political analyst in his 50s: receding hair combed back, reading glasses low on the nose, dark suit with a loosened tie, raised index finger and a know-it-all smirk, as if explaining something obvious and completely wrong. Background: dark blue TV studio with glowing screens.'],
+  ['portrait_ausbender', 'Портрет: Сергей Аусбендер, аналитик 12-го канала', 'Sergey Ausbender, a self-confident TV political analyst in his 50s: receding hair combed back, reading glasses low on the nose, dark suit with a loosened tie, raised index finger and a know-it-all smirk, as if explaining something obvious and completely wrong. Background: dark blue TV studio with glowing screens.', true],
   ['portrait_anchor', 'Портрет: ведущая новостей Яэль', 'Yael, an Israeli evening news anchor in her 30s: big glossy dark hair, red blouse, polite professional smile with one slightly raised eyebrow of disbelief. Background: dark blue TV studio with glowing screens.'],
 ];
 
@@ -426,7 +426,7 @@ const ASSET_MANIFEST = (() => {
   // текстуры моделей — в самом конце
   for (const [file, title, desc] of MODEL_TEXTURES) out.push({ batch: 'modeltex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: `${MODEL_TEX_STYLE} ${desc}` });
   // новости 12-го канала (js/news.js) — после текстур
-  for (const [file, title, desc] of NEWS_PORTRAITS) out.push({ batch: 'news', cat: 'portraits', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.portrait} ${desc}` });
+  for (const [file, title, desc, ref] of NEWS_PORTRAITS) out.push({ batch: 'news', cat: 'portraits', file, title, kind: 'new', size: '1024x1024', ref: !!ref, prompt: `${ASSET_STYLE.portrait} ${desc}${ref ? ' ' + REF_PHOTO : ''}` });
   // текстуры моделей, добавленные позже (новые — только в конец этого списка)
   for (const [file, title, desc] of MODEL_TEXTURES_LATE) out.push({ batch: 'modeltex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: `${MODEL_TEX_STYLE} ${desc}` });
   return out;

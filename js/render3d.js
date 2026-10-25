@@ -28,8 +28,6 @@ const SHOP_GEN_MAX = 8;
 const TINTED = { bauhaus: 1, florentin: 1, concrete: 1, nevetzedek: 1, cityhall: 1, hospital: 1, police: 1, busstation: 1, garage: 1 };
 // высота детальных моделей: метров → единиц 3D (дома в игре выше настоящих)
 const MODEL_HS = 11;
-// материалы окон в моделях: ночью светятся
-const WINDOW_MATS = { dark: 1, glass: 1, glassB: 1 };
 const FOV = 55; // перспектива сверху: стены видны у краёв экрана, как в GTA2
 const TILT = 0.58; // наклон камеры (≈33°), чтобы видеть фасады; клавиша V — строго сверху, как в GTA2
 // сгенерированные фасады (assets/gen/facades) для стилей районов
@@ -491,38 +489,57 @@ const R3 = {
     const V = (typeof HOUSE_VARIANTS !== 'undefined' && HOUSE_VARIANTS[key] && HOUSE_VARIANTS[key][v]) || {};
     return d.groups.map(([name, , , tex, tint]) => {
       const o = V[name] || {};
-      return this.modelMat({ tex: o.tex || tex, tint, color: o.color, glow: WINDOW_MATS[name] ? (v + key.length) % 4 : -1 });
+      const kind = name === 'dark' ? 'win' : name === 'glass' || name === 'glassB' ? name : null;
+      return this.modelMat({ tex: o.tex || tex, tint, color: o.color, kind, seed: (v + key.length) % 3 });
     });
   },
 
-  modelMat({ tex, tint = 1, color, glow = -1 }) {
+  // окна моделей светятся ночью, как у остальных домов: отдельные окна (dark) —
+  // атлас из четырёх окон (шторы, без штор, жалюзи, ставни; горят по-разному),
+  // стекло (glass, glassB) — фасад высотки с окнами по этажам
+  modelMat({ tex, tint = 1, color, kind = null, seed = 0 }) {
     const C = this.modelMatCache || (this.modelMatCache = {});
-    const k = [tex, tint, color, glow].join('|');
+    const k = [tex, tint, color, kind, kind ? seed : ''].join('|');
     if (C[k]) return C[k];
     const im = tex && Assets.gen['textures/' + tex];
-    const o = im ? { map: this.tex(im, true), color: new THREE.Color(tint, tint, tint) } : color ? { color: new THREE.Color(color) } : { vertexColors: true };
-    if (glow >= 0) Object.assign(o, { emissive: new THREE.Color(1, 0.82, 0.5), emissiveMap: this.windowLights(glow), emissiveIntensity: 0 });
+    let o;
+    if (kind === 'win') {
+      const A = this.windowAtlas();
+      o = { map: A.map, emissive: new THREE.Color(1, 0.86, 0.6), emissiveMap: A.em, emissiveIntensity: 0 };
+    } else if (kind) {
+      const f = Facades.facade('tower', seed);
+      const rep = (t) => { t.repeat.set(0.25, 0.55); return t; };
+      o = { map: im ? this.tex(im, true) : rep(this.tex(f.map, true)), color: kind === 'glassB' && !im ? new THREE.Color(0.8, 0.9, 1) : new THREE.Color(tint, tint, tint),
+        emissive: WHITE, emissiveMap: rep(this.tex(f.emissive, true)), emissiveIntensity: 0 };
+    } else o = im ? { map: this.tex(im, true), color: new THREE.Color(tint, tint, tint) } : color ? { color: new THREE.Color(color) } : { vertexColors: true };
     const m = new THREE.MeshLambertMaterial(o);
-    if (glow >= 0) this.facadeMats.push(m);
+    if (kind) this.facadeMats.push(m);
     return (C[k] = m);
   },
 
-  // какие окна горят: клетки в случайном порядке (uv моделей — в метрах/повторах)
-  windowLights(seed) {
-    const W = this.winLights || (this.winLights = []);
-    if (W[seed]) return W[seed];
-    const c = Facades.canvas(8, 8), g = c.getContext('2d');
-    let r = 1234 + seed * 777;
-    const rnd = () => ((r = (r * 16807) % 2147483647) / 2147483647);
-    for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) {
-      const on = rnd() < 0.5;
-      g.fillStyle = on ? `rgb(255,${200 + Math.floor(rnd() * 40)},${120 + Math.floor(rnd() * 60)})` : '#000';
-      g.fillRect(x, y, 1, 1);
+  // атлас окон 4 × 1: рама, стекло, переплёт; шторы / без штор / жалюзи / закрытые ставни.
+  // Ночью горят первое и третье (за жалюзи — снизу), второе и четвёртое тёмные
+  windowAtlas() {
+    if (this.winAtlas) return this.winAtlas;
+    const W = 64, H = 96, c = Facades.canvas(W * 4, H), e = Facades.canvas(W * 4, H);
+    const g = c.getContext('2d'), q = e.getContext('2d');
+    q.fillStyle = '#000'; q.fillRect(0, 0, W * 4, H);
+    for (let i = 0; i < 4; i++) {
+      const x = i * W;
+      g.fillStyle = '#ece6d8'; g.fillRect(x, 0, W, H);
+      const gr = g.createLinearGradient(0, 6, 0, H - 6); gr.addColorStop(0, '#506878'); gr.addColorStop(1, '#2a3640');
+      g.fillStyle = gr; g.fillRect(x + 7, 7, W - 14, H - 14);
+      g.fillStyle = 'rgba(255,255,255,0.18)'; g.beginPath(); g.moveTo(x + 12, H - 10); g.lineTo(x + 30, 10); g.lineTo(x + 38, 10); g.lineTo(x + 20, H - 10); g.fill();
+      if (i === 0) { g.fillStyle = '#d9c8a8'; g.fillRect(x + 7, 7, 11, H - 14); g.fillRect(x + W - 18, 7, 11, H - 14); }
+      if (i === 2) for (let y = 7; y < H * 0.55; y += 5) { g.fillStyle = '#d6d2c8'; g.fillRect(x + 7, y, W - 14, 4); }
+      if (i === 3) for (let y = 7; y < H - 7; y += 5) { g.fillStyle = y % 10 ? '#9ea4a8' : '#b4babe'; g.fillRect(x + 7, y, W - 14, 4); }
+      g.fillStyle = '#ece6d8'; g.fillRect(x + W / 2 - 2, 7, 4, H - 14); g.fillRect(x + 7, H * 0.38, W - 14, 3);
+      // свет внутри
+      if (i === 0) { q.fillStyle = '#ffd08a'; q.fillRect(x + 18, 7, W - 36, H - 14); q.fillStyle = '#b07a40'; q.fillRect(x + 7, 7, 11, H - 14); q.fillRect(x + W - 18, 7, 11, H - 14); }
+      if (i === 2) { q.fillStyle = '#ffe2a8'; q.fillRect(x + 7, H * 0.55, W - 14, H * 0.45 - 7); q.fillStyle = '#6b5530'; q.fillRect(x + 7, 7, W - 14, H * 0.55 - 7); }
+      q.fillStyle = '#000'; q.fillRect(x + W / 2 - 2, 7, 4, H - 14); q.fillRect(x + 7, H * 0.38, W - 14, 3);
     }
-    const t = this.tex(c, true);
-    t.magFilter = t.minFilter = THREE.NearestFilter;
-    t.repeat.set(0.25, 0.25); // клетка ≈ 1,5–2 м — примерно окно
-    return (W[seed] = t);
+    return (this.winAtlas = { map: this.tex(c), em: this.tex(e) });
   },
 
   // масштаб модели под участок: rot ±90° — модель лежит поперёк

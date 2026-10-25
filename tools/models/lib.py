@@ -1,10 +1,14 @@
 # Общие детали для low-poly моделей зданий (Blender как модуль Python, bpy).
 # Единицы — метры, ось Z вверх, «юг» игры — это −Y Blender (главный фасад).
 # Цвета — в вершинах (без текстур): материал = имя цвета из палитры.
-import bpy, bmesh, math, os, json, base64, struct
+import bpy, bmesh, math, os, json, base64, struct, random
 from mathutils import Vector
 
 PAL = {}
+RND = random.Random(7)
+# окна (материал dark на плоских фигурах): каждое — целиком один из WIN_KINDS
+# вариантов атласа окон в игре (рама, стекло, шторы/жалюзи; горит или нет)
+WIN_KINDS = 4
 
 # Текстуры материалов (бесшовные, assets/gen/textures/<имя>.png): материал модели →
 # (текстура, метров на один повтор, яркость). Нет картинки — цвет из палитры.
@@ -26,6 +30,7 @@ TEX = {
 def reset(palette):
     """Новая пустая сцена и палитра {имя: (r, g, b)} в sRGB 0..1."""
     bpy.ops.wm.read_factory_settings(use_empty=True)
+    RND.seed(7)
     PAL.clear()
     PAL.update(palette)
     for k, c in palette.items():
@@ -127,7 +132,9 @@ def plate(pts2d, origin, u, normal, depth, mat):
     for i in range(k):
         bm.faces.new((back[i], back[(i + 1) % k], front[(i + 1) % k], front[i]))
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
-    return _obj('plate', bm, mat)
+    o = _obj('plate', bm, mat)
+    o['win'] = RND.randrange(WIN_KINDS)  # для окон: какой вариант из атласа
+    return o
 
 
 SIDES = {
@@ -167,15 +174,27 @@ def export_data():
     for o in bpy.context.scene.objects:
         if o.type != 'MESH' or o.name.startswith('_'):
             continue
-        name = o.data.materials[0].name
-        L = by.setdefault(name, {'pos': [], 'nor': [], 'uv': []})
-        sc = TEX.get(name, (None, 3.0))[1]
+        name0 = o.data.materials[0].name
+        sc = TEX.get(name0, (None, 3.0))[1]
         bm = bmesh.new(); bm.from_mesh(o.data)
         bmesh.ops.triangulate(bm, faces=bm.faces)
         bm.normal_update()
+        # окно: развёртка на всю фигуру (0..1) в своей колонке атласа окон
+        win = name0 == 'dark' and 'win' in o
+        if win:
+            nrm = (o.matrix_world.to_3x3() @ max(bm.faces, key=lambda f: f.calc_area()).normal).normalized()
+            wax = max(range(3), key=lambda i: abs(nrm[i]))
+            pick = lambda p: (p.y, p.z) if wax == 0 else (p.x, p.z) if wax == 1 else (p.x, p.y)
+            pts = [pick(o.matrix_world @ v.co) for v in bm.verts]
+            u0, u1 = min(p[0] for p in pts), max(p[0] for p in pts)
+            w0, w1 = min(p[1] for p in pts), max(p[1] for p in pts)
+            col = o['win']
         for f in bm.faces:
             n = (o.matrix_world.to_3x3() @ f.normal).normalized()
             ax = max(range(3), key=lambda i: abs(n[i]))
+            # верх и низ стекла и окон — без окон и света: глухая крышка
+            name = 'cap' if name0 in ('glass', 'glassB', 'dark') and ax == 2 else name0
+            L = by.setdefault(name, {'pos': [], 'nor': [], 'uv': []})
             for v in f.verts:
                 p = o.matrix_world @ v.co
                 lo = Vector(map(min, lo, p)); hi = Vector(map(max, hi, p))
@@ -183,6 +202,11 @@ def export_data():
                 z = p.z if p.z <= 24 else 24 + (p.z - 24) * 0.4
                 L['pos'] += [p.x, z, -p.y]
                 L['nor'] += [n.x, n.z, -n.y]
+                if win:
+                    u, w = pick(p)
+                    fu = (u - u0) / ((u1 - u0) or 1); fw = (w - w0) / ((w1 - w0) or 1)
+                    L['uv'] += [(col + 0.04 + fu * 0.92) / WIN_KINDS, fw]
+                    continue
                 u, w = (p.y, p.z) if ax == 0 else (p.x, p.z) if ax == 1 else (p.x, p.y)
                 L['uv'] += [u / sc, w / sc]
         bm.free()
@@ -192,7 +216,7 @@ def export_data():
         t = TEX.get(name)  # [материал, начало, вершин, текстура или None, яркость]
         groups.append([name, len(pos) // 3, len(L['pos']) // 3, t[0] if t else None, t[2] if t else 1.0])
         pos += L['pos']; nor += L['nor']; uv += L['uv']
-        col += list(PAL[name]) * (len(L['pos']) // 3)
+        col += list(PAL.get(name, (0.42, 0.47, 0.52))) * (len(L['pos']) // 3)
     b64 = lambda a: base64.b64encode(struct.pack('<%df' % len(a), *a)).decode()
     return {'tris': len(pos) // 9, 'top': round(hi.z, 2), 'pos': b64(pos), 'nor': b64(nor), 'col': b64(col), 'uv': b64(uv), 'groups': groups}
 

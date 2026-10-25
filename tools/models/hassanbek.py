@@ -100,7 +100,9 @@ def wall_shape(name, pts2d, origin, axis_u, normal, depth, mat):
         bm.faces.new((back[i], back[(i + 1) % n], front[(i + 1) % n], front[i]))
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
-    return obj(name, me, mat)
+    o = obj(name, me, mat)
+    o['win'] = len(bpy.data.objects) % 4  # для окон: вариант из атласа окон в игре
+    return o
 
 # ---------------------------------------------------------------- молельный зал
 X0, X1, Y0, Y1, H = -7.6, 3.6, -7.6, 3.6, 8.0
