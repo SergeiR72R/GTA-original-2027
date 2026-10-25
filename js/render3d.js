@@ -26,6 +26,8 @@ const FACADE_VARIANTS = { bauhaus: 3, florentin: 3, concrete: 3, tower: 3, mall:
 const PILOTIS_STYLES = { bauhaus: 1, concrete: 1 };
 const SHOP_GEN_MAX = 8;
 const TINTED = { bauhaus: 1, florentin: 1, concrete: 1, nevetzedek: 1, cityhall: 1, hospital: 1, police: 1, busstation: 1, garage: 1 };
+// высота детальных моделей: метров → единиц 3D (дома в игре выше настоящих)
+const MODEL_HS = 11;
 const FOV = 55; // перспектива сверху: стены видны у краёв экрана, как в GTA2
 const TILT = 0.58; // наклон камеры (≈33°), чтобы видеть фасады; клавиша V — строго сверху, как в GTA2
 // сгенерированные фасады (assets/gen/facades) для стилей районов
@@ -433,7 +435,7 @@ const R3 = {
     for (let cy = 0; cy < ch; cy++) for (let cx = 0; cx < cw; cx++) {
       const batches = {};
       const B = (m) => batches[m] || (batches[m] = new Batch());
-      for (const b of City.bgrid[cy * cw + cx]) this.building(b, B);
+      for (const b of City.bgrid[cy * cw + cx]) if (!(b.model && window.GEN_MODELS && GEN_MODELS[b.model])) this.building(b, B);
       for (const d of City.dgrid[cy * cw + cx]) this.decor(d, B);
       for (const k in batches) {
         if (batches[k].empty) continue;
@@ -448,6 +450,7 @@ const R3 = {
     // на крышах — только вертолётная площадка; вывески стоят у тротуара
     for (const b of City.buildings) if (!b.removed && b.label === 'H') this.roofSign(b);
     for (const sg of City.signs || []) this.groundSign(sg);
+    for (const md of City.models || []) this.model(md);
     this.applyQuality(true);
     // заранее рисуем спрайты всех машин всех цветов: первый показ не даст рывка
     for (const t in VTYPES) {
@@ -456,6 +459,23 @@ const R3 = {
       for (const f in FACTIONS) if (FACTIONS[f].car === t) Vehicles.sprite(t, FACTIONS[f].carColor || VTYPES[t].color || '#141518', f);
       for (const c of cols) Vehicles.sprite(t, c);
     }
+  },
+
+  // Детальная модель из Blender: геометрия в метрах (assets/models/*.js),
+  // по горизонтали 1 м = TILE / 4, по высоте — как у домов в 3D
+  model(md) {
+    const d = window.GEN_MODELS && GEN_MODELS[md.key];
+    if (!d) return;
+    const f32 = (s) => { const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return new Float32Array(u.buffer); };
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(f32(d.pos), 3));
+    g.setAttribute('normal', new THREE.BufferAttribute(f32(d.nor), 3));
+    g.setAttribute('color', new THREE.BufferAttribute(f32(d.col), 3));
+    const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true }));
+    m.scale.set(TILE / 4, MODEL_HS, TILE / 4);
+    m.position.set(md.x, 0, md.y);
+    m.castShadow = true; m.receiveShadow = true;
+    this.scene.add(m);
   },
 
   building(b, B) {

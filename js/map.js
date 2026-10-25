@@ -190,6 +190,7 @@ const City = {
 
   generate() {
     this.signs = [];
+    this.models = []; // детальные 3D-модели (assets/models): в 3D заменяют свои простые объёмы
     this.layout();
     const W = this.W, H = this.H;
     this.type = new Uint8Array(W * H);
@@ -439,12 +440,16 @@ const City = {
     // Набережная: мечеть Хасан-Бек с минаретом
     o = I(0, 5);
     this.clearRect(o.x, o.y + 1, 4, 4, T_PLAZA);
+    const n0 = this.buildings.length;
     const mq = this.box(o.x, o.y + 2, 3, 3, 0, 45, '#e3cfa4', '#d9c49a', 'mosque', { stone: true });
     this.onion(o.x + 1.5, o.y + 3.5, 42, 45, '#c8b48a');
     this.markSolid(o.x + 3, o.y + 1, 1, 1);
     this.cyl(o.x + 3.5, o.y + 1.5, 13, 0, 165, '#e8d5a8');
     this.cyl(o.x + 3.5, o.y + 1.5, 19, 118, 124, '#d4bf90');
     this.cyl(o.x + 3.5, o.y + 1.5, 9, 165, 190, '#9e9e9e');
+    // в 3D вместо этих объёмов — модель из Blender (tools/models/hassanbek.py), участок 4 × 4
+    for (let i = n0; i < this.buildings.length; i++) this.buildings[i].model = 'hassanbek';
+    this.models.push({ key: 'hassanbek', x: (o.x + 2) * TILE, y: (o.y + 3) * TILE });
     sign(mq, 'מסגד חסן בק', 'мечеть Хасан-Бек', '#00695c', '#fff');
     // Юг: арена «Менора» в шхунот
     o = I(5, 9);
