@@ -52,9 +52,9 @@
 | Часовая башня Яффо | m_roofT, m_stone, m_trim, m_white, m_wood | cap, dark |
 | Дельфинариум | m_concrete, m_graffiti, m_rust | cap, dark |
 | Театр Габима | m_glass, m_trim, m_white | cap |
-| Типовой дом: 1960-е | m_beige, m_concrete, m_glass, m_glassB, m_metal, m_shutter, m_white | cap |
-| Типовой дом: баухауз | m_concrete, m_glass, m_glassB, m_stone, m_white | cap |
-| Типовой дом: эклектика 1920-х | m_concrete, m_ochre, m_trim | cap, dark, shutterG |
+| Типовой дом: 1960-е | m_beige, m_concrete, m_glass, m_glassB, m_metal, m_roofflat, m_shutter, m_white | cap |
+| Типовой дом: баухауз | m_concrete, m_glass, m_glassB, m_roofflat, m_stone, m_white | cap |
+| Типовой дом: эклектика 1920-х | m_concrete, m_ochre, m_roofflat, m_trim | cap, dark, shutterG |
 | Штаб в Кирье | m_concrete, m_glass, m_metal, m_paint_red, m_white | cap, yellow |
 | Маяк Яффо | m_paint_red, m_stone, m_trim, m_white | cap, dark, yellow |
 | Арена «Менора» | m_concrete, m_glass, m_metal, m_white | cap |

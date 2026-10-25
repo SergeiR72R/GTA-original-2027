@@ -575,7 +575,7 @@ const R3 = {
       if (!M) continue;
       const mats = this.modelMats(key, M.d, +v);
       const g = new THREE.BufferGeometry();
-      for (const n of ['position', 'normal', 'color']) g.setAttribute(n, M.g.getAttribute(n));
+      for (const n of ['position', 'normal', 'color', 'uv']) if (M.g.getAttribute(n)) g.setAttribute(n, M.g.getAttribute(n));
       g.boundingSphere = new THREE.Sphere(new THREE.Vector3((+cx + 0.5) * cs, 80, (+cy + 0.5) * cs), cs * 0.75 + 120);
       if (M.d.groups) M.d.groups.forEach(([, start, count], i) => g.addGroup(start, count, i));
       const im = new THREE.InstancedMesh(g, mats, by[k].length);
