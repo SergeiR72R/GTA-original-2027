@@ -914,7 +914,7 @@ const Missions = {
     // разговор «после миссии», затем вечерние новости (js/news.js), потом — дальше по сюжету
     const chain = [];
     if (m.def.after) chain.push({ lines: m.def.after, title: '' });
-    if (m.def.news) chain.push({ lines: m.def.news, title: '12-й канал · вечерние новости', tv: true });
+    if (m.def.news) chain.push({ lines: m.def.news, title: '34-й канал · вечерние новости', tv: true });
     if (chain.length) {
       const next = () => {
         const c = chain.shift();

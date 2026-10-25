@@ -2867,12 +2867,12 @@ Seamless tileable texture of a building material for a stylized top-down crime g
 
 ## Портреты для звонков (22)
 
-### 346. `portraits/portrait_ausbender.png` — Портрет: Сергей Аусбендер, аналитик 12-го канала
+### 346. `portraits/portrait_ausbender.png` — Портрет: Сергей Аусбендер, корреспондент 34-го канала
 
 Новая картинка, формат квадрат 1:1.
 
 ```
-Head-and-shoulders caricature portrait for the phone-call dialog box of a satirical crime video game set in Tel Aviv: bold comic-book style, thick black ink outlines, flat cel shading, exaggerated proportions (big head, small shoulders, oversized nose and expressive eyebrows), the character looks toward the viewer at a slight three-quarter angle, flat solid single-color background with a subtle halftone dot pattern, square format, head and shoulders fill the frame. Funny and good-natured, never mean; exaggerate expression and props, not ethnic features. No text, no letters, no speech bubbles, no frame, no logos, no watermark. Sergey Ausbender, a self-confident TV political analyst in his 50s: receding hair combed back, reading glasses low on the nose, dark suit with a loosened tie, raised index finger and a know-it-all smirk, as if explaining something obvious and completely wrong. Background: dark blue TV studio with glowing screens. Base the face, hairstyle, facial hair, glasses (if any) and build on the attached reference photo of this real person, caricatured in exactly the same style as the other characters; keep him clearly recognizable.
+Head-and-shoulders caricature portrait for the phone-call dialog box of a satirical crime video game set in Tel Aviv: bold comic-book style, thick black ink outlines, flat cel shading, exaggerated proportions (big head, small shoulders, oversized nose and expressive eyebrows), the character looks toward the viewer at a slight three-quarter angle, flat solid single-color background with a subtle halftone dot pattern, square format, head and shoulders fill the frame. Funny and good-natured, never mean; exaggerate expression and props, not ethnic features. No text, no letters, no speech bubbles, no frame, no logos, no watermark. Sergey Ausbender, a self-confident TV news correspondent: receding hair combed back, reading glasses low on the nose, dark suit with a loosened tie, a TV microphone in one hand and the other index finger raised, a know-it-all smirk, as if explaining something obvious and completely wrong. Background: dark blue TV studio with glowing screens. Base the face, hairstyle, facial hair, glasses (if any) and build on the attached reference photo of this real person, caricatured in exactly the same style as the other characters; keep him clearly recognizable.
 ```
 
 ### 347. `portraits/portrait_anchor.png` — Портрет: ведущая новостей Яэль
