@@ -1307,11 +1307,14 @@ const C1_RECOUNT = staged({
       name: 'Слежка за Гариком',
       resume() { Story.putPlayer(chP().c1Exchange, 'hatch'); },
       start(m) {
-        const P = chP();
-        m.g = Story.carOnRoad(m, P.c1Odessa, 60, 260, { type: 'sedan', color: '#c62828', faction: 'russian' });
+        // Гарик выезжает недалеко от игрока (и после перезапуска с контрольной
+        // точки), не вплотную — чтобы было видно, за кем ехать
+        const pl = pl_();
+        m.g = Story.carOnRoad(m, pl, 350, 600, { type: 'sedan', color: '#c62828', faction: 'russian' });
         m.gd = Story.driver(m, m.g, { faction: 'russian', ai: 'idle', look: lookGarik(), hp: 120, name: GARIK });
         m.g.ai = 'scripted'; m.g.mission = 'target';
-        m.close = 0;
+        m.close = 0; m.lost = 0;
+        Game.message('Красная машина Гарика трогается — за ней!', 3);
       },
       update(m, dt) {
         if (needCar(m)) return;
@@ -1320,9 +1323,10 @@ const C1_RECOUNT = staged({
         const left = driveTo(g, dst.x, dst.y, dt, 170);
         const d = dist(pl.x, pl.y, g.x, g.y);
         m.target = g;
-        m.text = d < 170 ? 'Слишком близко! Гарик заметит' : 'Езжай за Гариком на расстоянии — куда он везёт сумку?';
+        m.text = d < 170 ? 'Слишком близко! Гарик заметит' : d > 900 ? 'Гарик уходит — догоняй!' : 'Езжай за Гариком на расстоянии — куда он везёт сумку?';
         if (d < 170) { m.close += dt; if (m.close > 3) { Game.message('Гарик заметил тебя в зеркале!', 3); return 'next'; } } else m.close = Math.max(0, m.close - dt);
-        if (d > 1100) return 'fail:Ты потерял Гарика из виду.';
+        // потерял — только если долго не видно, а не от одного рывка
+        if (d > 1100) { m.lost += dt; if (m.lost > 5) return 'fail:Ты потерял Гарика из виду.'; } else m.lost = 0;
         if (left < 130) {
           g.vx = g.vy = 0;
           Story.flag('sawContact', 1);
