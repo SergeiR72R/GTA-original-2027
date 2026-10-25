@@ -8,7 +8,7 @@ const path = require('path');
 const { ASSET_MANIFEST } = require('../js/asset-manifest.js');
 
 const root = path.join(__dirname, '..');
-const CAT = { vehicles: 'Машины', chars: 'Персонажи', facades: 'Фасады и витрины', props: 'Объекты улиц', textures: 'Текстуры', portraits: 'Портреты для звонков' };
+const CAT = { vehicles: 'Машины', chars: 'Персонажи', facades: 'Фасады и витрины', props: 'Объекты улиц', textures: 'Текстуры', portraits: 'Портреты для звонков', ui: 'Логотип и заставки' };
 const total = ASSET_MANIFEST.length;
 const count = (c) => ASSET_MANIFEST.filter((a) => a.cat === c).length;
 
@@ -188,7 +188,9 @@ function flowList(list) {
       out += `\n## ${title} (${list.filter((x) => (x.cat === 'facades' && x.file.startsWith('poster') ? 'posters' : x.file === 'barrel' ? 'props' : x.cat) === c).length})\n\n`;
     }
     const full = a.full || (a.kind === 'edit' ? ALL.find((b) => b.file === a.base).prompt + ' ' + a.prompt.replace(/^Edit the previous image of this exact vehicle\. Keep EXACTLY the same [^.]*\. /, '') : null);
-    const how = a.refFile
+    const how = a.refFiles && a.refFiles.length
+      ? `Новая картинка, формат ${FLOW_SIZE[a.size]}. Приложи к запросу референсы из архива \`hamsin-refs-brand.zip\`: ${a.refFiles.map((r) => '**`' + r + '`**').join(', ')} — их имена указаны и в самом промпте.`
+      : a.refFile
       ? `Приложи к запросу референс **\`${a.refFile}\`** из архива \`hamsin-refs-dead.zip\` (живой персонаж) и используй короткий промпт «Правка». Если приложить картинку нельзя — генерируй по полному промпту. Формат ${FLOW_SIZE[a.size]}.`
       : a.kind === 'edit'
       ? `Правка картинки \`${a.base}\`: если в Flow можно редактировать картинку или взять её как образец, используй короткий промпт «Правка» (возьми за образец уже готовую \`${a.base}\`). Если нельзя — генерируй по полному промпту. Формат ${FLOW_SIZE[a.size]}.`
@@ -330,6 +332,10 @@ if (MTEX.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_MODELTEX
   for (const k in HV) out += `| ${NAME[k] || k} | ${fmt(HV[k][1])} | ${fmt(HV[k][2])} |\n`;
   fs.writeFileSync(path.join(root, 'docs/PLAN_TEXTURES.md'), out);
 }
+// логотип и заставки — отдельное задание с архивом референсов
+const BRAND_LIST = ALL.filter((a) => a.batch === 'brand' && !have(a));
+if (BRAND_LIST.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_BRAND.md'), flowDoc(BRAND_LIST, `Задание для Claude в Chrome: логотип и заставки загрузки (${BRAND_LIST.length})`,
+  `> Логотип игры «ХАМСИН» и рисованные заставки загрузки с героями игры.\n>\n> **Референсы.** Пользователь даёт архив \`hamsin-refs-brand.zip\`: портреты\n> героев (\`ref_portrait_*.png\`), спрайты, машины и рендеры зданий. К каждому\n> запросу прикладывай файлы, перечисленные в пункте, — их имена есть и в\n> промпте. Герои должны быть узнаваемы по референсам.\n>\n> **Логотип.** Генераторы часто путают кириллицу: проверь, что написано ровно\n> «ХАМСИН» и «ЧАСТЬ 1: ТЕЛЬ-АВИВ». Если после трёх попыток буквы кривые —\n> пропусти пункт: надпись игра наложит сама поверх эмблемы (№ следующий).`, BRAND_LIST[0]));
 // машины банд — отдельным дополнением к большому заданию (досылается следом)
 const GANG_CARS = ALL.filter((a) => /^(lux_odessa|pickup_bahar|lions_car|iran_car)(_d\d)?$/.test(a.file));
 fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_GANGCARS.md'), flowDoc(GANG_CARS, `Дополнение для Claude в Chrome: карикатурные машины банд (${GANG_CARS.length})`,

@@ -19,7 +19,7 @@ GEN = os.path.join(ROOT, 'assets', 'gen')
 BUNDLE = os.path.join(GEN, 'bundle.js')
 # Наибольшая сторона и качество WebP по категориям
 LIMITS = {'textures': (512, 82), 'facades': (768, 80), 'portraits': (384, 85),
-          'vehicles': (512, 88), 'chars': (512, 88), 'props': (512, 88)}
+          'vehicles': (512, 88), 'chars': (512, 88), 'props': (512, 88), 'ui': (1600, 84)}
 
 
 def load_bundle():
@@ -48,12 +48,13 @@ def despill(im):
     return Image.fromarray(a.astype('uint8'), 'RGBA')
 
 
-def encode(im, cat):
+def encode(im, cat, name=''):
     side, q = LIMITS.get(cat, (512, 85))
     k = min(1.0, side / max(im.size))
     if k < 1:
         im = im.resize((round(im.width * k), round(im.height * k)), Image.LANCZOS)
-    opaque = cat in ('textures', 'facades', 'portraits')
+    # непрозрачные: текстуры, фасады, портреты и заставки загрузки (логотип — с прозрачностью)
+    opaque = cat in ('textures', 'facades', 'portraits') or (cat == 'ui' and name.startswith('loading'))
     im = im.convert('RGB') if opaque else despill(im)
     buf = io.BytesIO()
     im.save(buf, 'WEBP', quality=q, method=6)
@@ -79,7 +80,7 @@ def main():
             if ext.lower() not in ('.png', '.jpg', '.jpeg', '.webp'):
                 continue
             p = os.path.join(d, f)
-            bundle[cat + '/' + name] = encode(Image.open(p), cat)
+            bundle[cat + '/' + name] = encode(Image.open(p), cat, name)
             added.append(cat + '/' + name)
             if not keep:
                 os.remove(p)

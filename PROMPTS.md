@@ -34,7 +34,7 @@ Claude в Chrome).
 | Текстуры | без фона, бесшовная | вид сверху | квадрат 1024×1024 |
 | Портреты | свой цветной фон | по плечи, лицом к зрителю | квадрат |
 
-# Список (348)
+# Список (357)
 
 ## Машины (122)
 
@@ -2892,5 +2892,80 @@ Head-and-shoulders caricature portrait for the phone-call dialog box of a satiri
 
 ```
 Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Pale salmon-pink painted concrete of balcony parapets on a 1990s Tel Aviv seafront tower, smooth with light weathering and faint drip stains.
+```
+
+
+## Логотип и заставки (9)
+
+### 349. `ui/logo.png` — Логотип «ХАМСИН» с надписью
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Video game title logo for a satirical open-world crime game set in Tel Aviv. The main word is «ХАМСИН» — exactly six Russian Cyrillic capital letters Х, А, М, С, И, Н, spelled exactly like that — in a heavy condensed black serif display typeface with a thick white outline and a hard drop shadow, slightly tilted, in the spirit of classic 2000s crime game title logos. Below it a smaller subtitle «ЧАСТЬ 1: ТЕЛЬ-АВИВ» in the same style. Behind the letters: a huge orange sun setting into the sea, palm silhouettes and a swirl of yellow desert dust (hamsin wind). Isolated on a perfectly flat solid magenta background (#FF00FF), no other text, no watermark. CHECK THE SPELLING: if the letters are wrong, regenerate.
+```
+
+### 350. `ui/logo_emblem.png` — Эмблема без надписи (под логотип кодом)
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Video game title emblem WITHOUT ANY TEXT for a satirical open-world crime game set in Tel Aviv: a bold round badge with a huge orange sun setting into the sea, palm silhouettes, a swirl of yellow desert dust (hamsin wind) and the Tel Aviv skyline silhouette — the stepped seafront tower, the round, triangular and square towers, the Jaffa clock tower (see the attached references). Heavy black outlines, flat colors, classic 2000s crime game title art look. Wide empty band across the middle where the title text will be added later. Isolated on a perfectly flat solid magenta background (#FF00FF). NO letters, NO text, NO logos, no watermark.
+```
+
+### 351. `ui/loading_1.png` — Заставка: Лёва на набережной
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Loading-screen illustration for a satirical open-world crime video game set in Tel Aviv, Israel, in the style of the iconic hand-painted loading screens of 2010s open-world crime games: bold black ink outlines, flat cel shading with smooth airbrushed gradients, saturated sunset palette (hot orange, magenta, teal), dramatic low camera angle, characters larger than life in confident poses, cinematic diagonal composition, fills the whole 16:9 image edge to edge, no frame, NO text, NO letters, NO logos, NO watermark. Keep every character exactly recognizable from the attached reference images (same face, hair, clothes), drawn in this painted style. Leva Goldman, a new immigrant from St. Petersburg (ref_portrait_leva.png, ref_player.png): short light-brown hair, sunburnt nose, white-and-navy striped sailor shirt, jeans, sneakers, cocky half-smile, leaning on the hood of his tired old faded grey-blue 1990s hatchback with one door in matte primer grey. Behind him: the Tel Aviv beach promenade at sunset, the white stepped seafront tower with pink balconies (ref_opera.png) and the slender minaret of the seafront mosque (ref_hassanbek.png), palms, a wall of yellow desert dust (hamsin) rolling in over the sea.
+```
+
+### 352. `ui/loading_2.png` — Заставка: бригада «Одесса»
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Loading-screen illustration for a satirical open-world crime video game set in Tel Aviv, Israel, in the style of the iconic hand-painted loading screens of 2010s open-world crime games: bold black ink outlines, flat cel shading with smooth airbrushed gradients, saturated sunset palette (hot orange, magenta, teal), dramatic low camera angle, characters larger than life in confident poses, cinematic diagonal composition, fills the whole 16:9 image edge to edge, no frame, NO text, NO letters, NO logos, NO watermark. Keep every character exactly recognizable from the attached reference images (same face, hair, clothes), drawn in this painted style. Night in Ramat Gan. Syoma Katz, boss of the Odessa Brigade (ref_portrait_sema.png): heavy-set, shaved head, black leather coat over a burgundy silk shirt, thick gold chain, raising a shot glass, smug. Next to him his nephew Garik (ref_portrait_garik.png) in a leather jacket. Behind them their absurdly long black limousine with gold rims and a golden anchor-and-crown emblem on a red circle (ref_lux_odessa.png), and the glowing neon of a Russian restaurant shaped like an anchor (no letters).
+```
+
+### 353. `ui/loading_3.png` — Заставка: клан Аль-Бахар
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Loading-screen illustration for a satirical open-world crime video game set in Tel Aviv, Israel, in the style of the iconic hand-painted loading screens of 2010s open-world crime games: bold black ink outlines, flat cel shading with smooth airbrushed gradients, saturated sunset palette (hot orange, magenta, teal), dramatic low camera angle, characters larger than life in confident poses, cinematic diagonal composition, fills the whole 16:9 image edge to edge, no frame, NO text, NO letters, NO logos, NO watermark. Keep every character exactly recognizable from the attached reference images (same face, hair, clothes), drawn in this painted style. Old Jaffa port at golden hour. Abu-Karim, head of the Al-Bahar clan (ref_portrait_abu.png): dignified, short grey beard, cream linen suit, prayer beads in hand, calm and powerful. Beside him his young nephew Karim (ref_portrait_karim.png) in a white tracksuit. Behind them the white monster pickup with teal stripes, spotlights and crates of Jaffa oranges, a teal wave-and-fish emblem on the roof (ref_pickup_bahar.png), fishing boats and the Jaffa clock tower (ref_clocktower.png).
+```
+
+### 354. `ui/loading_4.png` — Заставка: «Львы Гондэра»
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Loading-screen illustration for a satirical open-world crime video game set in Tel Aviv, Israel, in the style of the iconic hand-painted loading screens of 2010s open-world crime games: bold black ink outlines, flat cel shading with smooth airbrushed gradients, saturated sunset palette (hot orange, magenta, teal), dramatic low camera angle, characters larger than life in confident poses, cinematic diagonal composition, fills the whole 16:9 image edge to edge, no frame, NO text, NO letters, NO logos, NO watermark. Keep every character exactly recognizable from the attached reference images (same face, hair, clothes), drawn in this painted style. South Tel Aviv near the old central bus station, evening. Abeba, leader of the Lions of Gondar (ref_portrait_abeba.png): Ethiopian-Israeli man in his early 30s, neat beard, olive bomber jacket over a yellow t-shirt, big headphones around his neck, confident warm grin. Two of his crew in yellow hoodies with green stripes (ref_lions.png). Behind them the yellow tuned street-racer hatchback with a huge spoiler and a crowned lion emblem on the roof (ref_lions_car.png) in front of a wall covered in colorful graffiti (no readable words). Respectful, non-caricatured depiction.
+```
+
+### 355. `ui/loading_5.png` — Заставка: погоня на Аялоне
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Loading-screen illustration for a satirical open-world crime video game set in Tel Aviv, Israel, in the style of the iconic hand-painted loading screens of 2010s open-world crime games: bold black ink outlines, flat cel shading with smooth airbrushed gradients, saturated sunset palette (hot orange, magenta, teal), dramatic low camera angle, characters larger than life in confident poses, cinematic diagonal composition, fills the whole 16:9 image edge to edge, no frame, NO text, NO letters, NO logos, NO watermark. Keep every character exactly recognizable from the attached reference images (same face, hair, clothes), drawn in this painted style. Night chase on the Ayalon highway, split into two diagonal comic panels. Big panel: Leva (ref_portrait_leva.png) gripping the wheel of a white sporty Japanese compact sedan (ref_civic.png) at full speed, his friend Danis (ref_portrait_danis.png) yelling in the passenger seat, police cars with flashing red-and-blue lights behind. Small panel: the three towers — round, triangular and square — glowing at night above the highway (ref_azrieli.png).
+```
+
+### 356. `ui/loading_6.png` — Заставка: друзья и матрас
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Loading-screen illustration for a satirical open-world crime video game set in Tel Aviv, Israel, in the style of the iconic hand-painted loading screens of 2010s open-world crime games: bold black ink outlines, flat cel shading with smooth airbrushed gradients, saturated sunset palette (hot orange, magenta, teal), dramatic low camera angle, characters larger than life in confident poses, cinematic diagonal composition, fills the whole 16:9 image edge to edge, no frame, NO text, NO letters, NO logos, NO watermark. Keep every character exactly recognizable from the attached reference images (same face, hair, clothes), drawn in this painted style. Funny comic scene in the White City of Tel Aviv: three friends — Dima (ref_portrait_dima.png), Danis (ref_portrait_danis.png) and Semyon (ref_portrait_semyon.png) — desperately holding a big mattress (ref_mattress.png) strapped to the roof of a tired old 1990s grey-blue hatchback while a yellow desert dust storm (hamsin) blows; white Bauhaus buildings with rounded balconies behind them. Exaggerated expressions, good-natured humor.
+```
+
+### 357. `ui/loading_7.png` — Заставка: Шабак и «Али»
+
+Новая картинка, формат горизонтальный 16:9.
+
+```
+Loading-screen illustration for a satirical open-world crime video game set in Tel Aviv, Israel, in the style of the iconic hand-painted loading screens of 2010s open-world crime games: bold black ink outlines, flat cel shading with smooth airbrushed gradients, saturated sunset palette (hot orange, magenta, teal), dramatic low camera angle, characters larger than life in confident poses, cinematic diagonal composition, fills the whole 16:9 image edge to edge, no frame, NO text, NO letters, NO logos, NO watermark. Keep every character exactly recognizable from the attached reference images (same face, hair, clothes), drawn in this painted style. Spy thriller mood at night, split into two diagonal comic panels. Left: Dani from the Shin Bet security service (ref_portrait_dani.png) — stern, dark sunglasses, earpiece, dark polo, watching. Right: «Ali», an anonymous recruiter (ref_portrait_ali.png) in a dark hoodie, face in shadow, lit only by the cold blue glow of a smartphone. Between them the military headquarters tower with a helipad and a tall red-and-white antenna mast (ref_kirya.png).
 ```
 
