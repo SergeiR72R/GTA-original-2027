@@ -348,6 +348,8 @@ const Sound = {
   // 1915–1925 гг., общественное достояние. Авторы и лицензии — assets/radio/CREDITS.txt.
   // Добавить песню: файл в assets/radio/ и строка сюда
   SONGS: [
+    { list: 'new', file: 'suno_avak_rock', title: '«Пыль дорог» (אבק הדרכים)', who: 'Хамсин FM, рок-версия' },
+    { list: 'new', file: 'suno_avak_mizrahi', title: '«Пыль дорог» (אבק הדרכים)', who: 'Хамсин FM, мизрахи-кантри' },
     { list: 'new', file: 'rosenfeld_jeans', title: '«Ба-джинс ве-сандалим» (בג׳ינס וסנדלים)', who: 'Ави Розенфельд, 2010' },
     { list: 'new', file: 'rosenfeld_hayam', title: '«Ха-ям» (הים)', who: 'Ави Розенфельд, 2010' },
     { list: 'new', file: 'rosenfeld_ahava', title: '«Ха-ахава шели» (האהבה שלי)', who: 'Ави Розенфельд, 2012' },
