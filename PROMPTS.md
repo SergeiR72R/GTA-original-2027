@@ -2993,7 +2993,7 @@ Seamless tileable texture of a building material for a stylized top-down crime g
 Новая картинка, формат квадрат 1:1.
 
 ```
-Texture for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Top-down view of a circular rooftop hospital helipad deck: dark grey non-slip surface filling the whole square, a large white letter H in the centre, a wide white circle around it, a thin yellow outer ring near the edges, small white touchdown marks; centred and symmetric. (Not seamless: one helipad covering the whole image.)
+Texture for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no words or other letters except the single big letter H, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Top-down view of a circular rooftop hospital helipad deck: dark grey non-slip surface filling the whole square, a large white letter H in the centre, a wide white circle around it, a thin yellow outer ring near the edges, small white touchdown marks; centred and symmetric. (Not seamless: one helipad covering the whole image.)
 ```
 
 ### 361. `textures/m_kids_panels.png` — Текстура модели: Цветные панели детской больницы (Дана-Двек)

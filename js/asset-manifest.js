@@ -456,7 +456,7 @@ const ASSET_MANIFEST = (() => {
   for (const [file, title, desc] of MODEL_TEXTURES_LATE) out.push({ batch: 'modeltex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: `${MODEL_TEX_STYLE} ${desc}` });
   // логотип и заставки загрузки, за ними — текстуры Ихилова
   for (const [file, title, size, refs, desc] of BRAND) out.push({ batch: 'brand', cat: 'ui', file, title, kind: 'new', size, refFiles: refs, prompt: file.startsWith('loading') ? `${BRAND_STYLE} ${desc}` : desc });
-  for (const [file, title, desc] of MODEL_TEXTURES_ICHILOV) out.push({ batch: 'modeltex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: file === 'm_helipad' ? `${MODEL_TEX_STYLE.replace('Seamless tileable texture of a building material', 'Texture')} ${desc}` : `${MODEL_TEX_STYLE} ${desc}` });
+  for (const [file, title, desc] of MODEL_TEXTURES_ICHILOV) out.push({ batch: 'modeltex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: file === 'm_helipad' ? `${MODEL_TEX_STYLE.replace('Seamless tileable texture of a building material', 'Texture').replace('no text,', 'no words or other letters except the single big letter H,')} ${desc}` : `${MODEL_TEX_STYLE} ${desc}` });
   return out;
 })();
 
