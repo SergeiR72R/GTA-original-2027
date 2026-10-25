@@ -600,10 +600,16 @@ class Ped {
     }
   }
 
-  scare(fx, fy) {
+  // k — насколько далеко от опасности (0 — рядом, 1 — на краю квартала): дальние
+  // замечают позже и бегут меньше. Уже бегущий разворачивается от новой опасности
+  scare(fx, fy, k = 0) {
     if (this.ai !== 'walk' && this.ai !== 'flee' && this.ai !== 'beach' && this.ai !== 'matkot') return;
+    if (this.ai !== 'flee') {
+      this.calmAI = this.beach ? 'beach' : 'walk';
+      this.react = k * 0.6 + rand(0, 0.25);
+    }
     this.ai = 'flee';
-    this.flee = rand(4, 7);
+    this.flee = Math.max(this.flee, rand(6, 10) * (1 - k * 0.4));
     this.threat = { x: fx, y: fy };
   }
 
@@ -729,14 +735,21 @@ class Ped {
 
   fleeAI(dt) {
     this.flee -= dt;
-    if (this.flee <= 0) { this.ai = 'walk'; this.target = null; return; }
+    if (this.flee <= 0) { this.ai = this.calmAI || 'walk'; this.target = null; this.goal = null; return; }
+    // первые доли секунды — замер и оглянулся на выстрел
+    if (this.react > 0) { this.react -= dt; this.faceTo(this.threat.x, this.threat.y); return; }
     const dx = this.x - this.threat.x, dy = this.y - this.threat.y;
     const d = Math.hypot(dx, dy) || 1;
     let ax = dx / d, ay = dy / d;
-    // огибаем препятствия
-    if (!this.step(ax * 120 * dt, ay * 120 * dt)) {
-      const s = Math.random() < 0.5 ? 1 : -1;
-      this.step(-ay * s * 120 * dt, ax * s * 120 * dt);
+    // бегом; огибаем препятствия
+    const v = 150;
+    // упёрся — с полсекунды обходит вдоль стены в одну сторону (не дёргается на месте)
+    this.sideT = (this.sideT || 0) - dt;
+    if (this.sideT > 0 || !this.step(ax * v * dt, ay * v * dt)) {
+      if (this.sideT <= 0) { this.side = this.side || (Math.random() < 0.5 ? 1 : -1); this.sideT = 0.6; }
+      const s = this.side, sx = -ay * s + ax * 0.35, sy = ax * s + ay * 0.35;
+      if (this.step(sx * v * dt, sy * v * dt)) { ax = sx; ay = sy; }
+      else { this.side = -s; this.sideT = 0.6; }
     }
     this.a = Math.atan2(ay, ax);
     this.moving = true;
@@ -905,6 +918,15 @@ function drawTargetMark(ctx, x, y, col = '#ff3b3b') {
 // =====================================================================
 //                         ПУЛИ И ЧАСТИЦЫ
 // =====================================================================
+// стрельба и взрывы: прохожие в радиусе квартала (≈11 клеток) разбегаются от эпицентра
+function panic(x, y, r = 700) {
+  for (const p of World.peds) {
+    if (p.dead) continue;
+    const d2 = dist2(p.x, p.y, x, y);
+    if (d2 < r * r) p.scare(x, y, Math.sqrt(d2) / r);
+  }
+}
+
 function fireBullet(shooter, weapon, angle) {
   const W = WEAPONS[weapon];
   const sp = W.spread + (shooter === World.player ? 0 : 0.09);
@@ -917,8 +939,8 @@ function fireBullet(shooter, weapon, angle) {
   const pl = World.player;
   const d = dist(shooter.x, shooter.y, pl.x, pl.y);
   if (d < 900) Sound.gunshot(weapon === 'uzi' || weapon === 'ak', weapon === 'shotgun');
-  // выстрелы пугают прохожих
-  for (const p of World.peds) if (!p.dead && dist2(p.x, p.y, shooter.x, shooter.y) < 350 * 350) p.scare(shooter.x, shooter.y);
+  // выстрелы пугают прохожих в радиусе квартала
+  panic(shooter.x, shooter.y);
   if (shooter === pl) { Wanted.crime('shoot', pl.x, pl.y); Game.shots = (Game.shots || 0) + 1; }
 }
 
@@ -1062,8 +1084,8 @@ function blast(x, y, opts = {}) {
     if (p.dead) continue;
     const d = dist(p.x, p.y, x, y);
     if (d < r) p.hurt(120, opts.by, x, y);
-    else if (d < 400) p.scare(x, y);
   }
+  panic(x, y, 900);
   const pl = World.player;
   if (!pl.car && !pl.dead) { const d = dist(pl.x, pl.y, x, y); if (d < r) Game.playerHurt((opts.plDmg || 80) * (1 - d / r) + 10, 'explosion'); }
 }
