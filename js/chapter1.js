@@ -422,11 +422,23 @@ const C1_ZEMLYAK = staged({
         if (!m.atBots) {
           m.text = 'В лимузине маячок — гони в порт, в мастерскую Боцмана';
           m.target = P.c1Botsman;
-          if (stopAt(P.c1Botsman, 130)) { m.atBots = true; m.timer = 20; m.chase.push(...Story.chasers(m, 'arab', 1, { min: 500, max: 800 })); Story.say([[BOTSMAN, 'Стой ровно. Двадцать секунд. И не дай им меня застрелить.']]); }
+          if (stopAt(P.c1Botsman, 130)) {
+            m.atBots = true; m.timer = 22; m.waves = [2.5, 10]; // через сколько секунд подъезжают машины клана
+            pl.ammo.uzi = (pl.ammo.uzi || 0) + 120; pl.weapon = 'uzi';
+            Sound.play('belt', 0.7); Sound.play('latch', 0.5);
+            Game.message('Узи +120', 3);
+            Story.say([[BOTSMAN, 'Стой ровно. Двадцать секунд. Держи узи — гости уже едут.'], [BOTSMAN, 'Выходи и встречай их, а я под капотом. И не дай им меня застрелить.']]);
+          }
           return;
         }
         m.timer -= dt;
-        m.text = 'Боцман снимает маячок — продержись! Можно выйти и отстреливаться';
+        // машины клана подъезжают к мастерской, бойцы выходят и стреляют
+        const passed = 22 - m.timer;
+        if (m.waves.length && passed >= m.waves[0]) {
+          const got = Story.chasers(m, 'arab', 1, { min: 330, max: 650, crew: 3, speed: 1 });
+          if (got.length) { m.waves.shift(); m.chase.push(...got); Game.message('Боцман: «Пикап Аль-Бахара! Они здесь!»', 3); }
+        }
+        m.text = 'Боцман снимает маячок — продержись! Выйди и отстреливайся из узи';
         m.target = null;
         if (m.timer <= 0) { m.timer = null; return 'next'; }
       },

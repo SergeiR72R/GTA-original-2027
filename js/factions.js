@@ -91,6 +91,7 @@ const GangCars = {
     const crew = (w) => { const g = new Ped(p.x, p.y, { faction, ai: 'gang', weapon: w, hp: 70 }); g.mission = 'target'; g.car = c; return g; };
     c.driver = crew('pistol');
     c.gang = [c.driver, crew(opts.weapon || factionGun(faction))];
+    for (let i = 2; i < (opts.crew || 2); i++) c.gang.push(crew(i % 2 ? 'uzi' : factionGun(faction))); // opts.crew — сколько бойцов в машине
     c.mission = 'target';
     c.maxSpeed = c.T.max * (opts.speed || 0.95);
     c.lostT = 0;

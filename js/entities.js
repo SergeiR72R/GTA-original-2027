@@ -614,13 +614,35 @@ class Ped {
   }
 
   // движение с учётом стен
+  // уже задел стену (поставили впритык) — можно отойти от неё, но не вглубь
   step(dx, dy) {
     const r = this.r;
-    const ok = (x, y) => !City.solidAt(x - r, y - r) && !City.solidAt(x + r, y - r) && !City.solidAt(x - r, y + r) && !City.solidAt(x + r, y + r);
+    const corners = (x, y) => [[x - r, y - r], [x + r, y - r], [x - r, y + r], [x + r, y + r]].filter(([cx, cy]) => City.solidAt(cx, cy));
+    const ok = (x, y) => corners(x, y).length === 0;
+    const away = (mx, my) => {
+      const hit = corners(this.x, this.y);
+      if (!hit.length) return false;
+      let ax = 0, ay = 0;
+      for (const [cx, cy] of hit) { ax += this.x - cx; ay += this.y - cy; }
+      return mx * ax + my * ay > 0 && corners(this.x + mx, this.y + my).length <= hit.length;
+    };
     let moved = false;
-    if (ok(this.x + dx, this.y)) { this.x += dx; moved = true; }
-    if (ok(this.x, this.y + dy)) { this.y += dy; moved = true; }
+    if (dx && (ok(this.x + dx, this.y) || away(dx, 0))) { this.x += dx; moved = true; }
+    if (dy && (ok(this.x, this.y + dy) || away(0, dy))) { this.y += dy; moved = true; }
     return moved;
+  }
+
+  // ближайшее место, где человек целиком помещается (не задевает стен)
+  static clearSpot(x, y, r = 9) {
+    const free = (px, py) => !City.solidAt(px - r, py - r) && !City.solidAt(px + r, py - r) && !City.solidAt(px - r, py + r) && !City.solidAt(px + r, py + r);
+    if (free(x, y)) return { x, y };
+    for (let d = 8; d <= 3 * TILE; d += 8) {
+      for (let k = 0; k < 16; k++) {
+        const a = k / 16 * TAU, px = x + Math.cos(a) * d, py = y + Math.sin(a) * d;
+        if (free(px, py)) return { x: px, y: py };
+      }
+    }
+    return Story.freeSpot(x, y);
   }
 
   faceTo(x, y) { this.a = Math.atan2(y - this.y, x - this.x); }

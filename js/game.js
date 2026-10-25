@@ -402,12 +402,18 @@ const Game = {
     const pl = World.player;
     const c = pl.car;
     if (!c) return;
-    const f = c.fwd;
-    let x = c.x - f.y * -(c.w / 2 + 16), y = c.y + f.x * -(c.w / 2 + 16);
-    if (City.solidAt(x, y)) { x = c.x - f.y * (c.w / 2 + 16); y = c.y + f.x * (c.w / 2 + 16); }
-    if (City.solidAt(x, y)) { x = c.x + f.x * (c.l / 2 + 14); y = c.y + f.y * (c.l / 2 + 14); }
-    if (City.solidAt(x, y)) { x = c.x - f.x * (c.l / 2 + 14); y = c.y - f.y * (c.l / 2 + 14); }
-    pl.x = x; pl.y = y;
+    // выходим туда, где помещаемся целиком: левый борт, правый, нос, корма, дальше;
+    // иначе — ближайшее свободное место (чтобы не зажало между машиной и стеной)
+    const f = c.fwd, r = 9;
+    const free = (x, y) => !City.solidAt(x - r, y - r) && !City.solidAt(x + r, y - r) && !City.solidAt(x - r, y + r) && !City.solidAt(x + r, y + r);
+    const tries = [];
+    for (const k of [1, 1.8]) {
+      tries.push([f.y, -f.x, c.w / 2 * k + 16], [-f.y, f.x, c.w / 2 * k + 16], [f.x, f.y, c.l / 2 * k + 14], [-f.x, -f.y, c.l / 2 * k + 14]);
+    }
+    let spot = null;
+    for (const [ux, uy, d] of tries) { const x = c.x + ux * d, y = c.y + uy * d; if (free(x, y)) { spot = { x, y }; break; } }
+    spot = spot || Ped.clearSpot(c.x + f.y * (c.w / 2 + 16), c.y - f.x * (c.w / 2 + 16));
+    pl.x = spot.x; pl.y = spot.y;
     pl.a = c.a - Math.PI / 2;
     c.driver = null;
     pl.car = null;
@@ -532,7 +538,18 @@ const Game = {
     if (ml > 0) {
       mx /= ml; my /= ml;
       const sp = this.key('ShiftLeft', 'ShiftRight') ? 90 : 165;
+      const x0 = pl.x, y0 = pl.y;
       pl.step(mx * sp * dt, my * sp * dt);
+      // страховка: жмём ход, а герой полторы секунды на месте — зажало; переставляем
+      if (pl.x === x0 && pl.y === y0) {
+        pl.stuckT = (pl.stuckT || 0) + dt;
+        if (pl.stuckT > 1.5) {
+          pl.stuckT = 0;
+          // переставляем, только если зажат со всех сторон (в стену дома просто упёрся — не трогаем)
+          const r = pl.r, free = (x, y) => !City.solidAt(x - r, y - r) && !City.solidAt(x + r, y - r) && !City.solidAt(x - r, y + r) && !City.solidAt(x + r, y + r);
+          if (![[6, 0], [-6, 0], [0, 6], [0, -6]].some(([ex, ey]) => free(pl.x + ex, pl.y + ey))) { const s = Ped.clearSpot(pl.x, pl.y); pl.x = s.x; pl.y = s.y; }
+        }
+      } else pl.stuckT = 0;
       pl.walkAnim += dt * 12;
       pl.stepT = (pl.stepT || 0) - dt;
       if (pl.stepT <= 0) { pl.stepT = sp > 100 ? 0.3 : 0.42; Sound.play(City.t(Math.floor(pl.x / TILE), Math.floor(pl.y / TILE)) === T_GRASS ? 'grass' : 'step', sp > 100 ? 0.5 : 0.35); }
