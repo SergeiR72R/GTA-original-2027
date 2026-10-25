@@ -11,6 +11,9 @@
 
 ## Запуск
 
+**Играть в браузере:** https://sergeir72r.github.io/GTA-original-2027/
+(GitHub Pages; первая загрузка — около 60 МБ).
+
 Сборка не нужна, нужен только браузер (Chrome, Firefox, Edge, Safari 17+).
 
 * **Проще всего:** откройте `index.html` двойным щелчком.
