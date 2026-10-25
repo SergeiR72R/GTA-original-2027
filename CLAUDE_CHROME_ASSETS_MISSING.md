@@ -1,8 +1,8 @@
-# Задание для Claude в Chrome: недостающие ассеты (1)
+# Задание для Claude в Chrome: недостающие ассеты (5)
 
 > Откройте этот файл в боковой панели **Claude в Chrome** и скажите:
 > «Выполни задание из этого файла».
-> Единое задание: всё, чего пока нет в игре (1) — Логотип «ХАМСИН» с надписью. Файл собирается автоматически.
+> Единое задание: всё, чего пока нет в игре (5) — Текстура модели: Белые фасадные панели больницы (Ихилов), Текстура модели: Стекло с белыми ламелями (башня Сами Офера), Текстура модели: Вертолётная площадка на крыше (сверху), Текстура модели: Цветные панели детской больницы (Дана-Двек), Логотип «ХАМСИН» с надписью. Файл собирается автоматически.
 
 ## Главное правило: имя файла
 
@@ -51,7 +51,42 @@
 
 ---
 
-# Список (1): № 349
+# Список (5): № 358, 359, 360, 361, 349
+
+## Текстуры (4)
+
+### 358. `textures/m_hosp_panel.png` — Текстура модели: Белые фасадные панели больницы (Ихилов)
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Modern hospital facade cladding: large smooth off-white and very light grey composite aluminium panels in a regular grid with thin dark seams, subtle sheen, slight dust at the joints.
+```
+
+### 359. `textures/m_hosp_louver.png` — Текстура модели: Стекло с белыми ламелями (башня Сами Офера)
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Glass curtain wall of a modern hospital tower: teal-blue reflective glass with thin vertical mullions, crossed by evenly spaced thick white horizontal sun-shade louvers (one louver band per storey, about a quarter of the storey height), soft sky reflections in the glass.
+```
+
+### 360. `textures/m_helipad.png` — Текстура модели: Вертолётная площадка на крыше (сверху)
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Texture for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Top-down view of a circular rooftop hospital helipad deck: dark grey non-slip surface filling the whole square, a large white letter H in the centre, a wide white circle around it, a thin yellow outer ring near the edges, small white touchdown marks; centred and symmetric. (Not seamless: one helipad covering the whole image.)
+```
+
+### 361. `textures/m_kids_panels.png` — Текстура модели: Цветные панели детской больницы (Дана-Двек)
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Playful facade of a children's hospital: irregular vertical rectangular panels in bright cheerful colours (red, orange, yellow, lime green, sky blue, white), matte finish, thin seams, cheerful but tidy.
+```
+
 
 ## Логотип и заставки (1)
 

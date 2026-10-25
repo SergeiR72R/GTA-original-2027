@@ -29,7 +29,7 @@ const DISTRICTS = {
   florentin: 'Флорентин',
   busstation: 'Центральная автостанция',
   jaffa: 'Старый Яффо',
-  hospital: 'Больница',
+  hospital: 'Ихилов',
   police: 'Полиция',
   paint: 'Покраска «Флорентин»',
   // новые районы
@@ -893,8 +893,11 @@ const City = {
         break;
       }
       case 'hospital': {
+        // медцентр Ихилов — модель из Blender (tools/models/landmarks.py: ichilov)
         this.fill(ix, iy, iw, ih, T_PLAZA);
-        this.lotBuilding({ x: ix + 1, y: iy, w: iw - 2, h: ih - 2 }, S.hospital, rng, { extra: { label: 'H' } });
+        const nH = this.buildings.length;
+        const hb = this.lotBuilding({ x: ix + 1, y: iy, w: iw - 2, h: ih - 2 }, S.hospital, rng, { extra: { label: 'H' } });
+        this.modelize('ichilov', nH, hb.x + hb.w / 2, hb.y + hb.h / 2, hb.w, hb.h);
         break;
       }
       case 'police': {
@@ -1135,7 +1138,7 @@ const City = {
     this.labelNear(P.lionsHQ, { text: 'GONDAR GARAGE', sub: 'студия и мастерская', bg: '#1b7f3a', fg: '#f2c230' });
     this.labelNear(P.gunShop, { text: 'חנות נשק', sub: 'Оружие «Шломо и сыновья»', bg: '#263238', fg: '#ffca28' });
     this.labelNear(P.police, { text: 'משטרה', sub: 'Полиция', bg: '#1d4fa3', fg: '#fff' });
-    this.labelNear(P.hospital, { text: 'בית חולים', sub: 'Больница', bg: '#c62828', fg: '#fff' });
+    this.labelNear(P.hospital, { text: 'איכילוב', sub: 'Больница Ихилов', bg: '#c62828', fg: '#fff' });
     this.labelNear(P.paint, { text: 'ПОКРАСКА', sub: 'сменить цвет — сбросить розыск', bg: '#5b4a6d', fg: '#ffeb3b' });
     const sign = (bx, by, where, off, text, sub, bg, fg) => this.labelNear(side(bx, by, where, off), { text, sub, bg, fg });
     sign(7, 0, 'S', 0, 'הבורסה', 'Биржа алмазов', '#37474f', '#b3e5fc');

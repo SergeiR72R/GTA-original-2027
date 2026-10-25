@@ -24,6 +24,9 @@ TEX = {
     'graffiti1': ('m_graffiti', 4.0, 1.0), 'graffiti2': ('m_graffiti', 4.0, 1.0), 'graffiti3': ('m_graffiti', 4.0, 1.0),
     'rust': ('m_rust', 2.0, 1.0), 'red': ('m_paint_red', 2.0, 1.0), 'water': ('m_water', 3.0, 1.0),
     'pink': ('m_pinkpaint', 2.0, 1.0),
+    # Ихилов: панели, стекло с ламелями, вертолётная площадка (на всю фигуру), цветной детский корпус
+    'hpanel': ('m_hosp_panel', 6.0, 1.0), 'louver': ('m_hosp_louver', 8.0, 1.0),
+    'helipad': ('m_helipad', 1.0, 1.0), 'kids': ('m_kids_panels', 8.0, 1.0),
 }
 
 
@@ -189,6 +192,12 @@ def export_data():
             u0, u1 = min(p[0] for p in pts), max(p[0] for p in pts)
             w0, w1 = min(p[1] for p in pts), max(p[1] for p in pts)
             col = o['win']
+        # fit: верх фигуры — одна картинка на всю фигуру (разметка вертолётной площадки)
+        fit = 'fit' in o
+        if fit:
+            fp = [o.matrix_world @ v.co for v in bm.verts]
+            fx0, fx1 = min(p.x for p in fp), max(p.x for p in fp)
+            fy0, fy1 = min(p.y for p in fp), max(p.y for p in fp)
         for f in bm.faces:
             n = (o.matrix_world.to_3x3() @ f.normal).normalized()
             ax = max(range(3), key=lambda i: abs(n[i]))
@@ -206,6 +215,9 @@ def export_data():
                     u, w = pick(p)
                     fu = (u - u0) / ((u1 - u0) or 1); fw = (w - w0) / ((w1 - w0) or 1)
                     L['uv'] += [(col + 0.04 + fu * 0.92) / WIN_KINDS, fw]
+                    continue
+                if fit and ax == 2:
+                    L['uv'] += [(p.x - fx0) / ((fx1 - fx0) or 1), (p.y - fy0) / ((fy1 - fy0) or 1)]
                     continue
                 u, w = (p.y, p.z) if ax == 0 else (p.x, p.z) if ax == 1 else (p.x, p.y)
                 L['uv'] += [u / sc, w / sc]

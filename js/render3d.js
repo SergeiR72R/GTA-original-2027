@@ -448,7 +448,7 @@ const R3 = {
     }
     // таблички и вывески на крышах — отдельными плоскостями
     // на крышах — только вертолётная площадка; вывески стоят у тротуара
-    for (const b of City.buildings) if (!b.removed && b.label === 'H') this.roofSign(b);
+    for (const b of City.buildings) if (!b.removed && !b.model && b.label === 'H') this.roofSign(b);
     for (const sg of City.signs || []) this.groundSign(sg);
     for (const md of City.models || []) this.model(md);
     this.houses();
@@ -489,7 +489,7 @@ const R3 = {
     const V = (typeof HOUSE_VARIANTS !== 'undefined' && HOUSE_VARIANTS[key] && HOUSE_VARIANTS[key][v]) || {};
     return d.groups.map(([name, , , tex, tint]) => {
       const o = V[name] || {};
-      const kind = name === 'dark' ? 'win' : name === 'glass' || name === 'glassB' ? name : null;
+      const kind = name === 'dark' ? 'win' : name === 'glass' || name === 'glassB' || name === 'louver' ? name : null;
       return this.modelMat({ tex: o.tex || tex, tint, color: o.color, kind, seed: (v + key.length) % 3 });
     });
   },

@@ -40,6 +40,10 @@
 | 344 | textures/m_ecl_pink.png | Эклектика: лососевая штукатурка | да |
 | 345 | textures/m_ecl_blue.png | Эклектика: серо-голубая штукатурка | да |
 | 348 | textures/m_pinkpaint.png | Розовая краска балконов («Опера») | да |
+| 358 | textures/m_hosp_panel.png | Белые фасадные панели больницы (Ихилов) | — |
+| 359 | textures/m_hosp_louver.png | Стекло с белыми ламелями (башня Сами Офера) | — |
+| 360 | textures/m_helipad.png | Вертолётная площадка на крыше (сверху) | — |
+| 361 | textures/m_kids_panels.png | Цветные панели детской больницы (Дана-Двек) | — |
 
 ## Какие текстуры у каких моделей
 
@@ -55,6 +59,7 @@
 | Типовой дом: 1960-е | m_beige, m_concrete, m_glass, m_glassB, m_metal, m_roofflat, m_shutter, m_white | cap |
 | Типовой дом: баухауз | m_concrete, m_glass, m_glassB, m_roofflat, m_stone, m_white | cap |
 | Типовой дом: эклектика 1920-х | m_concrete, m_ochre, m_roofflat, m_trim | cap, dark, shutterG |
+| ichilov | m_concrete, m_glass, m_glassB, m_patina, m_helipad, m_hosp_panel, m_kids_panels, m_hosp_louver, m_metal, m_paint_red, m_roofflat, m_white | cap, dark |
 | Штаб в Кирье | m_concrete, m_glass, m_metal, m_paint_red, m_white | cap, yellow |
 | Маяк Яффо | m_paint_red, m_stone, m_trim, m_white | cap, dark, yellow |
 | Арена «Менора» | m_concrete, m_glass, m_metal, m_white | cap |

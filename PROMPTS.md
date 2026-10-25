@@ -34,7 +34,7 @@ Claude в Chrome).
 | Текстуры | без фона, бесшовная | вид сверху | квадрат 1024×1024 |
 | Портреты | свой цветной фон | по плечи, лицом к зрителю | квадрат |
 
-# Список (357)
+# Список (361)
 
 ## Машины (122)
 
@@ -1216,7 +1216,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Текстуры (41)
+## Текстуры (45)
 
 ### 147. `textures/asphalt.png` — Асфальт
 
@@ -2638,7 +2638,7 @@ Use the attached reference image ref_semyon.png (Семён). Draw EXACTLY this 
 ```
 
 
-## Текстуры (41)
+## Текстуры (45)
 
 ### 318. `textures/m_stone.png` — Текстура модели: Камень Яффо (известняк)
 
@@ -2884,7 +2884,7 @@ Head-and-shoulders caricature portrait for the phone-call dialog box of a satiri
 ```
 
 
-## Текстуры (41)
+## Текстуры (45)
 
 ### 348. `textures/m_pinkpaint.png` — Текстура модели: Розовая краска балконов («Опера»)
 
@@ -2967,5 +2967,40 @@ Loading-screen illustration for a satirical open-world crime video game set in T
 
 ```
 Loading-screen illustration for a satirical open-world crime video game set in Tel Aviv, Israel, in the style of the iconic hand-painted loading screens of 2010s open-world crime games: bold black ink outlines, flat cel shading with smooth airbrushed gradients, saturated sunset palette (hot orange, magenta, teal), dramatic low camera angle, characters larger than life in confident poses, cinematic diagonal composition, fills the whole 16:9 image edge to edge, no frame, NO text, NO letters, NO logos, NO watermark. Keep every character exactly recognizable from the attached reference images (same face, hair, clothes), drawn in this painted style. Spy thriller mood at night, split into two diagonal comic panels. Left: Dani from the Shin Bet security service (ref_portrait_dani.png) — stern, dark sunglasses, earpiece, dark polo, watching. Right: «Ali», an anonymous recruiter (ref_portrait_ali.png) in a dark hoodie, face in shadow, lit only by the cold blue glow of a smartphone. Between them the military headquarters tower with a helipad and a tall red-and-white antenna mast (ref_kirya.png).
+```
+
+
+## Текстуры (45)
+
+### 358. `textures/m_hosp_panel.png` — Текстура модели: Белые фасадные панели больницы (Ихилов)
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Modern hospital facade cladding: large smooth off-white and very light grey composite aluminium panels in a regular grid with thin dark seams, subtle sheen, slight dust at the joints.
+```
+
+### 359. `textures/m_hosp_louver.png` — Текстура модели: Стекло с белыми ламелями (башня Сами Офера)
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Glass curtain wall of a modern hospital tower: teal-blue reflective glass with thin vertical mullions, crossed by evenly spaced thick white horizontal sun-shade louvers (one louver band per storey, about a quarter of the storey height), soft sky reflections in the glass.
+```
+
+### 360. `textures/m_helipad.png` — Текстура модели: Вертолётная площадка на крыше (сверху)
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Texture for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Top-down view of a circular rooftop hospital helipad deck: dark grey non-slip surface filling the whole square, a large white letter H in the centre, a wide white circle around it, a thin yellow outer ring near the edges, small white touchdown marks; centred and symmetric. (Not seamless: one helipad covering the whole image.)
+```
+
+### 361. `textures/m_kids_panels.png` — Текстура модели: Цветные панели детской больницы (Дана-Двек)
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Playful facade of a children's hospital: irregular vertical rectangular panels in bright cheerful colours (red, orange, yellow, lime green, sky blue, white), matte finish, thin seams, cheerful but tidy.
 ```
 

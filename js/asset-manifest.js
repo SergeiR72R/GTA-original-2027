@@ -298,6 +298,14 @@ const NEWS_PORTRAITS = [
   ['portrait_anchor', 'Портрет: ведущая новостей Яэль', 'Yael, an Israeli evening news anchor in her 30s: big glossy dark hair, red blouse, polite professional smile with one slightly raised eyebrow of disbelief. Background: dark blue TV studio with glowing screens.'],
 ];
 
+// медцентр Ихилов (модель ichilov): номера после логотипа и заставок
+const MODEL_TEXTURES_ICHILOV = [
+  ['m_hosp_panel', 'Белые фасадные панели больницы (Ихилов)', 'Modern hospital facade cladding: large smooth off-white and very light grey composite aluminium panels in a regular grid with thin dark seams, subtle sheen, slight dust at the joints.'],
+  ['m_hosp_louver', 'Стекло с белыми ламелями (башня Сами Офера)', 'Glass curtain wall of a modern hospital tower: teal-blue reflective glass with thin vertical mullions, crossed by evenly spaced thick white horizontal sun-shade louvers (one louver band per storey, about a quarter of the storey height), soft sky reflections in the glass.'],
+  ['m_helipad', 'Вертолётная площадка на крыше (сверху)', 'Top-down view of a circular rooftop hospital helipad deck: dark grey non-slip surface filling the whole square, a large white letter H in the centre, a wide white circle around it, a thin yellow outer ring near the edges, small white touchdown marks; centred and symmetric. (Not seamless: one helipad covering the whole image.)'],
+  ['m_kids_panels', 'Цветные панели детской больницы (Дана-Двек)', 'Playful facade of a children\'s hospital: irregular vertical rectangular panels in bright cheerful colours (red, orange, yellow, lime green, sky blue, white), matte finish, thin seams, cheerful but tidy.'],
+];
+
 const MODEL_TEXTURES_LATE = [
   ['m_pinkpaint', 'Розовая краска балконов («Опера»)', 'Pale salmon-pink painted concrete of balcony parapets on a 1990s Tel Aviv seafront tower, smooth with light weathering and faint drip stains.'],
 ];
@@ -446,8 +454,9 @@ const ASSET_MANIFEST = (() => {
   for (const [file, title, desc, ref] of NEWS_PORTRAITS) out.push({ batch: 'news', cat: 'portraits', file, title, kind: 'new', size: '1024x1024', ref: !!ref, prompt: `${ASSET_STYLE.portrait} ${desc}${ref ? ' ' + REF_PHOTO : ''}` });
   // текстуры моделей, добавленные позже (новые — только в конец этого списка)
   for (const [file, title, desc] of MODEL_TEXTURES_LATE) out.push({ batch: 'modeltex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: `${MODEL_TEX_STYLE} ${desc}` });
-  // логотип и заставки загрузки — в самом конце
+  // логотип и заставки загрузки, за ними — текстуры Ихилова
   for (const [file, title, size, refs, desc] of BRAND) out.push({ batch: 'brand', cat: 'ui', file, title, kind: 'new', size, refFiles: refs, prompt: file.startsWith('loading') ? `${BRAND_STYLE} ${desc}` : desc });
+  for (const [file, title, desc] of MODEL_TEXTURES_ICHILOV) out.push({ batch: 'modeltex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: file === 'm_helipad' ? `${MODEL_TEX_STYLE.replace('Seamless tileable texture of a building material', 'Texture')} ${desc}` : `${MODEL_TEX_STYLE} ${desc}` });
   return out;
 })();
 
