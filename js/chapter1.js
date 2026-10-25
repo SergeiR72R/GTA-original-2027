@@ -1016,7 +1016,7 @@ const C1_CARGO = staged({
         for (const [cn, num, col] of specs) {
           const p = Game.findRoadSpawn(y.x, y.y, 80 + k * 90, 260 + k * 120, true) || { x: y.x + 100 * k, y: y.y + 120, dir: 0 };
           const t = Story.car(m, p.x, p.y, DIR_ANGLE[p.dir], { type: 'truck', color: col });
-          t.label = `${cn}, № ${num}`; t.right = num === '1991' && cn === 'синий'; t.locked = true;
+          t.cn = cn; t.num = num; t.label = `${cn}, № ${num}`; t.right = num === '1991' && cn === 'синий'; t.locked = true;
           m.trucks.push(t); k++;
         }
         Story.say([[BOTSMAN, 'Номер не скажу — вдруг тебя возьмут. Синий. Цифры — год, когда Сёма приехал в Израиль. Он сам тебе говорил, за пельменями.']]);
@@ -1026,11 +1026,11 @@ const C1_CARGO = staged({
         const t = m.trucks.filter((q) => !q.opened).sort((a, b) => dist2(a.x, a.y, pl.x, pl.y) - dist2(b.x, b.y, pl.x, pl.y))[0];
         m.text = 'Найди нужный контейнер: синий, год приезда Сёмы';
         m.target = t;
-        if (near(t, 110) && m.seen !== t) { m.seen = t; Game.message(T('Контейнер: {0}', T(t.label)), 3); }
-        if (Story.hold(m, 'open' + m.trucks.indexOf(t), t, 1.2, T('открыть контейнер {0}', T(t.label)), { r: 100 })) {
+        if (near(t, 110) && m.seen !== t) { m.seen = t; Game.message(T('Контейнер: {0}', T('{0}, № {1}', T(t.cn), t.num)), 3); }
+        if (Story.hold(m, 'open' + m.trucks.indexOf(t), t, 1.2, T('открыть контейнер {0}', T('{0}, № {1}', T(t.cn), t.num)), { r: 100 })) {
           if (t.right) return 'next';
           t.opened = true;
-          Game.message(T('Не тот: {0} — внутри стиральные машины. Боцман: «Внимательнее»', T(t.label)), 3);
+          Game.message(T('Не тот: {0} — внутри стиральные машины. Боцман: «Внимательнее»', T('{0}, № {1}', T(t.cn), t.num)), 3);
         }
       },
     },

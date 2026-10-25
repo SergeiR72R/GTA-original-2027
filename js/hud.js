@@ -338,7 +338,7 @@ const HUD = {
       d.choices.forEach((c, i) => {
         const sel = i === (d.sel || 0);
         if (sel) { ctx.fillStyle = 'rgba(255,210,63,0.18)'; ctx.fillRect(tx - 8, cy - 20, tr - tx + 16, 28); }
-        this.text(ctx, rtl ? `${T(c.label)} .${i + 1}` : `${i + 1}. ${c.label}`, ax, cy, 17, sel ? '#ffd23f' : '#ddd', al, sel ? 'bold' : 'normal');
+        this.text(ctx, `${i + 1}. ${T(c.label)}`, ax, cy, 17, sel ? '#ffd23f' : '#ddd', al, sel ? 'bold' : 'normal');
         cy += 30;
       });
       this.text(ctx, '↑↓ и Enter или цифра', far, y + h - 10, 13, '#aaa', fal, 'normal');
