@@ -228,25 +228,37 @@ const Sound = {
   },
 
   // Сирена полиции: громкость зависит от расстояния до ближайшей машины
-  setSiren(vol) {
+  // Сирена — две петли электронной сирены (assets/sounds/siren_loops.js):
+  // издалека протяжный вой, вблизи (close) — быстрый «yelp», с плавным переходом
+  sirenBuffers() {
+    if (this.sirenBufP || !window.SIREN_WAIL) return this.sirenBufP;
+    const dec = (url) => {
+      const b = atob(url.split(',')[1]), u = new Uint8Array(b.length);
+      for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+      return this.ctx.decodeAudioData(u.buffer);
+    };
+    this.sirenBufP = Promise.all([dec(window.SIREN_WAIL), dec(window.SIREN_YELP)])
+      .then(([wail, yelp]) => (this.sirenBuf = { wail, yelp })).catch(() => null);
+    return this.sirenBufP;
+  },
+
+  setSiren(vol, close = false) {
     if (!this.ctx) return;
     if (vol > 0 && !this.siren) {
-      const o = this.ctx.createOscillator();
-      const lfo = this.ctx.createOscillator();
-      const lg = this.ctx.createGain();
-      const g = this.ctx.createGain();
-      o.type = 'triangle';
-      o.frequency.value = 800;
-      lfo.type = 'square';
-      lfo.frequency.value = 1.4;
-      lg.gain.value = 180;
-      lfo.connect(lg); lg.connect(o.frequency);
-      g.gain.value = 0;
-      o.connect(g); g.connect(this.master);
-      o.start(); lfo.start();
-      this.siren = { o, lfo, g };
+      this.sirenBuffers();
+      if (!this.sirenBuf) return; // ещё декодируется
+      const loop = (buf) => {
+        const src = this.ctx.createBufferSource(), g = this.ctx.createGain();
+        src.buffer = buf; src.loop = true; g.gain.value = 0;
+        src.connect(g); g.connect(this.master); src.start();
+        return g;
+      };
+      this.siren = { wail: loop(this.sirenBuf.wail), yelp: loop(this.sirenBuf.yelp) };
     }
-    if (this.siren) this.siren.g.gain.setTargetAtTime(clamp(vol, 0, 1) * 0.06, this.ctx.currentTime, 0.1);
+    if (!this.siren) return;
+    const t = this.ctx.currentTime, v = clamp(vol, 0, 1) * 0.12;
+    this.siren.wail.gain.setTargetAtTime(close ? 0 : v, t, 0.3);
+    this.siren.yelp.gain.setTargetAtTime(close ? v : 0, t, 0.3);
   },
 
   // Сирена воздушной тревоги: медленный вой вверх-вниз

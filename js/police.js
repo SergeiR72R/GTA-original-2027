@@ -120,7 +120,7 @@ const Police = {
     // сирена: громкость по ближайшей погоне
     let near = 99999;
     for (const c of World.cars) if (c.police && c.siren && !c.dead) near = Math.min(near, dist(c.x, c.y, pl.x, pl.y));
-    Sound.setSiren(lvl > 0 && near < 1100 ? 1 - near / 1100 : 0);
+    Sound.setSiren(lvl > 0 && near < 1100 ? 1 - near / 1100 : 0, near < 450);
     // когда розыск снят — полицейские возвращаются к патрулю
     if (lvl === 0) {
       for (const c of World.cars) if (c.police && c.ai === 'police') { c.ai = 'traffic'; c.siren = false; c.target = null; c.maxSpeed = c.T.max; }
