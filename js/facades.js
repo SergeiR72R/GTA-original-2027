@@ -673,27 +673,30 @@ const Facades = {
     if (this.cache.head) return this.cache.head;
     const W = 128, H = 256, c = this.canvas(W, H), g = c.getContext('2d');
     const img = g.createImageData(W, H), d = img.data;
-    const lamps = [W * 0.34, W * 0.66];
+    // фары — по краям капота: ±0,33 ширины машины при ширине пятна 3,2 машины
+    const lamps = [W * (0.5 - 0.33 / 3.2), W * (0.5 + 0.33 / 3.2)];
+    const AW = 0.55; // ширина пятна к его длине (≈ 3,2 ширины машины к 200)
     for (let y = 0; y < H; y++) {
-      const v = (H - y) / H; // 0 — у машины, 1 — дальний край
+      const v = (H - y) / H; // 0 — у бампера, 1 — дальний край
       for (let x = 0; x < W; x++) {
         let a = 0;
-        for (const lx of lamps) {
-          const dx = (x - lx) / W, dist = Math.hypot(dx, v);
-          const ang = Math.atan2(Math.abs(dx), v + 0.05);
-          const cone = Math.exp(-Math.pow(ang / 0.42, 2)); // мягкий край конуса
-          const fall = Math.pow(1 - Math.min(1, dist / 1.05), 1.6); // гаснет к дальнему краю
-          const hot = Math.exp(-Math.pow(dist / 0.12, 2)) * 0.6; // пятно у фары
-          a += cone * fall * 0.75 + hot;
-        }
-        // общая рассеянная засветка перед машиной
-        const ex = (x / W - 0.5) / 0.55, ey = (v - 0.25) / 0.45;
-        a += Math.exp(-(ex * ex + ey * ey)) * 0.18 * (1 - v);
-        // к краям текстуры свет гаснет до нуля — не видно прямоугольника
-        const ux = x / (W - 1), ew = Math.min(1, ux / 0.22, (1 - ux) / 0.22), ef = Math.min(1, (1 - v) / 0.15);
+        lamps.forEach((lx, k) => {
+          const dx = (x - lx) / W * AW, dist = Math.hypot(dx, v);
+          // луч чуть развёрнут наружу (как у настоящих фар), край мягкий
+          const ang = Math.atan2(dx * (k ? 1 : -1), v + 0.015) - 0.1;
+          const cone = Math.exp(-Math.pow(ang / 0.36, 2));
+          const fall = 1 - Math.min(1, dist / 1.02); // гаснет вдали
+          const hot = Math.exp(-Math.pow(dist / 0.03, 2)) * 0.5; // сама фара
+          a += cone * fall * 0.5 + hot;
+        });
+        // лёгкая засветка асфальта между лучами
+        const ex = (x / W - 0.5) / 0.3, ey = (v - 0.3) / 0.4;
+        a += Math.exp(-(ex * ex + ey * ey)) * 0.08;
+        // к краям текстуры — ноль, чтобы не было видно прямоугольника
+        const ux = x / (W - 1), ew = Math.min(1, ux / 0.2, (1 - ux) / 0.2), ef = Math.min(1, (1 - v) / 0.15);
         a = Math.min(1, a) * ew * ew * (3 - 2 * ew) * ef;
         const i = (y * W + x) * 4;
-        d[i] = 255; d[i + 1] = 238; d[i + 2] = 200; d[i + 3] = Math.round(a * 255);
+        d[i] = 255; d[i + 1] = 240; d[i + 2] = 205; d[i + 3] = Math.round(a * 255);
       }
     }
     g.putImageData(img, 0, 0);

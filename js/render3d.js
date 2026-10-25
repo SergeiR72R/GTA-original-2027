@@ -939,8 +939,9 @@ const R3 = {
       const wheels = new THREE.Mesh(new THREE.BoxGeometry(bw + 2, 5, car.l * 0.8), new THREE.MeshLambertMaterial({ color: 0x151515 }));
       wheels.position.y = 3; grp.add(wheels);
     }
-    const head = new THREE.Mesh(new THREE.PlaneGeometry(car.w * 3.6, 200).rotateX(-Math.PI / 2), this.mats.headlights);
-    head.position.set(0, 1.5, -car.l / 2 - 96);
+    // пятно света начинается у самого бампера: фары — его источники (Facades.headlights)
+    const head = new THREE.Mesh(new THREE.PlaneGeometry(car.w * 3.2, 200).rotateX(-Math.PI / 2), this.mats.headlights);
+    head.position.set(0, 1.5, -car.l / 2 - 100 + 2);
     grp.add(head);
     const o = { grp, body, cv, top, side, head, key: '', h };
     if (car.police || car.type === 'ambulance') {
@@ -1527,7 +1528,7 @@ const R3 = {
     this.mats.lampHead.color.setHex(k > 0.35 ? 0xfff3c4 : 0x9aa0a6);
     // световое пятно под каждым фонарём — дешёвая замена источника света
     this.mats.glow.opacity = k * 0.5;
-    this.mats.headlights.opacity = k * 0.55;
+    this.mats.headlights.opacity = k * 0.7;
     // хамсин — жёлтая пыльная мгла, наползает и уходит плавно
     // граница тумана сдвигается равномерно: при слабом хамсине — за край
     // экрана (до него ~2 высоты камеры), при сильном — почти к герою
