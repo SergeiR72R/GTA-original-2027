@@ -298,6 +298,10 @@ const NEWS_PORTRAITS = [
   ['portrait_anchor', 'Портрет: ведущая новостей Яэль', 'Yael, an Israeli evening news anchor in her 30s: big glossy dark hair, red blouse, polite professional smile with one slightly raised eyebrow of disbelief. Background: dark blue TV studio with glowing screens.'],
 ];
 
+const MODEL_TEXTURES_LATE = [
+  ['m_pinkpaint', 'Розовая краска балконов («Опера»)', 'Pale salmon-pink painted concrete of balcony parapets on a 1990s Tel Aviv seafront tower, smooth with light weathering and faint drip stains.'],
+];
+
 // Три отделки каждого типового дома: материал модели → своя текстура и цвет,
 // пока текстуры нет. Вариант 0 — как в модели
 const HOUSE_VARIANTS = {
@@ -423,6 +427,8 @@ const ASSET_MANIFEST = (() => {
   for (const [file, title, desc] of MODEL_TEXTURES) out.push({ batch: 'modeltex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: `${MODEL_TEX_STYLE} ${desc}` });
   // новости 12-го канала (js/news.js) — после текстур
   for (const [file, title, desc] of NEWS_PORTRAITS) out.push({ batch: 'news', cat: 'portraits', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.portrait} ${desc}` });
+  // текстуры моделей, добавленные позже (новые — только в конец этого списка)
+  for (const [file, title, desc] of MODEL_TEXTURES_LATE) out.push({ batch: 'modeltex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: `${MODEL_TEX_STYLE} ${desc}` });
   return out;
 })();
 

@@ -39,6 +39,7 @@
 | 343 | textures/m_60_stone.png | Дом 60-х: облицовка иерусалимским камнем | — |
 | 344 | textures/m_ecl_pink.png | Эклектика: лососевая штукатурка | — |
 | 345 | textures/m_ecl_blue.png | Эклектика: серо-голубая штукатурка | — |
+| 348 | textures/m_pinkpaint.png | Розовая краска балконов («Опера») | — |
 
 ## Какие текстуры у каких моделей
 
@@ -57,6 +58,8 @@
 | Штаб в Кирье | m_concrete, m_glass, m_metal, m_paint_red, m_white | yellow |
 | Маяк Яффо | m_paint_red, m_stone, m_trim, m_white | dark, yellow |
 | Арена «Менора» | m_concrete, m_glass, m_metal, m_white | — |
+| Башня «Опера» (Алленби) | m_concrete, m_glass, m_glassB, m_pinkpaint, m_roofflat, m_white | dark |
+| Фонтан на площади у «Оперы» | m_concrete, m_water | foam |
 | Электростанция Ридинг | m_concrete, m_glass, m_paint_red, m_white | — |
 | Русская церковь | m_blueroof, m_gold, m_patina, m_white | dark |
 | Башня Шалом | m_brown, m_glass, m_metal | — |

@@ -499,6 +499,18 @@ const City = {
     // в 3D вместо этих объёмов — модель из Blender (tools/models/hassanbek.py), участок 4 × 4
     this.modelTiles('hassanbek', n0, o.x, o.y + 1, 4, 4);
     sign(mq, 'מסגד חסן בק', 'мечеть Хасан-Бек', '#00695c', '#fff');
+    // Конец Алленби у набережной: башня «Опера» и круглый фонтан на площади перед ней
+    o = I(0, 4);
+    const oy0 = o.y + o.h - 6;
+    this.clearRect(o.x, oy0, 9, 6, T_PLAZA);
+    n0 = this.buildings.length;
+    const op = this.box(o.x + 3, oy0, 6, 6, 0, 330, '#f2f0ec', '#e9c9c4', 'tower');
+    this.modelTiles('opera', n0, o.x + 3, oy0, 6, 6);
+    sign(op, 'מגדל האופרה', 'башня «Опера»', '#ad1457', '#fff');
+    n0 = this.buildings.length;
+    this.fill(o.x + 1, oy0 + 2, 1, 1, T_BUILD);
+    this.addBuilding({ kind: 'circle', cx: (o.x + 1.5) * TILE, cy: (oy0 + 2.5) * TILE, r: 86, h0: 0, h1: 10, roof: '#7fc4d8', wall: '#9a9a9a', items: [{ t: 'fountain' }], floors: 99, style: 'fountain', landmark: true });
+    this.modelTiles('operafountain', n0, o.x, oy0 + 1, 3, 3);
     // Юг: арена «Менора» в шхунот
     o = I(5, 9);
     this.clearRect(o.x + 1, o.y + 1, 6, 6, T_PLAZA);

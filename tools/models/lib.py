@@ -19,6 +19,7 @@ TEX = {
     'shutter': ('m_shutter', 2.0, 1.0), 'wood': ('m_wood', 1.5, 1.0), 'roof': ('m_roofflat', 4.0, 1.0),
     'graffiti1': ('m_graffiti', 4.0, 1.0), 'graffiti2': ('m_graffiti', 4.0, 1.0), 'graffiti3': ('m_graffiti', 4.0, 1.0),
     'rust': ('m_rust', 2.0, 1.0), 'red': ('m_paint_red', 2.0, 1.0), 'water': ('m_water', 3.0, 1.0),
+    'pink': ('m_pinkpaint', 2.0, 1.0),
 }
 
 

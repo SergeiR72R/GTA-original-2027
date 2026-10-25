@@ -1,4 +1,4 @@
-# Задание для Claude в Chrome: текстуры 3D-моделей зданий (28)
+# Задание для Claude в Chrome: текстуры 3D-моделей зданий (29)
 
 > Откройте этот файл в боковой панели **Claude в Chrome** и скажите:
 > «Выполни задание из этого файла».
@@ -63,9 +63,9 @@
 
 ---
 
-# Список (28): № 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345
+# Список (29): № 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 348
 
-## Текстуры (28)
+## Текстуры (29)
 
 ### 318. `textures/m_stone.png` — Текстура модели: Камень Яффо (известняк)
 
@@ -289,5 +289,13 @@ Seamless tileable texture of a building material for a stylized top-down crime g
 
 ```
 Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Aged pale blue-grey lime plaster of a 1920s eclectic building, faded and patchy, a few repaired spots.
+```
+
+### 348. `textures/m_pinkpaint.png` — Текстура модели: Розовая краска балконов («Опера»)
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Pale salmon-pink painted concrete of balcony parapets on a 1990s Tel Aviv seafront tower, smooth with light weathering and faint drip stains.
 ```
 
