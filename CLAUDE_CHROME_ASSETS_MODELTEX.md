@@ -1,4 +1,4 @@
-# Задание для Claude в Chrome: текстуры 3D-моделей зданий (4)
+# Задание для Claude в Chrome: текстуры 3D-моделей зданий (3)
 
 > Откройте этот файл в боковой панели **Claude в Chrome** и скажите:
 > «Выполни задание из этого файла».
@@ -9,7 +9,7 @@
 
 ## Сначала — одна картинка на согласование
 
-1. Сгенерируй **только № 358** (`textures/m_hosp_panel.png`).
+1. Сгенерируй **только № 359** (`textures/m_hosp_louver.png`).
 2. Покажи её пользователю и спроси: «Так подходит? Продолжать?»
 3. **Дальше не иди, пока пользователь не ответит «да».** Если просит
    поправить — допиши его уточнение в конец промпта, сгенерируй заново и
@@ -63,17 +63,9 @@
 
 ---
 
-# Список (4): № 358, 359, 360, 361
+# Список (3): № 359, 360, 361
 
-## Текстуры (4)
-
-### 358. `textures/m_hosp_panel.png` — Текстура модели: Белые фасадные панели больницы (Ихилов)
-
-- [ ] Новая картинка, формат квадрат 1:1.
-
-```
-Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Modern hospital facade cladding: large smooth off-white and very light grey composite aluminium panels in a regular grid with thin dark seams, subtle sheen, slight dust at the joints.
-```
+## Текстуры (3)
 
 ### 359. `textures/m_hosp_louver.png` — Текстура модели: Стекло с белыми ламелями (башня Сами Офера)
 

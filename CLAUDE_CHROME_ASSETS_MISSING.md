@@ -1,8 +1,8 @@
-# Задание для Claude в Chrome: недостающие ассеты (5)
+# Задание для Claude в Chrome: недостающие ассеты (4)
 
 > Откройте этот файл в боковой панели **Claude в Chrome** и скажите:
 > «Выполни задание из этого файла».
-> Единое задание: всё, чего пока нет в игре (5) — Текстура модели: Белые фасадные панели больницы (Ихилов), Текстура модели: Стекло с белыми ламелями (башня Сами Офера), Текстура модели: Вертолётная площадка на крыше (сверху), Текстура модели: Цветные панели детской больницы (Дана-Двек), Логотип «ХАМСИН» с надписью. Файл собирается автоматически.
+> Единое задание: всё, чего пока нет в игре (4) — Текстура модели: Стекло с белыми ламелями (башня Сами Офера), Текстура модели: Вертолётная площадка на крыше (сверху), Текстура модели: Цветные панели детской больницы (Дана-Двек), Логотип «ХАМСИН» с надписью. Файл собирается автоматически.
 
 ## Главное правило: имя файла
 
@@ -51,17 +51,9 @@
 
 ---
 
-# Список (5): № 358, 359, 360, 361, 349
+# Список (4): № 359, 360, 361, 349
 
-## Текстуры (4)
-
-### 358. `textures/m_hosp_panel.png` — Текстура модели: Белые фасадные панели больницы (Ихилов)
-
-- [ ] Новая картинка, формат квадрат 1:1.
-
-```
-Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Modern hospital facade cladding: large smooth off-white and very light grey composite aluminium panels in a regular grid with thin dark seams, subtle sheen, slight dust at the joints.
-```
+## Текстуры (3)
 
 ### 359. `textures/m_hosp_louver.png` — Текстура модели: Стекло с белыми ламелями (башня Сами Офера)
 
