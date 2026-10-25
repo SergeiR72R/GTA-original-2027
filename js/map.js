@@ -191,6 +191,7 @@ const City = {
   generate() {
     this.signs = [];
     this.models = []; // детальные 3D-модели (assets/models): в 3D заменяют свои простые объёмы
+    this.houses = []; // типовые дома-модели (одна сетка на вид, много копий)
     this.layout();
     const W = this.W, H = this.H;
     this.type = new Uint8Array(W * H);
@@ -306,10 +307,30 @@ const City = {
 
     this.landmarks();
     this.buildArches();
+    this.typicalHouses(makeRng(4242));
     this.fillEmpty(makeRng(77));
     this.indexBuildings();
     this.definePlaces();
     this.buildMinimap();
+  },
+
+  // Типовые дома Тель-Авива (модели из Blender) вместо части обычных коробок:
+  // баухауз, дом 1960-х со ставнями, эклектика 1920-х. Только в 3D: стены,
+  // 2D и миникарта — прежние. Фасад — к улице
+  typicalHouses(rng) {
+    const KIND = { bauhaus: 'house_bauhaus', concrete: 'house_60s', florentin: 'house_eclectic' };
+    const open = (x, y) => { const t = this.t(x, y); return t === T_WALK || t === T_ROAD || t === T_PLAZA; };
+    for (const b of this.buildings) {
+      const key = KIND[b.style];
+      if (!key || b.kind !== 'rect' || b.removed || b.landmark || b.arch || b.model || b.label || b.h0 || rng() > 0.45) continue;
+      const tx = Math.round((b.x - 4) / TILE), ty = Math.round((b.y - 4) / TILE), tw = Math.round((b.w + 8) / TILE), th = Math.round((b.h + 8) / TILE);
+      if (tw < 2 || th < 2 || tw > 3 || th > 3) continue;
+      // сторона с улицей: юг, север, запад, восток
+      const side = (dx, dy, n) => { for (let k = 0; k < n; k++) if (open(dx < 0 ? tx - 1 : dx > 0 ? tx + tw : tx + k, dy < 0 ? ty - 1 : dy > 0 ? ty + th : ty + k)) return true; return false; };
+      const rot = side(0, 1, tw) ? 0 : side(0, -1, tw) ? Math.PI : side(-1, 0, th) ? -Math.PI / 2 : side(1, 0, th) ? Math.PI / 2 : 0;
+      b.model = key;
+      this.houses.push({ key, x: b.x + b.w / 2, y: b.y + b.h / 2, w: b.w + 8, h: b.h + 8, rot });
+    }
   },
 
   // Арки: над проходом во двор — дом на высоте второго этажа, продолжение
@@ -332,6 +353,15 @@ const City = {
       }));
     }
   },
+
+  // Детальная 3D-модель (assets/models) вместо объёмов, добавленных начиная с n0:
+  // центр участка (cx, cy) и его размер w × h — в пикселях мира
+  modelize(key, n0, cx, cy, w, h, rot = 0) {
+    for (let i = n0; i < this.buildings.length; i++) this.buildings[i].model = key;
+    this.models.push({ key, x: cx, y: cy, w, h, rot });
+  },
+  // то же для участка в клетках
+  modelTiles(key, n0, tx, ty, tw, th) { this.modelize(key, n0, (tx + tw / 2) * TILE, (ty + th / 2) * TILE, tw * TILE, th * TILE); },
 
   addBuilding(b) {
     b.id = this.buildings.length;
@@ -389,40 +419,56 @@ const City = {
     // Порт: электростанция Ридинг — корпус и две полосатые трубы
     o = I(1, 0);
     this.clearRect(o.x + 1, o.y + 1, 6, 5, T_DECK);
+    let n0 = this.buildings.length;
     const rd = this.box(o.x + 1, o.y + 2, 6, 3, 0, 70, '#b9b0a2', '#8f8f8f', 'power');
     this.bands(o.x + 2.5, o.y + 3.5, 17, 0, 300, 8, '#c62828', '#f5f5f5');
     this.bands(o.x + 5.5, o.y + 3.5, 17, 0, 300, 8, '#c62828', '#f5f5f5');
+    this.modelTiles('reading', n0, o.x + 1, o.y + 1, 6, 5);
     sign(rd, 'רדינג', 'электростанция Ридинг', '#b71c1c', '#fff');
     // Ротшильд: башня Шалом и театр Габима
     o = I(3, 4);
     this.clearRect(o.x, o.y, 4, 3, T_WALK);
+    n0 = this.buildings.length;
     const sh = this.box(o.x, o.y, 4, 3, 0, 420, '#7b6a58', '#8d7b68', 'tower', { floors: 16 });
+    this.modelTiles('shalom', n0, o.x, o.y, 4, 3);
     sign(sh, 'מגדל שלום', 'башня Шалом', '#4e342e', '#ffe0b2');
     o = I(4, 4);
     this.clearRect(o.x + o.w - 4, o.y + o.h - 4, 4, 4, T_PLAZA);
     this.markSolid(o.x + o.w - 4, o.y + o.h - 4, 4, 4);
+    n0 = this.buildings.length;
     this.cyl(o.x + o.w - 2, o.y + o.h - 2, 100, 0, 52, '#e8e4da', 'arena', '#f2f2f2');
     this.cyl(o.x + o.w - 2, o.y + o.h - 2, 76, 52, 64, '#d7d2c6', 'plain', '#ffffff');
+    this.modelTiles('habima', n0, o.x + o.w - 4, o.y + o.h - 4, 4, 4);
     // Кирья: мачта связи на штабе
     const kq = this.buildings.find((b) => b.label === 'KIRYA');
-    if (kq) this.bands((kq.x + kq.w / 2) / TILE, (kq.y + kq.h / 2) / TILE, 7, kq.h1, kq.h1 + 230, 6, '#d32f2f', '#fafafa');
+    if (kq) {
+      n0 = this.buildings.length;
+      this.bands((kq.x + kq.w / 2) / TILE, (kq.y + kq.h / 2) / TILE, 7, kq.h1, kq.h1 + 230, 6, '#d32f2f', '#fafafa');
+      kq.model = 'kirya';
+      this.modelize('kirya', n0, kq.x + kq.w / 2, kq.y + kq.h / 2, kq.w + 8, kq.h + 8);
+    }
     // Яффо: церковь Святого Петра с колокольней и маяк в гавани
     o = I(3, 7);
     this.clearRect(o.x + 1, o.y + 1, 5, 4, T_PLAZA);
+    n0 = this.buildings.length;
     const ch = this.box(o.x + 1, o.y + 2, 4, 3, 0, 70, '#dcbc85', '#c9a46a', 'church', { stone: true });
     this.box(o.x + 5, o.y + 1, 1, 2, 0, 175, '#d6b47c', '#b88f55', 'church', { stone: true });
     this.onion(o.x + 3, o.y + 3.5, 34, 70, '#b88f55');
+    this.modelTiles('stpeter', n0, o.x + 1, o.y + 1, 5, 4);
     sign(ch, 'כנסיית פטרוס', 'церковь Св. Петра', '#6d4c41', '#fff3e0');
     o = I(0, 7);
     this.clearRect(o.x, o.y + 3, 1, 1, T_DECK);
     this.markSolid(o.x, o.y + 3, 1, 1);
+    n0 = this.buildings.length;
     this.bands(o.x + 0.5, o.y + 3.5, 18, 0, 150, 5, '#fafafa', '#d32f2f');
     this.cyl(o.x + 0.5, o.y + 3.5, 12, 150, 168, '#fff59d');
     this.cyl(o.x + 0.5, o.y + 3.5, 16, 168, 174, '#c62828');
+    this.modelTiles('lighthouse', n0, o.x, o.y + 3, 1, 1);
     // Рамат-Ган: православная церковь с луковицами — приход «земляков»
     o = I(8, 4);
     const ox = o.x + 1, oy = o.y + 1;
     this.clearRect(ox, oy, 4, 4, T_PLAZA);
+    n0 = this.buildings.length;
     const rc = this.box(ox, oy, 4, 4, 0, 55, '#f2eee6', '#e0dbd0', 'church');
     this.cyl(ox + 2, oy + 2, 40, 55, 92, '#f5f5f5');
     const top = this.onion(ox + 2, oy + 2, 50, 92, '#d4a017');
@@ -431,16 +477,19 @@ const City = {
       this.cyl(ox + 2 + dx, oy + 2 + dy, 14, 55, 78, '#f5f5f5');
       this.onion(ox + 2 + dx, oy + 2 + dy, 18, 78, '#1e88e5');
     }
+    this.modelTiles('ruchurch', n0, ox, oy, 4, 4);
     sign(rc, 'ЦЕРКОВЬ', 'русский приход', '#1565c0', '#ffd54f');
     // Пляж: заброшенный Дельфинариум
     const dy0 = this.HR[4] + 3;
     this.clearRect(5, dy0, 3, 3, T_SAND);
+    n0 = this.buildings.length;
     const dl = this.box(5, dy0, 3, 3, 0, 22, '#9fb0b8', '#8a9aa2', 'arena');
+    this.modelTiles('dolphinarium', n0, 5, dy0, 3, 3);
     sign(dl, 'דולפינריום', 'заброшенный дельфинарий', '#455a64', '#e0f7fa');
     // Набережная: мечеть Хасан-Бек с минаретом
     o = I(0, 5);
     this.clearRect(o.x, o.y + 1, 4, 4, T_PLAZA);
-    const n0 = this.buildings.length;
+    n0 = this.buildings.length;
     const mq = this.box(o.x, o.y + 2, 3, 3, 0, 45, '#e3cfa4', '#d9c49a', 'mosque', { stone: true });
     this.onion(o.x + 1.5, o.y + 3.5, 42, 45, '#c8b48a');
     this.markSolid(o.x + 3, o.y + 1, 1, 1);
@@ -448,16 +497,17 @@ const City = {
     this.cyl(o.x + 3.5, o.y + 1.5, 19, 118, 124, '#d4bf90');
     this.cyl(o.x + 3.5, o.y + 1.5, 9, 165, 190, '#9e9e9e');
     // в 3D вместо этих объёмов — модель из Blender (tools/models/hassanbek.py), участок 4 × 4
-    for (let i = n0; i < this.buildings.length; i++) this.buildings[i].model = 'hassanbek';
-    this.models.push({ key: 'hassanbek', x: (o.x + 2) * TILE, y: (o.y + 3) * TILE });
+    this.modelTiles('hassanbek', n0, o.x, o.y + 1, 4, 4);
     sign(mq, 'מסגד חסן בק', 'мечеть Хасан-Бек', '#00695c', '#fff');
     // Юг: арена «Менора» в шхунот
     o = I(5, 9);
     this.clearRect(o.x + 1, o.y + 1, 6, 6, T_PLAZA);
     this.markSolid(o.x + 1, o.y + 1, 6, 6);
+    n0 = this.buildings.length;
     this.cyl(o.x + 4, o.y + 4, 170, 0, 58, '#cfd8dc', 'arena', '#90a4ae');
     this.cyl(o.x + 4, o.y + 4, 140, 58, 72, '#b0bec5', 'plain', '#cfd8dc');
     this.cyl(o.x + 4, o.y + 4, 95, 72, 82, '#cfd8dc', 'plain', '#eceff1');
+    this.modelTiles('menora', n0, o.x + 1, o.y + 1, 6, 6);
   },
 
   markSolid(x0, y0, w, h, id) {
@@ -770,7 +820,9 @@ const City = {
         // фонтан в центре и пальмы вокруг
         const fx = (cx + 0.5) * TILE, fy = (cy + 0.5) * TILE;
         this.fill(cx - 1, cy - 1, 3, 3, T_BUILD);
+        const nF = this.buildings.length;
         this.addBuilding({ kind: 'circle', cx: fx, cy: fy, r: 70, h0: 0, h1: 10, roof: '#7fc4d8', wall: '#9a9a9a', items: [{ t: 'fountain' }], floors: 99, style: 'fountain' });
+        this.modelize('agam', nF, fx, fy, 140, 140);
         for (let i = 0; i < 8; i++) this.decor.push({ k: 'palm', x: fx + Math.cos(i / 8 * TAU) * 170, y: fy + Math.sin(i / 8 * TAU) * 170, h: 80, r: i });
         // четверти вокруг кольца — дома Белого города
         const q = (x0, y0, x1, y1) => { if (x1 - x0 >= 1 && y1 - y0 >= 1) generic(S.bauhaus, 3, 0.1, { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 }); };
@@ -797,12 +849,14 @@ const City = {
       case 'azrieli': {
         // торговый центр-подиум и три башни: круглая, треугольная и квадратная
         this.fill(ix, iy, iw, ih, T_PLAZA);
+        const nAz = this.buildings.length;
         const pod = this.lotBuilding({ x: ix + 1, y: iy + 1, w: iw - 2, h: ih - 3 }, S.mall, rng);
         pod.h1 = 36;
         const bxp = pod.x, byp = pod.y, bw = pod.w, bh = pod.h;
         this.addBuilding({ kind: 'circle', cx: bxp + bw * 0.22, cy: byp + bh * 0.3, r: 70, h0: 36, h1: 300, roof: '#a9c8d8', wall: '#6d8fa3', items: [], floors: 14, glass: true, style: 'tower' });
         this.addBuilding({ kind: 'poly', pts: [[bxp + bw * 0.55, byp + bh * 0.12], [bxp + bw * 0.78, byp + bh * 0.55], [bxp + bw * 0.38, byp + bh * 0.58]], h0: 36, h1: 270, roof: '#b4cfdb', wall: '#5f8397', items: [], floors: 14, glass: true, style: 'tower' });
         this.addBuilding({ kind: 'rect', x: bxp + bw * 0.62, y: byp + bh * 0.62, w: 120, h: 120, h0: 36, h1: 240, roof: '#9fbfcf', wall: '#58798d', items: [{ t: 'ac', u: 0.5, v: 0.5 }], floors: 14, glass: true, style: 'tower' });
+        this.modelize('azrieli', nAz, bxp + bw / 2, byp + bh / 2, bw, bh);
         break;
       }
       case 'shuk': {
@@ -852,7 +906,9 @@ const City = {
         // площадь с часовой башней
         this.fill(ix, iy, iw, ih, T_PLAZA);
         this.fill(ix + 3, iy + 4, 2, 2, T_BUILD);
+        const nCl = this.buildings.length;
         this.addBuilding({ kind: 'rect', x: (ix + 3) * TILE + 30, y: (iy + 4) * TILE + 30, w: 68, h: 68, h0: 0, h1: 150, roof: '#c9a46a', wall: '#b88f55', items: [{ t: 'clock' }], floors: 30, style: 'jaffa' });
+        this.modelize('clocktower', nCl, (ix + 3) * TILE + 64, (iy + 4) * TILE + 64, 68, 68);
         alleys(S.jaffa, 3, { x: ix, y: iy + 7, w: iw, h: ih - 7 });
         generic(S.jaffa, 3, 0, { x: ix, y: iy, w: iw, h: 3 });
         break;
@@ -914,7 +970,10 @@ const City = {
           // «Городские ворота» — самая высокая башня, с короной на крыше
           const gate = this.buildings[this.buildings.length - 3];
           gate.h1 = 520; gate.style = 'citygate';
+          const nG = this.buildings.length;
           this.piece({ kind: 'rect', x: gate.x + 18, y: gate.y + 18, w: gate.w - 36, h: gate.h - 36, h0: 520, h1: 560, wall: '#37474f', roof: '#263238', style: 'plain' });
+          gate.model = 'citygate';
+          this.modelize('citygate', nG, gate.x + gate.w / 2, gate.y + gate.h / 2, gate.w + 8, gate.h + 8);
         }
         const dx = ix + iw - 4, dy = iy + ih - 4;
         this.markSolid(dx, dy, 3, 3);

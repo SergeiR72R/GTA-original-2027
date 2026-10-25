@@ -451,6 +451,7 @@ const R3 = {
     for (const b of City.buildings) if (!b.removed && b.label === 'H') this.roofSign(b);
     for (const sg of City.signs || []) this.groundSign(sg);
     for (const md of City.models || []) this.model(md);
+    this.houses();
     this.applyQuality(true);
     // заранее рисуем спрайты всех машин всех цветов: первый показ не даст рывка
     for (const t in VTYPES) {
@@ -461,21 +462,64 @@ const R3 = {
     }
   },
 
-  // Детальная модель из Blender: геометрия в метрах (assets/models/*.js),
-  // по горизонтали 1 м = TILE / 4, по высоте — как у домов в 3D
-  model(md) {
-    const d = window.GEN_MODELS && GEN_MODELS[md.key];
-    if (!d) return;
+  // Детальная модель из Blender: геометрия в метрах (assets/models/*.js). По
+  // горизонтали растягиваем под участок на карте (w × h px), по высоте — как у домов в 3D
+  modelGeo(key) {
+    const C = this.modelCache || (this.modelCache = {});
+    if (C[key] !== undefined) return C[key];
+    const d = window.GEN_MODELS && GEN_MODELS[key];
+    if (!d) return (C[key] = null);
     const f32 = (s) => { const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return new Float32Array(u.buffer); };
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(f32(d.pos), 3));
     g.setAttribute('normal', new THREE.BufferAttribute(f32(d.nor), 3));
     g.setAttribute('color', new THREE.BufferAttribute(f32(d.col), 3));
-    const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true }));
-    m.scale.set(TILE / 4, MODEL_HS, TILE / 4);
+    return (C[key] = { g, d, mat: new THREE.MeshLambertMaterial({ vertexColors: true }) });
+  },
+
+  // масштаб модели под участок: rot ±90° — модель лежит поперёк
+  modelScale(d, md) {
+    const side = Math.abs(Math.sin(md.rot || 0)) > 0.5;
+    const W = side ? md.h : md.w, H = side ? md.w : md.h;
+    return new THREE.Vector3(d.w && W ? W / d.w : TILE / 4, MODEL_HS, d.d && H ? H / d.d : TILE / 4);
+  },
+
+  model(md) {
+    const M = this.modelGeo(md.key);
+    if (!M) return;
+    const m = new THREE.Mesh(M.g, M.mat);
+    m.scale.copy(this.modelScale(M.d, md));
+    m.rotation.y = md.rot || 0;
     m.position.set(md.x, 0, md.y);
     m.castShadow = true; m.receiveShadow = true;
     this.scene.add(m);
+  },
+
+  // типовые дома: копии одной сетки (InstancedMesh) — отдельно на каждый участок
+  // карты, чтобы невидимые участки отсекались (у копий общая геометрия, своя сфера)
+  houses() {
+    const by = {}, cs = CHUNK * TILE;
+    for (const h of City.houses || []) {
+      const k = h.key + '|' + Math.floor(h.x / cs) + '|' + Math.floor(h.y / cs);
+      (by[k] = by[k] || []).push(h);
+    }
+    const q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0), mx = new THREE.Matrix4();
+    for (const k in by) {
+      const [key, cx, cy] = k.split('|');
+      const M = this.modelGeo(key);
+      if (!M) continue;
+      const g = new THREE.BufferGeometry();
+      for (const n of ['position', 'normal', 'color']) g.setAttribute(n, M.g.getAttribute(n));
+      g.boundingSphere = new THREE.Sphere(new THREE.Vector3((+cx + 0.5) * cs, 80, (+cy + 0.5) * cs), cs * 0.75 + 120);
+      const im = new THREE.InstancedMesh(g, M.mat, by[k].length);
+      by[k].forEach((h, i) => {
+        q.setFromAxisAngle(up, h.rot || 0);
+        mx.compose(new THREE.Vector3(h.x, 0, h.y), q, this.modelScale(M.d, h));
+        im.setMatrixAt(i, mx);
+      });
+      im.castShadow = true; im.receiveShadow = true;
+      this.scene.add(im);
+    }
   },
 
   building(b, B) {
