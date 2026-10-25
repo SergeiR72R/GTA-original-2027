@@ -134,7 +134,7 @@ const Shops = {
       if (sel) { ctx.strokeStyle = '#ffca28'; ctx.lineWidth = 1.5; ctx.strokeRect(x + 10, ry, w - 20, rowH - 6); }
       // значок на светлой плашке
       ctx.fillStyle = '#e0e0e0'; ctx.fillRect(rtl ? x + w - 82 : x + 18, ry + 6, 64, rowH - 18);
-      ctx.save(); ctx.translate(L(50), ry + (rowH - 6) / 2); drawWeaponIcon(ctx, it.kind || it.w, 1.1); ctx.restore();
+      ctx.save(); ctx.translate(L(50), ry + (rowH - 6) / 2); drawWeaponIcon(ctx, it.kind || it.w, 1.3); ctx.restore();
       const afford = pl.money >= o.price;
       HUD.text(ctx, `${i + 1}. ${T(o.label)}`, L(96), ry + 24, 17, o.ok ? '#fff' : '#888', A('left'), 'normal');
       if (o.note) HUD.text(ctx, o.note, L(96), ry + 44, 13, '#9e9e9e', A('left'), 'normal');
