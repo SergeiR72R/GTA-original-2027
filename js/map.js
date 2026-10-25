@@ -329,7 +329,7 @@ const City = {
       const side = (dx, dy, n) => { for (let k = 0; k < n; k++) if (open(dx < 0 ? tx - 1 : dx > 0 ? tx + tw : tx + k, dy < 0 ? ty - 1 : dy > 0 ? ty + th : ty + k)) return true; return false; };
       const rot = side(0, 1, tw) ? 0 : side(0, -1, tw) ? Math.PI : side(-1, 0, th) ? -Math.PI / 2 : side(1, 0, th) ? Math.PI / 2 : 0;
       b.model = key;
-      this.houses.push({ key, x: b.x + b.w / 2, y: b.y + b.h / 2, w: b.w + 8, h: b.h + 8, rot });
+      this.houses.push({ key, x: b.x + b.w / 2, y: b.y + b.h / 2, w: b.w + 8, h: b.h + 8, rot, v: Math.floor(rng() * 3) });
     }
   },
 

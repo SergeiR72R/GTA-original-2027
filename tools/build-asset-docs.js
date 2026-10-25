@@ -323,6 +323,11 @@ if (MTEX.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_MODELTEX
     out += `| ${NAME[k] || k} | ${[...new Set(g.filter((x) => x[3]).map((x) => x[3]))].join(', ')} | ${g.filter((x) => !x[3]).map((x) => x[0]).join(', ') || '—'} |\n`;
   }
   out += '\nБез текстуры остаются проёмы окон, краска (ставни, разметка, колёса фонтана) и фонарь маяка.\n';
+  out += '\nОкна моделей (материалы dark, glass, glassB) ночью светятся вразнобой — карта горящих окон рисуется кодом.\n';
+  const HV = require(path.join(root, 'js/asset-manifest.js')).HOUSE_VARIANTS || {};
+  out += '\n## Три отделки каждого типового дома\n\nОдна модель — три вида: вариант 1 — как в модели, 2 и 3 — свои текстуры и цвет (пока текстуры нет).\n\n| Дом | Вариант 2 | Вариант 3 |\n|---|---|---|\n';
+  const fmt = (o) => Object.entries(o).map(([m, v]) => `${m} → ${v.tex || 'цвет'}${v.color ? ' (' + v.color + ')' : ''}`).join('; ');
+  for (const k in HV) out += `| ${NAME[k] || k} | ${fmt(HV[k][1])} | ${fmt(HV[k][2])} |\n`;
   fs.writeFileSync(path.join(root, 'docs/PLAN_TEXTURES.md'), out);
 }
 // машины банд — отдельным дополнением к большому заданию (досылается следом)

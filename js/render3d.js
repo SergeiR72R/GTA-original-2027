@@ -28,6 +28,8 @@ const SHOP_GEN_MAX = 8;
 const TINTED = { bauhaus: 1, florentin: 1, concrete: 1, nevetzedek: 1, cityhall: 1, hospital: 1, police: 1, busstation: 1, garage: 1 };
 // высота детальных моделей: метров → единиц 3D (дома в игре выше настоящих)
 const MODEL_HS = 11;
+// материалы окон в моделях: ночью светятся
+const WINDOW_MATS = { dark: 1, glass: 1, glassB: 1 };
 const FOV = 55; // перспектива сверху: стены видны у краёв экрана, как в GTA2
 const TILT = 0.58; // наклон камеры (≈33°), чтобы видеть фасады; клавиша V — строго сверху, как в GTA2
 // сгенерированные фасады (assets/gen/facades) для стилей районов
@@ -474,24 +476,53 @@ const R3 = {
     g.setAttribute('position', new THREE.BufferAttribute(f32(d.pos), 3));
     g.setAttribute('normal', new THREE.BufferAttribute(f32(d.nor), 3));
     g.setAttribute('color', new THREE.BufferAttribute(f32(d.col), 3));
-    // материалы по группам: есть бесшовная текстура (assets/gen/textures/m_*) — она,
-    // нет — цвет в вершинах. uv уже в повторах текстуры
-    let mat = this.modelMat('');
     if (d.uv && d.groups) {
       g.setAttribute('uv', new THREE.BufferAttribute(f32(d.uv), 2));
-      mat = d.groups.map(([, start, count, tex, tint], i) => { g.addGroup(start, count, i); return this.modelMat(tex, tint); });
+      d.groups.forEach(([, start, count], i) => g.addGroup(start, count, i));
     }
-    return (C[key] = { g, d, mat });
+    return (C[key] = { g, d, mat: this.modelMats(key, d, 0) });
   },
 
-  modelMat(tex, tint = 1) {
-    const C = this.modelMats || (this.modelMats = {});
-    const k = tex + '|' + tint;
+  // материалы модели по группам: есть бесшовная текстура (assets/gen/textures/m_*) —
+  // она, нет — цвет. Вариант отделки (HOUSE_VARIANTS) меняет текстуру и цвет.
+  // Окна (dark, glass, glassB) ночью светятся вразнобой
+  modelMats(key, d, v) {
+    if (!d.groups) return this.modelMat({});
+    const V = (typeof HOUSE_VARIANTS !== 'undefined' && HOUSE_VARIANTS[key] && HOUSE_VARIANTS[key][v]) || {};
+    return d.groups.map(([name, , , tex, tint]) => {
+      const o = V[name] || {};
+      return this.modelMat({ tex: o.tex || tex, tint, color: o.color, glow: WINDOW_MATS[name] ? (v + key.length) % 4 : -1 });
+    });
+  },
+
+  modelMat({ tex, tint = 1, color, glow = -1 }) {
+    const C = this.modelMatCache || (this.modelMatCache = {});
+    const k = [tex, tint, color, glow].join('|');
     if (C[k]) return C[k];
     const im = tex && Assets.gen['textures/' + tex];
-    return (C[k] = im
-      ? new THREE.MeshLambertMaterial({ map: this.tex(im, true), color: new THREE.Color(tint, tint, tint) })
-      : new THREE.MeshLambertMaterial({ vertexColors: true }));
+    const o = im ? { map: this.tex(im, true), color: new THREE.Color(tint, tint, tint) } : color ? { color: new THREE.Color(color) } : { vertexColors: true };
+    if (glow >= 0) Object.assign(o, { emissive: new THREE.Color(1, 0.82, 0.5), emissiveMap: this.windowLights(glow), emissiveIntensity: 0 });
+    const m = new THREE.MeshLambertMaterial(o);
+    if (glow >= 0) this.facadeMats.push(m);
+    return (C[k] = m);
+  },
+
+  // какие окна горят: клетки в случайном порядке (uv моделей — в метрах/повторах)
+  windowLights(seed) {
+    const W = this.winLights || (this.winLights = []);
+    if (W[seed]) return W[seed];
+    const c = Facades.canvas(8, 8), g = c.getContext('2d');
+    let r = 1234 + seed * 777;
+    const rnd = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) {
+      const on = rnd() < 0.5;
+      g.fillStyle = on ? `rgb(255,${200 + Math.floor(rnd() * 40)},${120 + Math.floor(rnd() * 60)})` : '#000';
+      g.fillRect(x, y, 1, 1);
+    }
+    const t = this.tex(c, true);
+    t.magFilter = t.minFilter = THREE.NearestFilter;
+    t.repeat.set(0.25, 0.25); // клетка ≈ 1,5–2 м — примерно окно
+    return (W[seed] = t);
   },
 
   // масштаб модели под участок: rot ±90° — модель лежит поперёк
@@ -517,18 +548,20 @@ const R3 = {
   houses() {
     const by = {}, cs = CHUNK * TILE;
     for (const h of City.houses || []) {
-      const k = h.key + '|' + Math.floor(h.x / cs) + '|' + Math.floor(h.y / cs);
+      const k = h.key + '|' + (h.v || 0) + '|' + Math.floor(h.x / cs) + '|' + Math.floor(h.y / cs);
       (by[k] = by[k] || []).push(h);
     }
     const q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0), mx = new THREE.Matrix4();
     for (const k in by) {
-      const [key, cx, cy] = k.split('|');
+      const [key, v, cx, cy] = k.split('|');
       const M = this.modelGeo(key);
       if (!M) continue;
+      const mats = this.modelMats(key, M.d, +v);
       const g = new THREE.BufferGeometry();
       for (const n of ['position', 'normal', 'color']) g.setAttribute(n, M.g.getAttribute(n));
       g.boundingSphere = new THREE.Sphere(new THREE.Vector3((+cx + 0.5) * cs, 80, (+cy + 0.5) * cs), cs * 0.75 + 120);
-      const im = new THREE.InstancedMesh(g, M.mat, by[k].length);
+      if (M.d.groups) M.d.groups.forEach(([, start, count], i) => g.addGroup(start, count, i));
+      const im = new THREE.InstancedMesh(g, mats, by[k].length);
       by[k].forEach((h, i) => {
         q.setFromAxisAngle(up, h.rot || 0);
         mx.compose(new THREE.Vector3(h.x, 0, h.y), q, this.modelScale(M.d, h));

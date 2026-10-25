@@ -283,7 +283,28 @@ const MODEL_TEXTURES = [
   ['m_rust', 'Ржавый металл', 'Rusty corroded steel sheet with flaking orange-brown rust.'],
   ['m_paint_red', 'Красная краска по металлу', 'Glossy red paint on steel, slightly chipped and faded.'],
   ['m_water', 'Вода фонтана', 'Clear turquoise fountain water surface with gentle ripples seen from above.'],
+  // варианты типовых домов (HOUSE_VARIANTS): одна модель — три разных отделки
+  ['m_bh_cream', 'Баухауз: кремовая штукатурка', 'Cream off-white lime plaster of a restored Tel Aviv Bauhaus building, smooth, warm tint, a few faint stains.'],
+  ['m_bh_pastel', 'Баухауз: пастельно-розовая штукатурка', 'Pale pastel pink plaster of a renovated Bauhaus building in Tel Aviv, smooth and slightly sun-faded.'],
+  ['m_60_grey', 'Дом 60-х: серая «шуба»', 'Grey rough pebble-dash / terrazzo-grit stucco of a 1960s Israeli apartment block, dusty, with dark streaks under the windows.'],
+  ['m_60_stone', 'Дом 60-х: облицовка иерусалимским камнем', 'Beige Jerusalem-stone cladding panels in a regular grid, slightly worn, 1960s apartment block facade.'],
+  ['m_ecl_pink', 'Эклектика: лососевая штукатурка', 'Aged salmon-pink lime plaster of a 1920s eclectic building in Florentin, patchy, with small cracks.'],
+  ['m_ecl_blue', 'Эклектика: серо-голубая штукатурка', 'Aged pale blue-grey lime plaster of a 1920s eclectic building, faded and patchy, a few repaired spots.'],
 ];
+
+// Вечерние новости 12-го канала: аналитик и ведущая
+const NEWS_PORTRAITS = [
+  ['portrait_ausbender', 'Портрет: Сергей Аусбендер, аналитик 12-го канала', 'Sergey Ausbender, a self-confident TV political analyst in his 50s: receding hair combed back, reading glasses low on the nose, dark suit with a loosened tie, raised index finger and a know-it-all smirk, as if explaining something obvious and completely wrong. Background: dark blue TV studio with glowing screens.'],
+  ['portrait_anchor', 'Портрет: ведущая новостей Яэль', 'Yael, an Israeli evening news anchor in her 30s: big glossy dark hair, red blouse, polite professional smile with one slightly raised eyebrow of disbelief. Background: dark blue TV studio with glowing screens.'],
+];
+
+// Три отделки каждого типового дома: материал модели → своя текстура и цвет,
+// пока текстуры нет. Вариант 0 — как в модели
+const HOUSE_VARIANTS = {
+  house_bauhaus: [{}, { white: { tex: 'm_bh_cream', color: '#efe6d2' } }, { white: { tex: 'm_bh_pastel', color: '#ecd6cf' } }],
+  house_60s: [{}, { beige: { tex: 'm_60_grey', color: '#b8b6b0' } }, { beige: { tex: 'm_60_stone', color: '#dccfb0' } }],
+  house_eclectic: [{}, { ochre: { tex: 'm_ecl_pink', color: '#e3a58f' }, shutterG: { color: '#3d5f86' } }, { ochre: { tex: 'm_ecl_blue', color: '#a9bccb' }, shutterG: { color: '#7a4b2c' } }],
+};
 
 // Тарантайка Лёвы: на ней он везёт Семёна с матрасом
 const LEVA_CAR = [
@@ -400,6 +421,8 @@ const ASSET_MANIFEST = (() => {
   out.push(...deadLater);
   // текстуры моделей — в самом конце
   for (const [file, title, desc] of MODEL_TEXTURES) out.push({ batch: 'modeltex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: `${MODEL_TEX_STYLE} ${desc}` });
+  // новости 12-го канала (js/news.js) — после текстур
+  for (const [file, title, desc] of NEWS_PORTRAITS) out.push({ batch: 'news', cat: 'portraits', file, title, kind: 'new', size: '1024x1024', prompt: `${ASSET_STYLE.portrait} ${desc}` });
   return out;
 })();
 
@@ -407,4 +430,4 @@ const ASSET_MANIFEST = (() => {
 const GEN_FILES = { textures: [], chars: [], vehicles: [], props: [], facades: [], portraits: [] };
 for (const a of ASSET_MANIFEST) GEN_FILES[a.cat].push(a.file);
 
-if (typeof module !== 'undefined') module.exports = { ASSET_MANIFEST, ASSET_STYLE, DAMAGE_STAGES };
+if (typeof module !== 'undefined') module.exports = { ASSET_MANIFEST, ASSET_STYLE, DAMAGE_STAGES, HOUSE_VARIANTS };

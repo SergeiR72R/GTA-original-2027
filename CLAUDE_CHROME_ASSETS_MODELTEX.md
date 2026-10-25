@@ -1,4 +1,4 @@
-# Задание для Claude в Chrome: текстуры 3D-моделей зданий (22)
+# Задание для Claude в Chrome: текстуры 3D-моделей зданий (28)
 
 > Откройте этот файл в боковой панели **Claude в Chrome** и скажите:
 > «Выполни задание из этого файла».
@@ -63,9 +63,9 @@
 
 ---
 
-# Список (22): № 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339
+# Список (28): № 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345
 
-## Текстуры (22)
+## Текстуры (28)
 
 ### 318. `textures/m_stone.png` — Текстура модели: Камень Яффо (известняк)
 
@@ -241,5 +241,53 @@ Seamless tileable texture of a building material for a stylized top-down crime g
 
 ```
 Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Clear turquoise fountain water surface with gentle ripples seen from above.
+```
+
+### 340. `textures/m_bh_cream.png` — Текстура модели: Баухауз: кремовая штукатурка
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Cream off-white lime plaster of a restored Tel Aviv Bauhaus building, smooth, warm tint, a few faint stains.
+```
+
+### 341. `textures/m_bh_pastel.png` — Текстура модели: Баухауз: пастельно-розовая штукатурка
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Pale pastel pink plaster of a renovated Bauhaus building in Tel Aviv, smooth and slightly sun-faded.
+```
+
+### 342. `textures/m_60_grey.png` — Текстура модели: Дом 60-х: серая «шуба»
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Grey rough pebble-dash / terrazzo-grit stucco of a 1960s Israeli apartment block, dusty, with dark streaks under the windows.
+```
+
+### 343. `textures/m_60_stone.png` — Текстура модели: Дом 60-х: облицовка иерусалимским камнем
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Beige Jerusalem-stone cladding panels in a regular grid, slightly worn, 1960s apartment block facade.
+```
+
+### 344. `textures/m_ecl_pink.png` — Текстура модели: Эклектика: лососевая штукатурка
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Aged salmon-pink lime plaster of a 1920s eclectic building in Florentin, patchy, with small cracks.
+```
+
+### 345. `textures/m_ecl_blue.png` — Текстура модели: Эклектика: серо-голубая штукатурка
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Aged pale blue-grey lime plaster of a 1920s eclectic building, faded and patchy, a few repaired spots.
 ```
 

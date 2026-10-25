@@ -911,8 +911,18 @@ const Missions = {
     Game.save();
     // следующая миссия без телефона позвонит только после разговора «после миссии»
     this.retry = 1e9;
-    if (m.def.after) {
-      setTimeout(() => { this.dialog = { lines: m.def.after, i: 0, done: () => this.afterNext(), title: '' }; Sound.play('phone', 0.6); }, 2500);
+    // разговор «после миссии», затем вечерние новости (js/news.js), потом — дальше по сюжету
+    const chain = [];
+    if (m.def.after) chain.push({ lines: m.def.after, title: '' });
+    if (m.def.news) chain.push({ lines: m.def.news, title: '12-й канал · вечерние новости', tv: true });
+    if (chain.length) {
+      const next = () => {
+        const c = chain.shift();
+        if (!c) { this.afterNext(); return; }
+        this.dialog = { lines: c.lines, i: 0, done: next, title: c.title, tv: c.tv };
+        Sound.play(c.tv ? 'ui' : 'phone', 0.6);
+      };
+      setTimeout(next, 2500);
       return;
     }
     this.afterNext();

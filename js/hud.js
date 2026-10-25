@@ -312,7 +312,7 @@ const HUD = {
       ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 3; ctx.strokeRect(px, py, ps, ps);
       tx = px + ps + 16;
     }
-    this.text(ctx, '☎ ' + who, tx, y + 30, 20, '#ffd23f');
+    this.text(ctx, (d.tv ? '📺 ' : '☎ ') + who, tx, y + 30, 20, '#ffd23f');
     if (d.i === 0) this.text(ctx, d.title, x + w - 18, y + 30, 16, '#9be15d', 'right');
     ctx.font = '18px "Trebuchet MS", "Segoe UI", sans-serif';
     ctx.fillStyle = '#fff'; ctx.textAlign = 'left';

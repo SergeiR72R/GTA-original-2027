@@ -1,8 +1,8 @@
-# Задание для Claude в Chrome: недостающие ассеты (64)
+# Задание для Claude в Chrome: недостающие ассеты (72)
 
 > Откройте этот файл в боковой панели **Claude в Chrome** и скажите:
 > «Выполни задание из этого файла».
-> Единое задание: всё, чего пока нет в игре (64) — «Фолькс» Лёвы, Текстура модели: Камень Яффо (известняк), Текстура модели: Светлый камень карнизов, Текстура модели: Бетон, Текстура модели: Белая штукатурка баухауза, Текстура модели: Бежевая штукатурка 1960-х, Текстура модели: Охра (эклектика), Текстура модели: Терракотовая штукатурка церкви, Текстура модели: Коричневая мозаика 1960-х, Текстура модели: Тёмное стекло фасада, Текстура модели: Синее стекло (Азриэли), Текстура модели: Металлические панели, Текстура модели: Черепица (сверху), Текстура модели: Патина купола, Текстура модели: Золото луковицы, Текстура модели: Синий купол со звёздами, Текстура модели: Ставни-«трисим», Текстура модели: Старая деревянная дверь, Текстура модели: Плоская крыша, Текстура модели: Граффити на бетоне, Текстура модели: Ржавый металл, Текстура модели: Красная краска по металлу, Текстура модели: Вода фонтана, у машин — со стадиями повреждений. Файл собирается автоматически.
+> Единое задание: всё, чего пока нет в игре (72) — «Фолькс» Лёвы, Текстура модели: Камень Яффо (известняк), Текстура модели: Светлый камень карнизов, Текстура модели: Бетон, Текстура модели: Белая штукатурка баухауза, Текстура модели: Бежевая штукатурка 1960-х, Текстура модели: Охра (эклектика), Текстура модели: Терракотовая штукатурка церкви, Текстура модели: Коричневая мозаика 1960-х, Текстура модели: Тёмное стекло фасада, Текстура модели: Синее стекло (Азриэли), Текстура модели: Металлические панели, Текстура модели: Черепица (сверху), Текстура модели: Патина купола, Текстура модели: Золото луковицы, Текстура модели: Синий купол со звёздами, Текстура модели: Ставни-«трисим», Текстура модели: Старая деревянная дверь, Текстура модели: Плоская крыша, Текстура модели: Граффити на бетоне, Текстура модели: Ржавый металл, Текстура модели: Красная краска по металлу, Текстура модели: Вода фонтана, Текстура модели: Баухауз: кремовая штукатурка, Текстура модели: Баухауз: пастельно-розовая штукатурка, Текстура модели: Дом 60-х: серая «шуба», Текстура модели: Дом 60-х: облицовка иерусалимским камнем, Текстура модели: Эклектика: лососевая штукатурка, Текстура модели: Эклектика: серо-голубая штукатурка, Портрет: Сергей Аусбендер, аналитик 12-го канала, Портрет: ведущая новостей Яэль, у машин — со стадиями повреждений. Файл собирается автоматически.
 
 ## Главное правило: имя файла
 
@@ -51,7 +51,7 @@
 
 ---
 
-# Список (64): № 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339
+# Список (72): № 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347
 
 ## Машины (4)
 
@@ -723,7 +723,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Текстуры (22)
+## Текстуры (28)
 
 ### 318. `textures/m_stone.png` — Текстура модели: Камень Яффо (известняк)
 
@@ -899,5 +899,72 @@ Seamless tileable texture of a building material for a stylized top-down crime g
 
 ```
 Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Clear turquoise fountain water surface with gentle ripples seen from above.
+```
+
+### 340. `textures/m_bh_cream.png` — Текстура модели: Баухауз: кремовая штукатурка
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Cream off-white lime plaster of a restored Tel Aviv Bauhaus building, smooth, warm tint, a few faint stains.
+```
+
+### 341. `textures/m_bh_pastel.png` — Текстура модели: Баухауз: пастельно-розовая штукатурка
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Pale pastel pink plaster of a renovated Bauhaus building in Tel Aviv, smooth and slightly sun-faded.
+```
+
+### 342. `textures/m_60_grey.png` — Текстура модели: Дом 60-х: серая «шуба»
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Grey rough pebble-dash / terrazzo-grit stucco of a 1960s Israeli apartment block, dusty, with dark streaks under the windows.
+```
+
+### 343. `textures/m_60_stone.png` — Текстура модели: Дом 60-х: облицовка иерусалимским камнем
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Beige Jerusalem-stone cladding panels in a regular grid, slightly worn, 1960s apartment block facade.
+```
+
+### 344. `textures/m_ecl_pink.png` — Текстура модели: Эклектика: лососевая штукатурка
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Aged salmon-pink lime plaster of a 1920s eclectic building in Florentin, patchy, with small cracks.
+```
+
+### 345. `textures/m_ecl_blue.png` — Текстура модели: Эклектика: серо-голубая штукатурка
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of a building material for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Aged pale blue-grey lime plaster of a 1920s eclectic building, faded and patchy, a few repaired spots.
+```
+
+
+## Портреты для звонков (2)
+
+### 346. `portraits/portrait_ausbender.png` — Портрет: Сергей Аусбендер, аналитик 12-го канала
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Head-and-shoulders caricature portrait for the phone-call dialog box of a satirical crime video game set in Tel Aviv: bold comic-book style, thick black ink outlines, flat cel shading, exaggerated proportions (big head, small shoulders, oversized nose and expressive eyebrows), the character looks toward the viewer at a slight three-quarter angle, flat solid single-color background with a subtle halftone dot pattern, square format, head and shoulders fill the frame. Funny and good-natured, never mean; exaggerate expression and props, not ethnic features. No text, no letters, no speech bubbles, no frame, no logos, no watermark. Sergey Ausbender, a self-confident TV political analyst in his 50s: receding hair combed back, reading glasses low on the nose, dark suit with a loosened tie, raised index finger and a know-it-all smirk, as if explaining something obvious and completely wrong. Background: dark blue TV studio with glowing screens.
+```
+
+### 347. `portraits/portrait_anchor.png` — Портрет: ведущая новостей Яэль
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Head-and-shoulders caricature portrait for the phone-call dialog box of a satirical crime video game set in Tel Aviv: bold comic-book style, thick black ink outlines, flat cel shading, exaggerated proportions (big head, small shoulders, oversized nose and expressive eyebrows), the character looks toward the viewer at a slight three-quarter angle, flat solid single-color background with a subtle halftone dot pattern, square format, head and shoulders fill the frame. Funny and good-natured, never mean; exaggerate expression and props, not ethnic features. No text, no letters, no speech bubbles, no frame, no logos, no watermark. Yael, an Israeli evening news anchor in her 30s: big glossy dark hair, red blouse, polite professional smile with one slightly raised eyebrow of disbelief. Background: dark blue TV studio with glowing screens.
 ```
 
