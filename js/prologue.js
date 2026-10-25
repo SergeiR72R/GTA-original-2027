@@ -422,7 +422,7 @@ const PR_CIVIC = staged({
         const side = walkNear(Math.floor(m.civic.x / TILE), Math.floor(m.civic.y / TILE));
         m.danis = Story.ped(m, side.x, side.y, { ai: 'idle', look: lookDanis(), hp: 200, name: DANIS });
         m.danis.mission = 'ally';
-        m.rcar = friendCar(Story.carOnRoad(m, m.civic, 70, 200, { type: 'suv', color: '#1b1b1b' }), ['none', '#1b1b1b']);
+        m.rcar = friendCar(Story.carOnRoad(m, m.civic, 70, 200, { type: 'suv', color: '#1b1b1b' }), ['suv_2', '#1b1b1b']);
         m.rcar.locked = true;
       },
       update(m, dt) {
@@ -446,7 +446,7 @@ const PR_CIVIC = staged({
         const side = walkNear(Math.floor(m.civic.x / TILE), Math.floor(m.civic.y / TILE));
         m.danis = Story.ped(m, side.x, side.y, { ai: 'idle', look: lookDanis(), hp: 200, name: DANIS });
         m.danis.mission = 'ally';
-        m.rcar = friendCar(Story.carOnRoad(m, m.civic, 70, 200, { type: 'suv', color: '#1b1b1b' }), ['none', '#1b1b1b']);
+        m.rcar = friendCar(Story.carOnRoad(m, m.civic, 70, 200, { type: 'suv', color: '#1b1b1b' }), ['suv_2', '#1b1b1b']);
         m.rcar.locked = true;
       },
       start(m) {
@@ -482,7 +482,7 @@ const PR_CIVIC = staged({
         m.danis = new Ped(c.x, c.y, { ai: 'idle', look: lookDanis(), hp: 100, name: DANIS });
         Story.own(m).peds.push(m.danis);
         Story.seat(m.danis, c);
-        m.rcar = friendCar(Story.carOnRoad(m, P.prRage, 200, 400, { type: 'suv', color: '#1b1b1b' }), ['none', '#1b1b1b']);
+        m.rcar = friendCar(Story.carOnRoad(m, P.prRage, 200, 400, { type: 'suv', color: '#1b1b1b' }), ['suv_2', '#1b1b1b']);
         m.rager = Story.driver(m, m.rcar, { ai: 'idle', look: Object.assign(Looks.civilian(), { shirt: '#263238', style: 'bald' }), hp: 50, name: RAGER });
         m.rcar.ai = 'scripted'; m.rcar.mission = 'target'; m.rcar.rams = 3; m.rcar.locked = true;
       },

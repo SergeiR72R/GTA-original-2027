@@ -939,8 +939,8 @@ const R3 = {
       const wheels = new THREE.Mesh(new THREE.BoxGeometry(bw + 2, 5, car.l * 0.8), new THREE.MeshLambertMaterial({ color: 0x151515 }));
       wheels.position.y = 3; grp.add(wheels);
     }
-    const head = new THREE.Mesh(new THREE.PlaneGeometry(car.w * 2.6, 170).rotateX(-Math.PI / 2), this.mats.headlights);
-    head.position.set(0, 1.5, -car.l / 2 - 85);
+    const head = new THREE.Mesh(new THREE.PlaneGeometry(car.w * 3.6, 200).rotateX(-Math.PI / 2), this.mats.headlights);
+    head.position.set(0, 1.5, -car.l / 2 - 96);
     grp.add(head);
     const o = { grp, body, cv, top, side, head, key: '', h };
     if (car.police || car.type === 'ambulance') {

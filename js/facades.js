@@ -666,15 +666,37 @@ const Facades = {
   },
 
   // Конус фар (смотрит вверх по холсту)
+  // Свет фар на асфальте (вид сверху, машина внизу текстуры): два мягких
+  // конуса с размытыми краями, которые дальше сливаются в общее пятно, и
+  // яркие пятна у самих фар. Считается по пикселям — без резких граней
   headlights() {
     if (this.cache.head) return this.cache.head;
-    const c = this.canvas(128, 256), g = c.getContext('2d');
-    for (const x of [44, 84]) {
-      const gr = g.createRadialGradient(x, 256, 0, x, 256, 240);
-      gr.addColorStop(0, 'rgba(255,240,200,0.9)'); gr.addColorStop(1, 'rgba(255,240,200,0)');
-      g.fillStyle = gr;
-      g.beginPath(); g.moveTo(x, 256); g.lineTo(x - 60, 0); g.lineTo(x + 60, 0); g.closePath(); g.fill();
+    const W = 128, H = 256, c = this.canvas(W, H), g = c.getContext('2d');
+    const img = g.createImageData(W, H), d = img.data;
+    const lamps = [W * 0.34, W * 0.66];
+    for (let y = 0; y < H; y++) {
+      const v = (H - y) / H; // 0 — у машины, 1 — дальний край
+      for (let x = 0; x < W; x++) {
+        let a = 0;
+        for (const lx of lamps) {
+          const dx = (x - lx) / W, dist = Math.hypot(dx, v);
+          const ang = Math.atan2(Math.abs(dx), v + 0.05);
+          const cone = Math.exp(-Math.pow(ang / 0.42, 2)); // мягкий край конуса
+          const fall = Math.pow(1 - Math.min(1, dist / 1.05), 1.6); // гаснет к дальнему краю
+          const hot = Math.exp(-Math.pow(dist / 0.12, 2)) * 0.6; // пятно у фары
+          a += cone * fall * 0.75 + hot;
+        }
+        // общая рассеянная засветка перед машиной
+        const ex = (x / W - 0.5) / 0.55, ey = (v - 0.25) / 0.45;
+        a += Math.exp(-(ex * ex + ey * ey)) * 0.18 * (1 - v);
+        // к краям текстуры свет гаснет до нуля — не видно прямоугольника
+        const ux = x / (W - 1), ew = Math.min(1, ux / 0.22, (1 - ux) / 0.22), ef = Math.min(1, (1 - v) / 0.15);
+        a = Math.min(1, a) * ew * ew * (3 - 2 * ew) * ef;
+        const i = (y * W + x) * 4;
+        d[i] = 255; d[i + 1] = 238; d[i + 2] = 200; d[i + 3] = Math.round(a * 255);
+      }
     }
+    g.putImageData(img, 0, 0);
     this.cache.head = c;
     return c;
   },
