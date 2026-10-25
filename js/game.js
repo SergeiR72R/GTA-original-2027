@@ -57,7 +57,7 @@ const Clock = {
   },
   text() {
     const h = Math.floor(this.hour), m = Math.floor(this.min % 60);
-    return `${DAYS[this.day]} ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    return `${T(DAYS[this.day])} ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
   },
 };
 
@@ -130,7 +130,7 @@ const Game = {
       if (e.code === 'Escape' && !Shops.open) this.togglePause();
       if (e.code === 'KeyM') Sound.toggleMute();
       if ((e.code === 'F3' || e.code === 'KeyP') && this.gl) { e.preventDefault(); this.showPerf = !this.showPerf; }
-      if (e.code === 'KeyO' && this.gl && this.state !== 'title') this.message('Качество графики: ' + R3.cycleQuality(), 3);
+      if (e.code === 'KeyO' && this.gl && this.state !== 'title') this.message(T('Качество графики: {0}', R3.cycleQuality()), 3);
       if (e.code === 'KeyV' && this.gl && this.state === 'play') { this.topDown = !this.topDown; this.message(this.topDown ? 'Камера: строго сверху' : 'Камера: с наклоном — видно фасады', 2); }
     });
     window.addEventListener('keyup', (e) => { this.keys[e.code] = false; });
@@ -375,7 +375,7 @@ const Game = {
     if (!best) return;
     // бандиты не отдают машину — выходят и стреляют
     if (best.gang && best.driver && best.driver !== 'player') {
-      if (best.turf) { GangCars.angry(best); Factions.change(best.turf, -8, true); Wanted.crime('carjack', pl.x, pl.y); Game.message(FACTIONS[best.turf].short + ': «Это наша тачка!»', 2.5); }
+      if (best.turf) { GangCars.angry(best); Factions.change(best.turf, -8, true); Wanted.crime('carjack', pl.x, pl.y); Game.message(T('{0}: «Это наша тачка!»', T(FACTIONS[best.turf].short)), 2.5); }
       GangCars.exit(best);
     }
     if (best.driver && best.driver !== 'player') {

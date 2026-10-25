@@ -348,16 +348,16 @@ const Sound = {
   // 1915–1925 гг., общественное достояние. Авторы и лицензии — assets/radio/CREDITS.txt.
   // Добавить песню: файл в assets/radio/ и строка сюда
   SONGS: [
-    { list: 'new', file: 'suno_avak_rock', title: '«Пыль дорог» (אבק הדרכים)', who: 'Хамсин FM, рок-версия' },
-    { list: 'new', file: 'suno_avak_mizrahi', title: '«Пыль дорог» (אבק הדרכים)', who: 'Хамсин FM, мизрахи-кантри' },
-    { list: 'new', file: 'rosenfeld_jeans', title: '«Ба-джинс ве-сандалим» (בג׳ינס וסנדלים)', who: 'Ави Розенфельд, 2010' },
-    { list: 'new', file: 'rosenfeld_hayam', title: '«Ха-ям» (הים)', who: 'Ави Розенфельд, 2010' },
-    { list: 'new', file: 'rosenfeld_ahava', title: '«Ха-ахава шели» (האהבה שלי)', who: 'Ави Розенфельд, 2012' },
-    { list: 'old', file: 'nes_ziona', title: '«Нес Циона» (נס ציונה)', who: 'Яков Медведев, 1916' },
-    { list: 'old', file: 'shir_avoda', title: '«Шир ха-авода» (שיר העבודה)', who: 'Яков Медведев, 1916' },
-    { list: 'old', file: 'ahavat_raya', title: '«Ахават рая» (אהבת רעיה)', who: 'Мордехай Гершман, 1923' },
-    { list: 'old', file: 'talmidei_hachamim', title: '«Талмидей хахамим» (תלמידי חכמים)', who: 'Давид Ройтман, 1925' },
-    { list: 'old', file: 'hatikva', title: '«Ха-Тиква» (התקווה)', who: 'Мейер Каневский, 1915' },
+    { list: 'new', file: 'suno_avak_rock', title: '«Пыль дорог» (אבק הדרכים)', who: 'Хамсин FM, рок-версия', he: 'אבק הדרכים — חמסין FM, גרסת רוק' },
+    { list: 'new', file: 'suno_avak_mizrahi', title: '«Пыль дорог» (אבק הדרכים)', who: 'Хамсин FM, мизрахи-кантри', he: 'אבק הדרכים — חמסין FM, גרסה מזרחית־קאנטרי' },
+    { list: 'new', file: 'rosenfeld_jeans', title: '«Ба-джинс ве-сандалим» (בג׳ינס וסנדלים)', who: 'Ави Розенфельд, 2010', he: 'בג׳ינס וסנדלים — אבי רוזנפלד, 2010' },
+    { list: 'new', file: 'rosenfeld_hayam', title: '«Ха-ям» (הים)', who: 'Ави Розенфельд, 2010', he: 'הים — אבי רוזנפלד, 2010' },
+    { list: 'new', file: 'rosenfeld_ahava', title: '«Ха-ахава шели» (האהבה שלי)', who: 'Ави Розенфельд, 2012', he: 'האהבה שלי כלפייך — אבי רוזנפלד, 2012' },
+    { list: 'old', file: 'nes_ziona', title: '«Нес Циона» (נס ציונה)', who: 'Яков Медведев, 1916', he: 'נס ציונה — יעקב מדבדב, 1916' },
+    { list: 'old', file: 'shir_avoda', title: '«Шир ха-авода» (שיר העבודה)', who: 'Яков Медведев, 1916', he: 'שיר העבודה — יעקב מדבדב, 1916' },
+    { list: 'old', file: 'ahavat_raya', title: '«Ахават рая» (אהבת רעיה)', who: 'Мордехай Гершман, 1923', he: 'אהבת רעיה — מרדכי הרשמן, 1923' },
+    { list: 'old', file: 'talmidei_hachamim', title: '«Талмидей хахамим» (תלמידי חכמים)', who: 'Давид Ройтман, 1925', he: 'תלמידי חכמים — דוד רויטמן, 1925' },
+    { list: 'old', file: 'hatikva', title: '«Ха-Тиква» (התקווה)', who: 'Мейер Каневский, 1915', he: 'התקווה — מאיר קנבסקי, 1915' },
   ],
   // станции по кругу (R): песни списка list, синтезатор или тишина
   STATIONS: [
@@ -425,7 +425,7 @@ const Sound = {
       if (songOn && !S.shown && !S.el.paused && S.el.currentTime > 0.2) {
         S.shown = true;
         const t = S.songs[S.order[S.k]];
-        Game.message(`📻 ${t.title} — ${t.who}`, 4);
+        Game.message(I18N.he && t.he ? `📻 ${t.he}` : `📻 ${t.title} — ${t.who}`, 4);
       }
     }
     // восточный ритм — только на своей станции

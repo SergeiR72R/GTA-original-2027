@@ -32,9 +32,9 @@ const Factions = {
     if (!(f in this.rep)) return;
     const was = this.rep[f];
     this.rep[f] = clamp(this.rep[f] + n, -100, 100);
-    if (!silent && Math.abs(n) >= 10) Game.message(`${FACTIONS[f].name}: ${n > 0 ? '+' : ''}${n} к уважению`, 3);
-    if (was > -25 && this.rep[f] <= -25) Game.message(`${FACTIONS[f].name} теперь стреляют в тебя без разговоров!`, 4);
-    if (was < 25 && this.rep[f] >= 25) Game.message(`${FACTIONS[f].name} считают тебя своим.`, 4);
+    if (!silent && Math.abs(n) >= 10) Game.message(T('{0}: {1}{2} к уважению', T(FACTIONS[f].name), n > 0 ? '+' : '', n, Math.abs(n) + (n > 0 ? '+' : '-')), 3);
+    if (was > -25 && this.rep[f] <= -25) Game.message(T('{0} теперь стреляют в тебя без разговоров!', T(FACTIONS[f].name)), 4);
+    if (was < 25 && this.rep[f] >= 25) Game.message(T('{0} считают тебя своим.', T(FACTIONS[f].name)), 4);
   },
 
   hostile(f) {

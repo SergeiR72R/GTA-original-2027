@@ -22,6 +22,8 @@ const HUD = {
   },
 
   text(ctx, s, x, y, size, color, align = 'left', weight = 'bold') {
+    s = T(s);
+    ctx.direction = hasHebrew(s) ? 'rtl' : 'ltr';
     ctx.font = `${weight} ${size}px "Trebuchet MS", "Segoe UI", sans-serif`;
     ctx.textAlign = align;
     ctx.textBaseline = 'alphabetic';
@@ -59,10 +61,10 @@ const HUD = {
     this.text(ctx, '❤ ' + Math.ceil(Math.max(0, pl.hp)) + (pl.armor > 0 ? '  🛡 ' + Math.ceil(pl.armor) : ''), 22, 54, 18, '#fff');
     const w = pl.weapon || 'fists';
     const ammo = WEAPONS[w].melee ? '' : ' × ' + (pl.ammo[w] || 0);
-    this.text(ctx, WEAPONS[w].name + ammo, 22, 78, 18, '#ffe082');
+    this.text(ctx, T(WEAPONS[w].name) + ammo, 22, 78, 18, '#ffe082');
     if (pl.car) {
       const kmh = Math.round(pl.car.speed * 0.36);
-      this.text(ctx, kmh + ' км/ч', 22, 102, 18, '#b3e5fc');
+      this.text(ctx, kmh + T(' км/ч'), 22, 102, 18, '#b3e5fc');
       const hp = pl.car.hp / pl.car.maxHp;
       ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(18, 110, 104, 10);
       ctx.fillStyle = hp > 0.4 ? '#90caf9' : '#ff8a65'; ctx.fillRect(20, 112, 100 * hp, 6);
@@ -76,11 +78,11 @@ const HUD = {
       ctx.globalAlpha = clamp(this.districtT, 0, 1);
       this.text(ctx, this.district, vw / 2, 52, 30, '#fff3c4', 'center');
       // чья это земля
-      if (this.turf) this.text(ctx, 'территория: ' + FACTIONS[this.turf].name, vw / 2, 78, 17, FACTIONS[this.turf].turf, 'center');
+      if (this.turf) this.text(ctx, T('территория: ') + T(FACTIONS[this.turf].name), vw / 2, 78, 17, FACTIONS[this.turf].turf, 'center');
       ctx.globalAlpha = 1;
     }
     const st = pl.car ? City.streetAt(pl.x, pl.y) : null;
-    if (st) this.text(ctx, 'ул. ' + st, vw / 2, this.districtT > 0 ? (this.turf ? 102 : 80) : 40, 16, '#e0e0e0', 'center', 'normal');
+    if (st) this.text(ctx, T('ул. ') + T(st), vw / 2, this.districtT > 0 ? (this.turf ? 102 : 80) : 40, 16, '#e0e0e0', 'center', 'normal');
 
     this.drawMinimap(ctx, vw, vh);
     this.drawObjective(ctx, vw, vh);
@@ -175,7 +177,7 @@ const HUD = {
 
   // Часы, день недели, температура
   drawClock(ctx, vw) {
-    const s = Clock.text() + '  ' + Clock.temp + '°C' + (Clock.shabbat ? '  🕯 Шаббат' : '') + (Clock.hamsin ? '  🌪 Хамсин' : '');
+    const s = Clock.text() + '  ' + Clock.temp + '°C' + (Clock.shabbat ? T('  🕯 Шаббат') : '') + (Clock.hamsin ? T('  🌪 Хамсин') : '');
     this.text(ctx, s, vw - 20, 108, 16, Clock.hamsin ? '#ffcc80' : '#e3f2fd', 'right', 'normal');
   },
 
@@ -287,7 +289,7 @@ const HUD = {
     const p = Story.prompt;
     if (!p || Missions.dialog) return;
     const w = 260, x = (vw - w) / 2, y = vh * 0.62;
-    this.text(ctx, p.plain || p.label.startsWith('📷') ? p.label : 'Держи E — ' + p.label, vw / 2, y - 8, 18, '#fff', 'center');
+    this.text(ctx, p.plain || p.label.startsWith('📷') ? p.label : T('Держи E — ') + p.label, vw / 2, y - 8, 18, '#fff', 'center');
     if (p.plain) return;
     ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(x, y, w, 10);
     ctx.fillStyle = '#ffd23f'; ctx.fillRect(x + 1, y + 1, (w - 2) * p.k, 8);

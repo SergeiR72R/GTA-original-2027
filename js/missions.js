@@ -859,7 +859,7 @@ const Missions = {
     const m = { def, text: '', target: null, timer: null };
     def.start(m);
     this.active = m;
-    Game.bigText(def.title, def.sub || 'Миссия ' + (this.index + 1) + ' из ' + MISSIONS.length);
+    Game.bigText(def.title, def.sub || T('Миссия {0} из {1}', this.index + 1, MISSIONS.length));
   },
 
   fail(reason) {
@@ -936,7 +936,7 @@ const Missions = {
       this.retry = 4;
     } else {
       const def = MISSIONS[this.index];
-      setTimeout(() => Game.message(`☎ Звонит телефон-автомат${def.giver ? ' — ' + def.giver : ''}. Ищи жёлтую стрелку`), 3500);
+      setTimeout(() => Game.message(T('☎ Звонит телефон-автомат{0}. Ищи жёлтую стрелку', def.giver ? ' — ' + def.giver : '')), 3500);
     }
   },
 

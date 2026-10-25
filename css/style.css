@@ -105,8 +105,8 @@ button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
   color: #ddd;
   background: rgba(0, 0, 0, 0.45);
   padding: 10px 16px;
-  border-left: 3px solid #ffd23f;
-  text-align: left;
+  border-inline-start: 3px solid #ffd23f;
+  text-align: start;
 }
 
 /* ---- логотип: эмблема с надписью на ленте (js/brand.js) ---- */
@@ -149,3 +149,21 @@ button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
 @keyframes spin { to { transform: rotate(360deg); } }
 #loading.has-art { z-index: 10; transition: opacity 0.8s; }
 #loading.fade { opacity: 0; pointer-events: none; }
+
+/* ---- выбор языка (js/i18n.js): крупные кнопки с флажками на титульном экране и в паузе ---- */
+.lang { display: flex; gap: 12px; justify-content: center; margin-bottom: 14px; direction: ltr; }
+.lang button {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 18px; padding: 8px 18px 8px 12px; text-transform: none;
+  background: rgba(20, 14, 6, 0.75); color: #ffe9b0; border: 3px solid #ffd23f; box-shadow: 3px 3px 0 #000;
+}
+.lang button svg { width: 34px; height: 23px; border: 1px solid rgba(0, 0, 0, 0.5); border-radius: 2px; flex: none; }
+.lang button:hover { background: rgba(60, 42, 10, 0.9); }
+.lang button.on { background: #ffd23f; color: #000; }
+#title .lang button { font-size: 20px; padding: 10px 22px 10px 14px; }
+#title .lang button svg { width: 40px; height: 27px; }
+#pause .lang { margin: 10px 0 4px; }
+/* иврит: шрифт с хорошей кириллицей и ивритом */
+html[lang="he"] body { font-family: "Segoe UI", "Arial Hebrew", Arial, "Noto Sans Hebrew", sans-serif; }
+#game { direction: ltr; }
+#loading.has-art .status .sub + .sub { margin-top: 2px; font-size: clamp(16px, 2.4vw, 24px); }

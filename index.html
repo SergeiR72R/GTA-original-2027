@@ -12,61 +12,71 @@
 
   <div id="loading" class="overlay">
     <div class="art"></div><div class="art"></div>
-    <div class="brand"><img class="emblem" alt=""><div class="logo">ХАМСИН</div></div>
+    <div class="brand"><img class="emblem" alt=""><div class="logo" data-t>ХАМСИН</div></div>
     <div class="status">
-      <div class="sub"><span class="spin"></span>загрузка города…</div>
+      <div class="sub"><span class="spin"></span><span dir="ltr">загрузка города…</span></div>
+      <div class="sub" dir="rtl">טוען את העיר…</div>
       <div class="bar"><div id="loadbar"></div></div>
     </div>
   </div>
 
   <div id="title" class="overlay hidden">
-    <div class="brand"><img class="emblem" alt=""><div class="logo">ХАМСИН</div></div>
-    <div class="sub">Часть 1 · Тель-Авив</div>
-    <p class="story">
+    <div class="lang" role="group" aria-label="Язык / שפה">
+      <button data-lang="ru"><svg viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#fff"/><rect y="6.67" width="30" height="6.67" fill="#0039a6"/><rect y="13.33" width="30" height="6.67" fill="#d52b1e"/></svg>Русский</button>
+      <button data-lang="he"><svg viewBox="0 0 30 22" aria-hidden="true"><rect width="30" height="22" fill="#fff"/><rect y="2.2" width="30" height="3.3" fill="#0038b8"/><rect y="16.5" width="30" height="3.3" fill="#0038b8"/><g fill="none" stroke="#0038b8" stroke-width="1.1"><path d="M15 6.2l3.9 6.8h-7.8z"/><path d="M15 15.8l3.9-6.8h-7.8z"/></g></svg>עברית</button>
+    </div>
+    <div class="brand"><img class="emblem" alt=""><div class="logo" data-t>ХАМСИН</div></div>
+    <div class="sub" data-t>Часть 1 · Тель-Авив</div>
+    <p class="story" data-th="story">
       Лёва Гольдман три дня назад прилетел из Петербурга по программе репатриации.
       Съёмная «дира» во Флорентине, ₪&nbsp;500 в кармане, иврит на уровне «беседер»
       и хозяин квартиры, который хочет залог и двенадцать чеков вперёд.
       Лёва берётся за любую работу: доставка еды, такси… а потом и работа посерьёзнее.
     </p>
     <div class="buttons">
-      <button id="btn-continue">Продолжить</button>
-      <button id="btn-new">Новая игра</button>
+      <button id="btn-continue" data-t>Продолжить</button>
+      <button id="btn-new" data-t>Новая игра</button>
     </div>
     <div class="controls">
-      <div><b>Пешком:</b> WASD/стрелки — идти · мышь или пробел/Ctrl — стрелять · Q/Tab или 1–8 — оружие · F/Enter — сесть в машину</div>
-      <div><b>За рулём:</b> W/S — газ/тормоз · A/D — руль · пробел — ручник · H — сигнал · R — радио · F — выйти</div>
-      <div><b>Подработка:</b> J — смена «Шмоне-Бис» на скутере или работа в такси · Esc — пауза · M — звук · V — камера</div>
-      <div><b>Графика:</b> O — качество (авто/высокое/среднее/низкое) · F3 — FPS и видеокарта</div>
+      <div data-th="c1"><b>Пешком:</b> WASD/стрелки — идти · мышь или пробел/Ctrl — стрелять · Q/Tab или 1–8 — оружие · F/Enter — сесть в машину</div>
+      <div data-th="c2"><b>За рулём:</b> W/S — газ/тормоз · A/D — руль · пробел — ручник · H — сигнал · R — радио · F — выйти</div>
+      <div data-th="c3"><b>Подработка:</b> J — смена «Шмоне-Бис» на скутере или работа в такси · Esc — пауза · M — звук · V — камера</div>
+      <div data-th="c4"><b>Графика:</b> O — качество (авто/высокое/среднее/низкое) · F3 — FPS и видеокарта</div>
     </div>
   </div>
 
   <div id="pause" class="overlay hidden">
-    <div class="logo small">ПАУЗА</div>
-    <div class="controls">
-      <div><b>Пешком:</b> WASD/стрелки — идти, Shift — шагом · мышь (ЛКМ) или пробел/Ctrl — стрелять/бить · Q/Tab или 1–8 — оружие · F/Enter — сесть в машину (угнать)</div>
-      <div><b>За рулём:</b> W/S — газ/тормоз/задний ход · A/D — руль · пробел — ручник · H — сигнал · R — радио · F/Enter — выйти</div>
-      <div><b>Оружие:</b> магазин «Шломо и сыновья» у Флорентина и склад Рафи в порту — оранжевые ромбы на миникарте</div>
-      <div><b>Розыск:</b> уйди из поля зрения полиции или перекрась машину в мастерской во Флорентине (₪&nbsp;500)</div>
-      <div><b>Миссии:</b> иди к звонящему телефону-автомату ☎ — жёлтая стрелка покажет дорогу</div>
-      <div><b>Подработка:</b> на скутере «Шмоне-Бис» (оранжевый короб) или в такси нажми J</div>
-      <div><b>Фракции:</b> бригада «Одесса» (Рамат-Ган), клан Аль-Бахар (Яффо), «Львы Гондэра» (юг города). Уважение ниже −25 — стреляют без разговоров, выше +25 — свои</div>
+    <div class="logo small" data-t>ПАУЗА</div>
+    <div class="lang" role="group" aria-label="Язык / שפה">
+      <button data-lang="ru"><svg viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#fff"/><rect y="6.67" width="30" height="6.67" fill="#0039a6"/><rect y="13.33" width="30" height="6.67" fill="#d52b1e"/></svg>Русский</button>
+      <button data-lang="he"><svg viewBox="0 0 30 22" aria-hidden="true"><rect width="30" height="22" fill="#fff"/><rect y="2.2" width="30" height="3.3" fill="#0038b8"/><rect y="16.5" width="30" height="3.3" fill="#0038b8"/><g fill="none" stroke="#0038b8" stroke-width="1.1"><path d="M15 6.2l3.9 6.8h-7.8z"/><path d="M15 15.8l3.9-6.8h-7.8z"/></g></svg>עברית</button>
     </div>
-    <div class="buttons"><button id="btn-resume">Продолжить</button></div>
+    <div class="controls">
+      <div data-th="p1"><b>Пешком:</b> WASD/стрелки — идти, Shift — шагом · мышь (ЛКМ) или пробел/Ctrl — стрелять/бить · Q/Tab или 1–8 — оружие · F/Enter — сесть в машину (угнать)</div>
+      <div data-th="p2"><b>За рулём:</b> W/S — газ/тормоз/задний ход · A/D — руль · пробел — ручник · H — сигнал · R — радио · F/Enter — выйти</div>
+      <div data-th="p3"><b>Оружие:</b> магазин «Шломо и сыновья» у Флорентина и склад Рафи в порту — оранжевые ромбы на миникарте</div>
+      <div data-th="p4"><b>Розыск:</b> уйди из поля зрения полиции или перекрась машину в мастерской во Флорентине (₪&nbsp;500)</div>
+      <div data-th="p5"><b>Миссии:</b> иди к звонящему телефону-автомату ☎ — жёлтая стрелка покажет дорогу</div>
+      <div data-th="p6"><b>Подработка:</b> на скутере «Шмоне-Бис» (оранжевый короб) или в такси нажми J</div>
+      <div data-th="p7"><b>Фракции:</b> бригада «Одесса» (Рамат-Ган), клан Аль-Бахар (Яффо), «Львы Гондэра» (юг города). Уважение ниже −25 — стреляют без разговоров, выше +25 — свои</div>
+    </div>
+    <div class="buttons"><button id="btn-resume" data-t>Продолжить</button></div>
   </div>
 
   <div id="end" class="overlay hidden">
-    <div class="logo small">ГЛАВА 1 ПРОЙДЕНА</div>
-    <p class="story">
+    <div class="logo small" data-t>ГЛАВА 1 ПРОЙДЕНА</div>
+    <p class="story" data-th="end">
       «Одесса» стала врагом, Карим дома у дяди, а «Али» думает, что Лёва работает на него.
       Ночь у ворот гаража Ицика: фургон без номеров, мешок на голову…
       На счету у Лёвы <span id="end-money"></span>. Иврит всё ещё на уровне «беседер».
     </p>
-    <div class="sub">Глава 2 «Аль-Бахар» — скоро</div>
-    <div class="buttons"><button id="btn-free">Свободная игра</button></div>
+    <div class="sub" data-t>Глава 2 «Аль-Бахар» — скоро</div>
+    <div class="buttons"><button id="btn-free" data-t>Свободная игра</button></div>
   </div>
 
   <script src="vendor/three.min.js"></script>
   <script src="js/util.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/asset-manifest.js"></script>
   <script src="assets/gen/bundle.js"></script>
   <script src="js/brand.js"></script>

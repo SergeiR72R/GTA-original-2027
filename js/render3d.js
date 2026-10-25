@@ -246,7 +246,7 @@ const R3 = {
 
   cycleQuality() {
     this.setMode(QUALITY_ORDER[(QUALITY_ORDER.indexOf(this.mode) + 1) % QUALITY_ORDER.length]);
-    return this.mode === 'auto' ? `авто (${QUALITY[this.autoLevel].name})` : QUALITY[this.mode].name;
+    return this.mode === 'auto' ? T('авто ({0})', T(QUALITY[this.autoLevel].name)) : T(QUALITY[this.mode].name);
   },
 
   // Заранее компилируем шейдеры для «дня» и «ночи», чтобы переход не давал рывка

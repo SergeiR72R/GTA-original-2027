@@ -92,7 +92,7 @@ const Jobs = {
       f.fare = false; f.ai = 'walk';
     }
     this.active = null; this.order = null;
-    Game.message(why + ` · рейтинг ${this.stars().toFixed(1)}★`, 4);
+    Game.message(T('{0} · рейтинг {1}★', T(why), this.stars().toFixed(1)), 4);
   },
 
   randomAddress(minD, maxD) {
@@ -137,7 +137,7 @@ const Jobs = {
       const d = dist(pl.x, pl.y, addr.x, addr.y);
       o.stage = 'drop'; o.target = addr; o.timer = Math.round(d / 160 + 22); o.total = o.timer;
       Sound.play('door', 0.5);
-      Game.message(`Забрал ${o.rest.dish}. Вези клиенту, ${City.districtAt(addr.x, addr.y)}`, 4);
+      Game.message(T('Забрал {0}. Вези клиенту, {1}', T(o.rest.dish), T(City.districtAt(addr.x, addr.y))), 4);
     } else {
       const tip = Math.round(25 * clamp(o.timer / o.total, 0, 1));
       const stars = tip > 15 ? 5 : tip > 8 ? 4 : 3;
@@ -175,7 +175,7 @@ const Jobs = {
         const dest = this.randomAddress(1000, 2800);
         const d = dist(pl.x, pl.y, dest.x, dest.y);
         o.stage = 'ride'; o.target = dest; o.timer = Math.round(d / 190 + 25); o.total = o.timer; o.fareSum = Math.round(d / 18);
-        Game.message(`Пассажир: «${pick(TAXI_LINES)}»`, 6);
+        Game.message(T('Пассажир: «{0}»', pick(TAXI_LINES)), 6);
       }
     } else if (o.stage === 'ride') {
       o.timer -= dt;
@@ -189,7 +189,7 @@ const Jobs = {
         this.rating.push(o.late ? 2 : 5);
         Game.addMoney(pay);
         Sound.play('coins', 0.7); Sound.play('jJob', 0.5);
-        Game.message(`Поездка оплачена: +₪${pay}`, 3);
+        Game.message(T('Поездка оплачена: +₪{0}', pay), 3);
         this.order = null;
       }
     }
@@ -205,11 +205,11 @@ const Jobs = {
     const o = this.order;
     if (this.active === 'delivery') {
       if (!o) return '«Шмоне-Бис»: ждём заказ…';
-      if (o.stage === 'pickup') return `«Шмоне-Бис»: забери заказ — ${o.rest.name}`;
-      return `«Шмоне-Бис»: доставь ${o.rest.dish}   ⏱ ${Math.max(0, Math.ceil(o.timer))}`;
+      if (o.stage === 'pickup') return T('«Шмоне-Бис»: забери заказ — {0}', T(o.rest.name));
+      return T('«Шмоне-Бис»: доставь {0}   ⏱ {1}', T(o.rest.dish), Math.max(0, Math.ceil(o.timer)));
     }
     if (!o) return 'Такси: ищем пассажира…';
     if (o.stage === 'wait' || o.stage === 'board') return 'Такси: подбери пассажира (жёлтая метка), остановись рядом';
-    return `Такси: вези пассажира   ⏱ ${Math.max(0, Math.ceil(o.timer))}`;
+    return T('Такси: вези пассажира   ⏱ {0}', Math.max(0, Math.ceil(o.timer)));
   },
 };
