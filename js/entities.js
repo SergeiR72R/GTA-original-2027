@@ -788,7 +788,7 @@ class Ped {
     if (sees && hostile) this.alert = 6;
     if (this.alert <= 0 && !hostile && d < 110 && this.faction && Factions.rep[this.faction] >= 25 && World.time - (this.greetT || -99) > 30) {
       this.greetT = World.time;
-      Game.message(FACTIONS[this.faction].short + ': ' + pick(GREETINGS[this.faction]), 2.5);
+      Game.message(T(FACTIONS[this.faction].short) + ': ' + T(pick(GREETINGS[this.faction])), 2.5);
     }
     if (this.alert > 0) {
       this.alert -= dt;
@@ -1240,7 +1240,7 @@ class Pickup {
         Sound.play('belt', 0.7); Sound.play('latch', 0.5);
         pl.ammo[this.kind] = (pl.ammo[this.kind] || 0) + this.ammo;
         pl.weapon = this.kind;
-        Game.message(WEAPONS[this.kind].name + (WEAPONS[this.kind].melee ? '' : ' +' + this.ammo));
+        Game.message(T(WEAPONS[this.kind].name) + (WEAPONS[this.kind].melee ? '' : I18N.he ? ' ' + this.ammo + '+' : ' +' + this.ammo));
       }
       Sound.play('pickup', 0.7);
       this.active = false;
