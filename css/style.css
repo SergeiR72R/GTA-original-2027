@@ -109,20 +109,11 @@ button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
   text-align: start;
 }
 
-/* ---- логотип: эмблема с надписью на ленте (js/brand.js) ---- */
+/* ---- логотип: картинка с надписью на ленте (js/brand.js); без неё — текст ---- */
 .brand { --w: min(400px, 70vw, 52vh); position: relative; }
 .brand .emblem { display: none; }
 .brand.has-emblem .emblem { display: block; width: var(--w); filter: drop-shadow(6px 8px 0 rgba(0, 0, 0, 0.55)); }
-.brand.has-emblem .logo {
-  position: absolute;
-  left: 13%; right: 13%; top: 58%; height: 21%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: calc(var(--w) * 0.125);
-  letter-spacing: 0.06em;
-  color: #c8371a;
-  -webkit-text-stroke: calc(var(--w) * 0.004) #1b0d05;
-  text-shadow: calc(var(--w) * 0.008) calc(var(--w) * 0.008) 0 #1b0d05;
-}
+.brand.has-emblem .logo { display: none; }
 #title .brand { --w: min(360px, 66vw, 40vh); }
 
 /* ---- экран загрузки в духе GTA V: заставка во весь экран, логотип и полоска внизу ---- */

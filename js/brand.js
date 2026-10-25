@@ -1,6 +1,7 @@
 // Логотип и экран загрузки в духе GTA V: заставки с героями (ui/loading_*)
-// сменяются, пока грузится город; эмблема (ui/logo_emblem) — с надписью
-// «ХАМСИН» на ленте (текст рисует игра). Картинок нет — остаётся текстовый логотип.
+// сменяются, пока грузится город. Логотип — готовая картинка с надписью на
+// ленте (assets/brand/logo_ru|he.webp, tools/logo/make_logo.py), по языку.
+// Картинки нет — остаётся текстовый логотип.
 // Подключается сразу после bundle.js, чтобы заставка появилась как можно раньше.
 'use strict';
 
@@ -11,11 +12,7 @@ const Brand = {
 
   init() {
     const B = window.GEN_BUNDLE || {};
-    const emblem = B['ui/logo_emblem'];
-    if (emblem) for (const el of document.querySelectorAll('.brand')) {
-      el.querySelector('.emblem').src = emblem;
-      el.classList.add('has-emblem');
-    }
+    this.setLang();
     this.arts = Object.keys(B).filter((k) => k.startsWith('ui/loading_')).map((k) => B[k]);
     if (!this.arts.length) return;
     document.getElementById('loading').classList.add('has-art');
@@ -29,6 +26,18 @@ const Brand = {
       this.show(next);
       cur.classList.remove('on');
     }, 5000);
+  },
+
+  // логотип на языке игры; если картинка не загрузилась — текстовый
+  setLang() {
+    const src = `assets/brand/logo_${typeof I18N !== 'undefined' && I18N.he ? 'he' : 'ru'}.webp`;
+    for (const el of document.querySelectorAll('.brand')) {
+      const img = el.querySelector('.emblem');
+      if (img.getAttribute('src') === src) continue;
+      img.onload = () => el.classList.add('has-emblem');
+      img.onerror = () => el.classList.remove('has-emblem');
+      img.src = src;
+    }
   },
 
   show(el) {

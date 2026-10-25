@@ -217,6 +217,7 @@ const I18N = {
       if (keep !== null) document.getElementById('end-money').textContent = keep;
     }
     for (const b of document.querySelectorAll('.lang button')) b.classList.toggle('on', b.dataset.lang === this.lang);
+    if (typeof Brand !== 'undefined') Brand.setLang();
   },
 };
 
