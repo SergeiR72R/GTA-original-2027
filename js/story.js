@@ -143,7 +143,7 @@ const Story = {
     if (m.holds[key] === 'done') return true;
     const r = opts.r || 56;
     // подъехал на машине к месту, где нужно выйти, — подсказка
-    if (!opts.car && pl.car && !pl.dead && dist(pl.x, pl.y, p.x, p.y) < r * 2.5) this.prompt = { label: 'Выйди из машины (F), чтобы ' + label, k: 0, plain: true };
+    if (!opts.car && pl.car && !pl.dead && dist(pl.x, pl.y, p.x, p.y) < r * 2.5) this.prompt = { label: T('Выйди из машины (F), чтобы {0}', T(label)), k: 0, plain: true };
     const ok = !pl.dead && (opts.car ? !!pl.car : !pl.car) && dist(pl.x, pl.y, p.x, p.y) < r;
     if (!ok) { if (m.holds[key]) m.holds[key] = Math.max(0, m.holds[key] - this.dt); return false; }
     const k = (m.holds[key] || 0) + (Game.key('KeyE') || Game.autoHold ? this.dt : 0);

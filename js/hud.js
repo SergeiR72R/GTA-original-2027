@@ -149,7 +149,7 @@ const HUD = {
     const m = Missions.active;
     if (m) {
       const t = m.timer !== null && m.timer !== undefined ? '   ⏱ ' + Math.max(0, Math.ceil(m.timer)) : '';
-      this.text(ctx, m.text + t, vw / 2, vh - 28, 20, '#ffe082', 'center');
+      this.text(ctx, T(m.text) + t, vw / 2, vh - 28, 20, '#ffe082', 'center');
     } else if (Missions.phonePlace()) {
       this.text(ctx, '☎ Звонит телефон-автомат', vw / 2, vh - 28, 18, '#ffe082', 'center');
     }
@@ -208,12 +208,16 @@ const HUD = {
     const x = vw - 260, y = vh - 130;
     ctx.fillStyle = 'rgba(0,60,50,0.88)'; ctx.fillRect(x, y, 244, 112);
     ctx.strokeStyle = '#4db6ac'; ctx.lineWidth = 2; ctx.strokeRect(x, y, 244, 112);
-    this.text(ctx, '📖 Слово дня из ульпана', x + 10, y + 20, 13, '#b2dfdb', 'left', 'normal');
+    this.text(ctx, '📖 Слово дня из ульпана', I18N.he ? x + 234 : x + 10, y + 20, 13, '#b2dfdb', I18N.he ? 'right' : 'left', 'normal');
     ctx.save(); ctx.direction = 'rtl';
     this.text(ctx, W.w[0], x + 234, y + 50, 24, '#fff', 'right');
     ctx.restore();
-    this.text(ctx, W.w[1], x + 10, y + 76, 18, '#ffe082');
-    this.text(ctx, '— ' + W.w[2], x + 10, y + 100, 12, '#e0f2f1', 'left', 'normal');
+    // на иврите транскрипция не нужна — только смысл по-русски переведён
+    if (I18N.he) this.text(ctx, T(W.w[2]) + ' —', x + 234, y + 82, 13, '#e0f2f1', 'right', 'normal');
+    else {
+      this.text(ctx, W.w[1], x + 10, y + 76, 18, '#ffe082');
+      this.text(ctx, '— ' + W.w[2], x + 10, y + 100, 12, '#e0f2f1', 'left', 'normal');
+    }
     ctx.globalAlpha = 1;
   },
 
@@ -255,6 +259,8 @@ const HUD = {
 
   // перенос строк: возвращает y после последней строки
   wrap(ctx, text, x, y, maxW, lh) {
+    // иврит — справа налево: x — правый край строки
+    ctx.direction = hasHebrew(text) ? 'rtl' : 'ltr';
     let s = '';
     for (const wd of text.split(' ')) {
       if (s && ctx.measureText(s + wd).width > maxW) { ctx.fillText(s, x, y); s = ''; y += lh; }
@@ -272,15 +278,18 @@ const HUD = {
     const w = Math.min(600, vw - 40), h = 92, x = (vw - w) / 2, y = vh - 60 - h;
     ctx.globalAlpha = clamp(c.t * 3, 0, 1);
     ctx.fillStyle = 'rgba(10,12,20,0.78)'; ctx.fillRect(x, y, w, h);
-    let tx = x + 12;
+    // на иврите окно зеркальное: портрет справа, текст от правого края
+    const rtl = I18N.he;
+    let tx = x + 12, tr = x + w - 12;
     if (pic) {
       const ps = h - 16, sw = pic.width || pic.naturalWidth, sh = pic.height || pic.naturalHeight, sq = Math.min(sw, sh);
-      ctx.drawImage(pic, (sw - sq) / 2, (sh - sq) / 2, sq, sq, x + 8, y + 8, ps, ps);
-      tx = x + 16 + ps;
+      ctx.drawImage(pic, (sw - sq) / 2, (sh - sq) / 2, sq, sq, rtl ? x + w - 8 - ps : x + 8, y + 8, ps, ps);
+      if (rtl) tr = x + w - 16 - ps; else tx = x + 16 + ps;
     }
-    if (c.who) this.text(ctx, c.who, tx, y + 22, 15, '#ffd23f');
-    ctx.font = '15px "Trebuchet MS", "Segoe UI", sans-serif'; ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    this.wrap(ctx, c.text, tx, y + (c.who ? 44 : 26), x + w - 12 - tx, 19);
+    const ax = rtl ? tr : tx, al = rtl ? 'right' : 'left';
+    if (c.who) this.text(ctx, T(c.who), ax, y + 22, 15, '#ffd23f', al);
+    ctx.font = '15px "Trebuchet MS", "Segoe UI", sans-serif'; ctx.fillStyle = '#fff'; ctx.textAlign = al; ctx.textBaseline = 'alphabetic';
+    this.wrap(ctx, T(c.text), ax, y + (c.who ? 44 : 26), tr - tx, 19);
     ctx.globalAlpha = 1;
   },
 
@@ -289,7 +298,8 @@ const HUD = {
     const p = Story.prompt;
     if (!p || Missions.dialog) return;
     const w = 260, x = (vw - w) / 2, y = vh * 0.62;
-    this.text(ctx, p.plain || p.label.startsWith('📷') ? p.label : T('Держи E — ') + p.label, vw / 2, y - 8, 18, '#fff', 'center');
+    const label = T(p.label);
+    this.text(ctx, p.plain || label.startsWith('📷') ? label : T('Держи E — ') + label, vw / 2, y - 8, 18, '#fff', 'center');
     if (p.plain) return;
     ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(x, y, w, 10);
     ctx.fillStyle = '#ffd23f'; ctx.fillRect(x + 1, y + 1, (w - 2) * p.k, 8);
@@ -297,8 +307,9 @@ const HUD = {
 
   drawDialog(ctx, vw, vh) {
     const d = Missions.dialog;
-    const [who, line] = d.lines[d.i];
+    const [who, ru] = d.lines[d.i];
     const pic = Portraits.get(PORTRAIT_OF[who]);
+    const line = T(ru), rtl = I18N.he;
     const choice = d.choices && d.i === d.lines.length - 1;
     const w = Math.min(820, vw - 40), h = (pic ? 150 : 130) + (choice ? d.choices.length * 30 + 10 : 0);
     const x = (vw - w) / 2, y = vh - h - 60;
@@ -306,39 +317,34 @@ const HUD = {
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
     // портрет говорящего слева, текст справа от него
-    let tx = x + 18;
+    // портрет говорящего с краю (на иврите — справа), текст рядом с ним
+    let tx = x + 18, tr = x + w - 18;
     if (pic) {
-      const ps = h - 24, px = x + 12, py = y + 12;
+      const ps = h - 24, px = rtl ? x + w - 12 - ps : x + 12, py = y + 12;
       const sw = pic.width || pic.naturalWidth, sh = pic.height || pic.naturalHeight, sq = Math.min(sw, sh);
       ctx.drawImage(pic, (sw - sq) / 2, (sh - sq) / 2, sq, sq, px, py, ps, ps);
       ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 3; ctx.strokeRect(px, py, ps, ps);
-      tx = px + ps + 16;
+      if (rtl) tr = px - 16; else tx = px + ps + 16;
     }
-    this.text(ctx, (d.tv ? '📺 ' : '☎ ') + who, tx, y + 30, 20, '#ffd23f');
-    if (d.i === 0) this.text(ctx, d.title, x + w - 18, y + 30, 16, '#9be15d', 'right');
+    const ax = rtl ? tr : tx, al = rtl ? 'right' : 'left', far = rtl ? x + 18 : x + w - 18, fal = rtl ? 'left' : 'right';
+    this.text(ctx, rtl ? T(who) + (d.tv ? ' 📺' : ' ☎') : (d.tv ? '📺 ' : '☎ ') + who, ax, y + 30, 20, '#ffd23f', al);
+    if (d.i === 0) this.text(ctx, d.title, far, y + 30, 16, '#9be15d', fal);
     ctx.font = '18px "Trebuchet MS", "Segoe UI", sans-serif';
-    ctx.fillStyle = '#fff'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#fff'; ctx.textAlign = al;
     // перенос строк
-    const words = line.split(' ');
-    const maxW = x + w - 18 - tx;
-    let s = '', yy = y + 62;
-    for (const wd of words) {
-      if (ctx.measureText(s + wd).width > maxW) { ctx.fillText(s, tx, yy); s = ''; yy += 24; }
-      s += wd + ' ';
-    }
-    ctx.fillText(s, tx, yy);
+    this.wrap(ctx, line, ax, y + 62, tr - tx, 24);
     if (choice) {
       let cy = y + (pic ? 150 : 130) - 6;
       d.choices.forEach((c, i) => {
         const sel = i === (d.sel || 0);
-        if (sel) { ctx.fillStyle = 'rgba(255,210,63,0.18)'; ctx.fillRect(tx - 8, cy - 20, x + w - 10 - tx, 28); }
-        this.text(ctx, `${i + 1}. ${c.label}`, tx, cy, 17, sel ? '#ffd23f' : '#ddd', 'left', sel ? 'bold' : 'normal');
+        if (sel) { ctx.fillStyle = 'rgba(255,210,63,0.18)'; ctx.fillRect(tx - 8, cy - 20, tr - tx + 16, 28); }
+        this.text(ctx, rtl ? `${T(c.label)} .${i + 1}` : `${i + 1}. ${c.label}`, ax, cy, 17, sel ? '#ffd23f' : '#ddd', al, sel ? 'bold' : 'normal');
         cy += 30;
       });
-      this.text(ctx, '↑↓ и Enter или цифра', x + w - 18, y + h - 10, 13, '#aaa', 'right', 'normal');
+      this.text(ctx, '↑↓ и Enter или цифра', far, y + h - 10, 13, '#aaa', fal, 'normal');
       return;
     }
     const blink = Math.floor(performance.now() / 400) % 2;
-    if (blink) this.text(ctx, 'Enter ▶', x + w - 18, y + h - 14, 14, '#aaa', 'right', 'normal');
+    if (blink) this.text(ctx, rtl ? '◀ Enter' : 'Enter ▶', far, y + h - 14, 14, '#aaa', fal, 'normal');
   },
 };

@@ -175,7 +175,7 @@ const Jobs = {
         const dest = this.randomAddress(1000, 2800);
         const d = dist(pl.x, pl.y, dest.x, dest.y);
         o.stage = 'ride'; o.target = dest; o.timer = Math.round(d / 190 + 25); o.total = o.timer; o.fareSum = Math.round(d / 18);
-        Game.message(T('Пассажир: «{0}»', pick(TAXI_LINES)), 6);
+        Game.message(T('Пассажир: «{0}»', T(pick(TAXI_LINES))), 6);
       }
     } else if (o.stage === 'ride') {
       o.timer -= dt;

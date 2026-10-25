@@ -80,15 +80,15 @@ function nearestAlive(list) {
 // who — имя («Моше») или { acc: 'Розу Львовну', nom: 'Роза Львовна', dead: 'Роза Львовна пострадала' }
 function passengerStep(m, ped, dest, dt, who) {
   const pl = World.player;
-  const W = typeof who === 'string' ? { acc: who, nom: who, dead: who + ' погиб.' } : who;
+  const W = typeof who === 'string' ? { acc: who, nom: who, dead: T('{0} погиб.', T(who)) } : who;
   if (ped.dead) return 'fail:' + W.dead;
   if (!m.pstage) m.pstage = 0;
   if (m.pstage === 0) {
-    m.text = pl.car ? `Забери: ${W.acc} (остановись рядом)` : `Найди машину и забери: ${W.acc}`;
+    m.text = pl.car ? T('Забери: {0} (остановись рядом)', T(W.acc)) : T('Найди машину и забери: {0}', T(W.acc));
     m.target = ped;
     if (pl.car && !pl.car.moto && pl.car.speed < 40 && dist(pl.car.x, pl.car.y, ped.x, ped.y) < 160) { ped.ai = 'board'; m.pstage = 1; }
   } else if (m.pstage === 1) {
-    m.text = `Подожди, пока ${W.nom} сядет`;
+    m.text = T('Подожди, пока {0} сядет', T(W.nom));
     m.target = ped;
     if (!pl.car) { ped.ai = 'idle'; m.pstage = 0; }
     else if (ped.car) { m.pstage = 2; ped.mission = null; ped.seat = true; if (m.rideTime) m.timer = m.rideTime; return 'boarded'; }
@@ -230,7 +230,7 @@ const MISSIONS = [
     update(m) {
       const done = Jobs.deliveries - m.base;
       const pl = World.player;
-      if (Jobs.active === 'delivery') { m.text = `Доставки «Шмоне-Бис»: ${done} из 3`; m.target = Jobs.objective(); }
+      if (Jobs.active === 'delivery') { m.text = T('Доставки «Шмоне-Бис»: {0} из 3', T(done)); m.target = Jobs.objective(); }
       else if (pl.car && pl.car.type === 'scooter') { m.text = 'Нажми J, чтобы начать смену «Шмоне-Бис»'; m.target = null; }
       else { m.text = 'Найди скутер «Шмоне-Бис» (оранжевый короб) — один у дома'; m.target = nearestCar(pl.x, pl.y, (c) => c.type === 'scooter'); }
       if (done >= 3) return 'ok';
@@ -461,7 +461,7 @@ const RESERVE_MISSIONS = [
         const lost = (m.hp0 - c.hp) / c.maxHp;
         if (lost > m.oy + 0.08) { m.oy = lost; Game.message(pick(['Моше: «Ой-вей! Моё сердце!»', 'Моше: «Осторожнее, я ещё не подписал завещание!»', 'Моше: «Это была машина или стена?!»']), 2.5); }
         if (lost > 0.35) return 'fail:У Моше прихватило сердце. Налоговая подождёт, Ицик — нет.';
-        m.text = `Отвези Моше в Азриэли (нервы Моше: ${Math.round(100 - lost / 0.35 * 100)}%)`;
+        m.text = T('Отвези Моше в Азриэли (нервы Моше: {0}%)', Math.round(100 - lost / 0.35 * 100));
       }
       if (r === 'arrived') { m.moshe.ai = 'walk'; return 'ok'; }
       if (r && r.startsWith('fail')) return r;
@@ -510,7 +510,7 @@ const RESERVE_MISSIONS = [
         if (c) { m.chasers.push(c); Game.message('Абеба: Ещё машина «Одессы»!', 3); }
       }
       const left = foesWithChasers(m.foes, m.chasers);
-      m.text = `Отбейся от «Одессы» у мастерской «Львов» (осталось: ${m.foes.filter((g) => !g.dead).length + GangCars.alive(m.chasers)})`;
+      m.text = T('Отбейся от «Одессы» у мастерской «Львов» (осталось: {0})', m.foes.filter((g) => !g.dead).length + GangCars.alive(m.chasers));
       m.target = nearestAlive(left) || P;
       if (!left.length && m.reinf) { Factions.change('lions', 35); Factions.change('russian', -45); return 'ok'; }
     },
@@ -544,7 +544,7 @@ const RESERVE_MISSIONS = [
         if (c) { m.chasers.push(c); Game.message('Ицик: Ещё едут! Пикап с юга!', 3); }
       }
       const left = foesWithChasers(m.foes, m.chasers);
-      m.text = `Защити Ицика и Шук (нападающих: ${m.foes.filter((g) => !g.dead).length + GangCars.alive(m.chasers)})`;
+      m.text = T('Защити Ицика и Шук (нападающих: {0})', m.foes.filter((g) => !g.dead).length + GangCars.alive(m.chasers));
       m.target = nearestAlive(left);
       if (!left.length && m.wave2) { Factions.change('arab', -20); return 'ok'; }
     },
@@ -642,7 +642,7 @@ const RESERVE_MISSIONS = [
         m.foes.push(d);
       }
       const left = m.foes.filter((g) => !g.dead);
-      m.text = m.vanGo && !v.dead ? `Фургон уходит — уничтожь его! (агентов: ${left.length})` : `Останови иранских агентов (${left.length}) и уничтожь их фургон${v.dead ? ' ✔' : ''}`;
+      m.text = m.vanGo && !v.dead ? T('Фургон уходит — уничтожь его! (агентов: {0})', left.length) : T('Останови иранских агентов ({0}) и уничтожь их фургон{1}', left.length, v.dead ? ' ✔' : '');
       m.target = m.vanGo && !v.dead ? v : nearestAlive(m.foes) || (v.dead ? null : v);
       if (!left.length && m.van.dead) { Wanted.reset(); Factions.change('arab', 15); return 'ok'; }
     },
@@ -689,7 +689,7 @@ const RESERVE_MISSIONS = [
           }
         }
       }
-      m.text = m.timer > 0 ? `Цева адом! Уворачивайся от ракет — до отбоя ${Math.ceil(m.timer)} с` : 'Последние ракеты...';
+      m.text = m.timer > 0 ? T('Цева адом! Уворачивайся от ракет — до отбоя {0} с', Math.ceil(m.timer)) : 'Последние ракеты...';
       m.target = null;
       if (m.timer <= 0 && !Strikes.list.length) return 'ok';
     },
@@ -740,7 +740,7 @@ const RESERVE_MISSIONS = [
       }
       if (m.itzik.dead) return 'fail:Ицик погиб. Перемирие сорвано.';
       const left = m.foes.filter((g) => !g.dead);
-      m.text = `Отбейся от бригады «Одесса» (осталось: ${left.length})`;
+      m.text = T('Отбейся от бригады «Одесса» (осталось: {0})', left.length);
       m.target = nearestAlive(m.foes);
       if (!left.length) { Factions.change('arab', Math.max(45, 30 - Factions.rep.arab)); Factions.change('russian', -20); return 'ok'; }
     },
@@ -792,7 +792,7 @@ const RESERVE_MISSIONS = [
       } else if (m.run && !b.car && b.ai === 'idle' && (!c || c.dead || c.driver)) { b.ai = 'gang'; b.alert = 8; }
       if (b.car) { m.text = 'Сёма удирает на лимузине — останови его!'; m.target = b.car; }
       else {
-        m.text = b.dead ? `Добей охрану «Одессы» (осталось: ${left.length})` : `Ресторан «Одесса»: найди Сёму Каца (охраны: ${left.length - 1})`;
+        m.text = b.dead ? T('Добей охрану «Одессы» (осталось: {0})', left.length) : T('Ресторан «Одесса»: найди Сёму Каца (охраны: {0})', left.length - 1);
         m.target = b.dead ? nearestAlive(m.foes) : b;
       }
       if (!left.length) { Factions.change('lions', 25); Factions.change('russian', -100, true); return 'ok'; }
@@ -863,7 +863,7 @@ const Missions = {
     Sound.play('phone', 0.8);
     if (this.atCp()) {
       const si = this.cp.si;
-      this.dialog = { lines: [['', `${def.title}: повтор с контрольной точки «${def.stageName(si)}».`]], i: 0, done: () => { this.resumeStage = si; this.begin(); }, title: def.title };
+      this.dialog = { lines: [['', T('{0}: повтор с контрольной точки «{1}».', T(def.title), T(def.stageName(si)))]], i: 0, done: () => { this.resumeStage = si; this.begin(); }, title: def.title };
       return;
     }
     if (def.card) HUD.bigText(def.card[0], def.card[1], '#ffd23f', 5);
@@ -952,7 +952,7 @@ const Missions = {
       this.retry = 4;
     } else {
       const def = MISSIONS[this.index];
-      setTimeout(() => Game.message(T('☎ Звонит телефон-автомат{0}. Ищи жёлтую стрелку', def.giver ? ' — ' + def.giver : '')), 3500);
+      setTimeout(() => Game.message(T('☎ Звонит телефон-автомат{0}. Ищи жёлтую стрелку', def.giver ? ' — ' + T(def.giver) : '')), 3500);
     }
   },
 

@@ -139,7 +139,7 @@ const PR_MATTRESS = staged({
         if (r && r.startsWith('fail')) return r;
         if (r === 'loose') return;
         const d = dist(c.x, c.y, P.prNewFlat.x, P.prNewFlat.y);
-        m.text = `Вези матрас в Старый Север, не гони · держится: ${Math.round(m.grip)}%`;
+        m.text = T('Вези матрас в Старый Север, не гони · держится: {0}%', Math.round(m.grip));
         m.target = P.prNewFlat;
         if (m.stageT > 6) Story.sayOnce(m, 'a', [[SEMYON, 'Это мой четвёртый переезд за год. Первый хозяин продал квартиру, второй решил, что ему нужен «хадар авода», третий — что я слишком громко дышу.'], [HERO, 'А в Питере ты сколько раз переезжал?'], [SEMYON, 'Ни разу. Двадцать восемь лет в одной комнате с бабушкиным сервантом.']]);
         if (m.stageT > 28) Story.sayOnce(m, 'b', [[SEMYON, 'Новый хозяин — Ави. Очень приятный. Попросил залог за три месяца, двенадцать чеков и фото моего дедушки.']]);
@@ -183,7 +183,7 @@ const PR_MATTRESS = staged({
         const r = mattressStep(m, c, dt);
         if (r && r.startsWith('fail')) return r;
         if (r === 'loose') return;
-        m.text = `Объезжай демонстрацию и вези матрас к новой квартире · держится: ${Math.round(m.grip)}%`;
+        m.text = T('Объезжай демонстрацию и вези матрас к новой квартире · держится: {0}%', Math.round(m.grip));
         m.target = P.prNewFlat;
         if (stopAt(P.prNewFlat, 130) && c.speed < 25) return 'next';
       },
@@ -278,7 +278,7 @@ const PR_SOLARIS = staged({
         if (m.gi < P.prTest.length) {
           const g = P.prTest[m.gi];
           m.target = g;
-          m.text = `Тест-драйв для покупателя: точка ${m.gi + 1} из ${P.prTest.length}${scratched ? ' · уже поцарапал' : ' · без единой царапины'}`;
+          m.text = T('Тест-драйв для покупателя: точка {0} из {1}{2}', m.gi + 1, T(P.prTest.length), T(scratched ? ' · уже поцарапал' : ' · без единой царапины'));
           if (near(g, 150)) { m.gi++; if (m.gi === 2) Story.say([[BUYER, 'Мягко идёт. Кондиционер дует? Дует. Мециаа.']]); }
           return;
         }
@@ -431,7 +431,7 @@ const PR_CIVIC = staged({
         if (m.timer <= 0) return 'fail:Не успел. Данис в больнице, «Цивик» разбит. Буйный уехал.';
         if (needCar(m, 'Найди машину и мчись на Аялон к Данису (подойди к машине, F)')) return;
         m.target = m.civic;
-        m.text = `Мчись на Аялон — Даниса бьют! Осталось ${Math.ceil(m.timer)} с`;
+        m.text = T('Мчись на Аялон — Даниса бьют! Осталось {0} с', Math.ceil(m.timer));
         if (near(m.civic, 380)) return 'next';
       },
     },

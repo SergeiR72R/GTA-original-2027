@@ -189,7 +189,7 @@ const INTERLUDE_1 = staged({
         left.sort((a, b) => dist2(a.p.x, a.p.y, pl.x, pl.y) - dist2(b.p.x, b.p.y, pl.x, pl.y));
         const w = left[0];
         m.target = w.p;
-        m.text = `Граффити «Биби, уходи»: ${5 - left.length} из 5 — ближайшее: ${w.name} (выйди из машины)`;
+        m.text = T('Граффити «Биби, уходи»: {0} из 5 — ближайшее: {1} (выйди из машины)', 5 - left.length, T(w.name));
         // у кафе выбегает хозяин со шваброй
         if (w.k === 'habima' && !m.owner && near(w.p, 260)) {
           m.owner = Story.ped(m, w.p.x + 40, w.p.y + 30, { ai: 'gang', weapon: 'bat', hp: 60, look: Looks.civilian() });
@@ -334,7 +334,7 @@ const C1_ZEMLYAK = staged({
         }
         if (m.go < 0) {
           m.go += dt;
-          m.text = m.go < -1 ? `Гонка через ${Math.ceil(-m.go - 1)}...` : 'МАРШ!';
+          m.text = m.go < -1 ? T('Гонка через {0}...', Math.ceil(-m.go - 1)) : 'МАРШ!';
           m.target = G[0];
           if (m.go >= 0) { m.go = 0.01; Sound.play('jWin', 0.4); }
           return;
@@ -355,7 +355,7 @@ const C1_ZEMLYAK = staged({
         }
         m.target = G[m.pi];
         const pos = m.pi > m.gi || (m.pi === m.gi && dist(pl.x, pl.y, G[m.pi].x, G[m.pi].y) < dist(g.x, g.y, G[m.pi].x, G[m.pi].y)) ? 1 : 2;
-        m.text = `Гонка: ворота ${m.pi + 1} из ${G.length} · ты ${pos}-й${m.pi === G.length - 1 ? ' — финиш у «Одессы»!' : ''}`;
+        m.text = T('Гонка: ворота {0} из {1} · ты {2}-й{3}', m.pi + 1, G.length, T(pos), T(m.pi === G.length - 1 ? ' — финиш у «Одессы»!' : ''));
         if (m.go > 3 && m.go < 4) Story.sayOnce(m, 'g1', [[GARIK, 'Э, таксист! Это тебе не по Невскому ползать!']]);
       },
       end(m) { if (m.garik) m.garik.ai = null; },
@@ -459,7 +459,7 @@ const C1_ZEMLYAK = staged({
         const P = chP(), pl = pl_();
         if (m.limo.dead) return 'fail:Лимузин сгорел. Сёма этого не простит.';
         if (pl.car !== m.limo) { m.text = 'Вернись в лимузин'; m.target = m.limo; return; }
-        m.text = `Пригони лимузин к ресторану «Одесса» (целость: ${Math.round(m.limo.hp / m.limo.maxHp * 100)}%)`;
+        m.text = T('Пригони лимузин к ресторану «Одесса» (целость: {0}%)', Math.round(m.limo.hp / m.limo.maxHp * 100));
         m.target = P.c1Odessa;
         if (!stopAt(P.c1Odessa, 130)) return;
         const c = m.limo;
@@ -551,7 +551,7 @@ const C1_KRYSHA = staged({
         }
         if ((Game.shots || 0) > m.shots0 && !m.loud) { m.loud = true; Wanted.set(Math.max(Wanted.level, 2)); Game.message('Сёма же просил без стрельбы! Соседи вызвали полицию', 3); }
         const left = m.mech.filter((g) => !g.dead);
-        m.text = `Уложи механиков (осталось: ${left.length})`;
+        m.text = T('Уложи механиков (осталось: {0})', left.length);
         m.target = nearestAlive(m.mech);
         if (!left.length) { Factions.change('arab', -5); return 'next'; }
       },
@@ -633,7 +633,7 @@ const C1_SHESHBESH = staged({
           const s = Story.comfort(m, pl_().car, dt);
           if (s > 60) Story.sayOnce(m, 'sick', [['Жена ювелира', 'Ой... Мне нехорошо. Плавнее!']]);
           if (s >= 100) return 'fail:Жену ювелира укачало. Ювелир будет звонить Сёме.';
-          m.text = `Вези жену ювелира плавно (укачало: ${Math.round(s)}%)`;
+          m.text = T('Вези жену ювелира плавно (укачало: {0}%)', Math.round(s));
         }
         if (r === 'arrived') { m.vip.ai = 'walk'; return 'next'; }
         if (r && r.startsWith('fail')) return r;
@@ -777,7 +777,7 @@ const C1_DIAMONDS = staged({
       },
       update(m) {
         const left = m.foes.filter((g) => !g.dead);
-        m.text = `Отбейся от стрелков на перекрёстке (осталось: ${left.length})`;
+        m.text = T('Отбейся от стрелков на перекрёстке (осталось: {0})', left.length);
         m.target = nearestAlive(m.foes);
         if (!left.length) return 'next';
       },
@@ -888,7 +888,7 @@ const C1_MAMA = staged({
         if (s >= 100) return 'fail:Розу Львовну укачало. «Отвези меня обратно на автостанцию. Сёма узнает».';
         const st = m.stops[m.si2];
         m.target = st.p;
-        m.text = `Экскурсия: ${st.name} — остановись рядом (${m.si2 + 1} из 3) · укачало: ${Math.round(s)}%`;
+        m.text = T('Экскурсия: {0} — остановись рядом ({1} из 3) · укачало: {2}%', T(st.name), m.si2 + 1, Math.round(s));
         if (near(st.p, 170) && c.speed < 30) {
           m.wt += dt;
           if (m.wt > 2.5) { Story.say(st.say); m.si2++; m.wt = 0; if (m.si2 >= m.stops.length) return 'next'; }
@@ -927,8 +927,8 @@ const C1_MAMA = staged({
         if (m.bought >= 3) return 'next';
         const p = P.c1Stalls[m.bought];
         m.target = p;
-        m.text = `Покупки для Розы Львовны: ${items[m.bought]} (${m.bought + 1} из 3)`;
-        if (Story.hold(m, 'buy' + m.bought, p, 1.2, 'торговаться и купить: ' + items[m.bought], { r: 70 })) {
+        m.text = T('Покупки для Розы Львовны: {0} ({1} из 3)', T(items[m.bought]), m.bought + 1);
+        if (Story.hold(m, 'buy' + m.bought, p, 1.2, T('торговаться и купить: {0}', T(items[m.bought])), { r: 70 })) {
           Story.say([[['Продавец', ROZA, 'Продавец'][m.bought], ['Для вас, мадам, — сорок шекелей!', 'Сколько? За этот хрен? Молодой человек, я сама этот хрен вырастила бы дешевле!', 'Ладно, ладно, тридцать!'][m.bought]]]);
           m.bought++;
         }
@@ -1000,7 +1000,7 @@ const C1_CARGO = staged({
           Game.message('Стреляй по красным бочкам с топливом — они взрываются', 4);
         }
         const left = m.foes.filter((g) => !g.dead);
-        m.text = `Перебей охрану порта (осталось: ${left.length})`;
+        m.text = T('Перебей охрану порта (осталось: {0})', left.length);
         m.target = nearestAlive(m.foes);
         if (!left.length) return 'next';
       },
@@ -1026,11 +1026,11 @@ const C1_CARGO = staged({
         const t = m.trucks.filter((q) => !q.opened).sort((a, b) => dist2(a.x, a.y, pl.x, pl.y) - dist2(b.x, b.y, pl.x, pl.y))[0];
         m.text = 'Найди нужный контейнер: синий, год приезда Сёмы';
         m.target = t;
-        if (near(t, 110) && m.seen !== t) { m.seen = t; Game.message('Контейнер: ' + t.label, 3); }
-        if (Story.hold(m, 'open' + m.trucks.indexOf(t), t, 1.2, 'открыть контейнер ' + t.label, { r: 100 })) {
+        if (near(t, 110) && m.seen !== t) { m.seen = t; Game.message(T('Контейнер: {0}', T(t.label)), 3); }
+        if (Story.hold(m, 'open' + m.trucks.indexOf(t), t, 1.2, T('открыть контейнер {0}', T(t.label)), { r: 100 })) {
           if (t.right) return 'next';
           t.opened = true;
-          Game.message(`Не тот: ${t.label} — внутри стиральные машины. Боцман: «Внимательнее»`, 3);
+          Game.message(T('Не тот: {0} — внутри стиральные машины. Боцман: «Внимательнее»', T(t.label)), 3);
         }
       },
     },
@@ -1071,7 +1071,7 @@ const C1_CARGO = staged({
         if (pl.car !== t) { m.text = 'Садись в тягач с синим контейнером'; m.target = t; return; }
         if (m.wave === 0) { m.wave = 1; m.chase = Story.chasers(m, 'arab', 2); Game.message('Пикапы клана пытаются перегородить дорогу!', 3); }
         if (m.wave === 1 && m.stageT > 45) { m.wave = 2; m.chase.push(...Story.chasers(m, 'arab', 1)); }
-        m.text = `Вези тягач во двор «Одессы» в Рамат-Гане (тягач: ${Math.round(t.hp / t.maxHp * 100)}%)`;
+        m.text = T('Вези тягач во двор «Одессы» в Рамат-Гане (тягач: {0}%)', Math.round(t.hp / t.maxHp * 100));
         m.target = P.c1Yard;
         if (stopAt(P.c1Yard, 170)) {
           Game.exitCar(); t.locked = true; t.stay = true;
@@ -1148,7 +1148,7 @@ const C1_CAMPAIGN = staged({
         if (i < 0) { m.text = 'Протарань фургон протестующих с их плакатами'; m.target = m.van; return; }
         const d = B[i];
         m.target = d;
-        m.text = `Повесь плакат «Протест оплачивает Иран» на щиты Ибн-Гвироля (${i + 1} из ${B.length})`;
+        m.text = T('Повесь плакат «Протест оплачивает Иран» на щиты Ибн-Гвироля ({0} из {1})', i + 1, B.length);
         if (Story.hold(m, 'bill' + i, d, 2, 'повесить плакат', { r: 90 })) { m.done[i] = true; Story.poster(d, 'iran'); }
       },
     },
@@ -1239,8 +1239,8 @@ const C1_RECOUNT = staged({
         if (!left.length) return 'next';
         const c = left[0];
         m.target = c.p;
-        m.text = `Осмотри обменник: ${c.t} (${4 - left.length} из 3)`;
-        if (Story.hold(m, 'clue' + c.t, c.p, 1.2, 'осмотреть: ' + c.t)) { c.done = true; Game.message('🔍 ' + c.msg, 4); }
+        m.text = T('Осмотри обменник: {0} ({1} из 3)', T(c.t), 4 - left.length);
+        if (Story.hold(m, 'clue' + c.t, c.p, 1.2, T('осмотреть: {0}', T(c.t)))) { c.done = true; Game.message('🔍 ' + T(c.msg), 4); }
       },
     },
     {
@@ -1257,7 +1257,7 @@ const C1_RECOUNT = staged({
         if (!left.length) return 'next';
         const c = left[0];
         m.target = c.p;
-        m.text = `Записи камер: ${c.t} (${m.cams.length - left.length + 1} из ${m.cams.length})`;
+        m.text = T('Записи камер: {0} ({1} из {2})', T(c.t), m.cams.length - left.length + 1, m.cams.length);
         if (Story.hold(m, 'cam' + c.t, c.p, 1.4, Story.flag('kioskSpared') ? 'взять запись' : 'купить запись (₪200)')) {
           c.done = true;
           if (!Story.flag('kioskSpared')) Game.addMoney(-200);
@@ -1419,7 +1419,7 @@ const C1_JUBILEE = staged({
         left.sort((a, b) => dist2(a.p.x, a.p.y, pl.x, pl.y) - dist2(b.p.x, b.p.y, pl.x, pl.y));
         const it = left[0];
         m.target = it.p;
-        m.text = `Подарки к юбилею: ${it.t} (${4 - left.length} из 4)`;
+        m.text = T('Подарки к юбилею: {0} ({1} из 4)', T(it.t), 4 - left.length);
         if (!Story.hold(m, it.k, it.p, it.k === 'fish' || it.k === 'acc' ? 1.5 : 1, it.h)) return;
         it.done = true;
         if (it.k === 'fish') { Story.chasers(m, 'arab', 2); Game.message('Рыбаки клана: «Русским не продаём!» — погоня', 3); Factions.change('arab', -5); }
@@ -1460,7 +1460,7 @@ const C1_JUBILEE = staged({
       },
       update(m) {
         const left = foesWithChasers(m.foes, m.chase);
-        m.text = `Отбей налёт на ресторан (осталось: ${m.foes.filter((g) => !g.dead).length + GangCars.alive(m.chase)})`;
+        m.text = T('Отбей налёт на ресторан (осталось: {0})', m.foes.filter((g) => !g.dead).length + GangCars.alive(m.chase));
         m.target = nearestAlive(left);
         if (!left.length && m.stageT > 3) return 'next';
       },
@@ -1597,7 +1597,7 @@ const C1_LASTRUN = staged({
         if (v.dead) return 'fail:Фургон сгорел вместе с Каримом.';
         const left = m.foes.filter((g) => !g.dead);
         if (!left.length) { if (pl.car === v) return 'next'; m.text = 'Блокпост расчищен — садись в фургон'; m.target = v; return; }
-        m.text = `Прорвись через блокпост «Одессы» (осталось: ${left.length}) — дави или стреляй`;
+        m.text = T('Прорвись через блокпост «Одессы» (осталось: {0}) — дави или стреляй', left.length);
         m.target = nearestAlive(m.foes);
       },
     },
@@ -1692,7 +1692,7 @@ const INTERLUDE_2 = staged({
         if (near(S[0], 600) && pl.car.speed < 15) { m.slow += dt; if (m.slow > 4 && Wanted.level === 0) { Wanted.set(1); Game.message('Военная полиция: «Здесь стоять запрещено!»', 3); m.slow = 0; } } else m.slow = 0;
         const [p, i] = left[0];
         m.target = p;
-        m.text = `Сфотографируй Кирью на ходу: ${S.length - left.length + 1} из ${S.length} (не останавливайся у базы)`;
+        m.text = T('Сфотографируй Кирью на ходу: {0} из {1} (не останавливайся у базы)', S.length - left.length + 1, S.length);
         Story.photo(m, 'k' + i, p, 2, 380);
       },
     },
@@ -1779,7 +1779,7 @@ const INTERLUDE_2 = staged({
           return;
         }
         const left = m.foes.filter((g) => !g.dead);
-        if (left.length) { m.text = `Отбейся вместе с людьми Дани (осталось: ${left.length})`; m.target = nearestAlive(m.foes); return; }
+        if (left.length) { m.text = T('Отбейся вместе с людьми Дани (осталось: {0})', left.length); m.target = nearestAlive(m.foes); return; }
         if (!m.van) {
           m.van = Story.carOnRoad(m, P.iranMeet, 200, 450, { type: 'van', faction: 'iran' });
           m.vd = Story.driver(m, m.van, { faction: 'iran', ai: 'idle', hp: 80 });
