@@ -169,18 +169,19 @@ function genCivList() {
   return genCivList.list;
 }
 
+// какой сгенерированный спрайт у человека (подбирается один раз; null — рисует код)
+function personGenKey(L) {
+  if (L.gen !== undefined) return L.gen;
+  const civs = genCivList();
+  let key = L.genKey || (L.cat ? 'cat' : null);
+  // пока сгенерированы не все прохожие — смешиваем со встроенными
+  if (!key && !L.role && civs.length && Math.random() < civs.length / GEN_CIVS) key = pick(civs);
+  if (key && !Assets.gen['chars/' + key]) key = key.replace(/_boss$/, '');
+  return (L.gen = key && Assets.gen['chars/' + key] ? key : null);
+}
+
 function drawPersonLook(ctx, L, walk, moving, weapon, dead) {
-  let key = L.gen;
-  if (key === undefined) {
-    // подбираем сгенерированный спрайт один раз
-    const civs = genCivList();
-    key = L.genKey || (L.cat ? 'cat' : null);
-    // пока сгенерированы не все прохожие — смешиваем со встроенными
-    if (!key && !L.role && civs.length && Math.random() < civs.length / GEN_CIVS) key = pick(civs);
-    if (key && !Assets.gen['chars/' + key]) key = key.replace(/_boss$/, '');
-    L.gen = key && Assets.gen['chars/' + key] ? key : null;
-    key = L.gen;
-  }
+  const key = personGenKey(L);
   if (!key) { People.draw(ctx, L, walk, moving, weapon, dead); return; }
   // убитый (и сбитый с мотоцикла): лежит на спине, голова — по направлению взгляда
   const deadIm = dead && Assets.gen['chars/' + key + '_dead'];

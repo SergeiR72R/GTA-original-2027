@@ -28,6 +28,10 @@ const SHOP_GEN_MAX = 8;
 const TINTED = { bauhaus: 1, florentin: 1, concrete: 1, nevetzedek: 1, cityhall: 1, hospital: 1, police: 1, busstation: 1, garage: 1 };
 // высота детальных моделей: метров → единиц 3D (дома в игре выше настоящих)
 const MODEL_HS = 11;
+// 3D-пешеходы: сгенерированный спрайт → модель из Blender (assets/models/ped.js);
+// PED_M — единиц 3D на метр (люди крупнее настоящих — читаются сверху)
+const PED_MODELS = { civ_5: 'ped_hipster' };
+const PED_M = 28;
 const FOV = 55; // перспектива сверху: стены видны у краёв экрана, как в GTA2
 const TILT = 0.58; // наклон камеры (≈33°), чтобы видеть фасады; клавиша V — строго сверху, как в GTA2
 // сгенерированные фасады (assets/gen/facades) для стилей районов
@@ -1059,6 +1063,81 @@ const R3 = {
   },
 
   // ---------------------------------------------------------------- люди
+  // 3D-пешеходы из Blender (tools/models/ped.py): фигура на скелете, кости крутятся
+  // по запечённым кадрам анимаций (walk, run, idle, dead). PED_MODELS: какой
+  // сгенерированный спрайт (civ_5…) какой моделью заменяется
+  pedModel(key) {
+    const C = this.pedModels || (this.pedModels = {});
+    if (C[key] !== undefined) return C[key];
+    const d = window.GEN_MODELS && GEN_MODELS[key];
+    if (!d || !d.bones) return (C[key] = null);
+    const f32 = (s) => { const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return new Float32Array(u.buffer); };
+    const pos = f32(d.pos), mid = f32(d.mid), bone = f32(d.bone), n = mid.length;
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    g.setAttribute('normal', new THREE.BufferAttribute(f32(d.nor), 3));
+    const si = new Uint16Array(n * 4), sw = new Float32Array(n * 4), col = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) {
+      si[i * 4] = bone[i]; sw[i * 4] = 1; // каждая часть целиком на своей кости
+      const c = COL('#' + d.colors[mid[i]].map((v) => Math.round(v * 255).toString(16).padStart(2, '0')).join(''));
+      col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+    }
+    g.setAttribute('skinIndex', new THREE.BufferAttribute(si, 4));
+    g.setAttribute('skinWeight', new THREE.BufferAttribute(sw, 4));
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    g.computeBoundingSphere();
+    const anims = {};
+    for (const k in d.anims) anims[k] = { n: d.anims[k].frames, q: f32(d.anims[k].q), p: f32(d.anims[k].p) };
+    return (C[key] = { g, d, anims, mat: new THREE.MeshLambertMaterial({ vertexColors: true }) });
+  },
+
+  makePed3D(M) {
+    const bones = M.d.bones.map(() => new THREE.Bone());
+    M.d.bones.forEach((b, i) => {
+      const h = b.head, ph = b.parent >= 0 ? M.d.bones[b.parent].head : [0, 0, 0];
+      bones[i].position.set(h[0] - ph[0], h[1] - ph[1], h[2] - ph[2]);
+      if (b.parent >= 0) bones[b.parent].add(bones[i]);
+    });
+    const m = new THREE.SkinnedMesh(M.g, M.mat);
+    m.add(bones[0]);
+    m.bind(new THREE.Skeleton(bones));
+    m.scale.setScalar(PED_M);
+    m.castShadow = true;
+    this.scene.add(m);
+    return { m, M, bones, is3d: true, ph: rand(0, 1), anim: 'idle' };
+  },
+
+  // поза: кадр анимации, между кадрами — плавно
+  posePed3D(o, name, ph) {
+    const A = o.M.anims[name], nb = o.bones.length;
+    const f = (ph % 1 + 1) % 1 * A.n, i0 = Math.floor(f) % A.n, i1 = (i0 + 1) % A.n, w = f - Math.floor(f);
+    for (let b = 0; b < nb; b++) {
+      const bo = o.bones[b], a = i0 * nb + b, c = i1 * nb + b, q = this.pedQ || (this.pedQ = [0, 0, 0, 1]);
+      THREE.Quaternion.slerpFlat(q, 0, A.q, a * 4, A.q, c * 4, w);
+      bo.quaternion.fromArray(q);
+      bo.position.set(A.p[a * 3] + (A.p[c * 3] - A.p[a * 3]) * w, A.p[a * 3 + 1] + (A.p[c * 3 + 1] - A.p[a * 3 + 1]) * w, A.p[a * 3 + 2] + (A.p[c * 3 + 2] - A.p[a * 3 + 2]) * w);
+    }
+  },
+
+  // 3D-пешеход: ходьба или бег — по скорости, шаг — по пройденному пути; стоит —
+  // дышит и отпивает кофе; убитый — лежит на спине
+  syncPed3D(o, p) {
+    const t = World.time, dt = Math.min(0.1, Math.max(0, t - (o.t || t)));
+    const v = dt > 0 && o.px !== undefined ? Math.hypot(p.x - o.px, p.y - o.py) / dt : 0;
+    o.t = t; o.px = p.x; o.py = p.y;
+    o.v = lerp(o.v || 0, v, Math.min(1, dt * 8));
+    const down = p.dead || p.stun > 0;
+    let anim = 'idle';
+    if (down) anim = 'dead';
+    else if (p.moving && o.v > 8) anim = o.v > 100 ? 'run' : 'walk';
+    if (anim !== o.anim) { o.anim = anim; if (anim !== 'idle') o.ph = 0; }
+    // шаг: за цикл (два шага) — 1,5 м ходьбой и 2,6 м бегом
+    o.ph += anim === 'walk' ? o.v * dt / (1.5 * PED_M) : anim === 'run' ? o.v * dt / (2.6 * PED_M) : dt / 6;
+    this.posePed3D(o, anim, o.ph);
+    o.m.position.set(p.x, down ? 0.14 * PED_M : 0, p.y);
+    o.m.rotation.set(down ? Math.PI / 2 : 0, -p.a - Math.PI / 2, 0, 'YXZ');
+  },
+
   makePed() {
     const cv = document.createElement('canvas'); cv.width = cv.height = 100;
     const mat = new THREE.MeshLambertMaterial({ map: this.tex(cv), transparent: true, depthWrite: false });
@@ -1102,12 +1181,16 @@ const R3 = {
       }
       if (!o) {
         if (budget-- <= 0 && p !== pl) continue;
-        o = this.makePed(); this.peds.set(p, o);
+        const M = p !== pl && !p.weapon && !p.look.cat && this.pedModel(PED_MODELS[personGenKey(p.look)]);
+        o = M ? this.makePed3D(M) : this.makePed(); this.peds.set(p, o);
       }
       o.m.visible = true;
-      this.drawPed(o, p);
-      o.m.position.set(p.x, p.dead || p.stun > 0 ? 1.5 : 3.5, p.y);
-      o.m.rotation.y = -p.a;
+      if (o.is3d) this.syncPed3D(o, p);
+      else {
+        this.drawPed(o, p);
+        o.m.position.set(p.x, p.dead || p.stun > 0 ? 1.5 : 3.5, p.y);
+        o.m.rotation.y = -p.a;
+      }
       // метка над головой: цель, союзник, пассажир такси
       const markMat = p.dead ? null : p.mission === 'target' ? this.mats.markRed : p.mission === 'ally' ? this.mats.markGreen : p.fare ? this.mats.markYellow : null;
       if (markMat) {
@@ -1120,7 +1203,9 @@ const R3 = {
     }
     for (const [p, o] of this.peds) {
       if (p._r3 === fn && !(p === pl && !showPl)) continue;
-      this.scene.remove(o.m); o.m.geometry.dispose(); o.m.material.map.dispose(); o.m.material.dispose();
+      this.scene.remove(o.m);
+      if (o.is3d) o.m.skeleton.dispose(); // сетка и материал — общие на всех
+      else { o.m.geometry.dispose(); o.m.material.map.dispose(); o.m.material.dispose(); }
       if (o.mark) { this.scene.remove(o.mark); o.mark.geometry.dispose(); }
       this.peds.delete(p);
     }
