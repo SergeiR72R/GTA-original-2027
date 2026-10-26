@@ -380,6 +380,16 @@ const HELI_ASSETS = [
   ['heli_military', 'Армейский ударный вертолёт (сверху)', 'A fictional military attack helicopter seen from directly above (top-down, orthographic), NOSE POINTING UP: slim olive-drab fuselage with a narrow tandem two-seat glass cockpit at the front, short stub wings on both sides with rocket pods under them, a long thin tail boom with a small tail fin and tail rotor at the bottom, only the round main rotor hub on top WITHOUT the long main rotor blades. Matte olive green paint, dark grey details, no national insignia, no numbers, no text, no real-world markings. The helicopter fills about 85% of the image height.'],
 ];
 
+// Текстуры 3D-модели армейского вертолёта (tools/models/heli.py, материалы heli* в
+// tools/models/lib.py TEX): бесшовные, на развёртку «кубом», как у зданий
+const HELI_TEX_STYLE = 'Seamless tileable texture of the outer surface of a military helicopter for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no numbers, no letters, no insignia, no flags, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size.';
+const HELI_TEXTURES = [
+  ['m_heli_olive', 'Вертолёт: оливковая краска корпуса с панелями', 'Matte olive-drab military paint (around #4B5320) on aircraft aluminium skin: large rectangular access panels outlined by thin dark seams, neat rows of small flush rivets along the seams, a couple of small hatches with latches, subtle dust, slightly faded patches and light scuffs. One uniform olive colour, no camouflage blotches, no markings.'],
+  ['m_heli_metal', 'Вертолёт: тёмный металл (двигатели, пилоны, лыжи)', 'Dark gunmetal-grey painted steel with fine scratches, oil and soot stains, small hex bolts and a few narrow vent slots; matte, slightly worn bright edges.'],
+  ['m_heli_canopy', 'Вертолёт: стекло кабины', 'Dark tinted armoured cockpit glass of a helicopter: smoky blue-green glass with soft diagonal sky reflections and faint streaks, very subtle and even; no frames, no pilots, nothing behind the glass.'],
+  ['m_heli_blade', 'Вертолёт: лопасти винтов', 'Matte charcoal-black composite helicopter rotor blade surface: very fine lengthwise grain, faint sanding marks, light dust; almost uniform.'],
+];
+
 // Полный упорядоченный список: машины (с уроном), персонажи, фасады, объекты, текстуры, портреты
 const ASSET_MANIFEST = (() => {
   const out = [];
@@ -480,6 +490,8 @@ const ASSET_MANIFEST = (() => {
   // значки оружия, за ними вертолёт (новые — только в конец этого списка)
   for (const [file, title, desc] of WEAPON_ICONS) out.push({ batch: 'weapons', cat: 'props', file, title, kind: 'new', size: '1024x1024', prompt: `${ICON_STYLE} ${desc} ${ASSET_STYLE.isolated}` });
   for (const [file, title, desc] of HELI_ASSETS) out.push({ batch: 'heli', cat: 'vehicles', file, title, kind: 'new', size: '768x1024', prompt: `${ASSET_STYLE.common} ${desc} ${ASSET_STYLE.isolated}` });
+  // текстуры 3D-модели вертолёта
+  for (const [file, title, desc] of HELI_TEXTURES) out.push({ batch: 'helitex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: `${HELI_TEX_STYLE} ${desc}` });
   return out;
 })();
 

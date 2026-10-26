@@ -310,14 +310,14 @@ if (MTEX.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_MODELTEX
 // план текстур 3D-моделей: какие материалы у каких моделей (из assets/models/*.js)
 {
   const window = {};
-  for (const f of ['hassanbek.js', 'models.js']) {
+  for (const f of ['hassanbek.js', 'models.js', 'heli.js']) {
     const fp = path.join(root, 'assets/models', f);
     if (fs.existsSync(fp)) new Function('window', fs.readFileSync(fp, 'utf8'))(window);
   }
   const M = window.GEN_MODELS || {};
-  const NAME = { hassanbek: 'Мечеть Хасан-Бек', reading: 'Электростанция Ридинг', shalom: 'Башня Шалом', habima: 'Театр Габима', kirya: 'Штаб в Кирье', stpeter: 'Церковь Св. Петра', lighthouse: 'Маяк Яффо', ruchurch: 'Русская церковь', dolphinarium: 'Дельфинариум', menora: 'Арена «Менора»', azrieli: 'Азриэли', clocktower: 'Часовая башня Яффо', citygate: '«Городские ворота»', agam: 'Фонтан Агама', house_bauhaus: 'Типовой дом: баухауз', house_60s: 'Типовой дом: 1960-е', house_eclectic: 'Типовой дом: эклектика 1920-х', opera: 'Башня «Опера» (Алленби)', operafountain: 'Фонтан на площади у «Оперы»' };
-  const T = ALL.filter((a) => a.batch === 'modeltex');
-  let out = '# План текстур 3D-моделей\n\n> Правило: к каждой новой модели сразу план текстур и промпты в задание на\n> генерацию. Текстуры общие для всех моделей — бесшовные материалы\n> (assets/gen/textures/m_*.png). Пока картинки нет, модель окрашена цветом.\n> Задание — CLAUDE_CHROME_ASSETS_MODELTEX.md, промпты — js/asset-manifest.js\n> (MODEL_TEXTURES), материалы → текстуры — tools/models/lib.py (TEX).\n> Файл собирается tools/build-asset-docs.js.\n\n## Текстуры\n\n| № | Файл | Что это | Есть |\n|---|---|---|---|\n';
+  const NAME = { hassanbek: 'Мечеть Хасан-Бек', reading: 'Электростанция Ридинг', shalom: 'Башня Шалом', habima: 'Театр Габима', kirya: 'Штаб в Кирье', stpeter: 'Церковь Св. Петра', lighthouse: 'Маяк Яффо', ruchurch: 'Русская церковь', dolphinarium: 'Дельфинариум', menora: 'Арена «Менора»', azrieli: 'Азриэли', clocktower: 'Часовая башня Яффо', citygate: '«Городские ворота»', agam: 'Фонтан Агама', house_bauhaus: 'Типовой дом: баухауз', house_60s: 'Типовой дом: 1960-е', house_eclectic: 'Типовой дом: эклектика 1920-х', opera: 'Башня «Опера» (Алленби)', operafountain: 'Фонтан на площади у «Оперы»', heli: 'Армейский вертолёт: корпус', heli_rotor: 'Армейский вертолёт: несущий винт', heli_tail: 'Армейский вертолёт: хвостовой винт' };
+  const T = ALL.filter((a) => a.batch === 'modeltex' || a.batch === 'helitex');
+  let out = '# План текстур 3D-моделей\n\n> Правило: к каждой новой модели сразу план текстур и промпты в задание на\n> генерацию. Текстуры общие для всех моделей — бесшовные материалы\n> (assets/gen/textures/m_*.png). Пока картинки нет, модель окрашена цветом.\n> Задание — CLAUDE_CHROME_ASSETS_MODELTEX.md (вертолёт — CLAUDE_CHROME_ASSETS_HELI.md), промпты — js/asset-manifest.js\n> (MODEL_TEXTURES), материалы → текстуры — tools/models/lib.py (TEX).\n> Файл собирается tools/build-asset-docs.js.\n\n## Текстуры\n\n| № | Файл | Что это | Есть |\n|---|---|---|---|\n';
   for (const a of T) out += `| ${a.n} | textures/${a.file}.png | ${a.title.replace('Текстура модели: ', '')} | ${have(a) ? 'да' : '—'} |\n`;
   out += '\n## Какие текстуры у каких моделей\n\n| Модель | Текстуры | Без текстуры (цвет) |\n|---|---|---|\n';
   for (const k of Object.keys(M)) {
@@ -336,6 +336,10 @@ if (MTEX.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_MODELTEX
 const BRAND_LIST = ALL.filter((a) => a.batch === 'brand' && !have(a));
 if (BRAND_LIST.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_BRAND.md'), flowDoc(BRAND_LIST, `Задание для Claude в Chrome: логотип и заставки загрузки (${BRAND_LIST.length})`,
   `> Логотип игры «ХАМСИН» и рисованные заставки загрузки с героями игры.\n>\n> **Референсы.** Пользователь даёт архив \`hamsin-refs-brand.zip\`: портреты\n> героев (\`ref_portrait_*.png\`), спрайты, машины и рендеры зданий. К каждому\n> запросу прикладывай файлы, перечисленные в пункте, — их имена есть и в\n> промпте. Герои должны быть узнаваемы по референсам.\n>\n> **Логотип.** Генераторы часто путают кириллицу: проверь, что написано ровно\n> «ХАМСИН» и «ЧАСТЬ 1: ТЕЛЬ-АВИВ». Если после трёх попыток буквы кривые —\n> пропусти пункт: надпись игра наложит сама поверх эмблемы (№ следующий).`, BRAND_LIST[0]));
+// текстуры 3D-модели вертолёта — отдельное задание
+const HTEX = ALL.filter((a) => a.batch === 'helitex' && !have(a));
+if (HTEX.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_HELI.md'), flowDoc(HTEX, `Задание для Claude в Chrome: текстуры 3D-модели армейского вертолёта (${HTEX.length})`,
+  `> Бесшовные текстуры для low-poly 3D-модели вымышленного армейского ударного\n> вертолёта (tools/models/heli.py): краска корпуса с панелями и заклёпками,\n> тёмный металл, стекло кабины, лопасти. Картинка должна бесшовно повторяться\n> по краям — без рамки и без предмета в центре, **без знаков, флагов, номеров\n> и надписей**. Пока картинки нет, модель окрашена цветом.\n>\n> Готовые файлы — \`textures/<имя>.png\` (1024×1024) в папку на Google Диске,\n> как обычно. План: docs/PLAN_TEXTURES.md.`, HTEX[0]));
 // значки оружия — отдельное задание
 const WEAP = ALL.filter((a) => a.batch === 'weapons' && !have(a));
 if (WEAP.length) fs.writeFileSync(path.join(root, 'CLAUDE_CHROME_ASSETS_WEAPONS.md'), flowDoc(WEAP, `Задание для Claude в Chrome: значки оружия (${WEAP.length})`,

@@ -27,6 +27,9 @@ TEX = {
     # Ихилов: панели, стекло с ламелями, вертолётная площадка (на всю фигуру), цветной детский корпус
     'hpanel': ('m_hosp_panel', 6.0, 1.0), 'louver': ('m_hosp_louver', 8.0, 1.0),
     'helipad': ('m_helipad', 1.0, 1.0), 'kids': ('m_kids_panels', 8.0, 1.0),
+    # армейский вертолёт (heli.py): краска с панелями, тёмный металл, стекло кабины, лопасти
+    'heliOlive': ('m_heli_olive', 3.0, 1.0), 'heliDark': ('m_heli_metal', 1.5, 1.0),
+    'heliGlass': ('m_heli_canopy', 1.5, 1.0), 'heliBlade': ('m_heli_blade', 2.0, 1.0),
 }
 
 

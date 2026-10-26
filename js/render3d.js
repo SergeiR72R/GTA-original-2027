@@ -1545,29 +1545,49 @@ const R3 = {
     if (!this.heli) {
       const lam = (c) => new THREE.MeshLambertMaterial({ color: c });
       const olive = lam(0x4b5320), dark = lam(0x23271b), glass = lam(0x1c2b36);
-      const g = new THREE.Group(), body = new THREE.Group();
-      const box = (w, h, l, m, x, y, z) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, l), m); o.position.set(x, y, z); o.castShadow = true; body.add(o); return o; };
-      box(26, 22, 58, olive, 0, 0, 0);
-      box(18, 14, 22, glass, 0, 4, -34);
-      box(7, 7, 62, olive, 0, 4, 58);
-      box(2, 20, 14, dark, 0, 14, 86);
-      box(60, 3, 10, dark, 0, -3, -2);
-      for (const sx of [-1, 1]) { const pod = new THREE.Mesh(new THREE.CylinderGeometry(3.5, 3.5, 20, 8).rotateX(Math.PI / 2), dark); pod.position.set(sx * 27, -7, -2); body.add(pod); }
-      box(4, 3, 40, dark, -13, -14, 0); box(4, 3, 40, dark, 13, -14, 0);
-      g.add(body);
-      // сгенерированная картинка сверху — если есть (вместо коробок корпуса)
-      const im = Assets.gen['vehicles/heli_military'];
-      let top = null;
-      if (im) {
-        top = new THREE.Mesh(new THREE.PlaneGeometry(90, 150).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ map: this.tex(im), transparent: true, alphaTest: 0.4 }));
-        top.position.set(0, 13, 20); g.add(top); body.visible = false;
+      const g = new THREE.Group();
+      let rotor = new THREE.Group(), tail;
+      const M = this.modelGeo('heli'), MR = this.modelGeo('heli_rotor'), MT = this.modelGeo('heli_tail');
+      if (M && MR && MT) {
+        // модель из Blender (tools/models/heli.py) в метрах: корпус и два винта отдельно
+        const S = 11; // px на метр: винт ≈ 160 px — крупнее машин, читается сверху
+        const part = (P, at) => { const m = new THREE.Mesh(P.g, P.mat); m.castShadow = true; m.scale.setScalar(S); if (at) m.position.set(at[0] * S, at[1] * S, at[2] * S); return m; };
+        g.add(part(M));
+        rotor.add(part(MR)); rotor.position.set(M.d.rotor[0] * S, M.d.rotor[1] * S, M.d.rotor[2] * S);
+        // размытый круг вращающихся лопастей
+        const disc = new THREE.Mesh(new THREE.CircleGeometry(7.2 * S, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.16, depthWrite: false }));
+        disc.position.y = M.d.rotor[1] * S; g.add(disc);
+        tail = new THREE.Group(); tail.add(part(MT)); tail.position.set(M.d.tail[0] * S, M.d.tail[1] * S, M.d.tail[2] * S);
+        g.position.y = -2 * S; // точка подвеса — у центра корпуса
+        const root = new THREE.Group(); root.add(g); g.add(rotor, tail);
+        // огни ночью: красный слева, зелёный справа, мигающий маячок сверху и на хвосте
+        const light = (c, x, y, z, k) => { const l = new THREE.Sprite(new THREE.SpriteMaterial({ map: this.tex(Facades.glow(c)), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 })); l.position.set(x * S, y * S, z * S); l.scale.set(k, k, 1); g.add(l); return l; };
+        this.heliLights = [light('rgba(255,60,50,1)', -3.4, 1.82, 0.4, 34), light('rgba(60,255,110,1)', 3.4, 1.82, 0.4, 34)];
+        this.heliBeacons = [light('rgba(255,70,50,1)', 0, 3.9, 1.6, 46), light('rgba(255,255,255,1)', 0, 2.8, 10.0, 30)];
+        // луч прожектора: конус от брюха до пятна на земле
+        const beam = new THREE.Mesh(new THREE.ConeGeometry(1, 1, 20, 1, true).translate(0, -0.5, 0), new THREE.MeshBasicMaterial({ color: 0xfff6d8, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+        this.scene.add(beam); this.heliBeam = beam;
+        this.scene.add(root);
+        this.heliRoot = root;
+      } else {
+        // запасной вид из коробок, пока нет модели
+        const body = new THREE.Group();
+        const box = (w, h, l, m, x, y, z) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, l), m); o.position.set(x, y, z); o.castShadow = true; body.add(o); return o; };
+        box(26, 22, 58, olive, 0, 0, 0);
+        box(18, 14, 22, glass, 0, 4, -34);
+        box(7, 7, 62, olive, 0, 4, 58);
+        box(2, 20, 14, dark, 0, 14, 86);
+        box(60, 3, 10, dark, 0, -3, -2);
+        for (const sx of [-1, 1]) { const pod = new THREE.Mesh(new THREE.CylinderGeometry(3.5, 3.5, 20, 8).rotateX(Math.PI / 2), dark); pod.position.set(sx * 27, -7, -2); body.add(pod); }
+        box(4, 3, 40, dark, -13, -14, 0); box(4, 3, 40, dark, 13, -14, 0);
+        g.add(body);
+        for (const a of [0, Math.PI / 2]) { const bl = new THREE.Mesh(new THREE.BoxGeometry(140, 1.5, 6), dark); bl.rotation.y = a; rotor.add(bl); }
+        rotor.position.y = 18; g.add(rotor);
+        tail = new THREE.Mesh(new THREE.BoxGeometry(1.5, 22, 4), dark); tail.position.set(4, 14, 88); g.add(tail);
+        g.scale.setScalar(1.3); // крупнее машин — чтобы читался сверху
+        this.scene.add(g);
+        this.heliRoot = g;
       }
-      const rotor = new THREE.Group();
-      for (const a of [0, Math.PI / 2]) { const bl = new THREE.Mesh(new THREE.BoxGeometry(140, 1.5, 6), dark); bl.rotation.y = a; rotor.add(bl); }
-      rotor.position.y = 18; g.add(rotor);
-      const tail = new THREE.Mesh(new THREE.BoxGeometry(1.5, 22, 4), dark); tail.position.set(4, 14, 88); g.add(tail);
-      g.scale.setScalar(1.3); // крупнее машин — чтобы читался сверху
-      this.scene.add(g);
       const shadow = new THREE.Mesh(new THREE.CircleGeometry(1, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3, depthWrite: false }));
       this.scene.add(shadow);
       const spot = new THREE.Mesh(new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: this.tex(Facades.glow('rgba(255,250,225,1)')), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 }));
@@ -1576,9 +1596,10 @@ const R3 = {
       for (let i = 0; i < 8; i++) {
         const m = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 16, 6).rotateX(Math.PI / 2), olive);
         const fl = new THREE.Sprite(new THREE.SpriteMaterial({ map: this.tex(Facades.glow('rgba(255,190,90,1)')), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
-        fl.scale.set(26, 26, 1); fl.position.z = -12; // хвост ракеты (нос смотрит на цель: +z) m.add(fl); m.visible = false; this.scene.add(m); rk.push(m);
+        fl.scale.set(26, 26, 1); fl.position.z = -12; // хвост ракеты (нос смотрит на цель: +z)
+        m.add(fl); m.visible = false; this.scene.add(m); rk.push(m);
       }
-      this.heli = { g, rotor, tail, shadow, spot, rk, sx: 0, sy: 0 };
+      this.heli = { g: this.heliRoot, rotor, tail, shadow, spot, rk, sx: 0, sy: 0 };
     }
     const o = this.heli;
     o.g.visible = o.shadow.visible = !!H;
@@ -1594,7 +1615,18 @@ const R3 = {
       o.sx = lerp(o.sx || pl.x, pl.x, 0.04); o.sy = lerp(o.sy || pl.y, pl.y, 0.04);
       o.spot.position.set(o.sx, 1.6, o.sy); o.spot.scale.set(220, 1, 220);
       o.spot.material.opacity = H.state === 'hunt' ? night * 1.1 : 0;
-    } else o.spot.material.opacity = 0;
+      if (this.heliLights) {
+        for (const l of this.heliLights) l.material.opacity = 0.35 + night * 0.65;
+        this.heliBeacons.forEach((l, i) => { l.material.opacity = (World.time * 1.3 + i * 0.5) % 1 < 0.12 ? 1 : 0; });
+        // луч: вершина у брюха, основание — пятно прожектора
+        const b = this.heliBeam, top = new THREE.Vector3(H.x, H.alt - 10, H.y), dn = new THREE.Vector3(o.sx, 0, o.sy);
+        const L = top.distanceTo(dn);
+        b.visible = H.state === 'hunt' && night > 0.05;
+        b.material.opacity = night * 0.1;
+        b.position.copy(top); b.scale.set(105, L, 105);
+        b.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), dn.sub(top).normalize());
+      }
+    } else { o.spot.material.opacity = 0; if (this.heliBeam) this.heliBeam.visible = false; }
     o.rk.forEach((m, i) => {
       const r = Heli.rockets[i];
       m.visible = !!r;

@@ -3,7 +3,7 @@
 > Правило: к каждой новой модели сразу план текстур и промпты в задание на
 > генерацию. Текстуры общие для всех моделей — бесшовные материалы
 > (assets/gen/textures/m_*.png). Пока картинки нет, модель окрашена цветом.
-> Задание — CLAUDE_CHROME_ASSETS_MODELTEX.md, промпты — js/asset-manifest.js
+> Задание — CLAUDE_CHROME_ASSETS_MODELTEX.md (вертолёт — CLAUDE_CHROME_ASSETS_HELI.md), промпты — js/asset-manifest.js
 > (MODEL_TEXTURES), материалы → текстуры — tools/models/lib.py (TEX).
 > Файл собирается tools/build-asset-docs.js.
 
@@ -44,6 +44,10 @@
 | 359 | textures/m_hosp_louver.png | Стекло с белыми ламелями (башня Сами Офера) | да |
 | 360 | textures/m_helipad.png | Вертолётная площадка на крыше (сверху) | да |
 | 361 | textures/m_kids_panels.png | Цветные панели детской больницы (Дана-Двек) | да |
+| 371 | textures/m_heli_olive.png | Вертолёт: оливковая краска корпуса с панелями | — |
+| 372 | textures/m_heli_metal.png | Вертолёт: тёмный металл (двигатели, пилоны, лыжи) | — |
+| 373 | textures/m_heli_canopy.png | Вертолёт: стекло кабины | — |
+| 374 | textures/m_heli_blade.png | Вертолёт: лопасти винтов | — |
 
 ## Какие текстуры у каких моделей
 
@@ -69,6 +73,9 @@
 | Русская церковь | m_blueroof, m_gold, m_patina, m_white | cap, dark |
 | Башня Шалом | m_brown, m_glass, m_metal | cap |
 | Церковь Св. Петра | m_brick, m_gold, m_roofT, m_stone, m_wood | cap, dark |
+| Армейский вертолёт: корпус | m_heli_metal, m_heli_canopy, m_heli_olive | black, lamp, navG, navR |
+| Армейский вертолёт: несущий винт | m_heli_blade, m_heli_metal | heliTip |
+| Армейский вертолёт: хвостовой винт | m_heli_blade, m_heli_metal | heliTip |
 
 Без текстуры остаются проёмы окон, краска (ставни, разметка, колёса фонтана) и фонарь маяка.
 

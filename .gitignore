@@ -8,3 +8,4 @@ hamsin-refs-brand.zip
 tools/logo/*.ttf
 tools/logo/*.png
 hamsin-itch.zip
+__pycache__/

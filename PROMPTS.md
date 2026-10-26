@@ -34,7 +34,7 @@ Claude в Chrome).
 | Текстуры | без фона, бесшовная | вид сверху | квадрат 1024×1024 |
 | Портреты | свой цветной фон | по плечи, лицом к зрителю | квадрат |
 
-# Список (370)
+# Список (374)
 
 ## Машины (123)
 
@@ -1216,7 +1216,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Текстуры (45)
+## Текстуры (49)
 
 ### 147. `textures/asphalt.png` — Асфальт
 
@@ -2638,7 +2638,7 @@ Use the attached reference image ref_semyon.png (Семён). Draw EXACTLY this 
 ```
 
 
-## Текстуры (45)
+## Текстуры (49)
 
 ### 318. `textures/m_stone.png` — Текстура модели: Камень Яффо (известняк)
 
@@ -2884,7 +2884,7 @@ Head-and-shoulders caricature portrait for the phone-call dialog box of a satiri
 ```
 
 
-## Текстуры (45)
+## Текстуры (49)
 
 ### 348. `textures/m_pinkpaint.png` — Текстура модели: Розовая краска балконов («Опера»)
 
@@ -2970,7 +2970,7 @@ Loading-screen illustration for a satirical open-world crime video game set in T
 ```
 
 
-## Текстуры (45)
+## Текстуры (49)
 
 ### 358. `textures/m_hosp_panel.png` — Текстура модели: Белые фасадные панели больницы (Ихилов)
 
@@ -3080,5 +3080,40 @@ Game item icon for the weapon shop and pickups of a stylized top-down crime vide
 
 ```
 Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A fictional military attack helicopter seen from directly above (top-down, orthographic), NOSE POINTING UP: slim olive-drab fuselage with a narrow tandem two-seat glass cockpit at the front, short stub wings on both sides with rocket pods under them, a long thin tail boom with a small tail fin and tail rotor at the bottom, only the round main rotor hub on top WITHOUT the long main rotor blades. Matte olive green paint, dark grey details, no national insignia, no numbers, no text, no real-world markings. The helicopter fills about 85% of the image height. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+
+## Текстуры (49)
+
+### 371. `textures/m_heli_olive.png` — Текстура модели: Вертолёт: оливковая краска корпуса с панелями
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of the outer surface of a military helicopter for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no numbers, no letters, no insignia, no flags, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Matte olive-drab military paint (around #4B5320) on aircraft aluminium skin: large rectangular access panels outlined by thin dark seams, neat rows of small flush rivets along the seams, a couple of small hatches with latches, subtle dust, slightly faded patches and light scuffs. One uniform olive colour, no camouflage blotches, no markings.
+```
+
+### 372. `textures/m_heli_metal.png` — Текстура модели: Вертолёт: тёмный металл (двигатели, пилоны, лыжи)
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of the outer surface of a military helicopter for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no numbers, no letters, no insignia, no flags, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Dark gunmetal-grey painted steel with fine scratches, oil and soot stains, small hex bolts and a few narrow vent slots; matte, slightly worn bright edges.
+```
+
+### 373. `textures/m_heli_canopy.png` — Текстура модели: Вертолёт: стекло кабины
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of the outer surface of a military helicopter for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no numbers, no letters, no insignia, no flags, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Dark tinted armoured cockpit glass of a helicopter: smoky blue-green glass with soft diagonal sky reflections and faint streaks, very subtle and even; no frames, no pilots, nothing behind the glass.
+```
+
+### 374. `textures/m_heli_blade.png` — Текстура модели: Вертолёт: лопасти винтов
+
+Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture of the outer surface of a military helicopter for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no numbers, no letters, no insignia, no flags, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Matte charcoal-black composite helicopter rotor blade surface: very fine lengthwise grain, faint sanding marks, light dust; almost uniform.
 ```
 
