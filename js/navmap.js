@@ -128,7 +128,7 @@ const NavMap = {
   km(d) {
     const m = d / TILE * 20;
     const km = (m / 1000).toFixed(1);
-    return m < 1000 ? T('{0} м', Math.round(m / 10) * 10) : T('{0} км', I18N.he ? km : km.replace('.', ','));
+    return m < 1000 ? T('{0} м', Math.round(m / 10) * 10) : T('{0} км', I18N.lang === 'ru' ? km.replace('.', ',') : km);
   },
 
   // маршрут на мини-карте (toMap — пересчёт мира в пиксели мини-карты)

@@ -30,7 +30,7 @@ const Brand = {
 
   // логотип на языке игры; если картинка не загрузилась — текстовый
   setLang() {
-    const src = `assets/brand/logo_${typeof I18N !== 'undefined' && I18N.he ? 'he' : 'ru'}.webp`;
+    const src = `assets/brand/logo_${typeof I18N === 'undefined' ? 'ru' : I18N.lang}.webp`;
     for (const el of document.querySelectorAll('.brand')) {
       const img = el.querySelector('.emblem');
       if (img.getAttribute('src') === src) continue;

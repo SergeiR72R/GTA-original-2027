@@ -82,7 +82,7 @@ const HUD = {
       ctx.globalAlpha = 1;
     }
     const st = pl.car ? City.streetAt(pl.x, pl.y) : null;
-    if (st) this.text(ctx, T('ул. ') + T(st), vw / 2, this.districtT > 0 ? (this.turf ? 102 : 80) : 40, 16, '#e0e0e0', 'center', 'normal');
+    if (st) this.text(ctx, (I18N.en ? T(st) + (/Highway|Blvd|Boulevard|Promenade|Tayelet|Port|Road/.test(T(st)) ? '' : ' St.') : T('ул. ') + T(st)), vw / 2, this.districtT > 0 ? (this.turf ? 102 : 80) : 40, 16, '#e0e0e0', 'center', 'normal');
 
     this.drawMinimap(ctx, vw, vh);
     this.drawObjective(ctx, vw, vh);
@@ -223,8 +223,8 @@ const HUD = {
     // на иврите транскрипция не нужна — только смысл по-русски переведён
     if (I18N.he) this.text(ctx, T(W.w[2]) + ' —', x + 234, y + 82, 13, '#e0f2f1', 'right', 'normal');
     else {
-      this.text(ctx, W.w[1], x + 10, y + 76, 18, '#ffe082');
-      this.text(ctx, '— ' + W.w[2], x + 10, y + 100, 12, '#e0f2f1', 'left', 'normal');
+      this.text(ctx, T(W.w[1]), x + 10, y + 76, 18, '#ffe082');
+      this.text(ctx, '— ' + T(W.w[2]), x + 10, y + 100, 12, '#e0f2f1', 'left', 'normal');
     }
     ctx.globalAlpha = 1;
   },
@@ -335,7 +335,7 @@ const HUD = {
       if (rtl) tr = px - 16; else tx = px + ps + 16;
     }
     const ax = rtl ? tr : tx, al = rtl ? 'right' : 'left', far = rtl ? x + 18 : x + w - 18, fal = rtl ? 'left' : 'right';
-    this.text(ctx, rtl ? T(who) + (d.tv ? ' 📺' : ' ☎') : (d.tv ? '📺 ' : '☎ ') + who, ax, y + 30, 20, '#ffd23f', al);
+    this.text(ctx, rtl ? T(who) + (d.tv ? ' 📺' : ' ☎') : (d.tv ? '📺 ' : '☎ ') + T(who), ax, y + 30, 20, '#ffd23f', al);
     if (d.i === 0) this.text(ctx, d.title, far, y + 30, 16, '#9be15d', fal);
     ctx.font = '18px "Trebuchet MS", "Segoe UI", sans-serif';
     ctx.fillStyle = '#fff'; ctx.textAlign = al;

@@ -1,4 +1,5 @@
-// Язык интерфейса: русский или иврит. Ключ — русская строка, перевод — в HE.
+// Язык интерфейса: русский, иврит или английский. Ключ — русская строка,
+// перевод — в HE (иврит) или EN (английский, js/i18n-en.js).
 // T('строка') — перевод (нет перевода — строка как есть); {0}, {1} — подстановки.
 // HUD.text, Game.message и bigText переводят сами — достаточно, чтобы строка
 // целиком совпала с ключом. Окна диалогов, разговоры в дороге, подсказки E и
@@ -168,6 +169,26 @@ const I18N = {
     'Салама': 'סלמה', 'Иерусалимский бульвар': 'שדרות ירושלים', 'Яффо-Порт': 'נמל יפו',
   },
 
+  // английский: те же ключи, перевод — в js/i18n-en.js
+  EN: {},
+
+  // HTML на английском (data-th)
+  HTML_EN: {
+    story: 'Lyova Goldman landed from St. Petersburg three days ago on the aliyah program. A peeling rented flat in Florentin, ₪&nbsp;500 in his pocket, Hebrew at the "beseder" level, and a landlord who wants a deposit and twelve checks in advance. Lyova takes any job: food delivery, taxi… and then something more serious.',
+    c1: '<b>On foot:</b> WASD/arrows — walk · mouse or Space/Ctrl — shoot · Q/Tab or 1–8 — weapon · F/Enter — get in a car',
+    c2: '<b>Driving:</b> W/S — gas/brake · A/D — steer · Space — handbrake · H — horn · R — radio · F — get out',
+    c3: '<b>Side jobs:</b> J — "Shmone-Bis" shift on a scooter or a taxi shift · Esc — pause · M — map · N — sound · V — camera',
+    c4: '<b>Graphics:</b> O — quality (auto/high/medium/low) · F3 — FPS and GPU',
+    p1: '<b>On foot:</b> WASD/arrows — walk, Shift — slow · mouse (left button) or Space/Ctrl — shoot/hit · Q/Tab or 1–8 — weapon · F/Enter — get in a car (steal it)',
+    p2: '<b>Driving:</b> W/S — gas/brake/reverse · A/D — steer · Space — handbrake · H — horn · R — radio · F/Enter — get out',
+    p3: '<b>Weapons:</b> gun shops in every gang district and in Florentin, Rafi\'s black market in the port — orange diamonds on the map (M)',
+    p4: '<b>Wanted:</b> get out of police sight or repaint your car at a paint shop (₪&nbsp;500)',
+    p5: '<b>Missions:</b> go to the ringing payphone ☎ — the yellow arrow shows the way',
+    p6: '<b>Side jobs:</b> on a "Shmone-Bis" scooter (orange box) or in a taxi — press J',
+    p7: '<b>Gangs:</b> the "Odessa" Brigade (Ramat Gan), the Al-Bahar Clan (Jaffa), the "Lions of Gondar" (south). Respect below −25 — they shoot on sight, above +25 — you\'re one of them',
+    end: '"Odessa" is now an enemy, Karim is home at his uncle\'s, and "Ali" thinks Lyova works for him. Night at the gate of Itzik\'s garage: a van with no plates, a bag over the head… Lyova has <span id="end-money"></span> on his account. His Hebrew is still at the "beseder" level.',
+  },
+
   // HTML: элементы с data-t (текст) и data-th (с разметкой) — русский оригинал хранится в data-ru
   HTML: {
     story: 'לב גולדמן נחת לפני שלושה ימים מפטרבורג בתוכנית העלייה. דירה שכורה ומתקלפת בפלורנטין, ₪&nbsp;500 בכיס, עברית ברמת "בסדר" ובעל בית שרוצה פיקדון ושנים־עשר צ׳קים מראש. ליובה לוקח כל עבודה: משלוחי אוכל, מונית… ואחר כך גם עבודות רציניות יותר.',
@@ -186,7 +207,7 @@ const I18N = {
   },
 
   init() {
-    try { const l = localStorage.getItem('hamsin.lang'); if (l === 'he' || l === 'ru') this.lang = l; } catch (e) { /* без хранилища */ }
+    try { const l = localStorage.getItem('hamsin.lang'); if (l === 'he' || l === 'ru' || l === 'en') this.lang = l; } catch (e) { /* без хранилища */ }
     for (const b of document.querySelectorAll('.lang button')) {
       b.addEventListener('click', () => { this.set(b.dataset.lang); b.blur(); });
     }
@@ -200,20 +221,23 @@ const I18N = {
   },
 
   get he() { return this.lang === 'he'; },
+  get en() { return this.lang === 'en'; },
+  // словарь текущего языка (у русского — нет, строки и так русские)
+  get dict() { return this.lang === 'he' ? this.HE : this.lang === 'en' ? this.EN : null; },
 
   applyDom() {
-    const he = this.he;
-    document.documentElement.lang = he ? 'he' : 'ru';
+    const he = this.he, D = this.dict, H = he ? this.HTML : this.en ? this.HTML_EN : null;
+    document.documentElement.lang = this.lang;
     document.documentElement.dir = he ? 'rtl' : 'ltr';
     for (const el of document.querySelectorAll('[data-t]')) {
       if (el.dataset.ru === undefined) el.dataset.ru = el.textContent;
-      el.textContent = he ? (this.HE[el.dataset.ru] || el.dataset.ru) : el.dataset.ru;
+      el.textContent = D ? (D[el.dataset.ru] || el.dataset.ru) : el.dataset.ru;
     }
     for (const el of document.querySelectorAll('[data-th]')) {
       if (el.dataset.ru === undefined) el.dataset.ru = el.innerHTML;
       const money = document.getElementById('end-money');
       const keep = money && el.contains(money) ? money.textContent : null;
-      el.innerHTML = he ? (this.HTML[el.dataset.th] || el.dataset.ru) : el.dataset.ru;
+      el.innerHTML = H ? (H[el.dataset.th] || el.dataset.ru) : el.dataset.ru;
       if (keep !== null) document.getElementById('end-money').textContent = keep;
     }
     for (const b of document.querySelectorAll('.lang button')) b.classList.toggle('on', b.dataset.lang === this.lang);
@@ -223,7 +247,8 @@ const I18N = {
 
 function T(s, ...a) {
   if (typeof s !== 'string') return s;
-  const r = (I18N.lang === 'he' && I18N.HE[s]) || s;
+  const D = I18N.dict;
+  const r = (D && D[s]) || s;
   return a.length ? r.replace(/\{(\d)\}/g, (_, i) => (a[i] === undefined ? '' : a[i])) : r;
 }
 

@@ -474,7 +474,7 @@ const Sound = {
       if (songOn && !S.shown && !S.el.paused && S.el.currentTime > 0.2) {
         S.shown = true;
         const t = S.songs[S.order[S.k]];
-        Game.message(I18N.he ? `📻 ${t.he}` : `📻 ${t.title} — ${t.genre}`, 4);
+        Game.message(I18N.he ? `📻 ${t.he}` : `📻 ${T(t.title)} — ${T(t.genre)}`, 4);
       }
     }
   },

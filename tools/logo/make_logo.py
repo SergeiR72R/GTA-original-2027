@@ -6,7 +6,7 @@
 Русская — шрифт Oswald Bold, ивритская — Rubik Black (оба OFL, Google Fonts;
 положи файлы Oswald-Bold.ttf и Rubik-Black.ttf рядом со скриптом:
 https://fonts.google.com/specimen/Oswald и https://fonts.google.com/specimen/Rubik).
-Результат: assets/brand/logo_ru.webp, logo_he.webp (для игры, 1000 px) и
+Результат: assets/brand/logo_ru.webp, logo_he.webp, logo_en.webp (для игры, 1000 px) и
 hamsin_logo_ru.png, hamsin_logo_he.png (для скачивания, 1468 px) в tools/logo/.
 
 Запуск: python3 tools/logo/make_logo.py   (нужен Pillow с raqm для иврита)
@@ -58,8 +58,9 @@ def place(lay):
 
 ru = place(label('ХАМСИН', 'Oswald-Bold.ttf', 76 * K, 1.0))
 he = place(label('חמסין', 'Rubik-Black.ttf', 76 * K, 0.95, rtl=True))
-ru.save('hamsin_logo_ru.png'); he.save('hamsin_logo_he.png')
-for lang, im in (('ru', ru), ('he', he)):
+en = place(label('HAMSIN', 'Oswald-Bold.ttf', 76 * K, 1.0))
+ru.save('hamsin_logo_ru.png'); he.save('hamsin_logo_he.png'); en.save('hamsin_logo_en.png')
+for lang, im in (('ru', ru), ('he', he), ('en', en)):
     im.resize((1000, round(im.height * 1000 / im.width)), Image.LANCZOS).save(os.path.join(ROOT, f'assets/brand/logo_{lang}.webp'), quality=92, method=6)
 os.remove('emblem.png')
 print('логотипы готовы', ru.size)
