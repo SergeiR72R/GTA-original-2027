@@ -992,6 +992,9 @@ function updateBullets(dt) {
     const nx = b.x + b.vx * dt, ny = b.y + b.vy * dt;
     let hit = false;
     const byPlayer = b.owner === pl;
+    // армейский вертолёт (попадание — по его точке над землёй)
+    const H = typeof Heli !== 'undefined' && Heli.h;
+    if (byPlayer && H && H.state !== 'down' && segCircle(b.x, b.y, nx, ny, H.x, H.y, 46) >= 0) { Heli.hit(WEAPONS[b.weapon].dmg, 'player'); World.bullets.splice(i, 1); continue; }
     // люди
     for (const p of World.peds) {
       if (p.dead || p === b.owner || p.car) continue;
@@ -1094,6 +1097,8 @@ function updateProjectiles(dt) {
       if (Math.random() < 0.8) spawnParticle(q.x, q.y, 'smoke');
       boom = q.t > 1.5 || City.solidAt(nx, ny);
       for (const c of World.cars) if (!boom && c !== (q.owner.car || null) && !c.dead && c.contains(nx, ny, 4)) { boom = true; q.hitCar = c; }
+      const H = byPl && typeof Heli !== 'undefined' && Heli.h;
+      if (!boom && H && H.state !== 'down' && dist2(H.x, H.y, nx, ny) < 55 * 55) { boom = true; Heli.hit(Heli.HP / 2 + 10, 'player'); }
       for (const p of World.peds) if (!boom && p !== q.owner && !p.dead && !p.car && dist2(p.x, p.y, nx, ny) < 16 * 16) boom = true;
       if (!boom && !byPl && !pl.dead && (pl.car ? pl.car.contains(nx, ny, 4) : dist2(pl.x, pl.y, nx, ny) < 16 * 16)) boom = true;
       q.x = nx; q.y = ny;
@@ -1151,7 +1156,6 @@ function blast(x, y, opts = {}) {
     const d = dist(p.x, p.y, x, y);
     if (d < r) p.hurt(120, opts.by, x, y);
   }
-  if (typeof Heli !== 'undefined') Heli.blastNear(x, y, r, opts.by);
   panic(x, y, 900);
   if (!pl.car && !pl.dead) { const d = dist(pl.x, pl.y, x, y); if (d < r) Game.playerHurt((opts.plDmg || 80) * (1 - d / r) + 10, 'explosion'); }
 }

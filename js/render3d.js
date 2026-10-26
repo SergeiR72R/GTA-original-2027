@@ -1538,6 +1538,72 @@ const R3 = {
     });
   },
 
+  // Армейский вертолёт (js/heli.js): корпус, кабина, хвост, пилоны с ракетами,
+  // два винта; тень на земле, ночью — пятно прожектора. Ракеты — с огненным хвостом
+  syncHeli(night) {
+    const H = Heli.h;
+    if (!this.heli) {
+      const lam = (c) => new THREE.MeshLambertMaterial({ color: c });
+      const olive = lam(0x4b5320), dark = lam(0x23271b), glass = lam(0x1c2b36);
+      const g = new THREE.Group(), body = new THREE.Group();
+      const box = (w, h, l, m, x, y, z) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, l), m); o.position.set(x, y, z); o.castShadow = true; body.add(o); return o; };
+      box(26, 22, 58, olive, 0, 0, 0);
+      box(18, 14, 22, glass, 0, 4, -34);
+      box(7, 7, 62, olive, 0, 4, 58);
+      box(2, 20, 14, dark, 0, 14, 86);
+      box(60, 3, 10, dark, 0, -3, -2);
+      for (const sx of [-1, 1]) { const pod = new THREE.Mesh(new THREE.CylinderGeometry(3.5, 3.5, 20, 8).rotateX(Math.PI / 2), dark); pod.position.set(sx * 27, -7, -2); body.add(pod); }
+      box(4, 3, 40, dark, -13, -14, 0); box(4, 3, 40, dark, 13, -14, 0);
+      g.add(body);
+      // сгенерированная картинка сверху — если есть (вместо коробок корпуса)
+      const im = Assets.gen['vehicles/heli_military'];
+      let top = null;
+      if (im) {
+        top = new THREE.Mesh(new THREE.PlaneGeometry(90, 150).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ map: this.tex(im), transparent: true, alphaTest: 0.4 }));
+        top.position.set(0, 13, 20); g.add(top); body.visible = false;
+      }
+      const rotor = new THREE.Group();
+      for (const a of [0, Math.PI / 2]) { const bl = new THREE.Mesh(new THREE.BoxGeometry(140, 1.5, 6), dark); bl.rotation.y = a; rotor.add(bl); }
+      rotor.position.y = 18; g.add(rotor);
+      const tail = new THREE.Mesh(new THREE.BoxGeometry(1.5, 22, 4), dark); tail.position.set(4, 14, 88); g.add(tail);
+      g.scale.setScalar(1.3); // крупнее машин — чтобы читался сверху
+      this.scene.add(g);
+      const shadow = new THREE.Mesh(new THREE.CircleGeometry(1, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3, depthWrite: false }));
+      this.scene.add(shadow);
+      const spot = new THREE.Mesh(new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: this.tex(Facades.glow('rgba(255,250,225,1)')), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 }));
+      this.scene.add(spot);
+      const rk = [];
+      for (let i = 0; i < 8; i++) {
+        const m = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 16, 6).rotateX(Math.PI / 2), olive);
+        const fl = new THREE.Sprite(new THREE.SpriteMaterial({ map: this.tex(Facades.glow('rgba(255,190,90,1)')), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+        fl.scale.set(26, 26, 1); fl.position.z = -12; // хвост ракеты (нос смотрит на цель: +z) m.add(fl); m.visible = false; this.scene.add(m); rk.push(m);
+      }
+      this.heli = { g, rotor, tail, shadow, spot, rk, sx: 0, sy: 0 };
+    }
+    const o = this.heli;
+    o.g.visible = o.shadow.visible = !!H;
+    if (H) {
+      o.g.position.set(H.x, H.alt, H.y);
+      o.g.rotation.set(-H.tilt, -H.a, H.state === 'down' ? Math.sin(H.t * 5) * 0.3 : 0, 'YXZ');
+      o.rotor.rotation.y = World.time * 24;
+      o.tail.rotation.x = World.time * 40;
+      const s = 1 - H.alt / 600;
+      o.shadow.position.set(H.x + 30, 1.4, H.y + 30); o.shadow.scale.set(60 * s, 1, 60 * s); o.shadow.material.opacity = 0.32 * s;
+      // прожектор ночью: пятно света ищет героя с запаздыванием
+      const pl = World.player;
+      o.sx = lerp(o.sx || pl.x, pl.x, 0.04); o.sy = lerp(o.sy || pl.y, pl.y, 0.04);
+      o.spot.position.set(o.sx, 1.6, o.sy); o.spot.scale.set(220, 1, 220);
+      o.spot.material.opacity = H.state === 'hunt' ? night * 1.1 : 0;
+    } else o.spot.material.opacity = 0;
+    o.rk.forEach((m, i) => {
+      const r = Heli.rockets[i];
+      m.visible = !!r;
+      if (!r) return;
+      m.position.set(r.x, r.z + 4, r.y);
+      m.lookAt(r.tx, 0, r.ty);
+    });
+  },
+
   syncFx(view) {
     // пули
     const bp = this.bulletGeo.attributes.position.array;
@@ -1559,7 +1625,7 @@ const R3 = {
       const pos = fx.geometry.attributes.position.array, col = fx.geometry.attributes.color.array;
       let y = 18, r = 1, g = 1, bl = 1;
       if (p.k === 'fire') { y = 20 + p.t * 40; r = 1; g = 0.45 + 0.45 * k; bl = 0.15 * k; r *= k; g *= k; bl *= k; }
-      else if (p.k === 'smoke') { y = 30 + p.t * 50; const v = 0.25 + 0.1 * k; r = g = bl = v; }
+      else if (p.k === 'smoke') { y = 30 + (p.z || 0) + p.t * 50; const v = 0.25 + 0.1 * k; r = g = bl = v; }
       else if (p.k === 'spark') { r = k; g = 0.9 * k; bl = 0.5 * k; }
       else if (p.k === 'blood') { y = 6; r = 0.6; g = 0.03; bl = 0.03; }
       else if (p.k === 'flash') { y = 14; r = 1; g = 0.95; bl = 0.7; }
@@ -1739,6 +1805,7 @@ const R3 = {
     this.syncStory();
     this.syncFx(view);
     this.syncExplosions(night);
+    this.syncHeli(night);
     this.syncStrikes();
     this.syncProjectiles();
     this.syncLights(view);

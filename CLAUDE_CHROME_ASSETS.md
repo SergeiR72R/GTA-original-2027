@@ -7,8 +7,8 @@
 
 ## Цель
 
-Сгенерировать в **Gemini** (https://gemini.google.com) 369 картинок для
-браузерной игры с видом сверху: 122 спрайтов машин (каждая — целая и
+Сгенерировать в **Gemini** (https://gemini.google.com) 370 картинок для
+браузерной игры с видом сверху: 123 спрайтов машин (каждая — целая и
 три стадии повреждений), 108 персонажей, 30 фасадов и витрин,
 33 объектов улиц, 45 текстур и 22 портретов героев для окна звонка. Скачать каждую картинку **ровно один раз и строго по порядку
 номеров** из списка ниже.
@@ -94,9 +94,9 @@ only add the damage» и повтори.
 
 ---
 
-# Список ассетов (369)
+# Список ассетов (370)
 
-## Машины (122)
+## Машины (123)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -1653,7 +1653,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Машины (122)
+## Машины (123)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -1993,7 +1993,7 @@ Edit the previous image of this exact character. Keep EXACTLY the same person, f
 ```
 
 
-## Машины (122)
+## Машины (123)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -2141,7 +2141,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Машины (122)
+## Машины (123)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -2332,7 +2332,7 @@ Edit the previous image of this exact character. Keep EXACTLY the same person, f
 ```
 
 
-## Машины (122)
+## Машины (123)
 
 Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
 
@@ -3183,5 +3183,18 @@ Game item icon for the weapon shop and pickups of a stylized top-down crime vide
 
 ```
 Game item icon for the weapon shop and pickups of a stylized top-down crime video game set in Tel Aviv: clean stylized illustration, crisp dark outlines, soft cel shading with light from the top-left, slightly stylized realistic proportions, readable at a small size, single object centered. Generic design without any real brand names, serial numbers, markings or logos. No hands, no people, no text, no watermark. A dark grey-blue tactical bulletproof vest with shoulder straps, front panel pockets and velcro, front view, upright, symmetric, fills about 75% of the image height. No letters or patches with text. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
+
+## Машины (123)
+
+Каждую машину делай в **новом чате**: сначала базовая картинка, затем три правки той же картинки (`_d1`, `_d2`, `_d3`) в этом же чате.
+
+### 370. `vehicles/heli_military.png` — Армейский ударный вертолёт (сверху)
+
+- [ ] Новая картинка, формат вертикальный 3:4.
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A fictional military attack helicopter seen from directly above (top-down, orthographic), NOSE POINTING UP: slim olive-drab fuselage with a narrow tandem two-seat glass cockpit at the front, short stub wings on both sides with rocket pods under them, a long thin tail boom with a small tail fin and tail rotor at the bottom, only the round main rotor hub on top WITHOUT the long main rotor blades. Matte olive green paint, dark grey details, no national insignia, no numbers, no text, no real-world markings. The helicopter fills about 85% of the image height. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
 ```
 

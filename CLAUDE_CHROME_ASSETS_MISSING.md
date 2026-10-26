@@ -1,8 +1,8 @@
-# Задание для Claude в Chrome: недостающие ассеты (1)
+# Задание для Claude в Chrome: недостающие ассеты (2)
 
 > Откройте этот файл в боковой панели **Claude в Chrome** и скажите:
 > «Выполни задание из этого файла».
-> Единое задание: всё, чего пока нет в игре (1) — Логотип «ХАМСИН» с надписью. Файл собирается автоматически.
+> Единое задание: всё, чего пока нет в игре (2) — Армейский ударный вертолёт (сверху), Логотип «ХАМСИН» с надписью. Файл собирается автоматически.
 
 ## Главное правило: имя файла
 
@@ -51,7 +51,18 @@
 
 ---
 
-# Список (1): № 349
+# Список (2): № 370, 349
+
+## Машины (1)
+
+### 370. `vehicles/heli_military.png` — Армейский ударный вертолёт (сверху)
+
+- [ ] Новая картинка, формат портрет 3:4 (если нет — 9:16).
+
+```
+Top-down 2D game sprite, orthographic view from directly above, clean stylized illustration in the style of a modern indie top-down crime game, crisp outlines, soft cel shading with light coming from the top-left, warm Mediterranean daylight colors, high detail but readable at small size, single object centered, no text, no logos, no watermark. A fictional military attack helicopter seen from directly above (top-down, orthographic), NOSE POINTING UP: slim olive-drab fuselage with a narrow tandem two-seat glass cockpit at the front, short stub wings on both sides with rocket pods under them, a long thin tail boom with a small tail fin and tail rotor at the bottom, only the round main rotor hub on top WITHOUT the long main rotor blades. Matte olive green paint, dark grey details, no national insignia, no numbers, no text, no real-world markings. The helicopter fills about 85% of the image height. Isolated on a perfectly flat solid magenta background (#FF00FF), no shadow on the background, no gradient, no checkerboard.
+```
+
 
 ## Логотип и заставки (1)
 

@@ -150,7 +150,7 @@ const Game = {
   hit(...codes) { return codes.some((c) => this.pressed[c]); },
 
   togglePause() {
-    if (this.state === 'play') { this.state = 'pause'; document.getElementById('pause').classList.remove('hidden'); Sound.setEngine(false, 0); Sound.setRadio(false); Sound.setSiren(0); }
+    if (this.state === 'play') { this.state = 'pause'; document.getElementById('pause').classList.remove('hidden'); Sound.setEngine(false, 0); Sound.setRadio(false); Sound.setSiren(0); Sound.setRotor(0); }
     else if (this.state === 'pause') { this.state = 'play'; document.getElementById('pause').classList.add('hidden'); }
   },
 
@@ -476,7 +476,7 @@ const Game = {
 
   partComplete() {
     this.state = 'end';
-    Sound.setEngine(false, 0); Sound.setSiren(0);
+    Sound.setEngine(false, 0); Sound.setSiren(0); Sound.setRotor(0);
     document.getElementById('end-money').textContent = formatMoney(World.player.money);
     document.getElementById('end').classList.remove('hidden');
   },
@@ -759,6 +759,7 @@ const Game = {
     if (this.state === 'play') {
       Wanted.update(dt);
       Police.update(dt);
+      Heli.update(dt);
       Missions.update(dt);
       Factions.update(dt);
       Beach.update(dt);
@@ -855,6 +856,7 @@ const Game = {
     }
     drawBullets(ctx);
     drawProjectiles(ctx);
+    Heli.draw2D(ctx);
     drawParticles(ctx);
     City.nightWin = [];
     City.drawTall(ctx, view, this.cam, World.time);

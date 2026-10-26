@@ -3,6 +3,8 @@
 'use strict';
 
 Object.assign(I18N.EN, {
+  "Армейский вертолёт!": "Army helicopter!",
+  "Вертолёт сбит! +₪{0}": "Helicopter down! +₪{0}",
   "Часть 1 · Тель-Авив": "Part 1 · Tel Aviv",
   "Продолжить": "Continue",
   "Новая игра": "New Game",

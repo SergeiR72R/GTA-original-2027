@@ -74,6 +74,9 @@ const Wanted = {
       if (p.ai !== 'cop' || p.dead) continue;
       if (dist2(p.x, p.y, pl.x, pl.y) < 420 * 420 && City.lineOfSight(p.x, p.y, pl.x, pl.y)) { seen = true; break; }
     }
+    // вертолёт над головой тоже видит героя: от него уходят покраской или сбив его
+    const H = typeof Heli !== 'undefined' && Heli.h;
+    if (!seen && H && H.state === 'hunt' && dist2(H.x, H.y, pl.x, pl.y) < 800 * 800) seen = true;
     if (seen) this.unseen = 0;
     else {
       this.unseen += dt;

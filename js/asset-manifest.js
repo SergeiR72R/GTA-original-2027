@@ -374,6 +374,12 @@ const WEAPON_ICONS = [
   ['w_armor', 'Значок: бронежилет', 'A dark grey-blue tactical bulletproof vest with shoulder straps, front panel pockets and velcro, front view, upright, symmetric, fills about 75% of the image height. No letters or patches with text.'],
 ];
 
+// Армейский вертолёт на 5 звёздах (js/heli.js): вид сверху, без лопастей винта —
+// винт крутит код
+const HELI_ASSETS = [
+  ['heli_military', 'Армейский ударный вертолёт (сверху)', 'A fictional military attack helicopter seen from directly above (top-down, orthographic), NOSE POINTING UP: slim olive-drab fuselage with a narrow tandem two-seat glass cockpit at the front, short stub wings on both sides with rocket pods under them, a long thin tail boom with a small tail fin and tail rotor at the bottom, only the round main rotor hub on top WITHOUT the long main rotor blades. Matte olive green paint, dark grey details, no national insignia, no numbers, no text, no real-world markings. The helicopter fills about 85% of the image height.'],
+];
+
 // Полный упорядоченный список: машины (с уроном), персонажи, фасады, объекты, текстуры, портреты
 const ASSET_MANIFEST = (() => {
   const out = [];
@@ -471,8 +477,9 @@ const ASSET_MANIFEST = (() => {
   // логотип и заставки загрузки, за ними — текстуры Ихилова
   for (const [file, title, size, refs, desc] of BRAND) out.push({ batch: 'brand', cat: 'ui', file, title, kind: 'new', size, refFiles: refs, prompt: file.startsWith('loading') ? `${BRAND_STYLE} ${desc}` : desc });
   for (const [file, title, desc] of MODEL_TEXTURES_ICHILOV) out.push({ batch: 'modeltex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: file === 'm_helipad' ? `${MODEL_TEX_STYLE.replace('Seamless tileable texture of a building material', 'Texture').replace('no text,', 'no words or other letters except the single big letter H,')} ${desc}` : `${MODEL_TEX_STYLE} ${desc}` });
-  // значки оружия — в самом конце (новые — только в конец этого списка)
+  // значки оружия, за ними вертолёт (новые — только в конец этого списка)
   for (const [file, title, desc] of WEAPON_ICONS) out.push({ batch: 'weapons', cat: 'props', file, title, kind: 'new', size: '1024x1024', prompt: `${ICON_STYLE} ${desc} ${ASSET_STYLE.isolated}` });
+  for (const [file, title, desc] of HELI_ASSETS) out.push({ batch: 'heli', cat: 'vehicles', file, title, kind: 'new', size: '768x1024', prompt: `${ASSET_STYLE.common} ${desc} ${ASSET_STYLE.isolated}` });
   return out;
 })();
 

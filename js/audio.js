@@ -126,6 +126,24 @@ const Sound = {
     o.start(t); o.stop(t + 0.12);
   },
 
+  // гул винтов вертолёта: шум через полосовой фильтр, «хлопки» лопастей ≈ 11 раз в секунду
+  setRotor(vol) {
+    if (!this.ctx) return;
+    if (vol > 0 && !this.rotor) {
+      const src = this.ctx.createBufferSource(); src.buffer = this.noiseBuf; src.loop = true;
+      const f = this.ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 420;
+      const g = this.ctx.createGain(); g.gain.value = 0;
+      const am = this.ctx.createGain(); am.gain.value = 0.5;
+      const lfo = this.ctx.createOscillator(); lfo.type = 'sawtooth'; lfo.frequency.value = 11;
+      const lg = this.ctx.createGain(); lg.gain.value = 0.5;
+      lfo.connect(lg); lg.connect(am.gain);
+      src.connect(f); f.connect(am); am.connect(g); g.connect(this.master);
+      src.start(); lfo.start();
+      this.rotor = { g };
+    }
+    if (this.rotor) this.rotor.g.gain.setTargetAtTime(this.muted ? 0 : clamp(vol, 0, 1) * 0.5, this.ctx.currentTime, 0.2);
+  },
+
   explosion() {
     this.noiseBurst(1.2, 900, 1.0);
     this.noiseBurst(0.4, 4000, 0.4, 'bandpass');
