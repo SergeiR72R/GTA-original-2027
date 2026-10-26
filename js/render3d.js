@@ -1033,8 +1033,10 @@ const R3 = {
         o.st = st; o.color = car.color; o.genKey = car.genKey; o.type = car.type;
         this.drawCarTex(o, car);
       }
-      o.grp.position.set(car.x, 0, car.y);
-      o.grp.rotation.y = -car.a;
+      // остов после взрыва подлетает и кувыркается (car.pop)
+      const P = car.pop;
+      o.grp.position.set(car.x, P ? P.z : 0, car.y);
+      o.grp.rotation.set(P ? P.pitch : 0, -car.a, P ? P.roll : 0, 'YXZ');
       o.head.visible = night > 0.05 && !!car.driver && !car.dead;
       if (o.lr) {
         const on = Math.floor(World.time * 6) % 2 === 0;
@@ -1306,7 +1308,7 @@ const R3 = {
       this.scene.add(pts);
       return pts;
     };
-    this.fx = { fire: mk(26, 'rgba(255,255,255,1)', true), spark: mk(7, 'rgba(255,255,255,1)', true), smoke: mk(46, 'rgba(255,255,255,1)', false), blood: mk(8, 'rgba(255,255,255,1)', false), flash: mk(28, 'rgba(255,255,255,1)', true) };
+    this.fx = { debris: mk(9, 'rgba(255,255,255,1)', false), fire: mk(26, 'rgba(255,255,255,1)', true), spark: mk(7, 'rgba(255,255,255,1)', true), smoke: mk(46, 'rgba(255,255,255,1)', false), blood: mk(8, 'rgba(255,255,255,1)', false), flash: mk(28, 'rgba(255,255,255,1)', true) };
     const dtex = (draw) => { const c = document.createElement('canvas'); c.width = c.height = 64; draw(c.getContext('2d')); return new THREE.MeshBasicMaterial({ map: this.tex(c), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1 }); };
     this.decalMats = {
       blood: dtex((g) => { g.fillStyle = 'rgba(140,10,10,0.8)'; g.beginPath(); g.ellipse(30, 32, 22, 15, 0.3, 0, TAU); g.fill(); g.beginPath(); g.ellipse(48, 42, 9, 6, 0, 0, TAU); g.fill(); }),
@@ -1472,6 +1474,70 @@ const R3 = {
     for (const [st, o] of S) if (!live.has(st)) { this.scene.remove(o); o.ring.material.dispose(); o.disc.material.dispose(); o.flash.material.dispose(); S.delete(st); }
   },
 
+  // Взрывы: клубы огня (светящиеся спрайты с мягкими краями: белое ядро →
+  // оранжевый → красный), за ними клубы чёрного дыма, ударная волна по
+  // асфальту и вспышка света. Объекты — из пула, не больше 6 взрывов сразу
+  syncExplosions(night) {
+    const FIRE = 6, SMOKE = 5;
+    if (!this.boomPool) {
+      const tex = (stops) => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); for (const [o, col] of stops) gr.addColorStop(o, col); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); return this.tex(c); };
+      const fireTex = tex([[0, 'rgba(255,255,235,1)'], [0.25, 'rgba(255,225,140,0.95)'], [0.55, 'rgba(255,120,30,0.55)'], [1, 'rgba(255,40,0,0)']]);
+      const smokeTex = tex([[0, 'rgba(46,40,36,0.85)'], [0.55, 'rgba(40,36,32,0.5)'], [1, 'rgba(30,28,26,0)']]);
+      const sprite = (map, additive) => { const m = new THREE.Sprite(new THREE.SpriteMaterial({ map, transparent: true, depthWrite: false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending })); m.visible = false; m.renderOrder = additive ? 12 : 11; this.scene.add(m); return m; };
+      const ring = new THREE.RingGeometry(0.9, 1, 56).rotateX(-Math.PI / 2);
+      this.boomPool = [];
+      for (let i = 0; i < 6; i++) {
+        const rm = new THREE.Mesh(ring, new THREE.MeshBasicMaterial({ color: 0xffb070, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+        rm.visible = false; this.scene.add(rm);
+        this.boomPool.push({ fire: Array.from({ length: FIRE }, () => sprite(fireTex, true)), smoke: Array.from({ length: SMOKE }, () => sprite(smokeTex, false)), ring: rm });
+      }
+      this.boomLights = [0, 1].map(() => { const l = new THREE.PointLight(0xffa040, 0, 900, 1.4); this.scene.add(l); return l; });
+    }
+    const list = World.explosions.slice(-6);
+    this.boomPool.forEach((o, i) => {
+      const e = list[i];
+      if (!e) { for (const m of o.fire) m.visible = false; for (const m of o.smoke) m.visible = false; o.ring.visible = false; return; }
+      const r = e.r;
+      // у каждого взрыва свои клубы: смещение, задержка, размер
+      if (!e.puffs) {
+        e.puffs = Array.from({ length: FIRE }, (_, k) => ({ dx: k ? rand(-0.45, 0.45) * r : 0, dz: k ? rand(-0.45, 0.45) * r : 0, up: rand(30, 90), delay: k ? rand(0, 0.18) : 0, s: k ? rand(0.6, 1) : 1.25 }));
+        e.smokes = Array.from({ length: SMOKE }, () => ({ dx: rand(-0.4, 0.4) * r, dz: rand(-0.4, 0.4) * r, delay: rand(0.2, 0.5), s: rand(0.8, 1.2) }));
+      }
+      o.fire.forEach((m, k) => {
+        const P = e.puffs[k], t = (e.t - P.delay) / 0.8;
+        m.visible = t > 0 && t < 1;
+        if (!m.visible) return;
+        const sz = r * P.s * (0.5 + 1.1 * Math.sqrt(t));
+        m.position.set(e.x + P.dx * (0.4 + t), 20 + P.up * t, e.y + P.dz * (0.4 + t));
+        m.scale.set(sz, sz, 1);
+        // белое ядро → оранжевый → тёмно-красный, к концу гаснет
+        m.material.color.setRGB(1, Math.max(0.25, 1 - t * 0.9), Math.max(0.1, 0.85 - t * 1.6));
+        m.material.opacity = t < 0.15 ? 1 : (1 - t) / 0.85;
+      });
+      o.smoke.forEach((m, k) => {
+        const P = e.smokes[k], t = (e.t - P.delay) / (e.life - P.delay);
+        m.visible = t > 0 && t < 1;
+        if (!m.visible) return;
+        const sz = r * P.s * (0.8 + 1.2 * t);
+        m.position.set(e.x + P.dx + 30 * t, 50 + 160 * t, e.y + P.dz - 20 * t);
+        m.scale.set(sz, sz, 1);
+        m.material.opacity = 0.75 * Math.sin(Math.PI * Math.min(1, t * 1.3));
+      });
+      // ударная волна по асфальту
+      const tr = e.t / 0.55;
+      o.ring.visible = tr < 1;
+      if (tr < 1) { const sz = 14 + r * 2 * Math.sqrt(tr); o.ring.position.set(e.x, 2, e.y); o.ring.scale.set(sz, 1, sz); o.ring.material.opacity = 0.6 * (1 - tr); }
+    });
+    // вспышка света — от двух самых свежих взрывов
+    const fresh = World.explosions.filter((e) => e.t < 0.5).slice(-2);
+    this.boomLights.forEach((l, i) => {
+      const e = fresh[i];
+      if (!e) { l.intensity = 0; return; }
+      l.position.set(e.x, 70, e.y);
+      l.intensity = (3.2 + 3 * night) * Math.pow(1 - e.t / 0.5, 1.5);
+    });
+  },
+
   syncFx(view) {
     // пули
     const bp = this.bulletGeo.attributes.position.array;
@@ -1497,6 +1563,7 @@ const R3 = {
       else if (p.k === 'spark') { r = k; g = 0.9 * k; bl = 0.5 * k; }
       else if (p.k === 'blood') { y = 6; r = 0.6; g = 0.03; bl = 0.03; }
       else if (p.k === 'flash') { y = 14; r = 1; g = 0.95; bl = 0.7; }
+      else if (p.k === 'debris') { y = 4 + p.z; r = 0.12; g = 0.11; bl = 0.1; }
       pos[i * 3] = p.x; pos[i * 3 + 1] = y; pos[i * 3 + 2] = p.y;
       col[i * 3] = r; col[i * 3 + 1] = g; col[i * 3 + 2] = bl;
     }
@@ -1671,6 +1738,7 @@ const R3 = {
     this.syncMarkers(view);
     this.syncStory();
     this.syncFx(view);
+    this.syncExplosions(night);
     this.syncStrikes();
     this.syncProjectiles();
     this.syncLights(view);

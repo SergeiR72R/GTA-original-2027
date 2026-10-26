@@ -36,6 +36,8 @@ const HUD = {
   },
 
   draw(ctx, vw, vh, dt) {
+    // вспышка близкого взрыва — экран на миг светлеет
+    if (Game.flash > 0.01) { ctx.fillStyle = `rgba(255,214,150,${Game.flash})`; ctx.fillRect(0, 0, vw, vh); }
     const pl = World.player;
     // ---- деньги и розыск (справа сверху)
     this.text(ctx, formatMoney(pl.money), vw - 20, 44, 34, '#9be15d', 'right');

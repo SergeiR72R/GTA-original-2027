@@ -7,6 +7,7 @@ const World = {
   bullets: [],
   projectiles: [], // гранаты и ракеты РПГ
   particles: [],
+  explosions: [], // эпичные взрывы: шар, кольцо, вспышка (рисует render3d / 2D)
   decals: [],
   pickups: [],
   phones: [],
@@ -238,7 +239,12 @@ class Car {
     if (this.driver && this.driver !== 'player') { const d = this.driver; this.driver = null; d.car = null; d.x = this.x + 30; d.y = this.y; World.peds.push(d); d.kill('explosion'); }
     if (this.passenger) { this.passenger.car = null; this.passenger.x = this.x - 30; this.passenger.y = this.y; World.peds.push(this.passenger); this.passenger.kill('explosion'); this.passenger = null; }
     if (this.driver === 'player') Game.playerHurt(200, 'explosion');
-    blast(this.x, this.y, { by: this.killedBy, skip: this });
+    // остов подлетает, кувыркается и падает (на бок, на крышу или обратно), потом долго горит
+    const flip = Math.random();
+    this.pop = { z: 0, vz: this.T.prop ? 0 : rand(230, 320), roll: 0, pitch: 0, spin: rand(4, 7) * (chance(0.5) ? 1 : -1),
+      rollEnd: flip < 0.35 ? Math.PI * (chance(0.5) ? 1 : -1) : flip < 0.7 ? 0.42 * (chance(0.5) ? 1 : -1) : 0, pitchEnd: rand(-0.12, 0.12) };
+    this.afterFire = this.T.prop ? 2 : 8;
+    blast(this.x, this.y, { by: this.killedBy, skip: this, carDmg: this.T.prop ? 60 : 85, r: this.T.prop ? 120 : 130 });
     if (this.killedBy === 'player' && !this.T.prop) { Game.addMoney(this.police ? 500 : 250); if (this.police) Wanted.crime('killcop', this.x, this.y); else Wanted.crime('explode', this.x, this.y); }
   }
 
@@ -253,7 +259,20 @@ class Car {
         if (Math.random() < 0.3) spawnParticle(this.x, this.y, 'smoke');
         if (this.burn <= 0) this.explode();
       }
-      if (this.burn < 0 && Math.random() < 0.08) spawnParticle(this.x, this.y, 'smoke');
+      if (this.burn < 0) {
+        // после взрыва: остов подлетает и падает, ещё горит и чадит
+        const P = this.pop;
+        if (P && (P.z > 0 || P.vz !== 0)) {
+          P.vz -= 900 * dt; P.z += P.vz * dt;
+          if (P.z <= 0) { P.z = 0; if (P.vz < -90) { P.vz = -P.vz * 0.28; Sound.at('bounce', this.x, this.y, 0.7); } else { P.vz = 0; P.roll = P.rollEnd; P.pitch = P.pitchEnd; } }
+          if (P.z > 0) { P.roll += P.spin * dt; P.roll = P.vz < 0 && P.z < 30 ? lerp(P.roll, P.rollEnd, 0.25) : P.roll; P.pitch = lerp(P.pitch, P.pitchEnd + 0.4 * Math.sin(P.roll), 0.1); }
+        }
+        if (this.afterFire > 0) {
+          this.afterFire -= dt;
+          if (Math.random() < 0.55) spawnParticle(this.x + rand(-14, 14), this.y + rand(-14, 14), 'fire');
+          if (Math.random() < 0.35) spawnParticle(this.x, this.y, 'smoke');
+        } else if (Math.random() < 0.08) spawnParticle(this.x, this.y, 'smoke');
+      }
       this.drive(dt, 0, 0, true);
       return;
     }
@@ -1102,23 +1121,38 @@ function drawProjectiles(ctx) {
 // r — радиус поражения людей; by — кто виноват (для розыска и денег).
 function blast(x, y, opts = {}) {
   const r = opts.r || 110;
+  const pl = World.player, dPl = dist(x, y, pl.x, pl.y);
+  // звук: гулкий удар + металл и стекло; тряска и вспышка экрана — сильнее вблизи
   Sound.explosion();
-  Game.shake(opts.shake || 14);
-  for (let i = 0; i < 26; i++) spawnParticle(x, y, 'fire');
-  for (let i = 0; i < 18; i++) spawnParticle(x, y, 'smoke');
+  if (dPl < 900) Sound.at('crash' + randi(0, 4), x, y, 0.9, 900);
+  Game.shake(opts.shake || clamp(28 - dPl / 35, 6, 28));
+  Game.flash = Math.max(Game.flash || 0, clamp(0.55 - dPl / 1400, 0, 0.55));
+  World.explosions.push({ x, y, r, t: 0, life: 1.6 });
+  if (World.explosions.length > 8) World.explosions.shift();
+  for (let i = 0; i < 40; i++) spawnParticle(x + rand(-12, 12), y + rand(-12, 12), 'fire');
+  for (let i = 0; i < 10; i++) spawnParticle(x + rand(-30, 30), y + rand(-30, 30), 'smoke');
+  for (let i = 0; i < 14; i++) spawnParticle(x, y, 'debris');
+  spawnSparks(x, y, 22);
   World.decals.push({ k: 'burn', x, y, a: rand(0, TAU), s: rand(0.9, 1.3) * r / 110 });
   for (const c of World.cars) {
     if (c === opts.skip || c.dead) continue;
     const d = dist(c.x, c.y, x, y);
-    if (d < r + 10) { c.damage((opts.carDmg || 45) * (1 - d / (r + 10)), opts.by, x, y); const k = 300 * (1 - d / (r + 20)) / (d || 1); c.vx += (c.x - x) * k; c.vy += (c.y - y) * k; }
+    // машина игрока страдает меньше: прямое попадание — сильный урон, но не мгновенная смерть
+    const k0 = c.driver === 'player' && opts.plCarK ? opts.plCarK : 1;
+    if (d < r + 10) {
+      c.damage((opts.carDmg || 45) * (1 - d / (r + 10)) * k0, opts.by, x, y);
+      const k = 300 * (1 - d / (r + 20)) / (d || 1); c.vx += (c.x - x) * k; c.vy += (c.y - y) * k;
+      // цепная реакция: подбитая взрывом машина горит недолго и тоже рвётся
+      if (c.dead && c.burn > 2.6 && c.driver !== 'player') c.burn = rand(0.9, 2.6);
+    }
   }
   for (const p of World.peds) {
     if (p.dead) continue;
     const d = dist(p.x, p.y, x, y);
     if (d < r) p.hurt(120, opts.by, x, y);
   }
+  if (typeof Heli !== 'undefined') Heli.blastNear(x, y, r, opts.by);
   panic(x, y, 900);
-  const pl = World.player;
   if (!pl.car && !pl.dead) { const d = dist(pl.x, pl.y, x, y); if (d < r) Game.playerHurt((opts.plDmg || 80) * (1 - d / r) + 10, 'explosion'); }
 }
 
@@ -1160,6 +1194,7 @@ function spawnParticle(x, y, k) {
   if (k === 'spark') { p.life = rand(0.15, 0.35); p.vx = rand(-250, 250); p.vy = rand(-250, 250); }
   if (k === 'blood') { p.life = rand(0.3, 0.6); p.vx = rand(-90, 90); p.vy = rand(-90, 90); }
   if (k === 'flash') { p.life = 0.06; p.vx = 0; p.vy = 0; }
+  if (k === 'debris') { p.life = rand(1.2, 2.2); const a = rand(0, TAU), v = rand(120, 380); p.vx = Math.cos(a) * v; p.vy = Math.sin(a) * v; p.z = 0; p.vz = rand(180, 420); p.s = rand(3, 6); }
   if (k === 'money') { p.life = 1.2; p.vx = 0; p.vy = -40; }
   World.particles.push(p);
 }
@@ -1176,9 +1211,12 @@ function updateParticles(dt) {
     p.t += dt;
     p.x += p.vx * dt; p.y += p.vy * dt;
     if (p.k === 'fire') { p.vx *= 0.92; p.vy *= 0.92; }
+    // обломки летят по дуге и остаются лежать
+    if (p.k === 'debris') { p.vz -= 900 * dt; p.z += p.vz * dt; if (p.z <= 0) { p.z = 0; p.vz = 0; p.vx *= 0.5; p.vy *= 0.5; } }
     if (p.t >= p.life) World.particles.splice(i, 1);
   }
   if (World.decals.length > 260) World.decals.splice(0, World.decals.length - 260);
+  for (let i = World.explosions.length - 1; i >= 0; i--) { const e = World.explosions[i]; e.t += dt; if (e.t >= e.life) World.explosions.splice(i, 1); }
 }
 
 function drawDecals(ctx, view) {
@@ -1192,13 +1230,29 @@ function drawDecals(ctx, view) {
   }
 }
 
+// 2D: огненный шар и ударная волна взрыва (в 3D — render3d.syncExplosions)
+function drawExplosions(ctx) {
+  for (const e of World.explosions) {
+    const pb = Math.min(1, e.t / 0.7), pr = Math.min(1, e.t / 0.6);
+    if (pr < 1) { ctx.strokeStyle = `rgba(255,220,170,${0.7 * (1 - pr)})`; ctx.lineWidth = 6 * (1 - pr) + 1; ctx.beginPath(); ctx.arc(e.x, e.y, 10 + e.r * 2 * pr, 0, TAU); ctx.stroke(); }
+    if (pb < 1) {
+      const R = e.r * (0.3 + 0.8 * Math.sqrt(pb));
+      const g = ctx.createRadialGradient(e.x, e.y, 0, e.x, e.y, R);
+      g.addColorStop(0, `rgba(255,250,220,${1 - pb})`); g.addColorStop(0.4, `rgba(255,170,40,${0.9 * (1 - pb)})`); g.addColorStop(1, 'rgba(200,40,0,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(e.x, e.y, R, 0, TAU); ctx.fill();
+    }
+  }
+}
+
 function drawParticles(ctx) {
+  drawExplosions(ctx);
   for (const p of World.particles) {
     const k = 1 - p.t / p.life;
     switch (p.k) {
       case 'fire': ctx.fillStyle = `rgba(255,${Math.floor(120 + 120 * k)},40,${k})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.s * (0.5 + k * 0.5), 0, TAU); ctx.fill(); break;
       case 'smoke': ctx.fillStyle = `rgba(60,60,60,${k * 0.45})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.s * (2 - k), 0, TAU); ctx.fill(); break;
       case 'spark': ctx.fillStyle = `rgba(255,230,120,${k})`; ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3); break;
+      case 'debris': ctx.fillStyle = `rgba(38,34,30,${Math.min(1, k * 2)})`; ctx.fillRect(p.x - p.s / 2, p.y - p.z * 0.3 - p.s / 2, p.s, p.s); break;
       case 'blood': ctx.fillStyle = `rgba(170,10,10,${k})`; ctx.fillRect(p.x - 2, p.y - 2, 4, 4); break;
       case 'flash': ctx.fillStyle = 'rgba(255,240,170,0.9)'; ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, TAU); ctx.fill(); break;
       case 'money': ctx.fillStyle = `rgba(80,220,90,${k})`; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(p.text || '₪', p.x, p.y); break;

@@ -809,6 +809,7 @@ const Game = {
     this.view = lerp(this.view, view, Math.min(1, dt * (view > this.view ? 1.4 : 0.6)));
     this.zoomTotal = this.vh / (this.view * TILE);
     this.shakeAmt = Math.max(0, this.shakeAmt - dt * 30);
+    this.flash = Math.max(0, (this.flash || 0) - dt * 2.4); // вспышка взрыва на экране
   },
 
   render(dt) {
