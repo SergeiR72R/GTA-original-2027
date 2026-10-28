@@ -31,6 +31,9 @@ const MODEL_HS = 11;
 // 3D-пешеходы: сгенерированный спрайт → модель из Blender (assets/models/ped.js);
 // PED_M — единиц 3D на метр (люди крупнее настоящих — читаются сверху)
 const PED_MODELS = { civ_5: 'ped_hipster' };
+// 3D-машины из Blender (tools/models/car.py) — только при камере с наклоном (V);
+// строго сверху остаются картинки. Тип машины → модель
+const CAR_MODELS = { sedan: 'car_sedan' };
 const PED_M = 28;
 const FOV = 55; // перспектива сверху: стены видны у краёв экрана, как в GTA2
 const TILT = 0.58; // наклон камеры (≈33°), чтобы видеть фасады; клавиша V — строго сверху, как в GTA2
@@ -455,6 +458,9 @@ const R3 = {
     for (const b of City.buildings) if (!b.removed && !b.model && b.label === 'H') this.roofSign(b);
     for (const sg of City.signs || []) this.groundSign(sg);
     for (const md of City.models || []) this.model(md);
+    // 3D-машины и пешеходы: заранее, чтобы картинки текстур успели загрузиться
+    for (const k in CAR_MODELS) this.carModel(CAR_MODELS[k]);
+    for (const k in PED_MODELS) this.pedModel(PED_MODELS[k]);
     this.houses();
     this.applyQuality(true);
     // заранее рисуем спрайты всех машин всех цветов: первый показ не даст рывка
@@ -1026,11 +1032,15 @@ const R3 = {
       let o = this.cars.get(car);
       const inView = !(car.x < view.x0 - 200 || car.x > view.x1 + 200 || car.y < view.y0 - 200 || car.y > view.y1 + 200);
       if (!inView) { if (o) o.grp.visible = false; continue; }
+      // камера с наклоном — 3D-модель машины (если есть), строго сверху — картинка
+      const M = !Game.topDown && this.carModel(CAR_MODELS[car.type]);
+      if (o && !!o.is3d !== !!M) { this.dropCar(car, o); o = null; }
       if (!o) {
         if (budget-- <= 0) continue; // остальные — в следующих кадрах
-        o = this.makeCar(car); this.cars.set(car, o);
+        o = M ? this.makeCar3D(car, M) : this.makeCar(car); this.cars.set(car, o);
       }
       o.grp.visible = true;
+      if (o.is3d) { this.syncCar3D(o, car, night); continue; }
       // текстуру перерисовываем только при смене вида/повреждений
       const st = car.stage * 1000 + car.dents.length * 10 + (car.dead ? 1 : 0) + (car.driver ? 2 : 0) + (car.roof ? 1e5 + Math.round((car.roofTilt || 0) * 20) * 1e6 : 0);
       if (st !== o.st || car.color !== o.color || car.genKey !== o.genKey || car.type !== o.type) {
@@ -1056,14 +1066,78 @@ const R3 = {
 
   dropCar(car, o) {
     this.scene.remove(o.grp);
+    if (o.is3d) { this.cars.delete(car); return; } // сетка и материалы — общие
     o.grp.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
     o.top.map.dispose(); o.top.dispose(); o.side.dispose();
     if (o.lr) { o.lr.material.dispose(); o.lb.material.dispose(); }
     this.cars.delete(car);
   },
 
+  // 3D-машина из Blender (tools/models/car.py): треугольники по группам — краска
+  // (цвет задаёт игра), остальное, фары, фонари (светятся ночью); текстура-атлас
+  // запечена в Blender и лежит в модели картинкой
+  carModel(key) {
+    if (!key) return null;
+    const C = this.carModels || (this.carModels = {});
+    if (C[key] !== undefined) return C[key];
+    const d = window.GEN_MODELS && GEN_MODELS[key];
+    if (!d || !d.groups) return (C[key] = null);
+    const f32 = (s) => { const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return new Float32Array(u.buffer); };
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(f32(d.pos), 3));
+    g.setAttribute('normal', new THREE.BufferAttribute(f32(d.nor), 3));
+    g.setAttribute('uv', new THREE.BufferAttribute(f32(d.uv), 2));
+    d.groups.forEach(([, start, count], i) => g.addGroup(start, count, i));
+    const im = new Image(); im.src = d.tex;
+    const map = this.tex(new THREE.Texture(im)); im.onload = () => { map.needsUpdate = true; };
+    const lam = (o) => new THREE.MeshLambertMaterial(Object.assign({ map }, o));
+    const M = { g, d, map, paint: {},
+      rest: lam({}), burnt: lam({ color: new THREE.Color(0.22, 0.2, 0.19) }),
+      lampF: lam({ emissive: new THREE.Color(1, 0.95, 0.8), emissiveMap: map, emissiveIntensity: 0 }),
+      lampR: lam({ emissive: new THREE.Color(1, 0.15, 0.1), emissiveMap: map, emissiveIntensity: 0 }) };
+    return (C[key] = M);
+  },
+
+  // краска нужного цвета (одна на цвет); сгоревшая машина — тёмная
+  carPaint(M, hex) {
+    return M.paint[hex] || (M.paint[hex] = new THREE.MeshLambertMaterial({ map: M.map, color: COL(hex) }));
+  },
+
+  makeCar3D(car, M) {
+    const mesh = new THREE.Mesh(M.g, [M.rest, M.rest, M.lampF, M.lampR]); // сетка общая, массив материалов — свой
+    // под размер машины в игре: ширина и длина как у картинки, высота — по среднему масштабу
+    const sx = car.w / M.d.w, sz = car.l / M.d.l;
+    mesh.scale.set(sx, (sx + sz) / 2 * 1.05, sz);
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    const grp = new THREE.Group(); grp.add(mesh);
+    const off = Math.round((car.T.lamp ?? 0.35) * car.w), PW = off ? 2 * off + 136 : 110, PL = off ? 200 : 190;
+    const head = new THREE.Mesh(new THREE.PlaneGeometry(PW, PL).rotateX(-Math.PI / 2), this.headMat(off, PW, PL));
+    head.position.set(0, 1.5, -car.l / 2 - PL / 2 + 2);
+    grp.add(head);
+    this.scene.add(grp);
+    return { grp, mesh, head, M, is3d: true };
+  },
+
+  syncCar3D(o, car, night) {
+    const M = o.M;
+    // цвет кузова: у сгенерированной картинки — её цвет кузова, иначе цвет машины
+    let hex = car.color;
+    if (car.genKey) { const b = Vehicles.bodyColor(car.genKey); if (b) hex = '#' + b.slice(0, 3).map((v) => Math.round(v).toString(16).padStart(2, '0')).join(''); }
+    const dead = car.dead && car.burn < 0;
+    const m = o.mesh.material;
+    m[0] = dead ? M.burnt : this.carPaint(M, car.stage >= 2 ? '#' + COL(hex).multiplyScalar(0.72).getHexString() : hex);
+    m[1] = dead ? M.burnt : M.rest;
+    m[2] = dead ? M.burnt : M.lampF; m[3] = dead ? M.burnt : M.lampR;
+    const live = !!car.driver && !car.dead;
+    M.lampF.emissiveIntensity = night * 0.9; M.lampR.emissiveIntensity = night * 0.7;
+    const P = car.pop;
+    o.grp.position.set(car.x, P ? P.z : 0, car.y);
+    o.grp.rotation.set(P ? P.pitch : 0, -car.a, P ? P.roll : 0, 'YXZ');
+    o.head.visible = night > 0.05 && live;
+  },
+
   // ---------------------------------------------------------------- люди
-  // 3D-пешеходы из Blender (tools/models/ped.py): фигура на скелете, кости крутятся
+  // 3D-пешеходы из Blender (tools/models/ped.py): цельная фигура с текстурой на скелете, кости крутятся
   // по запечённым кадрам анимаций (walk, run, idle, dead). PED_MODELS: какой
   // сгенерированный спрайт (civ_5…) какой моделью заменяется
   pedModel(key) {
@@ -1072,23 +1146,23 @@ const R3 = {
     const d = window.GEN_MODELS && GEN_MODELS[key];
     if (!d || !d.bones) return (C[key] = null);
     const f32 = (s) => { const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return new Float32Array(u.buffer); };
-    const pos = f32(d.pos), mid = f32(d.mid), bone = f32(d.bone), n = mid.length;
     const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    g.setAttribute('position', new THREE.BufferAttribute(f32(d.pos), 3));
     g.setAttribute('normal', new THREE.BufferAttribute(f32(d.nor), 3));
-    const si = new Uint16Array(n * 4), sw = new Float32Array(n * 4), col = new Float32Array(n * 3);
-    for (let i = 0; i < n; i++) {
-      si[i * 4] = bone[i]; sw[i * 4] = 1; // каждая часть целиком на своей кости
-      const c = COL('#' + d.colors[mid[i]].map((v) => Math.round(v * 255).toString(16).padStart(2, '0')).join(''));
-      col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
-    }
+    g.setAttribute('uv', new THREE.BufferAttribute(f32(d.uv), 2));
+    // у каждой вершины две кости с весами: суставы гнутся плавно
+    const si2 = f32(d.si), sw2 = f32(d.sw), n = si2.length / 2;
+    const si = new Uint16Array(n * 4), sw = new Float32Array(n * 4);
+    for (let i = 0; i < n; i++) { si[i * 4] = si2[i * 2]; si[i * 4 + 1] = si2[i * 2 + 1]; sw[i * 4] = sw2[i * 2]; sw[i * 4 + 1] = sw2[i * 2 + 1]; }
     g.setAttribute('skinIndex', new THREE.BufferAttribute(si, 4));
     g.setAttribute('skinWeight', new THREE.BufferAttribute(sw, 4));
-    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
     g.computeBoundingSphere();
     const anims = {};
     for (const k in d.anims) anims[k] = { n: d.anims[k].frames, q: f32(d.anims[k].q), p: f32(d.anims[k].p) };
-    return (C[key] = { g, d, anims, mat: new THREE.MeshLambertMaterial({ vertexColors: true }) });
+    // текстура-атлас (запечена в Blender) — внутри модели картинкой
+    const im = new Image(); im.src = d.tex;
+    const map = this.tex(new THREE.Texture(im)); im.onload = () => { map.needsUpdate = true; };
+    return (C[key] = { g, d, anims, mat: new THREE.MeshLambertMaterial({ map }) });
   },
 
   makePed3D(M) {
@@ -1179,9 +1253,11 @@ const R3 = {
         if (o) { o.m.visible = false; if (o.mark) o.mark.visible = false; }
         continue;
       }
+      // камера с наклоном — 3D-модель (если есть), строго сверху — картинка
+      const M = !Game.topDown && p !== pl && !p.weapon && !p.look.cat && this.pedModel(PED_MODELS[personGenKey(p.look)]);
+      if (o && !!o.is3d !== !!M) { this.dropPed(p, o); o = null; }
       if (!o) {
         if (budget-- <= 0 && p !== pl) continue;
-        const M = p !== pl && !p.weapon && !p.look.cat && this.pedModel(PED_MODELS[personGenKey(p.look)]);
         o = M ? this.makePed3D(M) : this.makePed(); this.peds.set(p, o);
       }
       o.m.visible = true;
@@ -1203,12 +1279,16 @@ const R3 = {
     }
     for (const [p, o] of this.peds) {
       if (p._r3 === fn && !(p === pl && !showPl)) continue;
-      this.scene.remove(o.m);
-      if (o.is3d) o.m.skeleton.dispose(); // сетка и материал — общие на всех
-      else { o.m.geometry.dispose(); o.m.material.map.dispose(); o.m.material.dispose(); }
-      if (o.mark) { this.scene.remove(o.mark); o.mark.geometry.dispose(); }
-      this.peds.delete(p);
+      this.dropPed(p, o);
     }
+  },
+
+  dropPed(p, o) {
+    this.scene.remove(o.m);
+    if (o.is3d) o.m.skeleton.dispose(); // сетка и материал — общие на всех
+    else { o.m.geometry.dispose(); o.m.material.map.dispose(); o.m.material.dispose(); }
+    if (o.mark) { this.scene.remove(o.mark); o.mark.geometry.dispose(); }
+    this.peds.delete(p);
   },
 
   // ---------------------------------------------------------------- предметы, маркеры

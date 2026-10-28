@@ -390,6 +390,20 @@ const HELI_TEXTURES = [
   ['m_heli_blade', 'Вертолёт: лопасти винтов', 'Matte charcoal-black composite helicopter rotor blade surface: very fine lengthwise grain, faint sanding marks, light dust; almost uniform.'],
 ];
 
+// Текстуры 3D-прохожего «хипстер» (tools/models/ped.py): куски, из которых Blender
+// запекает атлас модели. Лицо — анфас на весь квадрат (проекция спереди на голову),
+// остальное — бесшовные ткани и кожа
+const PED_TEX_STYLE = 'Seamless tileable texture for a low-poly 3D character of a stylized crime video game (hand-painted early-2000s 3D game look), orthographic straight-on view of a flat piece of material, fills the entire square edge to edge, even soft flat lighting, no perspective, no shadows, no seams of a garment, no objects, no text, no logos, no watermark. Painterly but realistic, readable at small size.';
+const PED_FACE = 'Texture of a FACE for a low-poly 3D video game character head, hand-painted in the style of early-2000s 3D open-world crime games: the face seen strictly from the front, flat even lighting, no shadows, symmetric, filling the WHOLE square edge to edge: the top edge is the hair just above the forehead, the bottom edge is the bottom of the beard under the chin, the left and right edges pass just in front of the ears (no ears, no background, no neck, no shoulders). No glasses, no text, no logos, no watermark.';
+const PED_TEXTURES = [
+  ['ped_hip_face', 'Хипстер: лицо анфас (на всю голову спереди)', true, 'The man from the attached reference image ref_civ_5.png — a young Tel Aviv hipster: light olive-tan skin, warm brown eyes looking straight ahead, thick dark-brown eyebrows, a full well-groomed dark-brown beard and moustache covering the jaw and chin, dark-brown hair combed back (the man-bun is on the back of the head, not visible from the front). Relaxed, slightly ironic expression.'],
+  ['ped_hip_hair', 'Хипстер: волосы', false, 'Dark-brown hair combed straight back, seen up close: smooth strands with soft highlights, all running in one direction (top to bottom), uniform.'],
+  ['ped_hip_tank', 'Хипстер: ткань майки', false, 'Bottle-green ribbed cotton jersey of a tank top: fine vertical ribs, slightly washed-out, a couple of faint creases, uniform colour.'],
+  ['ped_hip_jeans', 'Хипстер: джинсы', false, 'Dark charcoal-grey denim of skinny jeans: diagonal twill weave, slight fading, uniform.'],
+  ['ped_hip_skin', 'Хипстер: кожа рук', false, 'Light olive-tan human skin of a forearm: very subtle pores, a few faint freckles and fine dark arm hairs, uniform tone.'],
+  ['ped_hip_shoes', 'Хипстер: ткань кед', false, 'Light grey canvas fabric of casual sneakers: fine canvas weave, a little dusty, uniform.'],
+];
+
 // Полный упорядоченный список: машины (с уроном), персонажи, фасады, объекты, текстуры, портреты
 const ASSET_MANIFEST = (() => {
   const out = [];
@@ -492,6 +506,8 @@ const ASSET_MANIFEST = (() => {
   for (const [file, title, desc] of HELI_ASSETS) out.push({ batch: 'heli', cat: 'vehicles', file, title, kind: 'new', size: '768x1024', prompt: `${ASSET_STYLE.common} ${desc} ${ASSET_STYLE.isolated}` });
   // текстуры 3D-модели вертолёта
   for (const [file, title, desc] of HELI_TEXTURES) out.push({ batch: 'helitex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: `${HELI_TEX_STYLE} ${desc}` });
+  // текстуры 3D-прохожего «хипстер»
+  for (const [file, title, face, desc] of PED_TEXTURES) out.push({ batch: 'pedtex', cat: 'textures', file, title: `Текстура модели: ${title}`, kind: 'new', size: '1024x1024', prompt: face ? `${PED_FACE} ${desc}` : `${PED_TEX_STYLE} ${desc}` });
   return out;
 })();
 

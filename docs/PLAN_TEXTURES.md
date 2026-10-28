@@ -48,6 +48,12 @@
 | 372 | textures/m_heli_metal.png | Вертолёт: тёмный металл (двигатели, пилоны, лыжи) | да |
 | 373 | textures/m_heli_canopy.png | Вертолёт: стекло кабины | да |
 | 374 | textures/m_heli_blade.png | Вертолёт: лопасти винтов | да |
+| 375 | textures/ped_hip_face.png | Хипстер: лицо анфас (на всю голову спереди) | — |
+| 376 | textures/ped_hip_hair.png | Хипстер: волосы | — |
+| 377 | textures/ped_hip_tank.png | Хипстер: ткань майки | — |
+| 378 | textures/ped_hip_jeans.png | Хипстер: джинсы | — |
+| 379 | textures/ped_hip_skin.png | Хипстер: кожа рук | — |
+| 380 | textures/ped_hip_shoes.png | Хипстер: ткань кед | — |
 
 ## Какие текстуры у каких моделей
 

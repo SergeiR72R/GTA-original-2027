@@ -7,10 +7,10 @@
 
 ## Цель
 
-Сгенерировать в **Gemini** (https://gemini.google.com) 374 картинок для
+Сгенерировать в **Gemini** (https://gemini.google.com) 380 картинок для
 браузерной игры с видом сверху: 123 спрайтов машин (каждая — целая и
 три стадии повреждений), 108 персонажей, 30 фасадов и витрин,
-33 объектов улиц, 49 текстур и 22 портретов героев для окна звонка. Скачать каждую картинку **ровно один раз и строго по порядку
+33 объектов улиц, 55 текстур и 22 портретов героев для окна звонка. Скачать каждую картинку **ровно один раз и строго по порядку
 номеров** из списка ниже.
 
 ## Почему важен порядок
@@ -94,7 +94,7 @@ only add the damage» и повтори.
 
 ---
 
-# Список ассетов (374)
+# Список ассетов (380)
 
 ## Машины (123)
 
@@ -1284,7 +1284,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Текстуры (49)
+## Текстуры (55)
 
 Все текстуры — в одном новом чате.
 
@@ -2742,7 +2742,7 @@ Use the attached reference image ref_semyon.png (Семён). Draw EXACTLY this 
 ```
 
 
-## Текстуры (49)
+## Текстуры (55)
 
 Все текстуры — в одном новом чате.
 
@@ -2992,7 +2992,7 @@ Head-and-shoulders caricature portrait for the phone-call dialog box of a satiri
 ```
 
 
-## Текстуры (49)
+## Текстуры (55)
 
 Все текстуры — в одном новом чате.
 
@@ -3080,7 +3080,7 @@ Loading-screen illustration for a satirical open-world crime video game set in T
 ```
 
 
-## Текстуры (49)
+## Текстуры (55)
 
 Все текстуры — в одном новом чате.
 
@@ -3199,7 +3199,7 @@ Top-down 2D game sprite, orthographic view from directly above, clean stylized i
 ```
 
 
-## Текстуры (49)
+## Текстуры (55)
 
 Все текстуры — в одном новом чате.
 
@@ -3233,5 +3233,53 @@ Seamless tileable texture of the outer surface of a military helicopter for a st
 
 ```
 Seamless tileable texture of the outer surface of a military helicopter for a stylized top-down crime game, orthographic straight-on view of a flat surface, fills the entire square edge to edge, even soft daylight, no perspective, no vignette, no objects, no shadows cast by objects, no text, no numbers, no letters, no insignia, no flags, no logos, no watermark. Slightly stylized, painterly but realistic colors, readable at small size. Matte charcoal-black composite helicopter rotor blade surface: very fine lengthwise grain, faint sanding marks, light dust; almost uniform.
+```
+
+### 375. `textures/ped_hip_face.png` — Текстура модели: Хипстер: лицо анфас (на всю голову спереди)
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Texture of a FACE for a low-poly 3D video game character head, hand-painted in the style of early-2000s 3D open-world crime games: the face seen strictly from the front, flat even lighting, no shadows, symmetric, filling the WHOLE square edge to edge: the top edge is the hair just above the forehead, the bottom edge is the bottom of the beard under the chin, the left and right edges pass just in front of the ears (no ears, no background, no neck, no shoulders). No glasses, no text, no logos, no watermark. The man from the attached reference image ref_civ_5.png — a young Tel Aviv hipster: light olive-tan skin, warm brown eyes looking straight ahead, thick dark-brown eyebrows, a full well-groomed dark-brown beard and moustache covering the jaw and chin, dark-brown hair combed back (the man-bun is on the back of the head, not visible from the front). Relaxed, slightly ironic expression.
+```
+
+### 376. `textures/ped_hip_hair.png` — Текстура модели: Хипстер: волосы
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture for a low-poly 3D character of a stylized crime video game (hand-painted early-2000s 3D game look), orthographic straight-on view of a flat piece of material, fills the entire square edge to edge, even soft flat lighting, no perspective, no shadows, no seams of a garment, no objects, no text, no logos, no watermark. Painterly but realistic, readable at small size. Dark-brown hair combed straight back, seen up close: smooth strands with soft highlights, all running in one direction (top to bottom), uniform.
+```
+
+### 377. `textures/ped_hip_tank.png` — Текстура модели: Хипстер: ткань майки
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture for a low-poly 3D character of a stylized crime video game (hand-painted early-2000s 3D game look), orthographic straight-on view of a flat piece of material, fills the entire square edge to edge, even soft flat lighting, no perspective, no shadows, no seams of a garment, no objects, no text, no logos, no watermark. Painterly but realistic, readable at small size. Bottle-green ribbed cotton jersey of a tank top: fine vertical ribs, slightly washed-out, a couple of faint creases, uniform colour.
+```
+
+### 378. `textures/ped_hip_jeans.png` — Текстура модели: Хипстер: джинсы
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture for a low-poly 3D character of a stylized crime video game (hand-painted early-2000s 3D game look), orthographic straight-on view of a flat piece of material, fills the entire square edge to edge, even soft flat lighting, no perspective, no shadows, no seams of a garment, no objects, no text, no logos, no watermark. Painterly but realistic, readable at small size. Dark charcoal-grey denim of skinny jeans: diagonal twill weave, slight fading, uniform.
+```
+
+### 379. `textures/ped_hip_skin.png` — Текстура модели: Хипстер: кожа рук
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture for a low-poly 3D character of a stylized crime video game (hand-painted early-2000s 3D game look), orthographic straight-on view of a flat piece of material, fills the entire square edge to edge, even soft flat lighting, no perspective, no shadows, no seams of a garment, no objects, no text, no logos, no watermark. Painterly but realistic, readable at small size. Light olive-tan human skin of a forearm: very subtle pores, a few faint freckles and fine dark arm hairs, uniform tone.
+```
+
+### 380. `textures/ped_hip_shoes.png` — Текстура модели: Хипстер: ткань кед
+
+- [ ] Новая картинка, формат квадрат 1:1.
+
+```
+Seamless tileable texture for a low-poly 3D character of a stylized crime video game (hand-painted early-2000s 3D game look), orthographic straight-on view of a flat piece of material, fills the entire square edge to edge, even soft flat lighting, no perspective, no shadows, no seams of a garment, no objects, no text, no logos, no watermark. Painterly but realistic, readable at small size. Light grey canvas fabric of casual sneakers: fine canvas weave, a little dusty, uniform.
 ```
 
