@@ -1,0 +1,11 @@
+# Архивы для раздачи
+*.zip
+.import_tmp/
+hamsin-refs-dead.zip
+hamsin-refs-brand.zip
+
+# генератор логотипа: шрифты (OFL, качаются отдельно) и большие PNG для скачивания
+tools/logo/*.ttf
+tools/logo/*.png
+hamsin-itch.zip
+__pycache__/

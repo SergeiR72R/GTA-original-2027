@@ -1,0 +1,19 @@
+3D-модели игры «ХАМСИН»
+
+Модели зданий, вертолёта и прохожего сделаны для игры в Blender (tools/models/).
+
+Машины в 3D (камера с наклоном) — модели со Sketchfab, лицензия CC-BY 4.0
+(http://creativecommons.org/licenses/by/4.0/). Для игры упрощены, текстуры
+собраны в один атлас, краска седана перекрашивается (tools/models/sketchfab_car.py).
+
+car_kiri86 — This work is based on "Kiri '86 - Low poly model"
+  (https://sketchfab.com/3d-models/kiri-86-low-poly-model-5c17c582ef9549798f694b660feea42a)
+  by Daniel Zhabotinsky (https://sketchfab.com/DanielZhabotinsky) licensed under CC-BY-4.0
+
+car_canyon_taxi — This work is based on "Canyon '75 Taxi - Low poly model"
+  (https://sketchfab.com/3d-models/canyon-75-taxi-low-poly-model-9e8f92a215784f3d8aaaaeab1bef54c4)
+  by Daniel Zhabotinsky (https://sketchfab.com/DanielZhabotinsky) licensed under CC-BY-4.0
+
+car_fairheaven_cop — This work is based on "Fairheaven LT '80 Cop Cruiser - Low poly model"
+  (https://sketchfab.com/3d-models/fairheaven-lt-80-cop-cruiser-low-poly-model-61766c1e6e1e4b2b803c174f33433a74)
+  by Daniel Zhabotinsky (https://sketchfab.com/DanielZhabotinsky) licensed under CC-BY-4.0

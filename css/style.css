@@ -1,0 +1,160 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #111;
+  color: #fff;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+#game, #gl {
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: block;
+}
+
+#gl { width: 100vw; height: 100vh; }
+
+#game {
+  cursor: crosshair;
+  z-index: 1;
+}
+
+.overlay { z-index: 2; }
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 16px;
+  box-sizing: border-box;
+  background: radial-gradient(ellipse at center, rgba(40, 20, 0, 0.55) 0%, rgba(0, 0, 0, 0.85) 100%);
+}
+
+#loading { background: #1b120a; }
+
+.hidden { display: none !important; }
+
+.logo {
+  font-size: clamp(56px, 12vw, 128px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #ffd23f;
+  text-shadow: 0 0 2px #000, 4px 4px 0 #b3471d, 8px 8px 0 #000;
+  font-style: italic;
+}
+
+.logo.small { font-size: clamp(36px, 7vw, 72px); }
+
+.sub {
+  font-size: clamp(18px, 3vw, 28px);
+  color: #ffe9b0;
+  margin-top: 6px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.story {
+  max-width: 640px;
+  font-size: 17px;
+  line-height: 1.5;
+  color: #f3e6cc;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.bar {
+  width: min(360px, 80vw);
+  height: 10px;
+  margin-top: 24px;
+  border: 2px solid #ffd23f;
+}
+
+#loadbar {
+  height: 100%;
+  width: 0;
+  background: #ffd23f;
+  transition: width 0.1s;
+}
+
+.buttons { margin: 18px 0; display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+
+button {
+  font: inherit;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 12px 28px;
+  border: 3px solid #000;
+  background: #ffd23f;
+  color: #000;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #000;
+  text-transform: uppercase;
+}
+
+button:hover { background: #fff2b3; }
+button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
+
+.controls {
+  max-width: 760px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #ddd;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 10px 16px;
+  border-inline-start: 3px solid #ffd23f;
+  text-align: start;
+}
+
+/* ---- логотип: картинка с надписью на ленте (js/brand.js); без неё — текст ---- */
+.brand { --w: min(400px, 70vw, 52vh); position: relative; }
+.brand .emblem { display: none; }
+.brand.has-emblem .emblem { display: block; width: var(--w); filter: drop-shadow(6px 8px 0 rgba(0, 0, 0, 0.55)); }
+.brand.has-emblem .logo { display: none; }
+#title .brand { --w: min(360px, 66vw, 40vh); }
+
+/* ---- экран загрузки в духе GTA V: заставка во весь экран, логотип и полоска внизу ---- */
+#loading .art {
+  position: absolute; inset: 0;
+  background: center / cover no-repeat;
+  opacity: 0; transition: opacity 1.2s;
+}
+#loading .art.on { opacity: 1; }
+#loading.has-art { justify-content: flex-end; align-items: flex-start; padding: 0; background: #000; }
+#loading.has-art::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+}
+#loading.has-art .brand { --w: min(260px, 42vw, 34vh); position: absolute; left: 3vw; bottom: 3vh; z-index: 1; }
+#loading.has-art .status { position: absolute; right: 3vw; bottom: 4vh; z-index: 1; text-align: right; }
+#loading.has-art .bar { margin-top: 10px; margin-left: auto; width: min(300px, 40vw); height: 6px; border-width: 1px; }
+.spin {
+  display: none; width: 0.8em; height: 0.8em; margin-right: 0.5em; vertical-align: -0.05em;
+  border: 3px solid rgba(255, 233, 176, 0.3); border-top-color: #ffe9b0; border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+#loading.has-art .spin { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#loading.has-art { z-index: 10; transition: opacity 0.8s; }
+#loading.fade { opacity: 0; pointer-events: none; }
+
+/* ---- выбор языка (js/i18n.js): крупные кнопки с флажками на титульном экране и в паузе ---- */
+.lang { display: flex; gap: 12px; justify-content: center; margin-bottom: 14px; direction: ltr; }
+.lang button {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 18px; padding: 8px 18px 8px 12px; text-transform: none;
+  background: rgba(20, 14, 6, 0.75); color: #ffe9b0; border: 3px solid #ffd23f; box-shadow: 3px 3px 0 #000;
+}
+.lang button svg { width: 34px; height: 23px; border: 1px solid rgba(0, 0, 0, 0.5); border-radius: 2px; flex: none; }
+.lang button:hover { background: rgba(60, 42, 10, 0.9); }
+.lang button.on { background: #ffd23f; color: #000; }
+#title .lang button { font-size: 20px; padding: 10px 22px 10px 14px; }
+#title .lang button svg { width: 40px; height: 27px; }
+#pause .lang { margin: 10px 0 4px; }
+/* иврит: шрифт с хорошей кириллицей и ивритом */
+html[lang="he"] body { font-family: "Segoe UI", "Arial Hebrew", Arial, "Noto Sans Hebrew", sans-serif; }
+#game { direction: ltr; }
+#loading.has-art .status .sub + .sub { margin-top: 2px; font-size: clamp(16px, 2.4vw, 24px); }
