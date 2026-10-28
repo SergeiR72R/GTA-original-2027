@@ -54,6 +54,37 @@
 | 378 | textures/ped_hip_jeans.png | Хипстер: джинсы | — |
 | 379 | textures/ped_hip_skin.png | Хипстер: кожа рук | — |
 | 380 | textures/ped_hip_shoes.png | Хипстер: ткань кед | — |
+| 381 | textures/ped_civ1_face.png | Прохожая: лицо анфас (на всю голову спереди) | — |
+| 382 | textures/ped_civ2_face.png | Харедим: лицо анфас (на всю голову спереди) | — |
+| 383 | textures/ped_civ3_face.png | Солдат: лицо анфас (на всю голову спереди) | — |
+| 384 | textures/ped_civ4_face.png | Пожилой в кипе: лицо анфас (на всю голову спереди) | — |
+| 385 | textures/ped_civ6_face.png | Бабушка с тележкой: лицо анфас (на всю голову спереди) | — |
+| 386 | textures/ped_civ7_face.png | Подросток: лицо анфас (на всю голову спереди) | — |
+| 387 | textures/ped_civ8_face.png | Женщина в тихеле: лицо анфас (на всю голову спереди) | — |
+| 388 | textures/ped_civ9_face.png | Офисный работник: лицо анфас (на всю голову спереди) | — |
+| 389 | textures/ped_civ10_face.png | Пляжник: лицо анфас (на всю голову спереди) | — |
+| 390 | textures/ped_civ11_face.png | Женщина в хиджабе: лицо анфас (на всю голову спереди) | — |
+| 391 | textures/ped_civ12_face.png | Турист: лицо анфас (на всю голову спереди) | — |
+| 392 | textures/ped_w1_dress.png | Прохожая: ткань летнего платья | — |
+| 393 | textures/ped_black_suit.png | Харедим: чёрная ткань костюма и лапсердака | — |
+| 394 | textures/ped_idf_uniform.png | Солдат: оливковая форма | — |
+| 395 | textures/ped_check_shirt.png | Пожилой: рубашка в клетку | — |
+| 396 | textures/ped_trousers_grey.png | Пожилой: серые брюки | — |
+| 397 | textures/ped_cardigan.png | Бабушка: вязаная кофта | — |
+| 398 | textures/ped_skirt_tweed.png | Бабушка: юбка | — |
+| 399 | textures/ped_tshirt_orange.png | Подросток: оранжевая футболка | — |
+| 400 | textures/ped_shorts_dark.png | Подросток: тёмные шорты | — |
+| 401 | textures/ped_blouse_rust.png | Женщина в тихеле: блузка | — |
+| 402 | textures/ped_long_skirt_denim.png | Женщина в тихеле: длинная джинсовая юбка | — |
+| 403 | textures/ped_tichel.png | Женщина в тихеле: платок | — |
+| 404 | textures/ped_shirt_lightblue.png | Офисный работник: голубая рубашка | — |
+| 405 | textures/ped_trousers_navy.png | Офисный работник: синие брюки | — |
+| 406 | textures/ped_swim_shorts.png | Пляжник: плавательные шорты | — |
+| 407 | textures/ped_coat_khaki.png | Женщина в хиджабе: пальто | — |
+| 408 | textures/ped_hijab.png | Женщина в хиджабе: хиджаб | — |
+| 409 | textures/ped_hawaiian.png | Турист: гавайская рубашка | — |
+| 410 | textures/ped_shorts_khaki.png | Турист: шорты | — |
+| 411 | textures/ped_straw.png | Турист: соломенная панама | — |
 
 ## Какие текстуры у каких моделей
 

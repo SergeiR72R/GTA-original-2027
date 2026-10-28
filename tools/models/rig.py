@@ -72,6 +72,41 @@ def cyc(t, k=1):
     return math.cos(2 * math.pi * k * t), math.sin(2 * math.pi * k * t)
 
 
+# как держит руки: cup — стакан в правой (хипстер), free — обе машут, carry — несёт
+# сумки (машут чуть-чуть), push — толкает перед собой (тележка, самокат), phone —
+# смотрит в телефон в правой руке, map — держит карту обеими руками перед собой
+STYLE = 'cup'
+
+
+def arms(R, c, run=False):
+    """Руки по стилю STYLE; c — косинус фазы шага."""
+    k = 2.0 if run else 1.0
+    if STYLE == 'cup':
+        return
+    if STYLE in ('free', 'carry'):
+        a = (20 if STYLE == 'free' else 8) * k
+        R['upperarm.L'] = rot('X', -a * c) @ rot('Y', 6 + 4 * (run))
+        R['upperarm.R'] = rot('X', a * c) @ rot('Y', -6 - 4 * (run))
+        R['forearm.L'] = rot('X', (85 if run else 18 - 8 * c) if STYLE == 'free' else 6)
+        R['forearm.R'] = rot('X', (85 if run else 18 + 8 * c) if STYLE == 'free' else 6)
+        R.pop('hand.R', None)
+    elif STYLE in ('push', 'map'):
+        up, fo = (38, 40) if STYLE == 'push' else (28, 82)
+        for sd, sg in (('L', 1), ('R', -1)):
+            R['upperarm.' + sd] = rot('X', up + 3 * c * sg) @ rot('Y', sg * (4 if STYLE == 'push' else 10))
+            R['forearm.' + sd] = rot('X', fo)
+        R.pop('hand.R', None)
+        if STYLE == 'map':
+            R['head'] = rot('X', 14)
+    elif STYLE == 'phone':
+        R['upperarm.L'] = rot('X', -18 * k * c) @ rot('Y', 6)
+        R['forearm.L'] = rot('X', 85 if run else 18 - 8 * c)
+        R['upperarm.R'] = rot('X', 22) @ rot('Y', -12)
+        R['forearm.R'] = rot('X', 98)
+        R['hand.R'] = rot('X', -30)
+        R['head'] = rot('X', 18)
+
+
 def walk(t):
     c, s = cyc(t)
     R = {}
@@ -89,6 +124,7 @@ def walk(t):
     R['spine'] = rot('X', -3) @ rot('Z', -4 * c)
     R['chest'] = rot('Z', -5 * c)
     R['head'] = rot('Z', 3 * c) @ rot('X', 2)
+    arms(R, c)
     return R, (0, 0, -0.025 * math.cos(4 * math.pi * t))
 
 
@@ -109,6 +145,9 @@ def run(t):
     R['spine'] = rot('X', -10) @ rot('Z', -6 * c)
     R['chest'] = rot('X', -4) @ rot('Z', -8 * c)
     R['head'] = rot('X', 10) @ rot('Z', 5 * c)
+    arms(R, c, run=STYLE in ('free', 'carry', 'phone'))
+    if STYLE in ('push', 'map'):
+        arms(R, c)
     return R, (0, 0, -0.05 + 0.05 * abs(math.sin(2 * math.pi * t)))
 
 
@@ -120,6 +159,14 @@ def idle(t):
          'upperarm.L': rot('X', 4) @ rot('Y', 5), 'forearm.L': rot('X', 10),
          'upperarm.R': rot('X', 10 + 38 * sip) @ rot('Y', -6 - 14 * sip), 'forearm.R': rot('X', 72 + 62 * sip), 'hand.R': rot('X', -72 - 30 * sip),
          'thigh.L': rot('Y', 3), 'thigh.R': rot('Y', -3)}
+    if STYLE != 'cup':
+        arms(R, 0.0)
+        R['chest'] = rot('X', 1.5 * b)
+        if STYLE in ('free', 'carry'):
+            R['upperarm.L'] = rot('X', 2) @ rot('Y', 5); R['upperarm.R'] = rot('X', 2) @ rot('Y', -5)
+            R['forearm.L'] = R['forearm.R'] = rot('X', 8)
+        if STYLE not in ('phone', 'map'):
+            R['head'] = rot('X', 2 * b) @ rot('Z', 10 * math.sin(2 * math.pi * t))   # оглядывается
     return R, (0, 0, 0)
 
 

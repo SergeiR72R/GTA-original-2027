@@ -30,7 +30,9 @@ const TINTED = { bauhaus: 1, florentin: 1, concrete: 1, nevetzedek: 1, cityhall:
 const MODEL_HS = 11;
 // 3D-пешеходы: сгенерированный спрайт → модель из Blender (assets/models/ped.js);
 // PED_M — единиц 3D на метр (люди крупнее настоящих — читаются сверху)
-const PED_MODELS = { civ_5: 'ped_hipster' };
+// прохожие: сгенерированный спрайт → 3D-модель (tools/models/people.py, assets/models/peds.js)
+const PED_MODELS = {};
+for (let i = 1; i <= 12; i++) PED_MODELS['civ_' + i] = 'ped_civ' + i;
 // 3D-машины — только при камере с наклоном (V); строго сверху остаются картинки.
 // Модели со Sketchfab (CC-BY, Daniel Zhabotinsky; tools/models/sketchfab_car.py,
 // авторы — assets/models/CREDITS.txt). Тип машины → модель
@@ -1163,20 +1165,26 @@ const R3 = {
     if (C[key] !== undefined) return C[key];
     const d = window.GEN_MODELS && GEN_MODELS[key];
     if (!d || !d.bones) return (C[key] = null);
-    const f32 = (s) => { const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return new Float32Array(u.buffer); };
+    const bin = (s) => { const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u.buffer; };
+    const f32 = (s) => new Float32Array(bin(s));
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(f32(d.pos), 3));
-    g.setAttribute('normal', new THREE.BufferAttribute(f32(d.nor), 3));
     g.setAttribute('uv', new THREE.BufferAttribute(f32(d.uv), 2));
-    // у каждой вершины две кости с весами: суставы гнутся плавно
-    const si2 = f32(d.si), sw2 = f32(d.sw), n = si2.length / 2;
+    // нормали — байт на координату; у каждой вершины две кости: индексы байтами, вес первой — байт
+    const n8 = new Int8Array(bin(d.nor8)), nor = new Float32Array(n8.length);
+    for (let i = 0; i < n8.length; i++) nor[i] = n8[i] / 127;
+    g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+    const s8 = new Uint8Array(bin(d.si8)), w8 = new Uint8Array(bin(d.sw8)), n = w8.length;
     const si = new Uint16Array(n * 4), sw = new Float32Array(n * 4);
-    for (let i = 0; i < n; i++) { si[i * 4] = si2[i * 2]; si[i * 4 + 1] = si2[i * 2 + 1]; sw[i * 4] = sw2[i * 2]; sw[i * 4 + 1] = sw2[i * 2 + 1]; }
+    for (let i = 0; i < n; i++) { si[i * 4] = s8[i * 2]; si[i * 4 + 1] = s8[i * 2 + 1]; sw[i * 4] = w8[i] / 255; sw[i * 4 + 1] = 1 - w8[i] / 255; }
     g.setAttribute('skinIndex', new THREE.BufferAttribute(si, 4));
     g.setAttribute('skinWeight', new THREE.BufferAttribute(sw, 4));
+    g.setIndex(new THREE.BufferAttribute(new Uint16Array(bin(d.idx)), 1));
     g.computeBoundingSphere();
+    // анимации общие на стиль рук (ped_anims_<стиль>)
+    const A = (GEN_MODELS['ped_anims_' + d.style] || {}).anims || {};
     const anims = {};
-    for (const k in d.anims) anims[k] = { n: d.anims[k].frames, q: f32(d.anims[k].q), p: f32(d.anims[k].p) };
+    for (const k in A) anims[k] = { n: A[k].frames, q: f32(A[k].q), p: f32(A[k].p) };
     // текстура-атлас (запечена в Blender) — внутри модели картинкой
     const im = new Image(); im.src = d.tex;
     const map = this.tex(new THREE.Texture(im)); im.onload = () => { map.needsUpdate = true; };
@@ -1193,7 +1201,7 @@ const R3 = {
     const m = new THREE.SkinnedMesh(M.g, M.mat);
     m.add(bones[0]);
     m.bind(new THREE.Skeleton(bones));
-    m.scale.setScalar(PED_M);
+    m.scale.setScalar(PED_M * (M.d.scale || 1));
     m.castShadow = true;
     this.scene.add(m);
     return { m, M, bones, is3d: true, ph: rand(0, 1), anim: 'idle' };
