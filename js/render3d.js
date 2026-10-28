@@ -31,9 +31,10 @@ const MODEL_HS = 11;
 // 3D-пешеходы: сгенерированный спрайт → модель из Blender (assets/models/ped.js);
 // PED_M — единиц 3D на метр (люди крупнее настоящих — читаются сверху)
 const PED_MODELS = { civ_5: 'ped_hipster' };
-// 3D-машины из Blender (tools/models/car.py) — только при камере с наклоном (V);
-// строго сверху остаются картинки. Тип машины → модель
-const CAR_MODELS = { sedan: 'car_sedan' };
+// 3D-машины — только при камере с наклоном (V); строго сверху остаются картинки.
+// Модели со Sketchfab (CC-BY, Daniel Zhabotinsky; tools/models/sketchfab_car.py,
+// авторы — assets/models/CREDITS.txt). Тип машины → модель
+const CAR_MODELS = { sedan: 'car_kiri86', taxi: 'car_canyon_taxi', police: 'car_fairheaven_cop' };
 const PED_M = 28;
 const FOV = 55; // перспектива сверху: стены видны у краёв экрана, как в GTA2
 const TILT = 0.58; // наклон камеры (≈33°), чтобы видеть фасады; клавиша V — строго сверху, как в GTA2
@@ -1066,15 +1067,15 @@ const R3 = {
 
   dropCar(car, o) {
     this.scene.remove(o.grp);
-    if (o.is3d) { this.cars.delete(car); return; } // сетка и материалы — общие
+    if (o.is3d) { if (o.lr) { o.lr.geometry.dispose(); o.lb.geometry.dispose(); o.lr.material.dispose(); o.lb.material.dispose(); o.glowR.geometry.dispose(); o.glowB.geometry.dispose(); } o.head.geometry.dispose(); this.cars.delete(car); return; } // сетка и материалы модели — общие
     o.grp.traverse((m) => { if (m.geometry) m.geometry.dispose(); });
     o.top.map.dispose(); o.top.dispose(); o.side.dispose();
     if (o.lr) { o.lr.material.dispose(); o.lb.material.dispose(); }
     this.cars.delete(car);
   },
 
-  // 3D-машина из Blender (tools/models/car.py): треугольники по группам — краска
-  // (цвет задаёт игра), остальное, фары, фонари (светятся ночью); текстура-атлас
+  // 3D-машина: треугольники по группам — краска (у моделей без своей раскраски
+  // цвет задаёт игра), остальное, фары, фонари (светятся ночью); текстура-атлас
   // запечена в Blender и лежит в модели картинкой
   carModel(key) {
     if (!key) return null;
@@ -1114,8 +1115,19 @@ const R3 = {
     const head = new THREE.Mesh(new THREE.PlaneGeometry(PW, PL).rotateX(-Math.PI / 2), this.headMat(off, PW, PL));
     head.position.set(0, 1.5, -car.l / 2 - PL / 2 + 2);
     grp.add(head);
+    const o = { grp, mesh, head, M, is3d: true };
+    // мигалка: вспышки над крышей и отсвет на асфальте
+    if (car.police) {
+      const y = M.d.h * mesh.scale.y + 2, z = -car.l * 0.04;
+      o.lr = new THREE.Mesh(new THREE.BoxGeometry(car.w * 0.3, 3, 5), new THREE.MeshBasicMaterial({ color: 0xff2a2a }));
+      o.lb = new THREE.Mesh(new THREE.BoxGeometry(car.w * 0.3, 3, 5), new THREE.MeshBasicMaterial({ color: 0x3f8cff }));
+      o.lr.position.set(-car.w * 0.17, y, z); o.lb.position.set(car.w * 0.17, y, z);
+      o.glowR = new THREE.Mesh(new THREE.PlaneGeometry(120, 120).rotateX(-Math.PI / 2), this.mats.sirenR); o.glowR.position.set(-20, 2, z);
+      o.glowB = new THREE.Mesh(new THREE.PlaneGeometry(120, 120).rotateX(-Math.PI / 2), this.mats.sirenB); o.glowB.position.set(20, 2, z);
+      grp.add(o.lr, o.lb, o.glowR, o.glowB);
+    }
     this.scene.add(grp);
-    return { grp, mesh, head, M, is3d: true };
+    return o;
   },
 
   syncCar3D(o, car, night) {
@@ -1125,7 +1137,7 @@ const R3 = {
     if (car.genKey) { const b = Vehicles.bodyColor(car.genKey); if (b) hex = '#' + b.slice(0, 3).map((v) => Math.round(v).toString(16).padStart(2, '0')).join(''); }
     const dead = car.dead && car.burn < 0;
     const m = o.mesh.material;
-    m[0] = dead ? M.burnt : this.carPaint(M, car.stage >= 2 ? '#' + COL(hex).multiplyScalar(0.72).getHexString() : hex);
+    m[0] = dead ? M.burnt : !M.d.tint ? M.rest : this.carPaint(M, car.stage >= 2 ? '#' + COL(hex).multiplyScalar(0.72).getHexString() : hex);
     m[1] = dead ? M.burnt : M.rest;
     m[2] = dead ? M.burnt : M.lampF; m[3] = dead ? M.burnt : M.lampR;
     const live = !!car.driver && !car.dead;
@@ -1134,6 +1146,12 @@ const R3 = {
     o.grp.position.set(car.x, P ? P.z : 0, car.y);
     o.grp.rotation.set(P ? P.pitch : 0, -car.a, P ? P.roll : 0, 'YXZ');
     o.head.visible = night > 0.05 && live;
+    if (o.lr) {
+      const on = Math.floor(World.time * 6) % 2 === 0, siren = !car.dead && car.siren;
+      o.lr.visible = o.lb.visible = siren;
+      o.lr.material.color.setHex(on ? 0xff2a2a : 0x551010); o.lb.material.color.setHex(!on ? 0x3f8cff : 0x10204a);
+      o.glowR.visible = siren && on; o.glowB.visible = siren && !on;
+    }
   },
 
   // ---------------------------------------------------------------- люди

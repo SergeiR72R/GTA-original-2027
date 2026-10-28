@@ -247,7 +247,9 @@
 * Машины объёмные, со спрайтом сверху и тенью; люди — спрайты.
 * Камера как в GTA2: строго сверху, пешком близко (около 9 клеток по
   высоте кадра), в машине выше и поднимается с ростом скорости, смещается
-  вперёд по ходу движения. **V** — вид с наклоном, чтобы видеть фасады.
+  вперёд по ходу движения. **V** — вид с наклоном, чтобы видеть фасады; в нём
+  седаны, такси и полиция — объёмные 3D-модели (а не картинки), прохожие-хипстеры
+  ходят 3D-фигурами с анимацией. Строго сверху — снова картинки, как в GTA2.
 * Масштаб как в GTA2: машина занимает почти всю полосу.
 * Если WebGL недоступен (или адрес открыт с `?2d`), игра рисуется в 2D.
 
@@ -429,6 +431,10 @@ tools/build-asset-docs.js — собирает PROMPTS.md и CLAUDE_CHROME_ASSET
 * [Top-down Shooter](https://kenney.nl/assets/top-down-shooter)
 * [Impact Sounds](https://kenney.nl/assets/impact-sounds)
 * [Interface Sounds](https://kenney.nl/assets/interface-sounds)
+
+3D-машины для камеры с наклоном — модели Daniel Zhabotinsky со Sketchfab
+(«Kiri '86», «Canyon '75 Taxi», «Fairheaven LT '80 Cop Cruiser», лицензия
+CC-BY 4.0, упрощены для игры), подробности — `assets/models/CREDITS.txt`.
 
 Тексты лицензий лежат в `assets/LICENSE-Kenney-*.txt`. 3D-движок —
 [Three.js](https://threejs.org) r149 (лицензия MIT, `vendor/LICENSE-three.txt`).
