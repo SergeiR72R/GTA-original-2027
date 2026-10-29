@@ -598,6 +598,7 @@ const R3 = {
         im.setMatrixAt(i, mx);
       });
       im.castShadow = true; im.receiveShadow = true;
+      im.frustumCulled = true; // в r149 у InstancedMesh отсечение выключено — включаем, сфера участка задана выше
       this.scene.add(im);
     }
   },
